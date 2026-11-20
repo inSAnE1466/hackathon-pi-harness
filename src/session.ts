@@ -16,6 +16,7 @@ import {
 import { openDurableObjectSqliteStorage } from "@earendil-works/pi-durable/storage/sqlite/cloudflare";
 import { normalizeUsername } from "./identity.ts";
 import { createChatHarnessOptions } from "./chat.ts";
+import { AuditLog } from "./audit.ts";
 import {
   InvalidClientCommand,
   MAX_CLIENT_FRAME_CHARACTERS,
@@ -158,9 +159,11 @@ export class Session extends DurableObject<Env> {
   readonly #typingConnections = new Set<WebSocket>();
   readonly #connectionOperations = new KeyedSerialQueue<WebSocket>();
   #alarmWrites: Promise<void> = Promise.resolve();
+  readonly #audit: AuditLog;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
+    this.#audit = new AuditLog(ctx.storage.sql);
     void ctx.blockConcurrencyWhile(() => this.#initialize());
   }
 
@@ -174,7 +177,7 @@ export class Session extends DurableObject<Env> {
     const harness = await Harness.open(
       storage,
       {
-        ...createChatHarnessOptions(),
+        ...createChatHarnessOptions((decision) => this.#audit.record(decision)),
         // `kind` says what happened, e.g. `task_faulted` or `task_interrupted`, with the task and extension.
         onReport: ({ error, ...report }) =>
           reportError("Harness reported a failure", error, report),
@@ -226,6 +229,9 @@ export class Session extends DurableObject<Env> {
   }
 
   override async fetch(request: Request): Promise<Response> {
+    if (new URL(request.url).pathname.endsWith("/audit")) {
+      return json({ decisions: this.#audit.list() }, 200);
+    }
     if (request.method !== "GET") {
       return json({ error: "Method not allowed" }, 405, { Allow: "GET" });
     }

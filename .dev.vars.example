@@ -1,2 +1,3 @@
 BRANE_BASE_URL=https://brane.ai-z.io/api/v1
 BRANE_API_KEY=
+TEAM_PASSWORD=

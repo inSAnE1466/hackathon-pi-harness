@@ -23,12 +23,20 @@ runtime where calling an HTTP endpoint is one `fetch`.
 The flow is in [routing](routing.md#brane-first): BRANE first, then `decide` on BRANE's protected text, then
 `route()`, then one of five routes, with `approve` closing every claim. Everything writes protocol rows.
 
+## The audit log
+
+`src/audit.ts` writes one row per BRANE decision (status, route, action, redaction, categories, semantic matches,
+refusal rule, resolved model) to an `audit_decisions` table in the session Durable Object's SQLite, beside Pi's own
+tables. `GET /api/sessions/:id/audit` serves it to the audit view. It is never written into a conversation, so no model
+reads it, and it holds categories, never prompt text.
+
 ## The gate is the transport
 
 The one rule that wins the security tests: **the agent has no model transport except the BRANE one.**
 
-- `src/chat.ts` registers exactly one provider, `brane`, whose `baseUrl` is the BRANE endpoint. BRANE is
-  OpenAI-compatible and carries both cloud and local models ([brane](brane.md#endpoints)). The upstream
+- `src/brane.ts` is the only model provider. Its fetch reaches BRANE's origin only, records each decision, and fails
+  when a response carries no `X-Brane-Routed-To` header. A 422 refusal ends the turn as a failed model call. Retries
+  are off, so a failure is never resent elsewhere. `src/chat.ts` registers it as the only provider. The upstream
   `openaiProvider()` and any direct OpenAI key are removed. A bypass is then not a missed check but a missing
   network path.
 - The BRANE provider throws on any non-success from BRANE (timeout, 5xx, malformed verdict, a verdict of `block`).

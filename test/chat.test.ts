@@ -446,7 +446,7 @@ describe("chat application", () => {
         entries: [],
         docs: {
           "pi.agent": {
-            model: { provider: "openai", modelId: "gpt-6-luna" },
+            model: { provider: "brane", modelId: "openrouter:anthropic/claude-haiku-5.5" },
             thinkingLevel: "off",
             tools: ["get_weather", "schedule", "search_history"],
           },

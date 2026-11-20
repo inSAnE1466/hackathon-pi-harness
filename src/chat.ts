@@ -1,5 +1,5 @@
+import { env } from "cloudflare:workers";
 import { createModels } from "@earendil-works/pi-ai/models";
-import { openaiProvider } from "@earendil-works/pi-ai/providers/openai";
 import {
   configure,
   createRegistry,
@@ -10,12 +10,14 @@ import {
 import { DeliverScheduledInstruction } from "./schedule.ts";
 import { conversationSearchExtension, searchHistoryTool } from "./search.ts";
 import { getWeatherTool, scheduleTool } from "./tools.ts";
+import { BRANE_CLOUD_MODEL, BRANE_PROVIDER, braneProvider, type BraneDecision } from "./brane.ts";
 
-const models = createModels();
-models.setProvider(openaiProvider());
-
-/** Application-owned, platform-independent agent composition. */
-export function createChatHarnessOptions(): HarnessOptions {
+/** Application-owned agent composition. BRANE is the only model provider; there is no other route to a model. */
+export function createChatHarnessOptions(
+  onDecision: (decision: BraneDecision) => void = () => {},
+): HarnessOptions {
+  const models = createModels();
+  models.setProvider(braneProvider(env, onDecision));
   const chatExtension = defineExtension({
     name: "chat",
     tasks: [DeliverScheduledInstruction],
@@ -39,7 +41,7 @@ export function createChatHarnessOptions(): HarnessOptions {
   registry.install(chatExtension);
   registry.install(conversationSearchExtension);
   const defaultAgent = {
-    model: { provider: "openai", modelId: "gpt-6-luna" },
+    model: { provider: BRANE_PROVIDER, modelId: BRANE_CLOUD_MODEL },
     thinkingLevel: "off" as const,
     tools: [getWeatherTool, scheduleTool, searchHistoryTool],
   };

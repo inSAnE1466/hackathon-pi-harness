@@ -46,6 +46,13 @@ node scripts/brane-policy.mjs diff    # compare the file with the live departmen
 node scripts/brane-policy.mjs apply   # save the file to the live department
 ```
 
+## Probe one input
+
+```sh
+node scripts/brane-probe.mjs "any synthetic text"          # route, detections, semantic matches, what leaves
+node scripts/brane-probe.mjs --live "any synthetic text"   # also the model's answer
+```
+
 ## The organizers' tests
 
 ```sh
@@ -66,15 +73,26 @@ pnpm dev                              # http://localhost:5173
 
 The demo runs from a laptop. Deploy only when the jury needs a link.
 
-## Deploy (when needed)
+## Deployed
 
-The Worker deploys to the existing Cloudflare account. A shared team password stored as the `TEAM_PASSWORD` secret
-guards every route; the Worker sets a cookie after sign-in. The password check is not built yet.
+**https://claims-harness.fred-755.workers.dev**, behind a shared team password (ask Frederick; never commit it).
+The Worker checks `TEAM_PASSWORD` on every route and sets an HttpOnly cookie after sign-in; without the cookie, pages
+show the sign-in form and `/api/*` returns 401. Local dev leaves `TEAM_PASSWORD` unset and skips the check.
+
+Redeploy and set secrets from `.dev.vars` without printing them:
 
 ```sh
-pnpm exec wrangler secret put BRANE_API_KEY
-pnpm exec wrangler secret put TEAM_PASSWORD
 pnpm deploy
+for k in BRANE_BASE_URL BRANE_API_KEY TEAM_PASSWORD; do
+  grep "^$k=" .dev.vars | cut -d= -f2- | tr -d '\n' | pnpm exec wrangler secret put $k
+done
+```
+
+Drive it like a user and read its audit log:
+
+```sh
+node scripts/drive.mjs https://claims-harness.fred-755.workers.dev "prompt" --password <team password>
+node scripts/drive.mjs http://localhost:5173 "prompt"
 ```
 
 ## Inside BRANE's own system
