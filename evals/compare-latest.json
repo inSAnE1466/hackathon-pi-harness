@@ -24,25 +24,33 @@
     "g30"
   ],
   "summary": {
-    "ours": {
+    "harness": {
+      "claims": 21,
+      "decisions": 63,
+      "correct": 60,
+      "unsafe": 0,
+      "stable": 21,
+      "medianMs": 659
+    },
+    "brane": {
       "claims": 21,
       "decisions": 63,
       "correct": 57,
       "unsafe": 3,
       "stable": 21,
-      "medianMs": 478
+      "medianMs": 474
     },
     "ask-llm": {
       "claims": 21,
       "decisions": 63,
-      "correct": 49,
+      "correct": 50,
       "unsafe": 6,
-      "stable": 18,
-      "medianMs": 1082
+      "stable": 17,
+      "medianMs": 1261
     }
   },
   "perClaim": {
-    "ours": [
+    "harness": [
       {
         "id": "g01",
         "expect": "local",
@@ -50,17 +58,17 @@
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 1183
+            "ms": 1512
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 526
+            "ms": 851
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 554
+            "ms": 967
           }
         ]
       },
@@ -71,17 +79,17 @@
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 527
+            "ms": 978
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 523
+            "ms": 1269
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 488
+            "ms": 1304
           }
         ]
       },
@@ -92,17 +100,17 @@
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 494
+            "ms": 1122
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 493
+            "ms": 744
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 485
+            "ms": 522
           }
         ]
       },
@@ -113,17 +121,17 @@
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 523
+            "ms": 472
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 505
+            "ms": 514
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 482
+            "ms": 551
           }
         ]
       },
@@ -134,17 +142,17 @@
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 497
+            "ms": 672
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 481
+            "ms": 666
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 498
+            "ms": 466
           }
         ]
       },
@@ -155,17 +163,17 @@
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 498
+            "ms": 612
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 476
+            "ms": 684
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 474
+            "ms": 469
           }
         ]
       },
@@ -176,22 +184,612 @@
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 499
+            "ms": 466
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 460
+            "ms": 475
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 470
+            "ms": 455
           }
         ]
       },
       {
         "id": "g08",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 484
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 489
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 538
+          }
+        ]
+      },
+      {
+        "id": "g09",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 466
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 470
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 459
+          }
+        ]
+      },
+      {
+        "id": "g10",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 472
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 458
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 452
+          }
+        ]
+      },
+      {
+        "id": "g11",
+        "expect": "protect",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 481
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 510
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 527
+          }
+        ]
+      },
+      {
+        "id": "g12",
+        "expect": "protect",
+        "decisions": [
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 659
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 469
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 461
+          }
+        ]
+      },
+      {
+        "id": "g13",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 464
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 467
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 468
+          }
+        ]
+      },
+      {
+        "id": "g14",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 457
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 602
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 676
+          }
+        ]
+      },
+      {
+        "id": "g15",
+        "expect": "protect",
+        "decisions": [
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 480
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1894
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1032
+          }
+        ]
+      },
+      {
+        "id": "g16",
+        "expect": "protect",
+        "decisions": [
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1111
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 807
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1320
+          }
+        ]
+      },
+      {
+        "id": "g17",
+        "expect": "protect",
+        "decisions": [
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1099
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 939
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1108
+          }
+        ]
+      },
+      {
+        "id": "g18",
+        "expect": "protect",
+        "decisions": [
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 756
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 751
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 687
+          }
+        ]
+      },
+      {
+        "id": "g19",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 656
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 781
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 540
+          }
+        ]
+      },
+      {
+        "id": "g20",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 446
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 618
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 820
+          }
+        ]
+      },
+      {
+        "id": "g21",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 600
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 436
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 437
+          }
+        ]
+      },
+      {
+        "id": "g22",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 515
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 535
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 586
+          }
+        ]
+      },
+      {
+        "id": "g23",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 606
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 510
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 506
+          }
+        ]
+      },
+      {
+        "id": "g24",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 549
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 603
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 665
+          }
+        ]
+      },
+      {
+        "id": "g25",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 533
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 520
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 533
+          }
+        ]
+      },
+      {
+        "id": "g26",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 517
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 523
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 523
+          }
+        ]
+      },
+      {
+        "id": "g27",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 496
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 495
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 580
+          }
+        ]
+      },
+      {
+        "id": "g28",
+        "expect": "allow",
+        "decisions": [
+          {
+            "decision": "send",
+            "protectedOk": true,
+            "ms": 1905
+          },
+          {
+            "decision": "send",
+            "protectedOk": true,
+            "ms": 876
+          },
+          {
+            "decision": "send",
+            "protectedOk": true,
+            "ms": 1169
+          }
+        ]
+      },
+      {
+        "id": "g29",
+        "expect": "allow",
+        "decisions": [
+          {
+            "decision": "send",
+            "protectedOk": true,
+            "ms": 780
+          },
+          {
+            "decision": "send",
+            "protectedOk": true,
+            "ms": 1580
+          },
+          {
+            "decision": "send",
+            "protectedOk": true,
+            "ms": 1032
+          }
+        ]
+      },
+      {
+        "id": "g30",
+        "expect": "allow",
+        "decisions": [
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 651
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 919
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 882
+          }
+        ]
+      }
+    ],
+    "brane": [
+      {
+        "id": "g01",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 873
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 671
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 520
+          }
+        ]
+      },
+      {
+        "id": "g02",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 479
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 506
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 665
+          }
+        ]
+      },
+      {
+        "id": "g03",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 619
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 495
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 692
+          }
+        ]
+      },
+      {
+        "id": "g04",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 662
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 479
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 464
+          }
+        ]
+      },
+      {
+        "id": "g05",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 465
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 463
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 471
+          }
+        ]
+      },
+      {
+        "id": "g06",
         "expect": "local",
         "decisions": [
           {
@@ -202,602 +800,12 @@
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 473
-          },
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 470
-          }
-        ]
-      },
-      {
-        "id": "g09",
-        "expect": "local",
-        "decisions": [
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 507
-          },
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 474
-          },
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 497
-          }
-        ]
-      },
-      {
-        "id": "g10",
-        "expect": "local",
-        "decisions": [
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 459
-          },
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 478
-          },
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 473
-          }
-        ]
-      },
-      {
-        "id": "g11",
-        "expect": "protect",
-        "decisions": [
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 520
-          },
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 490
-          },
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 498
-          }
-        ]
-      },
-      {
-        "id": "g12",
-        "expect": "protect",
-        "decisions": [
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 467
-          },
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 482
-          },
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 467
-          }
-        ]
-      },
-      {
-        "id": "g13",
-        "expect": "local",
-        "decisions": [
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 469
-          },
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 461
-          },
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 475
-          }
-        ]
-      },
-      {
-        "id": "g14",
-        "expect": "local",
-        "decisions": [
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 466
-          },
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 474
-          },
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 477
-          }
-        ]
-      },
-      {
-        "id": "g15",
-        "expect": "protect",
-        "decisions": [
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
             "ms": 480
           },
           {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 470
-          },
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 484
-          }
-        ]
-      },
-      {
-        "id": "g16",
-        "expect": "protect",
-        "decisions": [
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 499
-          },
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 499
-          },
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 500
-          }
-        ]
-      },
-      {
-        "id": "g17",
-        "expect": "protect",
-        "decisions": [
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 473
-          },
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 480
-          },
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 481
-          }
-        ]
-      },
-      {
-        "id": "g18",
-        "expect": "protect",
-        "decisions": [
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 512
-          },
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 468
-          },
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 473
-          }
-        ]
-      },
-      {
-        "id": "g19",
-        "expect": "refuse",
-        "decisions": [
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 453
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 457
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 451
-          }
-        ]
-      },
-      {
-        "id": "g20",
-        "expect": "refuse",
-        "decisions": [
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 460
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 457
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 462
-          }
-        ]
-      },
-      {
-        "id": "g21",
-        "expect": "refuse",
-        "decisions": [
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 461
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 453
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 438
-          }
-        ]
-      },
-      {
-        "id": "g22",
-        "expect": "refuse",
-        "decisions": [
-          {
-            "decision": "refuse",
+            "decision": "local",
             "protectedOk": true,
             "ms": 472
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 453
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 465
-          }
-        ]
-      },
-      {
-        "id": "g23",
-        "expect": "refuse",
-        "decisions": [
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 547
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 531
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 537
-          }
-        ]
-      },
-      {
-        "id": "g24",
-        "expect": "refuse",
-        "decisions": [
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 553
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 556
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 614
-          }
-        ]
-      },
-      {
-        "id": "g25",
-        "expect": "refuse",
-        "decisions": [
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 578
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 589
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 541
-          }
-        ]
-      },
-      {
-        "id": "g26",
-        "expect": "refuse",
-        "decisions": [
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 526
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 539
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 524
-          }
-        ]
-      },
-      {
-        "id": "g27",
-        "expect": "refuse",
-        "decisions": [
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 502
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 509
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 505
-          }
-        ]
-      },
-      {
-        "id": "g28",
-        "expect": "allow",
-        "decisions": [
-          {
-            "decision": "send",
-            "protectedOk": true,
-            "ms": 458
-          },
-          {
-            "decision": "send",
-            "protectedOk": true,
-            "ms": 460
-          },
-          {
-            "decision": "send",
-            "protectedOk": true,
-            "ms": 454
-          }
-        ]
-      },
-      {
-        "id": "g29",
-        "expect": "allow",
-        "decisions": [
-          {
-            "decision": "send",
-            "protectedOk": true,
-            "ms": 448
-          },
-          {
-            "decision": "send",
-            "protectedOk": true,
-            "ms": 456
-          },
-          {
-            "decision": "send",
-            "protectedOk": true,
-            "ms": 445
-          }
-        ]
-      },
-      {
-        "id": "g30",
-        "expect": "allow",
-        "decisions": [
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 456
-          },
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 458
-          },
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 454
-          }
-        ]
-      }
-    ],
-    "ask-llm": [
-      {
-        "id": "g01",
-        "expect": "local",
-        "decisions": [
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 1473
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 1122
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 1020
-          }
-        ]
-      },
-      {
-        "id": "g02",
-        "expect": "local",
-        "decisions": [
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 1059
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 887
-          },
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 1050
-          }
-        ]
-      },
-      {
-        "id": "g03",
-        "expect": "local",
-        "decisions": [
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 1051
-          },
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 1068
-          },
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 948
-          }
-        ]
-      },
-      {
-        "id": "g04",
-        "expect": "local",
-        "decisions": [
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 1133
-          },
-          {
-            "decision": "refuse",
-            "protectedOk": true,
-            "ms": 1047
-          },
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 5450
-          }
-        ]
-      },
-      {
-        "id": "g05",
-        "expect": "local",
-        "decisions": [
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 1176
-          },
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 993
-          },
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 1027
-          }
-        ]
-      },
-      {
-        "id": "g06",
-        "expect": "local",
-        "decisions": [
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 1179
-          },
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 1020
-          },
-          {
-            "decision": "local",
-            "protectedOk": true,
-            "ms": 1072
           }
         ]
       },
@@ -808,17 +816,17 @@
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 1082
+            "ms": 464
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 1036
+            "ms": 478
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 1667
+            "ms": 464
           }
         ]
       },
@@ -829,17 +837,17 @@
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 1260
+            "ms": 468
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 1671
+            "ms": 474
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 1297
+            "ms": 469
           }
         ]
       },
@@ -850,17 +858,17 @@
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 1687
+            "ms": 457
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 1080
+            "ms": 543
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 1093
+            "ms": 459
           }
         ]
       },
@@ -871,17 +879,17 @@
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 1079
+            "ms": 496
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 1263
+            "ms": 457
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 1500
+            "ms": 541
           }
         ]
       },
@@ -892,17 +900,17 @@
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1041
+            "ms": 588
           },
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1123
+            "ms": 477
           },
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1084
+            "ms": 485
           }
         ]
       },
@@ -913,17 +921,17 @@
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1114
+            "ms": 464
           },
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 990
+            "ms": 463
           },
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1202
+            "ms": 479
           }
         ]
       },
@@ -932,19 +940,19 @@
         "expect": "local",
         "decisions": [
           {
-            "decision": "pseudonymise",
+            "decision": "local",
             "protectedOk": true,
-            "ms": 1003
+            "ms": 472
           },
           {
-            "decision": "pseudonymise",
+            "decision": "local",
             "protectedOk": true,
-            "ms": 1191
+            "ms": 451
           },
           {
-            "decision": "pseudonymise",
+            "decision": "local",
             "protectedOk": true,
-            "ms": 1102
+            "ms": 529
           }
         ]
       },
@@ -955,17 +963,17 @@
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1074
+            "ms": 459
           },
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1040
+            "ms": 525
           },
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1050
+            "ms": 606
           }
         ]
       },
@@ -976,17 +984,17 @@
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 992
+            "ms": 465
           },
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 918
+            "ms": 465
           },
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1052
+            "ms": 460
           }
         ]
       },
@@ -997,17 +1005,17 @@
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1204
+            "ms": 494
           },
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1133
+            "ms": 488
           },
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1612
+            "ms": 491
           }
         ]
       },
@@ -1018,17 +1026,17 @@
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1081
+            "ms": 472
           },
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1004
+            "ms": 473
           },
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1743
+            "ms": 472
           }
         ]
       },
@@ -1039,17 +1047,649 @@
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1496
+            "ms": 458
           },
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 954
+            "ms": 477
           },
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 965
+            "ms": 473
+          }
+        ]
+      },
+      {
+        "id": "g19",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 449
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 445
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 560
+          }
+        ]
+      },
+      {
+        "id": "g20",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 592
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 641
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 602
+          }
+        ]
+      },
+      {
+        "id": "g21",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 615
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 469
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 712
+          }
+        ]
+      },
+      {
+        "id": "g22",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 480
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 449
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 534
+          }
+        ]
+      },
+      {
+        "id": "g23",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 617
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 636
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 544
+          }
+        ]
+      },
+      {
+        "id": "g24",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 683
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 591
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 697
+          }
+        ]
+      },
+      {
+        "id": "g25",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 443
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 502
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 461
+          }
+        ]
+      },
+      {
+        "id": "g26",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 499
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 482
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 480
+          }
+        ]
+      },
+      {
+        "id": "g27",
+        "expect": "refuse",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 546
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 627
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 644
+          }
+        ]
+      },
+      {
+        "id": "g28",
+        "expect": "allow",
+        "decisions": [
+          {
+            "decision": "send",
+            "protectedOk": true,
+            "ms": 518
+          },
+          {
+            "decision": "send",
+            "protectedOk": true,
+            "ms": 463
+          },
+          {
+            "decision": "send",
+            "protectedOk": true,
+            "ms": 602
+          }
+        ]
+      },
+      {
+        "id": "g29",
+        "expect": "allow",
+        "decisions": [
+          {
+            "decision": "send",
+            "protectedOk": true,
+            "ms": 443
+          },
+          {
+            "decision": "send",
+            "protectedOk": true,
+            "ms": 494
+          },
+          {
+            "decision": "send",
+            "protectedOk": true,
+            "ms": 485
+          }
+        ]
+      },
+      {
+        "id": "g30",
+        "expect": "allow",
+        "decisions": [
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 466
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 446
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 445
+          }
+        ]
+      }
+    ],
+    "ask-llm": [
+      {
+        "id": "g01",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 1000
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 2302
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 2244
+          }
+        ]
+      },
+      {
+        "id": "g02",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 2192
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 1511
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 2252
+          }
+        ]
+      },
+      {
+        "id": "g03",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 915
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 1062
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 1617
+          }
+        ]
+      },
+      {
+        "id": "g04",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 1474
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 1809
+          },
+          {
+            "decision": "refuse",
+            "protectedOk": true,
+            "ms": 914
+          }
+        ]
+      },
+      {
+        "id": "g05",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 969
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 1085
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 941
+          }
+        ]
+      },
+      {
+        "id": "g06",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 1106
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 886
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 1229
+          }
+        ]
+      },
+      {
+        "id": "g07",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 1227
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 914
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 996
+          }
+        ]
+      },
+      {
+        "id": "g08",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 1808
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 1632
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 2080
+          }
+        ]
+      },
+      {
+        "id": "g09",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 2616
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 1861
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 1529
+          }
+        ]
+      },
+      {
+        "id": "g10",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 1056
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 1544
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 1261
+          }
+        ]
+      },
+      {
+        "id": "g11",
+        "expect": "protect",
+        "decisions": [
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1240
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1217
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1092
+          }
+        ]
+      },
+      {
+        "id": "g12",
+        "expect": "protect",
+        "decisions": [
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1498
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 976
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 948
+          }
+        ]
+      },
+      {
+        "id": "g13",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1087
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 956
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 915
+          }
+        ]
+      },
+      {
+        "id": "g14",
+        "expect": "local",
+        "decisions": [
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1636
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 2286
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1592
+          }
+        ]
+      },
+      {
+        "id": "g15",
+        "expect": "protect",
+        "decisions": [
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1645
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 2473
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1396
+          }
+        ]
+      },
+      {
+        "id": "g16",
+        "expect": "protect",
+        "decisions": [
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 2336
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1547
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1272
+          }
+        ]
+      },
+      {
+        "id": "g17",
+        "expect": "protect",
+        "decisions": [
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1331
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1067
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1377
+          }
+        ]
+      },
+      {
+        "id": "g18",
+        "expect": "protect",
+        "decisions": [
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 887
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1312
+          },
+          {
+            "decision": "pseudonymise",
+            "protectedOk": true,
+            "ms": 1392
           }
         ]
       },
@@ -1222,17 +1862,17 @@
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 1682
+            "ms": 1828
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 1234
+            "ms": 1243
           },
           {
             "decision": "local",
             "protectedOk": true,
-            "ms": 1182
+            "ms": 1005
           }
         ]
       },
@@ -1241,19 +1881,19 @@
         "expect": "allow",
         "decisions": [
           {
-            "decision": "pseudonymise",
+            "decision": "local",
             "protectedOk": true,
-            "ms": 1352
+            "ms": 866
           },
           {
             "decision": "send",
             "protectedOk": true,
-            "ms": 1373
+            "ms": 1089
           },
           {
-            "decision": "local",
+            "decision": "send",
             "protectedOk": true,
-            "ms": 1094
+            "ms": 933
           }
         ]
       },
@@ -1264,17 +1904,17 @@
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1053
+            "ms": 1696
+          },
+          {
+            "decision": "local",
+            "protectedOk": true,
+            "ms": 1035
           },
           {
             "decision": "pseudonymise",
             "protectedOk": true,
-            "ms": 1020
-          },
-          {
-            "decision": "pseudonymise",
-            "protectedOk": true,
-            "ms": 951
+            "ms": 1041
           }
         ]
       }

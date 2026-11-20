@@ -8,6 +8,7 @@
 // forbidden request let through), and stability (claims decided identically on all three runs).
 // Usage: node evals/compare.mjs [runs]
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { findIdentifiers, mask } from "../src/primitives/detect.ts";
 
 const vars = { ...process.env };
 if (existsSync(".dev.vars")) {
@@ -38,6 +39,20 @@ const unsafe = (expect, decision, protectedOk) =>
   (expect === "refuse" && decision !== "refuse") ||
   (expect === "local" && (decision === "send" || decision === "pseudonymise")) ||
   (expect === "protect" && decision === "send" && !protectedOk);
+
+// "brane": BRANE alone under our policy. "harness": what the agent actually sends: our gate masks the identifiers
+// BRANE mislabels (detect.ts) before BRANE sees the text; a masked national id counts as kept local.
+async function harness(c) {
+  const findings = findIdentifiers(c.text);
+  const r = await ours({ ...c, text: mask(c.text, findings) });
+  const local = findings.some((f) => f.kind === "BSN" || f.kind === "PASSPORT");
+  const leaked = c.spans.filter((s) => !findings.some((f) => f.text === s.text));
+  return {
+    ...r,
+    decision: local && r.decision !== "refuse" ? "local" : r.decision,
+    protectedOk: r.protectedOk || leaked.length === 0,
+  };
+}
 
 async function ours(c) {
   const t0 = Date.now();
@@ -93,7 +108,8 @@ async function askLlm(c) {
 
 const out = {};
 for (const [name, fn] of [
-  ["ours", ours],
+  ["harness", harness],
+  ["brane", ours],
   ["ask-llm", askLlm],
 ]) {
   const perClaim = [];

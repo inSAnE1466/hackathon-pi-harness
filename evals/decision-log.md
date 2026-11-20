@@ -9,6 +9,21 @@ One row per policy change, measured on the golden set (`node evals/golden.mjs`) 
 | claims-v2 | Sensitivity standard (0.50)                                                                                           | 28/30         | 2/53: "fractured her wrist", "Maastricht UMC+" | 0/3                                                          | 10/10             | yes  |
 | claims-v3 | Health semantic category names injuries, hospitals and clinics; keywords fracture, plaster, hospital, UMC, clinic, ER | 29/30         | 0/53                                           | 0/3                                                          | 10/10             | yes  |
 
+## Benchmark: three builds on the golden set
+
+`node evals/compare.mjs 3`, scored on the 21 claims all three builds judged (9 excluded because BRANE refused the
+ask-LLM filter call itself before the LLM ran), three runs each. Latest result in `evals/compare-latest.json`.
+
+| Build                                                            | Correct | Unsafe | Stable claims | Median latency |
+| ---------------------------------------------------------------- | ------- | ------ | ------------- | -------------- |
+| Our harness (gate masks identifiers, then BRANE with our policy) | 60/63   | 0/63   | 21/21         | 659 ms         |
+| BRANE alone with our policy                                      | 57/63   | 3/63   | 21/21         | 474 ms         |
+| Ask an LLM "is this sensitive?" (local model, same labels)       | 50/63   | 6/63   | 17/21         | 1261 ms        |
+
+Unsafe means sensitive data would have gone to the cloud unprotected or a forbidden request would have passed. The
+gate closes BRANE's three unsafe decisions (a passport number labeled `ACCOUNT_NUMBER`) by masking it before BRANE.
+The LLM filter changes its answer between runs on 4 of 21 claims.
+
 ## Open gaps
 
 | Gap                                                                                                  | Seen in   | Effect                                                                   | Next step                                                                                |
