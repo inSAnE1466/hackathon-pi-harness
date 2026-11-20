@@ -101,6 +101,22 @@ def gate_rows():
     return rows, rep
 
 
+def pi_rows():
+    rows = []
+    for label, tag in [("Teammate live policy (keywords tuned on this benchmark)", "pi_team_live"),
+                       ("BRANE v1 no keywords", "pi_v1_nokw"), ("BRANE v3", "pi_v3"),
+                       ("BRANE v1 no keywords + harness classifier", "pi_v1_nokw_llm")]:
+        p = R / f"{tag}.json"
+        if not p.exists():
+            continue
+        d = json.loads(p.read_text())["summary"]
+        cell = lambda k: f"{d[k]['pass']}/{d[k]['n']}" if k in d else "–"
+        tot = sum(v["pass"] for v in d.values()); n = sum(v["n"] for v in d.values())
+        uns = sum(v["unsafe"] for v in d.values())
+        rows.append([e(label), cell("claims"), cell("heldout"), cell("mutated"), f"<b>{tot}/{n}</b>", str(uns)])
+    return rows
+
+
 def matrix_rows():
     with open(ROOT / "submission" / "MAIN_Policy_Matrix_Gezira.csv", newline="", encoding="utf-8") as f:
         rd = list(csv.reader(f))
@@ -162,14 +178,20 @@ def build():
                 ("BRANE: policy v2 narrow, no keywords", "brane_v2_nokw_val"),
                 ("BRANE: policy v3 (v2 + dev fixes)", "brane_v3_val"),
                 ("Harness pre-tokeniser + BRANE v3", "hbrane_v3_val")]
+    v500_tags = [("Keyword baseline", "v500_kw"), ("TF-IDF + logistic regression (dev 800)", "v500_lr800"),
+                 ("Own LLM classifier A", "v500_llmA"),
+                 ("BRANE v4 (team live + Art. 10), run 1", "v500_brane_v4_r1"), ("BRANE v4, run 2", "v500_brane_v4_r2"),
+                 ("BRANE v1 no keywords, run 1", "v500_brane_v1_nokw_r1"), ("BRANE v1 no keywords, run 2", "v500_brane_v1_nokw_r2"),
+                 ("BRANE v4 + classifier (stricter wins)", "v500_combo_v4"),
+                 ("BRANE v1-nokw + classifier (stricter wins): selected", "v500_combo_v1_nokw")]
     test_tags = [("Keyword baseline", "FINAL_kw_v1_test"), ("TF-IDF + logistic regression", "FINAL_lr800_test"),
                  ("Own LLM classifier A", "FINAL_llmA_test"), ("BRANE: team live policy", "FINAL_brane_team_live_test"),
                  ("BRANE: policy v1, no keywords (selected)", "FINAL_brane_v1_nokw_test"),
-                 ("Selected + LLM A (stricter route wins)", "FINAL_combo_test")]
+                 ("BRANE v1-nokw + classifier, stricter wins (final system)", "FINAL_combo_test")]
     dev_tags = [("BRANE v1 with keywords", "brane_v1_dev"), ("BRANE v1, no keywords", "brane_v1_nokw_dev"),
                 ("BRANE v2 narrow, no keywords", "brane_v2_nokw_dev")]
 
-    test_section = (table(RES_HEAD, results_rows(test_tags, {"FINAL_brane_v1_nokw_test"}), "num")
+    test_section = (table(RES_HEAD, results_rows(test_tags, {"FINAL_combo_test"}), "num")
                     + "<h3>Where it works: route F1 by slice (test)</h3>"
                     + table(["Predictor", "Keyword present", "Keyword absent", "English", "Dutch / German", "Short", "Long"],
                             slice_rows(test_tags), "num")) if test_done else \
@@ -246,12 +268,22 @@ BRANE policies · combinations (stricter route wins). <b>Metrics</b>: route macr
 to cloud), identifier leaks, over-block (benign rows not sent to cloud), cost and latency, slices.</p>
 
 <h2>6. Results</h2>
-<h3>Selection on val (80 rows)</h3>
+<h3>Round 2: selection on val 500 (final decision)</h3>
+{table(RES_HEAD, results_rows(v500_tags, {"v500_combo_v1_nokw"}), "num")}
+<p class="small">Recorded in <code>results/selection_round2.json</code>. BRANE passes were repeated twice (run-to-run variance). Winner:
+<b>BRANE policy v1-nokw + harness classifier, stricter route wins</b>; it was already on the round-1 pre-registered reference list and
+was run once on test (table below: 1.0% leak). The larger val now agrees with test (BRANE alone ~16% leak), unlike the 80-row val.</p>
+<h3>Round 1: selection on val (80 rows)</h3>
 {table(RES_HEAD, results_rows(val_tags, {"brane_v1_nokw_val"}), "num")}
 <p class="small">Selection rule, recorded in <code>results/selection.json</code> before any test run: minimise leak, then over-block, then route F1.
 Winner: BRANE with policy v1 without keywords.</p>
 <h3>Held-out test (200 rows, elderly population, unseen vocabulary): one run each</h3>
 {test_section}
+<h3>Independent cross-check: the teammate's benchmark (200 rows, their grading rule)</h3>
+<p class="small">30 golden claims, 20 held-out claims and 150 adversarial rewrites (lowercase, padding, line breaks, politeness, embedded
+"pre-clearance" notes), written by a teammate who never saw our data. Pass = acceptable route and no annotated sensitive span in the cloud
+payload. Unsafe = a sensitive span or local/refuse case reached the cloud.</p>
+{table(["Policy", "Claims 30", "Held-out 20", "Adversarial 150", "Total", "Unsafe"], pi_rows(), "num")}
 <h3>The keyword experiment (dev, 200 rows)</h3>
 {table(RES_HEAD, results_rows(dev_tags), "num")}
 
@@ -261,7 +293,8 @@ pre-registered winner, BRANE with policy v1-nokw, leaked <b>21.6%</b> of sensiti
 (care homes, guardians, unseen conditions and medicines). Our harness classifier (one local-LLM call, 14 labels) leaked 5.2%, but only
 decision / discrimination / injection rows. The errors are complementary, so the pre-registered combination "BRANE + harness classifier,
 stricter route wins" leaked <b>1.0%</b> (1 row: a Dutch proxy for refugee status) at 13% over-block. Lesson: val was too close to dev to predict
-generalisation; the four-axis test exposed it. Recommendation: run BRANE plus the harness classifier in production; confirm on the human gold set.</p>
+generalisation; the four-axis test exposed it. Round 2 on a 500-row val confirmed this (BRANE alone ~16% leak, combination 0.8%) and selected the combination as the final system.
+Recommendation: run BRANE plus the harness classifier in production; confirm on the human gold set.</p>
 <p class="find"><b>1. BRANE semantic keywords act as hard triggers.</b> Every over-block of policy v1 on val was <code>matchedVia: keyword</code>
 ("Ziekenhuis Maasoever" as a business client, "Operation Hagelschlag", a phishing warning containing "verdachte"). Removing keywords and
 relying on the GPU judge with good descriptions cut over-blocking on dev from 30% to 0% and raised route F1 from 0.74 to 0.92-0.96.</p>
@@ -291,7 +324,8 @@ behaviour when BRANE's own detectors or GPU are down.</p>
 <p>All data is synthetic and LLM-drafted except the pending human gold set; labels were validated by scripts and reviewed, not double-annotated
 (gold will report Cohen's kappa). BRANE's semantic judge varies between runs and its detectors drifted during the evening; comparisons
 are made within the same time window and the gate suite is repeated. Val was drawn closer to dev than test is, so val
-overestimated BRANE's generalisation (0% vs 21.6% leak); the production recommendation (combination) is informed by test and must be
+overestimated BRANE's generalisation (0% vs 21.6% leak). With only 34 sensitive val rows, "0 leaks" is compatible with a
+true leak rate of up to ~9% (rule of three); val was therefore grown to 500 rows (dev 800 / val 500 / test 200) for the final decision; the production recommendation (combination) is informed by test and must be
 confirmed on the untouched human gold set before it is final. Legal citations are to be verified by the team's lawyers before reliance.
 Results are dry runs (<code>/policy/test</code>); live <code>/chat/completions</code> header evidence follows once the team applies the selected policy.</p>
 

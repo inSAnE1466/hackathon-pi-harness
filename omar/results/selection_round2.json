@@ -1,0 +1,30 @@
+{
+  "recorded_at": "2026-11-21T00:59:13+01:00",
+  "round": 2,
+  "chosen_on": "data/val.csv (500 rows)",
+  "val_sha256": "2bd8164e2da280898cf1f9e74f2f10feaa33549ad83bf2abe19c4de7040461d6",
+  "rule": "minimise leak, then over-block, then route macro F1; BRANE runs repeated twice",
+  "winner": {
+    "system": "BRANE policy v1_nokw + harness classifier (llmA), stricter route wins",
+    "val500": {
+      "route_macro_f1": 0.893,
+      "leak_rate": 0.008,
+      "identifier_leak_rate": 0.0,
+      "over_block_rate": 0.032
+    }
+  },
+  "runner_up": {
+    "system": "BRANE policy v4 (team live + Art. 10) + harness classifier",
+    "val500": {
+      "route_macro_f1": 0.862,
+      "leak_rate": 0.012,
+      "over_block_rate": 0.079
+    }
+  },
+  "brane_alone": {
+    "v1_nokw": "leak 16.0% / 15.6% (2 runs)",
+    "v4": "leak 21.2% / 22.4% (2 runs)"
+  },
+  "test": "The winner was already on the round-1 pre-registered reference list and was run once on test (FINAL_combo_test: route F1 0.809, leak 1.0%, over-block 13.3%). No new test run; test stays at one run per predictor.",
+  "final_check": "human gold set (data/GOLD_INSTRUCTIONS.md), untouched"
+}

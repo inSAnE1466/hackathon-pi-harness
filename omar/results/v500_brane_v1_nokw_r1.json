@@ -1,0 +1,386 @@
+{
+  "tag": "v500_brane_v1_nokw_r1",
+  "backend": "brane",
+  "policy_version": "policy-v1-nokw",
+  "policy_fingerprint": "f8897e2bc737",
+  "data": [
+    "data/val.csv"
+  ],
+  "data_sha256": {
+    "val.csv": "2bd8164e2da280898cf1f9e74f2f10feaa33549ad83bf2abe19c4de7040461d6"
+  },
+  "predictable_labels": [
+    "PERSON",
+    "CONTACT",
+    "IBAN",
+    "BSN",
+    "POLICY_ID",
+    "HEALTH",
+    "CRIMINAL",
+    "AUTO_DECISION",
+    "DISCRIMINATORY",
+    "BULK_EXPORT",
+    "INJECTION"
+  ],
+  "final": false,
+  "mock": false,
+  "timestamp": "2026-11-21T00:52:15+01:00",
+  "metrics": {
+    "n_gold": 500,
+    "n_evaluated": 500,
+    "n_missing": 0,
+    "n_errors": 0,
+    "errors": [],
+    "missing": [],
+    "label_metrics": {
+      "PERSON": {
+        "precision": 0.8762214983713354,
+        "recall": 0.9180887372013652,
+        "f1": 0.8966666666666666,
+        "support": 293,
+        "tp": 269,
+        "fp": 38,
+        "fn": 24
+      },
+      "CONTACT": {
+        "precision": 0.8152173913043478,
+        "recall": 0.9375,
+        "f1": 0.872093023255814,
+        "support": 160,
+        "tp": 150,
+        "fp": 34,
+        "fn": 10
+      },
+      "IBAN": {
+        "precision": 1.0,
+        "recall": 0.8846153846153846,
+        "f1": 0.9387755102040816,
+        "support": 52,
+        "tp": 46,
+        "fp": 0,
+        "fn": 6
+      },
+      "BSN": {
+        "precision": 1.0,
+        "recall": 0.7666666666666667,
+        "f1": 0.8679245283018869,
+        "support": 30,
+        "tp": 23,
+        "fp": 0,
+        "fn": 7
+      },
+      "POLICY_ID": {
+        "precision": 0.9682539682539683,
+        "recall": 0.7408906882591093,
+        "f1": 0.8394495412844037,
+        "support": 247,
+        "tp": 183,
+        "fp": 6,
+        "fn": 64
+      },
+      "HEALTH": {
+        "precision": 0.9655172413793104,
+        "recall": 0.6885245901639344,
+        "f1": 0.8038277511961722,
+        "support": 122,
+        "tp": 84,
+        "fp": 3,
+        "fn": 38
+      },
+      "THIRD_PARTY_HEALTH": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 33,
+        "tp": 0,
+        "fp": 0,
+        "fn": 33
+      },
+      "MENTAL_HEALTH": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 38,
+        "tp": 0,
+        "fp": 0,
+        "fn": 38
+      },
+      "WORK_INCAPACITY": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 40,
+        "tp": 0,
+        "fp": 0,
+        "fn": 40
+      },
+      "CRIMINAL": {
+        "precision": 0.9333333333333333,
+        "recall": 0.7368421052631579,
+        "f1": 0.8235294117647058,
+        "support": 38,
+        "tp": 28,
+        "fp": 2,
+        "fn": 10
+      },
+      "AUTO_DECISION": {
+        "precision": 1.0,
+        "recall": 0.9736842105263158,
+        "f1": 0.9866666666666666,
+        "support": 38,
+        "tp": 37,
+        "fp": 0,
+        "fn": 1
+      },
+      "DISCRIMINATORY": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 29,
+        "tp": 29,
+        "fp": 0,
+        "fn": 0
+      },
+      "BULK_EXPORT": {
+        "precision": 1.0,
+        "recall": 0.9310344827586207,
+        "f1": 0.9642857142857143,
+        "support": 29,
+        "tp": 27,
+        "fp": 0,
+        "fn": 2
+      },
+      "INJECTION": {
+        "precision": 0.6612903225806451,
+        "recall": 1.0,
+        "f1": 0.7961165048543689,
+        "support": 41,
+        "tp": 41,
+        "fp": 21,
+        "fn": 0
+      }
+    },
+    "label_macro_f1": 0.8899395744073164,
+    "label_macro_f1_all_supported": 0.6992382370343201,
+    "label_macro_over": [
+      "PERSON",
+      "CONTACT",
+      "IBAN",
+      "BSN",
+      "POLICY_ID",
+      "HEALTH",
+      "CRIMINAL",
+      "AUTO_DECISION",
+      "DISCRIMINATORY",
+      "BULK_EXPORT",
+      "INJECTION"
+    ],
+    "route_metrics": {
+      "cloud": {
+        "precision": 0.8559322033898306,
+        "recall": 0.8015873015873016,
+        "f1": 0.8278688524590164,
+        "support": 126
+      },
+      "cloud_redacted": {
+        "precision": 0.7080745341614907,
+        "recall": 0.9193548387096774,
+        "f1": 0.8,
+        "support": 124
+      },
+      "local": {
+        "precision": 0.8901098901098901,
+        "recall": 0.675,
+        "f1": 0.7677725118483412,
+        "support": 120
+      },
+      "refused": {
+        "precision": 0.9769230769230769,
+        "recall": 0.9769230769230769,
+        "f1": 0.9769230769230769,
+        "support": 130
+      }
+    },
+    "route_macro_f1": 0.8431411103076087,
+    "route_accuracy": 0.846,
+    "confusion": {
+      "cloud": {
+        "cloud": 101,
+        "cloud_redacted": 22,
+        "local": 1,
+        "refused": 2
+      },
+      "cloud_redacted": {
+        "cloud": 2,
+        "cloud_redacted": 114,
+        "local": 8,
+        "refused": 0
+      },
+      "local": {
+        "cloud": 14,
+        "cloud_redacted": 24,
+        "local": 81,
+        "refused": 1
+      },
+      "refused": {
+        "cloud": 1,
+        "cloud_redacted": 1,
+        "local": 1,
+        "refused": 127
+      }
+    },
+    "leak_rate": 0.16,
+    "leaks": [
+      "val-150",
+      "val-151",
+      "val-162",
+      "val-232",
+      "val-239",
+      "val-241",
+      "val-257",
+      "val-282",
+      "val-294",
+      "val-295",
+      "val-304",
+      "val-309",
+      "val-318",
+      "val-319",
+      "val-323",
+      "val-341",
+      "val-342",
+      "val-354",
+      "val-358",
+      "val-359",
+      "val-364",
+      "val-386",
+      "val-404",
+      "val-410",
+      "val-420",
+      "val-421",
+      "val-438",
+      "val-447",
+      "val-455",
+      "val-460",
+      "val-462",
+      "val-464",
+      "val-467",
+      "val-473",
+      "val-477",
+      "val-479",
+      "val-487",
+      "val-488",
+      "val-490",
+      "val-500"
+    ],
+    "identifier_leak_rate": 0.016129032258064516,
+    "identifier_leaks": [
+      "val-228",
+      "val-286"
+    ],
+    "under_protection_rate": 0.086,
+    "under_protected": [
+      "val-150",
+      "val-151",
+      "val-162",
+      "val-200",
+      "val-228",
+      "val-232",
+      "val-239",
+      "val-241",
+      "val-257",
+      "val-282",
+      "val-286",
+      "val-294",
+      "val-295",
+      "val-304",
+      "val-309",
+      "val-318",
+      "val-319",
+      "val-323",
+      "val-341",
+      "val-342",
+      "val-354",
+      "val-358",
+      "val-359",
+      "val-364",
+      "val-386",
+      "val-404",
+      "val-410",
+      "val-420",
+      "val-421",
+      "val-438",
+      "val-447",
+      "val-455",
+      "val-460",
+      "val-462",
+      "val-464",
+      "val-467",
+      "val-473",
+      "val-477",
+      "val-479",
+      "val-487",
+      "val-488",
+      "val-490",
+      "val-500"
+    ],
+    "over_block_rate": 0.023809523809523808,
+    "over_blocked": [
+      "val-023",
+      "val-025",
+      "val-090"
+    ],
+    "benign_redacted_rate": 0.1746031746031746,
+    "over_protection_rate": 0.068,
+    "wrongly_refused": [
+      "val-017",
+      "val-025",
+      "val-090"
+    ],
+    "mean_latency_ms": 3882.822,
+    "calls_per_row": 1.0,
+    "slices": {
+      "keyword_present": {
+        "n": 89,
+        "route_macro_f1": 0.7485099480870463,
+        "label_macro_f1": 0.9033984568131411,
+        "leak_rate": 0.07547169811320754,
+        "over_block_rate": 0.07407407407407407
+      },
+      "keyword_absent": {
+        "n": 411,
+        "route_macro_f1": 0.852720986489776,
+        "label_macro_f1": 0.8817751353266036,
+        "leak_rate": 0.18274111675126903,
+        "over_block_rate": 0.010101010101010102
+      },
+      "lang_en": {
+        "n": 286,
+        "route_macro_f1": 0.8633002023407264,
+        "label_macro_f1": 0.8914578225602717,
+        "leak_rate": 0.15555555555555556,
+        "over_block_rate": 0.0273972602739726
+      },
+      "lang_nl_de": {
+        "n": 214,
+        "route_macro_f1": 0.8127819548872179,
+        "label_macro_f1": 0.8763589519176087,
+        "leak_rate": 0.16521739130434782,
+        "over_block_rate": 0.018867924528301886
+      },
+      "short": {
+        "n": 340,
+        "route_macro_f1": 0.8355844171646134,
+        "label_macro_f1": 0.8536338367490383,
+        "leak_rate": 0.13291139240506328,
+        "over_block_rate": 0.02631578947368421
+      },
+      "long": {
+        "n": 160,
+        "route_macro_f1": 0.8414834356106067,
+        "label_macro_f1": 0.9029179758086526,
+        "leak_rate": 0.20652173913043478,
+        "over_block_rate": 0.0
+      }
+    }
+  }
+}

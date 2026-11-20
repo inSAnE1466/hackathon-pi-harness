@@ -106,6 +106,12 @@ python3 eval/metrics.py compare results/*_val.json
 ### Results (full tables and findings: `docs/Gezira_Report.pdf`)
 | Set | Predictor | Route F1 | Leak | Over-block |
 |---|---|---|---|---|
+| **val 500** | keyword baseline | 0.426 | 80.8% | 17.5% |
+| **val 500** | TF-IDF + LR | 0.647 | 36.0% | 18.3% |
+| **val 500** | own LLM classifier A | 0.953 | 2.4% | 0.8% |
+| **val 500** | BRANE v4 (team + Art. 10), 2 runs | 0.78 / 0.82 | 21.2% / 22.4% | 7.1% / 5.6% |
+| **val 500** | BRANE v1 no keywords, 2 runs | 0.84 / 0.88 | 16.0% / 15.6% | 2.4% / 0.8% |
+| **val 500** | **BRANE v1-nokw + classifier (final system)** | 0.893 | **0.8%** | 3.2% |
 | val 80 | keyword baseline | 0.557 | 64.7% | 37.5% |
 | val 80 | TF-IDF + LR (dev 800) | 0.808 | 14.7% | 12.5% |
 | val 80 | own LLM classifier A (1 call) | 0.938 | 0.0% | 4.2% |
@@ -118,12 +124,12 @@ python3 eval/metrics.py compare results/*_val.json
 | **test 200** | BRANE team live policy | 0.683 | 43.3% | 1.7% |
 | **test 200** | **BRANE v1 no keywords (selected)** | 0.770 | 21.6% | 3.3% |
 | **test 200** | own LLM classifier A | 0.884 | 5.2% | 13.3% |
-| **test 200** | **selected + LLM A, stricter route wins** | 0.809 | **1.0%** | 13.3% |
+| **test 200** | **BRANE v1-nokw + classifier (final system)** | 0.809 | **1.0%** | 13.3% |
 
 Key findings: (1) BRANE semantic **keywords act as hard triggers**; removing them cut dev over-blocking 30% -> 0%. (2) On the held-out
 test (unseen vocabulary, 65+ population) BRANE alone leaked 21.6% (all health-type); our classifier's errors were different
 (decisions, discrimination, injection), so **BRANE + harness classifier leaked 1.0%**: defence in depth. (3) One LLM call for all labels
-beats one call per label (same F1, 1/14 of the calls). Selection was recorded in `results/selection.json` before any test run.
+beats one call per label (same F1, 1/14 of the calls). Round 1 selection (val 80) was recorded in `results/selection.json` before any test run; round 2 (val 500, final) in `results/selection_round2.json`.
 Gate suite with the selected policy: **12/12 PASS in 3/3 repeated runs** (`results/gate_repeat_policy_v1_nokw/summary.json`).
 
 ## 6. Jury criteria → where to look
