@@ -14,7 +14,8 @@ if (existsSync(".dev.vars")) {
   }
 }
 const base = vars.BRANE_BASE_URL.replace(/\/+$/, "");
-const claims = readFileSync("evals/golden/claims.jsonl", "utf8")
+const set = process.argv.find((a) => a.startsWith("--set="))?.slice(6) ?? "claims";
+const claims = readFileSync(`evals/golden/${set}.jsonl`, "utf8")
   .trim()
   .split("\n")
   .map((l) => JSON.parse(l));
