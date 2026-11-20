@@ -12,7 +12,7 @@ OpenAI, with a system prompt or skill file that states the rules.
 | Rules             | System prompt and a skill file                              | Policy matrix as data, read by a pure `route()`                                                                  |
 | Routing           | The model decides, guided by the prompt                     | Code decides from detectors, BRANE verdict and classifier answers                                                |
 | Human in the loop | A sentence in the prompt                                    | `consult` (medical, legal) and `approve` (handler) routes with records                                           |
-| Classifier        | BRANE only, or none                                         | BRANE first, then OpenAI Decisions on protected text with tuned floors, read by `route()`                        |
+| Classifier        | BRANE only, at its default policy                           | Our BRANE policy with claims semantic categories, plus floors on BRANE's confidences, read by `route()`          |
 | Batch work        | One request per document, all text through the chat model   | Code mode fans out classifier calls; the chat model sees the routing table                                       |
 | Context           | Grows with every document                                   | Each case runs in its own conversation; no shared memory across cases                                            |
 | Failure handling  | `try/catch`, often with a retry                             | A failed verdict ends in `withheld`; no retry to another route                                                   |

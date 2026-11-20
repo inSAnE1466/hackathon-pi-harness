@@ -78,10 +78,11 @@ expected claim outcome.
 
 ## Hill-climbing
 
-Until BRANE's documentation arrives, the metric is the claim itself: on control cases, the share of claims where
+The metric is the claim itself: on control cases, the share of claims where
 the agent's prepared recommendation matches the expected outcome and the right expert was consulted, with the
-security suite held at 100%. The tunable conditions are the Decisions question wording and per-question floors.
+security suite held at 100%. The tunable conditions are BRANE's policy (category actions, semantic category descriptions and keywords, routing mode, sensitivity) and our floors on its confidences.
 Run the [hillclimb playbook](../.agents/vendor/pstack/skills/poteto-mode/playbooks/hillclimb.md): one change, rerun,
 keep or revert, a row in `evals/decision.tsv` (gitignored). Tune on the `train` split and report on a held-out
-`test` split generated from other templates and another seed. Once BRANE's documentation shows which policy settings
-are configurable, those join the conditions.
+`test` split generated from other templates and another seed.
+`PUT /api/v1/policy` applies a candidate policy and `POST /api/v1/policy/test` scores it without a model call, so a
+hill-climb iteration costs no model tokens ([brane](brane.md#endpoints)).

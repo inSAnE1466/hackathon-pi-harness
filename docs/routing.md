@@ -1,7 +1,7 @@
 # Routing: who may see which data, and who decides
 
-Every step of a claim goes to exactly one **route**. Code decides the route from BRANE's verdict, the Decisions
-classifier's answers and the policy matrix. The model that would receive the data never decides.
+Every step of a claim goes to exactly one **route**. Code decides the route from BRANE's verdict, its detection
+confidences and semantic matches, and the policy matrix. The model that would receive the data never decides.
 
 ## BRANE first
 
@@ -13,7 +13,7 @@ place raw data is inspected; every other component, the classifier included, see
 claim documents ──► BRANE (detect, classify, protect, verdict)
                         │ protected text + categories + verdict
                         ▼
-                    decide (OpenAI Decisions on protected text) ──► route() ◄── policy matrix
+                    decide (BRANE /policy/test signals)        ──► route() ◄── policy matrix
                                                                       │
               ┌───────────────┬────────────────┬──────────────────┬───┴──────────┐
               ▼               ▼                ▼                  ▼              ▼
@@ -61,7 +61,7 @@ autonomous decision by the agent". For a claim:
 | **approve**: claims handler      | Every outcome: pay, reduce, deny, request more documents                                              | GDPR Art. 22; C-634/21 SCHUFA; UAVG Art. 40; WP251rev.01 on meaningful human involvement                                       |
 | **consult**: medical adviser     | Whether a treatment is medically necessary, causality between incident and injury, coding a diagnosis | Insurers' code of conduct 5.1.3 (only the medical adviser writes a medical opinion); UAVG Art. 30(3)(b) and 30(4); GDPR Art. 9 |
 | **consult**: legal or compliance | Policy wording disputes, exclusions, suspected fraud, a request outside the policy matrix             | Our policy; national insurance law                                                                                             |
-| **consult**: any                 | A Decisions answer below its confidence floor                                                         | Our policy; floors tuned in [evals](evals.md)                                                                                  |
+| **consult**: any                 | A BRANE confidence near its floor, or a semantic match without a clear action                         | Our policy; floors tuned in [evals](evals.md)                                                                                  |
 
 Life and health insurance risk assessment and pricing are high-risk under AI Act Annex III(5)(c). Claims handling
 is not named there; the legal team decides whether our system falls under it and cites the answer.

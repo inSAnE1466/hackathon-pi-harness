@@ -9,7 +9,7 @@ demo and the screen recordings for the video.
 What a tester does by hand:
 
 1. Open a claim from the seeded set, or paste one.
-2. Watch the pipeline panel: BRANE's verdict per document, the Decisions probabilities against their floors, the
+2. Watch the pipeline panel: BRANE's verdict per document, BRANE's detection confidences against our floors, the
    route per step, and what the model actually received beside the original.
 3. Answer a `consult` or `approve` request as the medical adviser or the handler.
 4. Read the protocol rows for that claim.
@@ -23,7 +23,7 @@ Panels inside the Pi client, beside the transcript (`src/client/`):
 | -------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------ |
 | Pipeline             | Each document's path: BRANE, decide, route, then sent, consulted or blocked           | protocol rows                              |
 | Sent versus original | The original with protected spans marked, beside the exact payload that left          | BRANE response and the recording transport |
-| Decisions            | Each question's probability as a bar against its floor                                | `decide` results                           |
+| Confidences          | Each BRANE detection's confidence as a bar against our floor; semantic matches        | `decide` results                           |
 | Human queue          | Open `consult` and `approve` requests with the minimised case                         | Pi Durable conversation state              |
 | Eval board           | Pass or fail per track test, leak counts per failure family, harness against baseline | eval run output                            |
 

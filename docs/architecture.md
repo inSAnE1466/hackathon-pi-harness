@@ -27,8 +27,8 @@ The flow is in [routing](routing.md#brane-first): BRANE first, then `decide` on 
 
 The one rule that wins the security tests: **the agent has no model transport except the BRANE one.**
 
-- `src/chat.ts` registers exactly one provider, `brane`, whose `baseUrl` is the BRANE endpoint. It carries the chat
-  model and the `openai-decisions` classifier model. The upstream
+- `src/chat.ts` registers exactly one provider, `brane`, whose `baseUrl` is the BRANE endpoint. BRANE is
+  OpenAI-compatible and carries both cloud and local models ([brane](brane.md#endpoints)). The upstream
   `openaiProvider()` and any direct OpenAI key are removed. A bypass is then not a missed check but a missing
   network path.
 - The BRANE provider throws on any non-success from BRANE (timeout, 5xx, malformed verdict, a verdict of `block`).
@@ -38,14 +38,13 @@ The one rule that wins the security tests: **the agent has no model transport ex
 - The pseudonym map stays in the Durable Object's storage. The model only ever sees `CLAIMANT_01`-style tokens;
   re-identification happens in the client for the authorised handler.
 
-Open until the organizers hand out the endpoint: BRANE's request and response shape, whether it proxies the
-OpenAI API (then it is a `baseUrl` swap) or returns a verdict we act on, and how its policies are configured.
-[Plan](plan.md) step 1 settles this with a prototype.
+BRANE proxies an OpenAI-compatible chat API, so the provider is a `baseUrl` swap plus a check of the `X-Brane-*`
+headers on every response ([brane](brane.md)).
 
 ## Code mode and the classifier
 
 Scripts in code mode can call `models.classify(model, { state, questions })` from a QuickJS sandbox; each call is a
 journaled, durable nested call. That lets one script classify a claim bundle's documents in parallel (four in flight at once) and
 return only the routing table to the model, and it keeps the classifier's raw inputs out of the chat context. Because
-the Decisions model is an entry in the `brane` provider, code mode picks it up with no extra glue.
+`decide` is a tool over BRANE's `/policy/test`, code mode can fan it out over a claim's documents.
 [Primitives](primitives.md#where-code-mode-fits) says which calls belong in code mode.
