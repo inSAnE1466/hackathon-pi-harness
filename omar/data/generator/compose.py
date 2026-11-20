@@ -89,6 +89,21 @@ POOLS = {
         "domains": ["example.com", "example.net"],
         "claim": (6000, 9999), "policy": (5000, 9999), "customer": (600000, 999999),
     },
+    "val": {
+        "first": {"nl": ["Bas", "Eline", "Rick", "Maud", "Tim", "Lieke", "Jeroen", "Kim", "Dennis", "Sara", "Hamza", "Vera", "Inge", "Mohamed", "Linda", "Teun"],
+                  "en": ["Liam", "Ava", "Noah", "Isabel", "Arjun", "Ethan", "Olivia", "Ravi", "Mia", "Connor"],
+                  "de": ["Max", "Laura", "Niklas", "Marie", "Ben", "Johanna", "Can", "Lina"]},
+        "last": {"nl": ["Verbeek", "Smits", "de Jong", "Maas", "van den Berg", "Huisman", "Timmermans", "Gerritsen", "Aydin", "van Beek", "Kaya", "Molenaar", "Vink", "de Wit"],
+                 "en": ["Collins", "Patel", "Murphy", "Evans", "Wright", "Ahmed", "Cooper"],
+                 "de": ["Schulz", "Koch", "Richter", "Neumann", "Schwarz", "Yildiz", "Bauer"]},
+        "city": {"nl": ["Eindhoven", "Tilburg", "Breda", "Nijmegen", "Arnhem", "Helmond", "Oss"], "en": ["Eindhoven", "Nijmegen", "Breda"], "de": ["Düsseldorf", "Essen", "Duisburg"]},
+        "street": {"nl": ["Wilhelminastraat", "Nieuwstraat", "Parallelweg", "Kastanjelaan", "Industrieweg", "Rijksweg"], "de": ["Ringstraße", "Kirchweg", "Feldstraße"]},
+        "postcode": ("56", "50", "48", "65"), "de_plz": ("402", "451", "470"),
+        "banks": ["RBRB", "FVLB", "NNBA"], "de_banks": ["37050198", "10010010"],
+        "bsn": ["111222333", "187765546", "417395176", "493938382", "570481594", "647024809"],
+        "domains": ["example.org", "example.nl"],
+        "claim": (50000, 59999), "policy": (10000, 19999), "customer": (500000, 599999),
+    },
 }
 GATE_IDS = {"CLM-2026-5120", "CLM-2026-6034", "CLM-2026-7001", "CLM-2026-7312", "CLM-2026-7401", "CLM-2026-7402",
             "CLM-2026-7403", "CLM-2026-7404", "CLM-2026-7405", "CLM-2026-8120", "CLM-2026-8304"}
@@ -295,8 +310,13 @@ def main(argv=None):
     ap.add_argument("--langs", default="en:0.58,nl:0.29,de:0.13")
     ap.add_argument("--out", required=True)
     ap.add_argument("--avoid", nargs="*", default=[], help="tuning CSVs: reuse none of their IDs/names/8-word sequences")
+    ap.add_argument("--mix", help="override row-type weights, e.g. discriminatory:0.06,bulk_export:0.05")
     a = ap.parse_args(argv)
     bank = json.loads(Path(a.bank).read_text(encoding="utf-8"))
+    if a.mix:
+        global MIX
+        over = {k: float(v) for k, v in (x.split(":") for x in a.mix.split(","))}
+        MIX = [(k, over.get(k, w)) for k, w in MIX]
     lw = [(x.split(":")[0], float(x.split(":")[1])) for x in a.langs.split(",")]
     avoid = []
     for path in a.avoid:
