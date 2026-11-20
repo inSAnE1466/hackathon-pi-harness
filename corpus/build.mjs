@@ -6,8 +6,8 @@
 // source URL. Run when the article list changes: node corpus/build.mjs
 import { readFileSync, writeFileSync } from "node:fs";
 
-const GDPR = [4, 5, 6, 9, 10, 13, 15, 22, 25, 28, 32, 35, 44, 46];
-const AI_ACT = [6, 13, 14, 26, 27, 50];
+const GDPR = [4, 5, 6, 9, 10, 13, 15, 22, 25, 28, 30, 32, 35, 44, 46];
+const AI_ACT = [6, 12, 13, 14, 19, 26, 27, 50];
 const AI_ACT_ANNEX = [3];
 
 const clean = (html) =>

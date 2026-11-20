@@ -209,6 +209,18 @@ const rows = [
     tests: "Edge (credential in claim)",
   },
   {
+    id: "R18",
+    category: "Record of every automated step (audit log)",
+    why: "Each routing decision, masking, intake split, citation and handoff must be traceable after the fact",
+    source:
+      "EU AI Act Art. 12 (record-keeping), Art. 26(6) (deployers keep logs), Art. 19; GDPR Art. 5(2) accountability, Art. 30 records of processing; EIOPA AI opinion 2025",
+    code: "src/audit.ts writes one row per decision to the claim's Durable Object SQLite (categories and ids, never prompt text); shown in the app and exported as CSV; never returned to the model",
+    target: "ALLOW",
+    gap: "BRANE returns the decision in headers per request but keeps no per-claim record the deployer can export; the harness keeps it",
+    evidence: "GET /api/sessions/:id/audit; app Audit log tab; CSV export",
+    tests: "All (every test row cites its headers)",
+  },
+  {
     id: "R14",
     category: "Public policy terms and law (no personal data)",
     why: "Needed for coverage reasoning; contains no personal data",

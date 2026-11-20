@@ -68,7 +68,24 @@ the need for a transfer mechanism. The legal team confirms the processor terms (
 - **Either way.** The design meets the high-risk duties that matter here: human oversight by competent people
   (Art. 14) [AIA-Art14(1)], logs kept by the deployer (Art. 26) [AIA-Art26(6)], and information for the people affected.
 
-## 6. What must never happen
+## 6. Auditability
+
+Record-keeping is required whichever way the AI Act question in section 5 is settled:
+
+- **AI Act Art. 12:** high-risk AI systems must technically allow the automatic recording of events over their
+  lifetime, to make their functioning traceable [AIA-Art12(1)], [AIA-Art12(2)]. Deployers keep those logs
+  (Art. 26(6)) [AIA-Art26(6)]; providers keep them too (Art. 19) [AIA-Art19(1)].
+- **GDPR Art. 5(2) and Art. 30:** the controller must be able to demonstrate compliance and keep a record of
+  processing activities [GDPR-5(2)], [GDPR-30(1)].
+- **EIOPA (2025):** record keeping is one of the governance principles for AI in insurance, claims management
+  included [EIOPA-AI-2025].
+
+**Design.** Every automated step writes one row to the audit log in the claim's Durable Object: BRANE's routing
+decision and its categories, identifiers masked by the gate, the intake split, cited passages, and each handoff to a
+person. The log stores categories and ids, never prompt text, so it is itself minimised. It is shown in the claims
+app and exported as CSV, and it is never returned to the model.
+
+## 7. What must never happen
 
 | Forbidden                                                                                | Why                                                         | Source                                                                   |
 | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------ |
@@ -77,13 +94,13 @@ the need for a transfer mechanism. The legal team confirms the processor terms (
 | Following instructions hidden in claim documents                                         | Security of processing                                      | Art. 32 [GDPR-32(1)]; OWASP LLM01 [OWASP-LLM01]                          |
 | Sending anything when the check is unavailable                                           | No transfer without a verified check                        | Art. 32; Art. 25                                                         |
 
-## 7. How each finding becomes a rule
+## 8. How each finding becomes a rule
 
 Each row of `submission/MAIN_Policy_Matrix.csv` turns one finding above into a BRANE category action, a semantic
 category or agent code, with the header that proves it and the test that checks it. The golden set, the held-out
 set and the organizers' tests run on every policy change (`node evals/qc.mjs`).
 
-## 8. Open questions for the legal team
+## 9. Open questions for the legal team
 
 1. Netherlands or Germany as the insurer's home state, which fixes the Art. 9(2) exception (UAVG Art. 30 or BDSG
    § 22 with VVG § 213).
