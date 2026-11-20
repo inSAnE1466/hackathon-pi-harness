@@ -112,6 +112,7 @@ for (const file of [
   "corpus/policy-terms.jsonl",
   "corpus/medical-criteria.jsonl",
   "corpus/guidance.jsonl",
+  "corpus/methods.jsonl",
 ]) {
   if (!existsSync(file)) continue;
   for (const line of readFileSync(file, "utf8").trim().split("\n")) add(JSON.parse(line));

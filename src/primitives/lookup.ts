@@ -58,7 +58,7 @@ export function search(query: string, limit = 4, source?: string): Passage[] {
 export const lookupTool: ToolRegistration = {
   name: "lookup",
   description:
-    "Search the insurer's policy terms and the law (GDPR, EU AI Act, case law, regulator guidance). Use it before stating what a policy covers or what the law requires, and cite the passage ids it returns.",
+    "Search the insurer's policy terms, its claims criteria (medical necessity, documents, causality, emergency care, luggage), the law (GDPR, EU AI Act from the official EUR-Lex text, case law, regulator guidance) and assessment methods (privacy and AI triage). Use it before stating what a policy covers or what the law requires, and cite the passage ids it returns.",
   parameters: obj({
     query: str({
       description: "What to look up, in plain words, e.g. 'physiotherapy sessions covered'",
@@ -66,7 +66,7 @@ export const lookupTool: ToolRegistration = {
     source: opt(
       str({
         description:
-          "Optional filter: 'Policy terms', 'GDPR', 'EU AI Act', 'Case law' or 'Guidance'",
+          "Optional filter: 'Policy terms', 'Claims criteria', 'GDPR', 'EU AI Act', 'Case law', 'Guidance' or 'Method'",
       }),
     ),
     limit: opt(int({ description: "Passages to return, 1 to 6 (default 4)" })),

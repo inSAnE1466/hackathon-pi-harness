@@ -1422,9 +1422,9 @@
   "id": "POL-5.1",
   "source": "Policy terms",
   "title": "How claims are decided",
-  "text": "Every decision to pay, reduce or reject a claim is taken by a claims handler. Automated tools may check completeness, extract amounts and prepare a recommendation; they do not decide. The insured may ask for the reasons and contest a decision.",
+  "text": "Every decision on a claim outcome, to pay, reduce or reject, is taken by a claims handler, who decides. Automated tools may check completeness, extract amounts and prepare a recommendation; they do not decide the claim. The insured may ask for the reasons and contest a decision.",
   "url": "policy:health-travel-2026",
-  "hash": "626cc803dbb4"
+  "hash": "5baa473122d1"
  },
  {
   "id": "POL-5.2",
@@ -1433,6 +1433,86 @@
   "text": "Health data in a claim is processed only as far as needed to assess that claim, only by staff bound to secrecy, and medical judgement is given by the medical adviser. Health data from one policy is not used for another policy without explicit consent.",
   "url": "policy:health-travel-2026",
   "hash": "6f5ea4961036"
+ },
+ {
+  "id": "MED-1",
+  "source": "Claims criteria",
+  "title": "Medical necessity: general test",
+  "text": "A treatment is medically necessary when it is appropriate for the diagnosed condition, in line with accepted medical practice, not mainly for convenience, and the least costly option that is equally effective. Whether a specific treatment meets this test is decided by the medical adviser, not by the claims assistant or the claims handler. Synthetic insurer guideline for the demo, not medical advice.",
+  "url": "policy:claims-criteria-2026",
+  "hash": "2db98bf9f633"
+ },
+ {
+  "id": "MED-2",
+  "source": "Claims criteria",
+  "title": "Documents that support a medical claim",
+  "text": "A medical claim is complete when it has an itemised invoice from a registered provider (date, service code or description, amount), the referral or prescription where the policy requires one, and for hospital or emergency care a discharge note or medical report. Missing items are requested from the claimant; medical reports are sent to the medical adviser only. Synthetic insurer guideline.",
+  "url": "policy:claims-criteria-2026",
+  "hash": "d39442f0a306"
+ },
+ {
+  "id": "MED-3",
+  "source": "Claims criteria",
+  "title": "Physiotherapy",
+  "text": "Physiotherapy is reimbursed per session up to the policy limit (see POL-2.2). After an operation on the knee, hip or spine, sessions in the first 12 weeks need no referral. More sessions than the limit, or sessions without a clear link to an injury or operation, go to the medical adviser for a necessity opinion. Synthetic insurer guideline.",
+  "url": "policy:claims-criteria-2026",
+  "hash": "f4e88b330679"
+ },
+ {
+  "id": "MED-4",
+  "source": "Claims criteria",
+  "title": "Emergency care abroad",
+  "text": "Emergency care abroad is care that cannot wait until the insured returns home: an accident, a fracture, acute illness or hospital admission. It is covered under the travel cover (see POL-3.1). The insured must notify the emergency line within 48 hours of an admission. Ambulance transport to the nearest suitable hospital is part of emergency care. Repatriation needs the medical adviser's approval. Synthetic insurer guideline.",
+  "url": "policy:claims-criteria-2026",
+  "hash": "33769d480486"
+ },
+ {
+  "id": "MED-5",
+  "source": "Claims criteria",
+  "title": "Causality between an incident and a treatment",
+  "text": "For accident and travel claims, the treatment must follow from the reported incident: the dates must be consistent and the treatment must fit the injury described. A gap of more than 14 days between incident and first treatment, or a treatment that does not fit the reported injury, is referred to the medical adviser. The claims assistant flags the inconsistency; it does not judge the medicine. Synthetic insurer guideline.",
+  "url": "policy:claims-criteria-2026",
+  "hash": "317a56ffe693"
+ },
+ {
+  "id": "MED-6",
+  "source": "Claims criteria",
+  "title": "Mental health claims",
+  "text": "Treatment by a registered psychologist or psychiatrist is covered on GP referral for a diagnosed condition (see POL-2.4). The claims assistant checks only that a referral and an itemised invoice are present. The diagnosis, the treatment plan and the number of sessions needed are for the medical adviser. Mental health details never leave the insurer's perimeter. Synthetic insurer guideline.",
+  "url": "policy:claims-criteria-2026",
+  "hash": "ef81257caa2b"
+ },
+ {
+  "id": "MED-7",
+  "source": "Claims criteria",
+  "title": "Medical aids",
+  "text": "Hearing aids, mobility aids and similar devices are reimbursed on prescription from the relevant specialist, at the percentage and limits in the policy (see POL-2.5). A rental for a temporary need, such as a wheelchair while a fracture heals, is reimbursed for the prescribed period. Synthetic insurer guideline.",
+  "url": "policy:claims-criteria-2026",
+  "hash": "6e377c55f197"
+ },
+ {
+  "id": "MED-8",
+  "source": "Claims criteria",
+  "title": "Reasonable and customary charges",
+  "text": "An invoice is checked against the usual charge for the same service in the same region. A charge far above the usual level is not refused by the assistant; it is flagged for the claims handler, who may pay up to the usual level and ask the provider for an explanation. Synthetic insurer guideline.",
+  "url": "policy:claims-criteria-2026",
+  "hash": "b265dddcd526"
+ },
+ {
+  "id": "MED-9",
+  "source": "Claims criteria",
+  "title": "When the claims handler must be involved",
+  "text": "Every outcome (pay in full, pay in part, reject, ask for documents) is the claims handler's decision. The assistant prepares a recommendation with the policy clauses and criteria it rests on and the questions it could not answer. Suspected fraud, disputed policy wording and exclusions go to the legal reviewer. Synthetic insurer guideline.",
+  "url": "policy:claims-criteria-2026",
+  "hash": "f84a9ee20c61"
+ },
+ {
+  "id": "MED-10",
+  "source": "Claims criteria",
+  "title": "Lost or damaged luggage",
+  "text": "A luggage claim needs proof of value (receipts, bank statements or photos), and for loss by an airline the property irregularity report; for theft, a police report within 24 hours. Payment is limited per item and per trip (see POL-3.2). Items above the per-item limit are paid up to the limit. Synthetic insurer guideline.",
+  "url": "policy:claims-criteria-2026",
+  "hash": "a24f99773574"
  },
  {
   "id": "CJEU-C-634/21",
@@ -1497,5 +1577,59 @@
   "text": "Summary: instructions embedded in user input or documents can alter an LLM's behaviour. Mitigations include constraining model behaviour, segregating untrusted content, requiring human approval for privileged actions, and enforcing decisions outside the model.",
   "url": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
   "hash": "c83e301d1d21"
+ },
+ {
+  "id": "METHOD-PRIVACY-TRIAGE",
+  "source": "Method",
+  "title": "Privacy use-case triage (claude-for-legal, privacy-legal)",
+  "text": "Before an assessment, classify a processing activity as PROCEED (no assessment, standard safeguards), PIA REQUIRED (assessment before or alongside deployment), DPIA MANDATORY (a regime trigger is met; under GDPR see Art. 35), or STOP (conflicts with the privacy policy or has no lawful basis as described; redesign first). Steps: understand the activity; check house triggers; check mandatory assessment triggers for every regime in scope, citing the controlling provision with a pinpoint; check the activity against every privacy-policy commitment (collection, sharing, retention, purpose, rights). Strong indicators that warrant an assessment even without a mandatory trigger: new technology, children's data, combining datasets collected separately, data that could enable discrimination, processing users would not expect. A direct policy conflict means STOP, not 'proceed with caution'. For claims: an AI assistant that processes health data in claims is new technology plus special-category data, so a DPIA under GDPR Art. 35 is the conservative reading.",
+  "url": "https://github.com/anthropics/claude-for-legal/blob/main/privacy-legal/skills/use-case-triage/SKILL.md",
+  "licence": "Apache-2.0, summarised",
+  "hash": "c1c5f9552071"
+ },
+ {
+  "id": "METHOD-PIA",
+  "source": "Method",
+  "title": "Privacy impact assessment structure (claude-for-legal, privacy-legal)",
+  "text": "A PIA or DPIA covers, in order: an executive summary; a description of the processing (what, why, which data, which systems); the lawful basis, regime by regime; the data flow (collection, storage, access, transfers, retention, deletion); consistency with the privacy policy; risks and mitigations, each risk specific to this processing with likelihood, severity and the control that addresses it; data subject rights (access, rectification, erasure, objection, the right not to be subject to automated decisions); and a recommendation. A DPIA submitted to a regulator (prior consultation, GDPR Art. 36) is gated on legal sign-off.",
+  "url": "https://github.com/anthropics/claude-for-legal/blob/main/privacy-legal/skills/pia-generation/SKILL.md",
+  "licence": "Apache-2.0, summarised",
+  "hash": "3110bbb30849"
+ },
+ {
+  "id": "METHOD-AI-TRIAGE",
+  "source": "Method",
+  "title": "AI use-case triage (claude-for-legal, ai-governance-legal)",
+  "text": "Classify an AI use case as APPROVED, CONDITIONAL (approved with required controls, or pending an AI impact assessment), or NOT APPROVED. Ask what the AI does (generates, decides, recommends, automates), who it acts on (employees, customers, third parties), whether a human reviews the output before anything happens, which vendor, and whether it touches external parties. A use case not in the registry defaults to CONDITIONAL pending an impact assessment. Red lines are an automatic no and are not softened. Check every jurisdiction where affected people are, not only where the company sits; a use case that crosses jurisdictions gets the strictest applicable treatment. For claims: the assistant recommends and a claims handler decides, so the use case is CONDITIONAL with controls (human review, logging, data minimisation), and a final automated decision on a claim is a red line.",
+  "url": "https://github.com/anthropics/claude-for-legal/blob/main/ai-governance-legal/skills/use-case-triage/SKILL.md",
+  "licence": "Apache-2.0, summarised",
+  "hash": "bdfd5e0517d3"
+ },
+ {
+  "id": "METHOD-AIA",
+  "source": "Method",
+  "title": "AI impact assessment and vendor AI review (claude-for-legal, ai-governance-legal)",
+  "text": "An AI impact assessment records the system's purpose, the people affected, the data used, the human oversight in place, foreseeable harms (accuracy, bias, privacy, security, transparency) with mitigations, the applicable regulatory obligations per jurisdiction, and the residual risk with a named owner. For a vendor AI tool: what data the vendor receives, whether it trains on customer data, where it processes and stores data, sub-processors, retention, security certifications, contractual commitments (data processing agreement, transfer mechanism), and the right to audit. For claims: the cloud models behind BRANE are vendor AI; the assessment records that only placeholdered or health-free payloads reach them and which transfer mechanism covers the provider.",
+  "url": "https://github.com/anthropics/claude-for-legal/blob/main/ai-governance-legal/skills/aia-generation/SKILL.md",
+  "licence": "Apache-2.0, summarised",
+  "hash": "6cf953b51fd2"
+ },
+ {
+  "id": "METHOD-CITATIONS",
+  "source": "Method",
+  "title": "Source attribution and verification tiers (claude-for-legal)",
+  "text": "Every regulatory citation carries a tag. Settled: stable, well-known references unlikely to have changed. Verify: real but should be checked (delegated acts, regulator guidance, standards, effective dates, thresholds, recent amendments). Verify-pinpoint: article numbers, annex references, subsection letters and paragraph numbers carry the highest fabrication risk and must always be checked against the primary source; EU AI Act article numbers shifted during consolidation, so every pinpoint to the Act is checked against the Official Journal text. Retrieved citations name their source (EUR-Lex, regulator site). For non-lawyer users, uncertain dates and thresholds go in a list to confirm with counsel rather than inline. Every output is a draft for review by a qualified person, not legal advice.",
+  "url": "https://github.com/anthropics/claude-for-legal/blob/main/ai-governance-legal/skills/use-case-triage/SKILL.md",
+  "licence": "Apache-2.0, summarised",
+  "hash": "16a70a8e4c12"
+ },
+ {
+  "id": "METHOD-TRANSFERS",
+  "source": "Method",
+  "title": "International transfers watch (claude-for-legal, privacy-legal currency watch)",
+  "text": "For transfers of personal data outside the EEA: the EU-US Data Privacy Framework has applied since July 2023 and is subject to litigation, so verify it is still valid before relying on it; for other destinations check the Commission's current adequacy list; otherwise use standard contractual clauses with a transfer impact assessment (GDPR Art. 46). Verify every date and status against a current source; a stale watch list is worse than none.",
+  "url": "https://github.com/anthropics/claude-for-legal/blob/main/privacy-legal/references/currency-watch.md",
+  "licence": "Apache-2.0, summarised",
+  "hash": "6a5ca5e9ea6c"
  }
 ]
