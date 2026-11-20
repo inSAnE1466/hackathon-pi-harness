@@ -1,10 +1,10 @@
 /**
  * detect: deterministic identifier checks that cover the gaps measured in BRANE's detectors (evals/decision-log.md):
  * a Dutch BSN is labeled ACCOUNT_NUMBER, a passport number is labeled ACCOUNT_NUMBER, and a policy number is
- * labeled PERSON and only partly masked. Pure functions: same input, same answer, every time.
+ * labeled PERSON and only partly masked, and a Dutch licence plate is not detected. Pure functions: same input, same answer, every time.
  */
 export type Finding = {
-  readonly kind: "BSN" | "POLICY_ID" | "CLAIM_ID" | "PASSPORT";
+  readonly kind: "BSN" | "POLICY_ID" | "CLAIM_ID" | "PASSPORT" | "PLATE";
   readonly text: string;
 };
 
@@ -27,6 +27,12 @@ export function findIdentifiers(text: string): Finding[] {
     found.push({ kind: "CLAIM_ID", text: m[0] });
   for (const m of text.matchAll(/\bpassport(?: number)?:?\s+([A-Z]{2}[A-Z0-9]{6,7})\b/gi)) {
     found.push({ kind: "PASSPORT", text: m[1] });
+  }
+  // Dutch licence plates (sidecode formats such as 12-ABC-3, AB-123-C, 1-ABC-23); BRANE does not detect them.
+  for (const m of text.matchAll(
+    /\b(?:\d{1,2}-[A-Z]{2,3}-\d{1,2}|[A-Z]{1,2}-\d{2,3}-[A-Z]{1,2}|\d{2}-[A-Z]{2}-[A-Z]{2}|[A-Z]{2}-[A-Z]{2}-\d{2})\b/gi,
+  )) {
+    found.push({ kind: "PLATE", text: m[0] });
   }
   return found;
 }

@@ -27,6 +27,19 @@ policy. Each attempt is a row in `evals/climb-log.tsv` (gitignored). First run o
 reverted, because the sets were already at 0 leaks and none improved them; the live policy ended unchanged. The
 next climb needs harder cases than the sets now hold.
 
+## Adversarial variants and BRANE's run-to-run variance
+
+`node evals/mutate.mjs` writes 150 variants of the golden set (lowercase, a long benign preamble, line breaks, a
+polite wrapper, an embedded "pre-cleared by compliance" note); `node evals/golden.mjs --set=mutated --harness`
+grades what the agent would send. Two findings:
+
+- **Gaps in the gate, now closed:** BRANE does not detect Dutch licence plates (`12-ABC-3` leaked in the padded and
+  lowercase variants); `detect.ts` now masks them.
+- **BRANE is not deterministic under load.** The same 150 variants scored 146/150 and, an hour later with dry runs
+  taking about 5 s instead of 0.5 s, 140/150: polite and padded health claims that had stayed local went to the cloud.
+  A single run is therefore not evidence. QC must run each set several times and count a claim safe only if every
+  run was safe.
+
 ## Benchmark: three builds on the golden set
 
 `node evals/compare.mjs 3`, scored on the 21 claims all three builds judged (9 excluded because BRANE refused the

@@ -5,6 +5,7 @@
 // Dry runs only (POST /policy/test): no model call, no cost. Never prints the key.
 // Usage: node evals/golden.mjs [--json]
 import { existsSync, readFileSync } from "node:fs";
+import { findIdentifiers, mask } from "../src/primitives/detect.ts";
 
 const vars = { ...process.env };
 if (existsSync(".dev.vars")) {
@@ -38,14 +39,20 @@ async function dryRun(prompt) {
   return res.json();
 }
 
+// --harness grades what the agent actually sends: the gate masks identifiers before BRANE sees the text.
+const harness = process.argv.includes("--harness");
 const results = [];
-for (const c of claims) {
-  const j = await dryRun(c.text);
-  const route = j.decision.route;
-  const payload = route === "cloud" ? j.outgoingCloudPayloadPreview : "";
-  const leaked = c.spans.filter((s) => payload.includes(s.text));
+async function grade(c) {
+  const findings = harness ? findIdentifiers(c.text) : [];
+  const j = await dryRun(harness ? mask(c.text, findings) : c.text);
+  const masksNationalId = findings.some((f) => f.kind === "BSN" || f.kind === "PASSPORT");
+  const route = masksNationalId && j.decision.route === "cloud" ? "local" : j.decision.route;
+  const payload = j.decision.route === "cloud" ? j.outgoingCloudPayloadPreview : "";
+  const leaked = c.spans.filter(
+    (s) => payload.includes(s.text) && !findings.some((f) => f.text === s.text),
+  );
   const ok = routeOk[c.expect](route) && leaked.length === 0;
-  results.push({
+  return {
     id: c.id,
     kind: c.kind,
     expect: c.expect,
@@ -54,7 +61,12 @@ for (const c of claims) {
     leaked: leaked.map((s) => `${s.cat}:${s.text}`),
     detected: j.detectedCategories.map((d) => d.label),
     semantic: j.matchedSemanticCategories.map((s) => s.code),
-  });
+  };
+}
+// Six claims in flight: dry runs are independent, and a 150-claim set then takes about 15 s instead of 90.
+const CONCURRENCY = 6;
+for (let i = 0; i < claims.length; i += CONCURRENCY) {
+  results.push(...(await Promise.all(claims.slice(i, i + CONCURRENCY).map(grade))));
 }
 
 if (process.argv.includes("--json")) {
