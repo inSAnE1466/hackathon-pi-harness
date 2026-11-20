@@ -122,3 +122,21 @@ node evals/f1.mjs --set=locked --save  # the final number, once; writes evals/f1
 
 The locked set is generated from templates, so its expected outcomes are our labels, not BRANE's: a human reads a
 sample of it before the final run, and a disputed label is fixed in the generator, not by hand.
+
+## Autonomous climb with a stop rule
+
+`evals/autoclimb.mjs` runs the climb without a human until a benchmark. Each round it proposes edits to the semantic
+categories from the tuning set's mistakes (BRANE's local model, so nothing leaves; plus a rule that turns leaked
+health wording into keywords, never names or identifiers), applies one to the live department, and keeps it only if
+the tuning score improves (fewer unsafe decisions first, then macro F1), the held-out score does not get worse and
+the organizers' tests still pass. It stops at the target (0 unsafe and macro F1 at or above `--target` on both sets),
+after `--patience` rounds without a gain, when no new edit is left, or at the round and time budget.
+
+```sh
+node evals/autoclimb.mjs --target=0.95 --rounds=30 --patience=5 --minutes=60
+node evals/autoclimb.mjs --dry   # print proposed edits, apply nothing
+```
+
+It changes the live department while it runs, so nobody demos or tests at the same time. Afterwards a person reads
+`git diff policy/brane.json`, keeps only edits they can explain to the jury, and then scores the locked set once.
+Every attempt is in `evals/autoclimb-log.tsv` (gitignored).
