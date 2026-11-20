@@ -1,0 +1,36 @@
+{
+  "FINAL_brane_v1_nokw_test": {
+    "data_sha256": "42b87bc53972df681983214a5bad1ce63ece328574fa44794b6be213ff75380d",
+    "final": true,
+    "timestamp": "2026-11-20T23:53:35+01:00",
+    "backend": "brane",
+    "policy_version": "policy-v1-nokw"
+  },
+  "FINAL_kw_v1_test": {
+    "data_sha256": "42b87bc53972df681983214a5bad1ce63ece328574fa44794b6be213ff75380d",
+    "final": true,
+    "timestamp": "2026-11-20T23:53:36+01:00",
+    "backend": "keyword",
+    "policy_version": "policy-v1"
+  },
+  "FINAL_lr800_test": {
+    "data_sha256": "42b87bc53972df681983214a5bad1ce63ece328574fa44794b6be213ff75380d",
+    "final": true,
+    "timestamp": "2026-11-20T23:53:42+01:00",
+    "backend": "tfidf_lr"
+  },
+  "FINAL_brane_team_live_test": {
+    "data_sha256": "42b87bc53972df681983214a5bad1ce63ece328574fa44794b6be213ff75380d",
+    "final": true,
+    "timestamp": "2026-11-20T23:54:58+01:00",
+    "backend": "brane",
+    "policy_version": "policy-team-live"
+  },
+  "FINAL_llmA_test": {
+    "data_sha256": "42b87bc53972df681983214a5bad1ce63ece328574fa44794b6be213ff75380d",
+    "final": true,
+    "timestamp": "2026-11-21T00:00:28+01:00",
+    "backend": "llmA",
+    "policy_version": "own-classifier"
+  }
+}
