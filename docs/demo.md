@@ -35,6 +35,28 @@ Panels inside the Pi client, beside the transcript (`src/client/`):
 | Human queue          | Open `consult` and `approve` requests with the minimised case                         | Pi Durable conversation state              |
 | Eval board           | Pass or fail per track test, leak counts per failure family, harness against baseline | eval run output                            |
 
+## The claims workspace
+
+What `src/client/` renders today.
+
+- **Landing page.** "Claims assistant" with three sample claims from `evals/golden/claims.jsonl`: a policy question
+  (g28), a health claim (g07) and a request to reject a claim (g19). A sample opens a new session with its text in
+  the composer. Prompts go in as "Claims handler", a role and not a name, so no personal name enters a request.
+- **Session view.** The transcript on the left, the **Decision log** on the right (below it on narrow screens). The
+  log reads `GET /api/sessions/:id/audit` on open, every 2 s while a turn runs, and once more after it ends. It
+  shows totals (requests, cloud protected, kept local, refused, handoffs) and each row newest first: for BRANE rows
+  the route, the detected categories, semantic matches, what happened to the payload, the rule and the model; for
+  gate rows the identifiers masked before BRANE, the passages a lookup cited and each handoff. **Export CSV**
+  downloads the same rows oldest first.
+- **Review queue.** Above the composer when the log has a handoff: one card per handoff with the role and Approve,
+  Edit or Reject. The choice is kept in the browser only; no model is called.
+- **Refusals.** A model call BRANE refused (HTTP 422) shows as a card: "This request needs a person. BRANE refused it
+  under <rule>.", with the rule's description and legal basis from BRANE's response.
+- **Activity.** The harness's task graph, a drawer that stays closed until opened from the top bar.
+
+Tokens live in `src/client/tokens.css`; the pure log logic (routes, totals, handoff wording, refusal parsing, CSV)
+in `src/client/decision-log.ts`.
+
 ## The live demo (about 4 minutes)
 
 1. The problem: one claim bundle, its health data and identifiers, and the question "what may leave?"

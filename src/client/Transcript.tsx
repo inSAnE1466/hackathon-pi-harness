@@ -5,6 +5,8 @@ import type {
   TranscriptToolCall,
   ToolProgress,
 } from "./session-state.ts";
+import { type AuditRow, refusalOf } from "./decision-log.ts";
+import { RefusalCard } from "./RefusalCard.tsx";
 
 interface TranscriptListProps {
   readonly entries: readonly TranscriptEntry[];
@@ -12,6 +14,8 @@ interface TranscriptListProps {
   readonly gaps?: readonly TranscriptGap[];
   readonly tools: readonly ToolProgress[];
   readonly runActive: boolean;
+  /** The session's decision log, newest first, to name the rule behind a refused model call. */
+  readonly auditRows?: readonly AuditRow[];
   readonly onFork?: (entryId: number) => void;
   readonly onFillGap?: (gap: TranscriptGap) => void;
 }
@@ -21,6 +25,7 @@ export function TranscriptList({
   gaps = [],
   tools,
   runActive,
+  auditRows = [],
   onFork,
   onFillGap,
 }: TranscriptListProps) {
@@ -102,6 +107,15 @@ export function TranscriptList({
       );
     }
 
+    const refusal = entry.role === "assistant" ? refusalOf(entry.text, auditRows) : undefined;
+    if (refusal !== undefined) {
+      return (
+        <li key={entry.id}>
+          <RefusalCard refusal={refusal} />
+        </li>
+      );
+    }
+
     return (
       <li key={entry.id}>
         <TranscriptMessage
@@ -111,6 +125,16 @@ export function TranscriptList({
       </li>
     );
   }
+}
+
+/** The harness prefixes each prompt with its speaker as `[name]\n`; show the name as the label instead. */
+function speakerOf(entry: TranscriptEntry): { readonly label: string; readonly text: string } {
+  const label = roleLabel[entry.role];
+  if (entry.role !== "user") return { label, text: entry.text };
+  const match = /^\[([^\]\n]{1,40})\]\n/.exec(entry.text);
+  return match === null
+    ? { label, text: entry.text }
+    : { label: match[1], text: entry.text.slice(match[0].length) };
 }
 
 function correlateToolResults(entries: readonly TranscriptEntry[]): {
@@ -264,14 +288,15 @@ export function TranscriptMessage({
   readonly onFork?: () => void;
 }) {
   const timestamp = entry.timestamp === undefined ? undefined : new Date(entry.timestamp);
+  const { label, text } = speakerOf(entry);
 
   return (
     <article className={`transcript-message transcript-message--${entry.role}`}>
       <header>
-        <EntryTitle entryId={entry.id} label={roleLabel[entry.role]} timestamp={timestamp} />
+        <EntryTitle entryId={entry.id} label={label} timestamp={timestamp} />
         {!entry.canFork || onFork === undefined ? null : <ForkAction onFork={onFork} />}
       </header>
-      <MessageText text={entry.text} />
+      <MessageText text={text} />
       {entry.diagnostics === undefined ? null : <Diagnostics diagnostics={entry.diagnostics} />}
     </article>
   );

@@ -1,6 +1,5 @@
 import {
   type KeyboardEvent,
-  type MouseEvent,
   type SubmitEvent,
   useEffect,
   useEffectEvent,
@@ -8,14 +7,16 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  MAX_PROMPT_CHARACTERS,
-  type ConversationSummary,
-  ROOT_CONVERSATION_ID,
-} from "../protocol.ts";
+import { MAX_PROMPT_CHARACTERS, ROOT_CONVERSATION_ID } from "../protocol.ts";
 import type { ConversationSnapshot } from "./session-state.ts";
 import { ActivityPanel } from "./ActivityPanel.tsx";
+import { DecisionLog } from "./DecisionLog.tsx";
+import { refusalOf } from "./decision-log.ts";
+import { RefusalCard } from "./RefusalCard.tsx";
+import { ReviewQueue } from "./ReviewQueue.tsx";
+import { takeDraft } from "./samples.ts";
 import { MessageText, TranscriptList } from "./Transcript.tsx";
+import { useDecisionLog } from "./useDecisionLog.ts";
 import { usePiSession } from "./usePiSession.ts";
 
 interface ChatSessionProps {
@@ -23,18 +24,13 @@ interface ChatSessionProps {
   readonly username: string;
 }
 
-const conversationLabel = ({ id, parent, owner }: ConversationSummary): string => {
-  if (id === ROOT_CONVERSATION_ID) return `Main conversation (id: ${id})`;
-  if (owner !== undefined) return `Subagent (id: ${id}, owner: ${owner.conversationId})`;
-  if (parent !== undefined) return `Fork (id: ${id}, from: ${parent.at})`;
-  return `Conversation (id: ${id})`;
-};
-
 const statusLabel = {
   connecting: "Connecting",
   connected: "Connected",
   failed: "Connection failed",
 } as const;
+
+const statusTone = { connecting: "waiting", connected: "passed", failed: "blocked" } as const;
 
 const TYPING_IDLE_MS = 1_500;
 
@@ -54,7 +50,7 @@ const conversationIdFromLocation = (): number | undefined => {
 export function ChatSession({ sessionId, username }: ChatSessionProps) {
   const [initialConversationId] = useState(conversationIdFromLocation);
   const session = usePiSession(sessionId, username, initialConversationId);
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState(() => takeDraft(sessionId));
   const [submitting, setSubmitting] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
   const activityToggleRef = useRef<HTMLButtonElement | null>(null);
@@ -73,11 +69,16 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
   const typingConversationRef = useRef<number | undefined>(undefined);
   const activeConversationId = session.activeConversationId;
   const activeConversation = session.activeConversation;
-  const activeSummary = session.conversations.find(({ id }) => id === activeConversationId);
   const activityCount = Object.keys(session.activity?.tasks ?? {}).length;
   const isConnected = session.status === "connected";
   const canSubmit =
     isConnected && activeConversationId !== undefined && !submitting && draft.trim().length > 0;
+  const running = activeConversation?.live?.active === true || submitting;
+  const decisionLog = useDecisionLog(sessionId, running);
+  const failure = activeConversation?.failure;
+  const refusal = failure === undefined ? undefined : refusalOf(failure.message, decisionLog.rows);
+  // The refused assistant entry in the transcript already shows the card for the latest failure.
+  const refusalShown = activeConversation?.entries.at(-1)?.text.includes("422: {") === true;
 
   const stopTyping = (): void => {
     if (typingTimeoutRef.current !== undefined) clearTimeout(typingTimeoutRef.current);
@@ -223,28 +224,10 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
     event.currentTarget.form?.requestSubmit();
   };
 
-  const followConversationLink = (
-    event: MouseEvent<HTMLAnchorElement>,
-    conversationId: number,
-  ): void => {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-      return;
-    }
-    event.preventDefault();
-    if (conversationId !== session.activeConversationId) {
-      window.history.pushState(null, "", event.currentTarget.href);
-      session.openConversation(conversationId);
-    }
-  };
-
-  const compactActivityLayout = (): boolean => window.matchMedia("(width < 75rem)").matches;
-
   const toggleActivity = (): void => {
     const opening = !activityOpen;
     setActivityOpen(opening);
-    if (opening && compactActivityLayout()) {
-      requestAnimationFrame(() => activityCloseRef.current?.focus());
-    }
+    if (opening) requestAnimationFrame(() => activityCloseRef.current?.focus());
   };
 
   const closeActivity = (): void => {
@@ -254,76 +237,42 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
 
   return (
     <div className={`session-workspace${activityOpen ? " session-workspace--activity-open" : ""}`}>
-      <aside className="session-sidebar">
-        <header className="session-header">
-          <a className="product-link" href="/">
-            pi-durable
-          </a>
-          <h1>Session</h1>
-          <p className="participant-name">
-            Joining as <strong>{username}</strong>
-          </p>
-          <p className="connection-status" role="status">
+      <header className="session-bar">
+        <a className="product-link" href="/">
+          Claims assistant
+        </a>
+        <p className="session-bar-note">Every model request passes BRANE first.</p>
+        <p className="connection-status" role="status">
+          <span className={`state state--${statusTone[session.status]}`}>
             {statusLabel[session.status]}
-          </p>
-        </header>
+          </span>
+        </p>
+        <button
+          ref={activityToggleRef}
+          className="button-secondary activity-toggle"
+          type="button"
+          aria-controls="activity-panel"
+          aria-expanded={activityOpen}
+          onClick={toggleActivity}
+        >
+          Activity <span aria-hidden="true">{activityCount}</span>
+        </button>
+      </header>
 
+      <main className="conversation-view" aria-labelledby="transcript-heading">
+        <h1
+          ref={conversationHeadingRef}
+          id="transcript-heading"
+          className="visually-hidden"
+          tabIndex={-1}
+        >
+          Claim conversation
+        </h1>
         {session.error === undefined ? null : (
           <p className="session-error" role="alert">
             {session.error}
           </p>
         )}
-
-        <nav className="conversation-navigation" aria-labelledby="conversations-heading">
-          <div className="conversation-navigation-header">
-            <h2 id="conversations-heading">Conversations</h2>
-            <button type="button" onClick={session.createConversation} disabled={!isConnected}>
-              New conversation
-            </button>
-          </div>
-          <div className="conversation-list" tabIndex={0}>
-            {session.conversations.length === 0 ? (
-              <p className="conversation-list-empty">No conversations yet.</p>
-            ) : (
-              <ul>
-                {session.conversations.map((conversation) => (
-                  <li key={conversation.id}>
-                    <a
-                      href={`?conversation=${conversation.id}`}
-                      aria-current={conversation.id === activeConversationId ? "page" : undefined}
-                      onClick={(event) => followConversationLink(event, conversation.id)}
-                    >
-                      {conversationLabel(conversation)}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </nav>
-      </aside>
-
-      <main className="conversation-view">
-        <header className="conversation-header">
-          <div className="conversation-titlebar">
-            <h2 ref={conversationHeadingRef} id="transcript-heading" tabIndex={-1}>
-              {activeSummary === undefined ? "Conversation" : conversationLabel(activeSummary)}
-            </h2>
-            <button
-              ref={activityToggleRef}
-              className="activity-toggle"
-              type="button"
-              aria-controls="activity-panel"
-              aria-expanded={activityOpen}
-              onClick={toggleActivity}
-            >
-              Activity <span aria-hidden="true">{activityCount}</span>
-            </button>
-          </div>
-          {activeConversation === undefined ? null : (
-            <ConversationDetails conversation={activeConversation} />
-          )}
-        </header>
 
         <section
           ref={transcriptRef}
@@ -337,11 +286,10 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
           onPointerDown={interruptAutoScroll}
         >
           {activeConversation === undefined ? (
-            <p className="transcript-empty">Loading conversation…</p>
+            <p className="transcript-empty">Loading the conversation…</p>
           ) : activeConversation.entries.length === 0 && activeConversation.live === null ? (
             <p className="transcript-empty">
-              Send a message to begin. You can fork the conversation from any user or assistant
-              message.
+              Paste a claim or ask about one. Send it, then watch the decision log on the right.
             </p>
           ) : (
             <>
@@ -359,11 +307,7 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
                 gaps={activeConversation.gaps}
                 tools={activeConversation.tools}
                 runActive={activeConversation.live !== null}
-                onFork={
-                  activeConversationId === undefined
-                    ? undefined
-                    : (entryId) => session.forkConversation(activeConversationId, entryId)
-                }
+                auditRows={decisionLog.rows}
                 onFillGap={(gap) => session.fillGap(activeConversation.id, gap)}
               />
             </>
@@ -378,18 +322,9 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
                 <div className="transcript-message-title">
                   <strong>Assistant</strong>
                 </div>
-                <button
-                  className="text-button transcript-fork transcript-fork--placeholder"
-                  type="button"
-                  aria-hidden="true"
-                  tabIndex={-1}
-                  disabled
-                >
-                  Fork
-                </button>
               </header>
               {activeConversation.live.text.length === 0 ? (
-                <p className="responding">Responding…</p>
+                <p className="responding">Waiting for BRANE and the model…</p>
               ) : (
                 <MessageText text={activeConversation.live.text} />
               )}
@@ -406,9 +341,13 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
             </p>
           )}
 
-          {activeConversation?.failure === undefined ? null : (
+          {failure === undefined ? null : refusal !== undefined ? (
+            refusalShown ? null : (
+              <RefusalCard refusal={refusal} />
+            )
+          ) : (
             <p className="transcript-error" role="alert">
-              {activeConversation.failure.kind} failed: {activeConversation.failure.message}
+              {failure.kind} failed: {failure.message}
             </p>
           )}
 
@@ -419,7 +358,7 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
                   <article className="transcript-message transcript-message--user transcript-message--queued">
                     <header>
                       <div className="transcript-message-title">
-                        <strong>User</strong>
+                        <strong>You</strong>
                         <span>Queued</span>
                       </div>
                     </header>
@@ -431,9 +370,11 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
           )}
         </section>
 
+        <ReviewQueue rows={decisionLog.rows} />
+
         <form className="prompt-bar" onSubmit={submit}>
           <label className="visually-hidden" htmlFor="prompt">
-            Message
+            Claim or question
           </label>
           <textarea
             id="prompt"
@@ -441,13 +382,13 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
             rows={3}
             maxLength={MAX_PROMPT_CHARACTERS}
             value={draft}
-            placeholder="Send a message…"
+            placeholder="Paste a claim or ask about one…"
             onChange={(event) => updateDraft(event.currentTarget.value)}
             onKeyDown={submitWithKeyboardShortcut}
             aria-keyshortcuts="Meta+Enter Control+Enter"
             disabled={!isConnected || activeConversationId === undefined}
           />
-          <button type="submit" disabled={!canSubmit}>
+          <button className="button-primary" type="submit" disabled={!canSubmit}>
             {submitting ? "Sending…" : "Send"}
           </button>
           <p className="typing-indicator" aria-live="polite">
@@ -455,6 +396,13 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
           </p>
         </form>
       </main>
+
+      <DecisionLog
+        sessionId={sessionId}
+        rows={decisionLog.rows}
+        loaded={decisionLog.loaded}
+        {...(decisionLog.error === undefined ? {} : { error: decisionLog.error })}
+      />
 
       <ActivityPanel
         graph={session.activity}
@@ -466,79 +414,13 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
             window.history.pushState(null, "", `?conversation=${conversationId}`);
             session.openConversation(conversationId);
           }
-          if (compactActivityLayout()) {
-            setActivityOpen(false);
-            requestAnimationFrame(() => conversationHeadingRef.current?.focus());
-          }
+          setActivityOpen(false);
+          requestAnimationFrame(() => conversationHeadingRef.current?.focus());
         }}
       />
     </div>
   );
 }
-
-function ConversationDetails({ conversation }: { readonly conversation: ConversationSnapshot }) {
-  const agent = conversation.agent;
-  const totals = usageTotals(conversation.usage);
-  const model =
-    agent?.model === undefined
-      ? "Provider default"
-      : `${agent.model.provider}/${agent.model.modelId}`;
-  const tools =
-    agent?.tools === undefined
-      ? "Host default"
-      : Array.isArray(agent.tools)
-        ? agent.tools.length === 0
-          ? "None"
-          : agent.tools.join(", ")
-        : `Host default except ${agent.tools.remove.join(", ")}`;
-
-  return (
-    <section className="runtime-information" aria-label="Runtime information">
-      <dl>
-        <div className="runtime-primary">
-          <RuntimeDatum label="Model" value={model} />
-          <RuntimeDatum label="Thinking" value={agent?.thinkingLevel ?? "off"} />
-          <RuntimeDatum label="Tokens" value={totals.tokens.toLocaleString()} />
-          <RuntimeDatum label="Cost" value={formatCost(totals.cost)} />
-        </div>
-        <div className="runtime-tools">
-          <dt>Tools:</dt>
-          <dd>{tools}</dd>
-        </div>
-      </dl>
-    </section>
-  );
-}
-
-function RuntimeDatum({ label, value }: { readonly label: string; readonly value: string }) {
-  return (
-    <div>
-      <dt>{label}:</dt>
-      <dd>{value}</dd>
-    </div>
-  );
-}
-
-function usageTotals(usage: ConversationSnapshot["usage"]): { tokens: number; cost: number } {
-  let tokens = 0;
-  let cost = 0;
-  for (const bucket of [usage?.models ?? {}, usage?.tools ?? {}]) {
-    for (const value of Object.values(bucket)) {
-      tokens += value.totalTokens;
-      cost += value.cost.total;
-    }
-  }
-  return { tokens, cost };
-}
-
-const costFormatter = new Intl.NumberFormat(undefined, {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 6,
-});
-
-const formatCost = (cost: number): string => costFormatter.format(cost);
 
 function compactionStatusText(compactions: ConversationSnapshot["compactions"]): string {
   return compactions.some(({ blocking }) => blocking)
