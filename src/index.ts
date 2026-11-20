@@ -46,7 +46,7 @@ export default {
           status: 303,
           headers: {
             Location: "/",
-            "Set-Cookie": `${COOKIE}=${expected}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=604800`,
+            "Set-Cookie": `${COOKIE}=${expected}; Path=/; HttpOnly;${url.protocol === "https:" ? " Secure;" : ""} SameSite=Lax; Max-Age=604800`,
           },
         });
       }

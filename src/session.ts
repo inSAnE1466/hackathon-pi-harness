@@ -177,7 +177,10 @@ export class Session extends DurableObject<Env> {
     const harness = await Harness.open(
       storage,
       {
-        ...createChatHarnessOptions((decision) => this.#audit.record(decision)),
+        ...createChatHarnessOptions(
+          (decision) => this.#audit.brane(decision),
+          (event) => this.#audit.gate(event),
+        ),
         // `kind` says what happened, e.g. `task_faulted` or `task_interrupted`, with the task and extension.
         onReport: ({ error, ...report }) =>
           reportError("Harness reported a failure", error, report),

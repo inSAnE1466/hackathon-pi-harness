@@ -8,7 +8,11 @@ export default defineConfig({
     cloudflareTest({
       wrangler: { configPath: "./wrangler.jsonc" },
       miniflare: {
-        bindings: { BRANE_BASE_URL: "https://brane.test/api/v1", BRANE_API_KEY: "test-brane-key" },
+        bindings: {
+          BRANE_BASE_URL: "https://brane.test/api/v1",
+          BRANE_API_KEY: "test-brane-key",
+          TEAM_PASSWORD: "",
+        },
       },
     }),
   ],

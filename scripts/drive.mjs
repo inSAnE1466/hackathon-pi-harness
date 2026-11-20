@@ -59,8 +59,13 @@ ws.close();
 console.log(`stop: ${result.stop}${result.error ? ` (${result.error})` : ""}`);
 console.log(`answer: ${answer.slice(0, 400)}`);
 const audit = await (await fetch(`${base}/api/sessions/${sessionId}/audit`, { headers })).json();
-for (const d of audit.decisions) {
-  console.log(
-    `audit: ${d.at} HTTP ${d.status} routed=${d.routedTo || "-"} action=${d.action || "-"} redacted=${d.redacted} pii=${d.piiTypes || "-"} semantic=${d.semanticMatches || "-"} refused=${d.refusedBy || "-"} model=${d.modelResolved || "-"}`,
-  );
+console.log(`session: ${sessionId}`);
+for (const d of [...audit.decisions].reverse()) {
+  if (d.kind === "brane") {
+    console.log(
+      `audit ${d.at.slice(11, 19)} brane   HTTP ${d.status} routed=${d.routedTo || "-"} action=${d.action || "-"} redacted=${d.redacted} pii=${d.piiTypes || "-"} semantic=${d.semanticMatches || "-"} refused=${d.refusedBy || "-"} model=${d.modelResolved || "-"}`,
+    );
+  } else {
+    console.log(`audit ${d.at.slice(11, 19)} ${d.kind.padEnd(7)} ${d.detail}`);
+  }
 }
