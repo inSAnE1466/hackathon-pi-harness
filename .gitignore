@@ -7,3 +7,5 @@ dist/
 # Hill-climb decision log
 evals/decision.tsv
 evals/climb-log.tsv
+evals/autoclimb-log.tsv
+exam-review.*
