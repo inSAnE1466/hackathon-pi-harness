@@ -66,7 +66,7 @@ const done = new Promise((resolve, reject) => {
 const result = await done;
 ws.close();
 console.log(`stop: ${result.stop}${result.error ? ` (${result.error})` : ""}`);
-console.log(`answer: ${answer.slice(0, 400)}`);
+console.log(`answer: ${process.env.FULL ? answer : answer.slice(0, 400)}`);
 const audit = await (await fetch(`${base}/api/sessions/${sessionId}/audit`, { headers })).json();
 console.log(`session: ${sessionId}`);
 for (const d of [...audit.decisions].reverse()) {
