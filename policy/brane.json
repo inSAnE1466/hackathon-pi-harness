@@ -37,7 +37,7 @@
     {
       "code": "CLAIM_HEALTH_CONTEXT",
       "name": "Indirect health detail in a claim",
-      "description": "Health information about a specific person in a claim: their injury, fracture, symptoms, dental or eye treatment, procedure, diagnosis, treatment they received, therapy, medication, surgery, hospital or clinic stay, sick leave, inability to work, disability, pregnancy or mental health, even when no diagnosis is named. The name of the hospital or clinic where that person was treated counts. General policy wording about what care is covered, with no person, is not health information.",
+      "description": "Health information about a specific person in a claim: their injury, fracture, symptoms, dental or eye treatment, procedure, diagnosis, treatment they received, therapy, medication, surgery, hospital or clinic stay, sick leave, inability to work, disability, pregnancy or mental health, even when no diagnosis is named. The name of the hospital or clinic where that person was treated counts. General policy wording about what care is covered, with no person, is not health information. Mentions such as ent specialist, hearing aids count, also when the request is wrapped in polite phrasing.",
       "keywords": [
         "fractured",
         "her wrist",
@@ -56,7 +56,9 @@
         "crown",
         "molar",
         "laser",
-        "eye surgery"
+        "eye surgery",
+        "ent specialist",
+        "hearing aids"
       ],
       "legalBasis": "GDPR Art. 9(1); UAVG Art. 30(3)(b) and 30(4); Insurers' code of conduct 5.1",
       "action": "local"
