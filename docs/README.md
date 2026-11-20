@@ -7,6 +7,7 @@
 | What have we decided, and why?                                      | [decisions.md](decisions.md)                              |
 | Which sources back each decision?                                   | [sources.md](sources.md)                                  |
 | How do we set secrets, run, test and deploy?                        | [run.md](run.md)                                          |
+| What do we check and run on demo day?                               | [runbook.md](runbook.md)                                  |
 | What BRANE's API and policy can do, and what we observed            | [brane.md](brane.md)                                      |
 | Which labels does each classifier use?                              | [label taxonomy](../labels_routing.md)                    |
 | How are routes tiered, with worked claim examples?                  | [routing tiers](../routing-tiers_hackathon.md)            |
