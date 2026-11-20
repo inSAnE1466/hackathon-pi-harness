@@ -1,7 +1,9 @@
 # Hill-climb log
 
-One row per policy change, measured on the golden set (`node evals/golden.mjs`) and the organizers' tests
-(`node scripts/brane-cases.mjs`). Keep a change only when leaks do not rise and controls are not over-blocked.
+One row per policy change. `node evals/qc.mjs` runs the golden set, the held-out set and the organizers' tests and
+compares them with `evals/baseline.json`; any regression fails it. Keep a change only on PASS. The gate was checked
+against a deliberate regression (health semantic category removed): it failed on 5 metrics, with 25 of 33 held-out
+spans leaking.
 
 | Version              | Change                                                                                                                                        | Golden claims | Spans leaked                                              | Controls over-blocked                                        | Organizers' tests | Kept                                                                                                                             |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | --------------------------------------------------------- | ------------------------------------------------------------ | ----------------- | -------------------------------------------------------------------------------------------------------------------------------- |

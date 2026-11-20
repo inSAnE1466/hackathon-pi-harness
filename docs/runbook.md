@@ -39,6 +39,16 @@ failure.
    node scripts/policy-matrix.mjs
    ```
 
+## After any change
+
+```sh
+node evals/qc.mjs                                                   # BRANE suites vs the accepted baseline
+node evals/qc.mjs --agent https://claims-harness.fred-755.workers.dev   # plus the deployed agent
+```
+
+Keep a change only on `PASS`. After a deliberate improvement, `node evals/qc.mjs --accept` records the new baseline
+in `evals/baseline.json`, and the change and the new baseline go in the same commit.
+
 ## Hand-in (10:30 CET)
 
 | Deliverable                 | File                                                                      |
