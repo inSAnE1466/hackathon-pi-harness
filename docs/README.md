@@ -2,6 +2,8 @@
 
 | Question                                                            | Doc                                  |
 | ------------------------------------------------------------------- | ------------------------------------ |
+| What have we decided, and why?                                      | [decisions.md](decisions.md)         |
+| Which sources back each decision?                                   | [sources.md](sources.md)             |
 | What does the track require, and how is it judged?                  | [track.md](track.md)                 |
 | What is the use case, and its data categories?                      | [use-case.md](use-case.md)           |
 | How is the code laid out, and where is the gate?                    | [architecture.md](architecture.md)   |

@@ -56,12 +56,12 @@ The brief asks which decisions humans must control and requires "necessary human
 other organisational requirements". Its example keeps the final decision with "authorised people" and allows "no
 autonomous decision by the agent". For a claim:
 
-| Human step                       | Trigger                                                                                               | Source (verified by the legal team)                                                       |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| **approve**: claims handler      | Every outcome: pay, reduce, deny, request more documents                                              | GDPR Art. 22; WP251rev.01 on meaningful human involvement                                 |
-| **consult**: medical adviser     | Whether a treatment is medically necessary, causality between incident and injury, coding a diagnosis | GDPR Art. 9(2)(h) and 9(3): health data processed under a professional secrecy obligation |
-| **consult**: legal or compliance | Policy wording disputes, exclusions, suspected fraud, a request outside the policy matrix             | Our policy; national insurance law                                                        |
-| **consult**: any                 | A Decisions answer below its confidence floor                                                         | Our policy; floors tuned in [evals](evals.md)                                             |
+| Human step                       | Trigger                                                                                               | Source ([sources](sources.md))                                                                                                 |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **approve**: claims handler      | Every outcome: pay, reduce, deny, request more documents                                              | GDPR Art. 22; C-634/21 SCHUFA; UAVG Art. 40; WP251rev.01 on meaningful human involvement                                       |
+| **consult**: medical adviser     | Whether a treatment is medically necessary, causality between incident and injury, coding a diagnosis | Insurers' code of conduct 5.1.3 (only the medical adviser writes a medical opinion); UAVG Art. 30(3)(b) and 30(4); GDPR Art. 9 |
+| **consult**: legal or compliance | Policy wording disputes, exclusions, suspected fraud, a request outside the policy matrix             | Our policy; national insurance law                                                                                             |
+| **consult**: any                 | A Decisions answer below its confidence floor                                                         | Our policy; floors tuned in [evals](evals.md)                                                                                  |
 
 Life and health insurance risk assessment and pricing are high-risk under AI Act Annex III(5)(c). Claims handling
 is not named there; the legal team decides whether our system falls under it and cites the answer.

@@ -29,18 +29,19 @@ decides every outcome.
 
 ## Data categories (draft for the legal team)
 
-| Category           | Example                                 | Draft action                    | Needed for                                       |
-| ------------------ | --------------------------------------- | ------------------------------- | ------------------------------------------------ |
-| `claimant.name`    | Lisa Becker                             | protect: pseudonymise           | No reasoning step; re-identified for the handler |
-| `claimant.contact` | email, phone, address                   | protect: remove                 | None                                             |
-| `claimant.dob`     | 1984-03-12                              | protect: generalise to age band | Age-dependent coverage only                      |
-| `claimant.iban`    | NL91 ABNA 0417 1643 00                  | local                           | Payment, after approval                          |
-| `policy.number`    | POL-2231-88                             | protect: pseudonymise           | Coverage lookup, done locally                    |
-| `health.treatment` | physiotherapy, 9 sessions               | protect: release minimised      | Coverage and extraction                          |
-| `health.diagnosis` | lumbar disc herniation                  | protect, or `consult` medical   | Medical necessity only                           |
-| `health.unrelated` | psychiatric history in a fracture claim | block                           | Nothing in this claim                            |
-| `third_party`      | the other driver, a family member       | protect: remove                 | None                                             |
-| `outcome`          | pay, reduce, deny                       | `approve`                       | The handler's decision                           |
+| Category           | Example                                 | Draft action                    | Needed for                                                                   |
+| ------------------ | --------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------- |
+| `claimant.name`    | Lisa Becker                             | protect: pseudonymise           | No reasoning step; re-identified for the handler                             |
+| `claimant.contact` | email, phone, address                   | protect: remove                 | None                                                                         |
+| `claimant.dob`     | 1984-03-12                              | protect: generalise to age band | Age-dependent coverage only                                                  |
+| `claimant.iban`    | NL91 ABNA 0417 1643 00                  | local                           | Payment, after approval                                                      |
+| `claimant.bsn`     | 123456782                               | local                           | Matching the insured (Zvw chapter 7; UAVG Art. 46); never in a model payload |
+| `policy.number`    | POL-2231-88                             | protect: pseudonymise           | Coverage lookup, done locally                                                |
+| `health.treatment` | physiotherapy, 9 sessions               | protect: release minimised      | Coverage and extraction                                                      |
+| `health.diagnosis` | lumbar disc herniation                  | protect, or `consult` medical   | Medical necessity only                                                       |
+| `health.unrelated` | psychiatric history in a fracture claim | block                           | Nothing in this claim                                                        |
+| `third_party`      | the other driver, a family member       | protect: remove                 | None                                                                         |
+| `outcome`          | pay, reduce, deny                       | `approve`                       | The handler's decision                                                       |
 
-The legal team replaces "draft" with a cited decision per row ([plan](plan.md) step 3). These rows become
+The legal team replaces "draft" with a cited decision per row, starting from [sources](sources.md) ([plan](plan.md) step 3). These rows become
 `policy/claims.json`.
