@@ -54,6 +54,28 @@ console.log(
 console.log(
   `semantic to remove: ${[...liveCodes].filter((c) => !fileCodes.has(c)).join(", ") || "none"}`,
 );
+// A category present on both sides can still differ in wording, keywords or action.
+const content = (s) =>
+  JSON.stringify([s.name, s.description, [...(s.keywords ?? [])].sort(), s.legalBasis, s.action]);
+const liveByCode = new Map((live.semanticCategories ?? []).map((s) => [s.code, s]));
+console.log(
+  `semantic to update: ${
+    desired.semanticCategories
+      .filter((s) => liveByCode.has(s.code) && content(liveByCode.get(s.code)) !== content(s))
+      .map((s) => s.code)
+      .join(", ") || "none"
+  }`,
+);
+console.log(
+  `routing to change: ${
+    [
+      live.routingMode !== desired.routingMode && "routingMode",
+      live.piiSensitivity !== desired.piiSensitivity && "piiSensitivity",
+    ]
+      .filter(Boolean)
+      .join(", ") || "none"
+  }`,
+);
 
 if (process.argv[2] === "apply") {
   const saved = await brane("PUT", "/policy", desired);

@@ -49,6 +49,30 @@ node evals/qc.mjs --agent https://claims-harness.fred-755.workers.dev   # plus t
 Keep a change only on `PASS`. After a deliberate improvement, `node evals/qc.mjs --accept` records the new baseline
 in `evals/baseline.json`, and the change and the new baseline go in the same commit.
 
+## Autonomous QC loop
+
+```sh
+scripts/qc-loop.sh        # prints its log path (/tmp/qc-loop-*.log); 15 to 30 minutes; non-zero on regression
+```
+
+One command runs three steps:
+
+1. `node evals/propose.mjs` reads the failures from the last QC run (`evals/qc-latest.json`), groups leaked spans
+   by semantic category and variant, and writes `evals/candidates.json`: the leaked phrases as keywords, and one
+   description sentence. No model call; the held-out set is never proposed from.
+2. `node evals/climb.mjs` applies each candidate to the live department, scores it, and keeps it only on a strict
+   improvement confirmed by a second scoring. On SIGINT, SIGTERM or a crash it reapplies the original policy. It
+   writes `evals/climb-latest.md`.
+3. `node evals/qc.mjs` compares the result with `evals/baseline.json`, and `node scripts/brane-policy.mjs diff`
+   must show nothing to change.
+
+BRANE's semantic matching varies between runs, so every score is the worst of N: golden and held-out sets 3 runs,
+the mutated set (`--set=mutated --harness`) 2 runs. A claim passes only if every run passed. A dry run that still
+fails after a 20 s timeout and 2 retries counts as a failure. `node evals/qc.mjs --cache` reuses the dry runs of
+the exact same policy from `/tmp/brane-dryrun-cache` (a changed policy never reads them); the climb never caches. The department is shared with teammates: do not edit
+the workbench while the loop runs. If the loop is killed with `kill -9`, run `git checkout policy/brane.json &&
+node scripts/brane-policy.mjs apply`.
+
 ## Hand-in (10:30 CET)
 
 | Deliverable                 | File                                                                      |
