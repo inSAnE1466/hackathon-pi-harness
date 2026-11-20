@@ -73,7 +73,13 @@ export class AuditLog {
 
   gate(e: GateEvent): void {
     const detail =
-      e.kind === "masked" ? e.findings : e.kind === "handoff" ? `${e.tool}:${e.detail}` : e.ids;
+      e.kind === "masked"
+        ? e.findings
+        : e.kind === "handoff"
+          ? `${e.tool}:${e.detail}`
+          : e.kind === "intake"
+            ? e.result
+            : e.ids;
     this.#insert([e.kind, 0, "", "", 0, "", "", "", "", "", detail]);
   }
 

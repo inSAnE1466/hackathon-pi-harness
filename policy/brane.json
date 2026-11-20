@@ -1,5 +1,5 @@
 {
-  "version": "claims-v3",
+  "version": "claims-v4",
   "routingMode": "cloud-preferred",
   "piiSensitivity": "standard",
   "models": {
@@ -37,27 +37,21 @@
     {
       "code": "CLAIM_HEALTH_CONTEXT",
       "name": "Indirect health detail in a claim",
-      "description": "Any mention of an injury, fracture, symptom, treatment, therapy, medication, surgery, hospital, clinic or emergency visit, sick leave, inability to work, disability, pregnancy or mental health in an insurance claim, even when no diagnosis is named. The name of a hospital or clinic counts, because it reveals that care was received.",
+      "description": "Health information about a specific person in a claim: their injury, fracture, symptoms, diagnosis, treatment they received, therapy, medication, surgery, hospital or clinic stay, sick leave, inability to work, disability, pregnancy or mental health, even when no diagnosis is named. The name of the hospital or clinic where that person was treated counts. General policy wording about what care is covered, with no person, is not health information.",
       "keywords": [
-        "ER",
-        "UMC",
-        "broken",
-        "burnout",
-        "clinic",
-        "emergency",
-        "fracture",
         "fractured",
-        "hospital",
-        "hospitalised",
-        "injury",
-        "medication",
-        "physiotherapy",
+        "her wrist",
+        "his wrist",
         "plaster",
+        "burnout",
         "sertraline",
         "sick leave",
-        "surgery",
-        "therapy",
-        "unable to work"
+        "unable to work",
+        "was hospitalised",
+        "was admitted",
+        "her surgery",
+        "his surgery",
+        "UMC"
       ],
       "legalBasis": "GDPR Art. 9(1); UAVG Art. 30(3)(b) and 30(4); Insurers' code of conduct 5.1",
       "action": "local"

@@ -5,7 +5,8 @@ import { findIdentifiers, mask } from "./detect.ts";
 export type GateEvent =
   | { readonly kind: "masked"; readonly findings: string }
   | { readonly kind: "handoff"; readonly tool: string; readonly detail: string }
-  | { readonly kind: "lookup"; readonly ids: string };
+  | { readonly kind: "lookup"; readonly ids: string }
+  | { readonly kind: "intake"; readonly result: string };
 
 /**
  * The gate: our deterministic layer around BRANE, as Pi hooks.

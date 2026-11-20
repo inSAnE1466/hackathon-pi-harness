@@ -29,12 +29,21 @@ const ws = new WebSocket(wsUrl, { headers });
 const send = (command) => ws.send(JSON.stringify(command));
 let conversationId;
 let answer = "";
+let submitted = false;
 const done = new Promise((resolve, reject) => {
   const timer = setTimeout(() => reject(new Error("No answer within 120 s")), 120_000);
   ws.addEventListener("message", (event) => {
     const msg = JSON.parse(String(event.data));
-    if (msg.type === "session.snapshot") send({ type: "conversation.create", requestId: "c1" });
-    if (msg.type === "command.result" && msg.command === "conversation.create") {
+    // The server sends a snapshot on connect and again when conversations change; act on the first only.
+    if (msg.type === "session.snapshot" && conversationId === undefined && !submitted) {
+      submitted = true;
+      send({ type: "conversation.create", requestId: "c1" });
+    }
+    if (
+      msg.type === "command.result" &&
+      msg.command === "conversation.create" &&
+      conversationId === undefined
+    ) {
       conversationId = msg.conversationId;
       send({ type: "prompt.submit", requestId: "p1", conversationId, content: prompt });
     }

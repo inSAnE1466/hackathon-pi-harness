@@ -17,6 +17,7 @@ import { openDurableObjectSqliteStorage } from "@earendil-works/pi-durable/stora
 import { normalizeUsername } from "./identity.ts";
 import { createChatHarnessOptions } from "./chat.ts";
 import { AuditLog } from "./audit.ts";
+import { intake } from "./primitives/intake.ts";
 import {
   InvalidClientCommand,
   MAX_CLIENT_FRAME_CHARACTERS,
@@ -487,12 +488,19 @@ export class Session extends DurableObject<Env> {
         // Arm before admitting work: `onWake` runs after the commit, so an instance that dies in between is
         // still woken. An early alarm is harmless; a missing one strands the turn.
         await this.#arm({ ...this.#harness.wake(), active: true });
+        // Intake: when BRANE would keep the whole claim local for health reasons, the local model first reduces the
+        // medical part to a health-free fact sheet, so the agent's turns can use the frontier model.
+        const split = await intake(this.env, command.content);
+        this.#audit.gate({
+          kind: "intake",
+          result: split.kind === "failed" ? `kept local: ${split.reason}` : split.kind,
+        });
         const submission = await conversation.submit(
           {
             type: "input",
             content: attributedPrompt(
               connectionState(socket)?.username ?? "Guest",
-              command.content,
+              split.kind === "split" ? split.content : command.content,
             ),
             requestId: command.requestId,
             // Queue behind a running turn instead of rejecting; the inbox places it after the current answer.
