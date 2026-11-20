@@ -61,3 +61,20 @@ tokens. Narration by ElevenLabs from a script in `video/script.md`; captions syn
 
 Motion rules: one idea per beat, animate only what the narration names, ease-out for entrances, no motion that does
 not carry information. The design system is the deck's: white, black, Inter, yellow highlight as the only colour.
+
+## Assets
+
+Everything the jury sees besides the live app lives in `demo/`. Every number in it traces to a file in `evals/` or
+`submission/`, cited where it appears.
+
+| Asset                  | File                                                                                     |
+| ---------------------- | ---------------------------------------------------------------------------------------- |
+| 3-minute live script   | [demo/script.md](../demo/script.md): prompts, clicks, decision log rows, lines, T1 to T5 |
+| Video narration        | [demo/narration.md](../demo/narration.md): 217 words in six timed beats, for ElevenLabs  |
+| Slide deck             | [demo/deck/index.html](../demo/deck/index.html), rendered to `demo/deck/deck.pdf`        |
+| Video                  | [demo/video/](../demo/video/): HyperFrames composition, rendered to `demo/video/out.mp4` |
+| Live decision log rows | [demo/evidence/drive-2026-11-20.md](../demo/evidence/drive-2026-11-20.md)                |
+| QC gate run            | [demo/evidence/qc-2026-11-20.txt](../demo/evidence/qc-2026-11-20.txt)                    |
+
+The narration script is `demo/narration.md`. The video's audio is silence until the ElevenLabs voiceover replaces
+`demo/video/assets/narration-placeholder.m4a`; [demo/video/render.md](../demo/video/render.md) has the steps.
