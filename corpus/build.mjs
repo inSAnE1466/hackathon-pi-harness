@@ -1,122 +1,122 @@
 #!/usr/bin/env node
-// Build the legal corpus the agent searches: fetch the public law texts our policy cites, split them into
-// passages with stable ids, add our synthetic policy terms, and write corpus/passages.json.
-// Sources: GDPR (gdpr-info.eu mirror of Regulation (EU) 2016/679), AI Act (artificialintelligenceact.eu mirror of
-// Regulation (EU) 2024/1689). EU legislation may be reused (Commission Decision 2011/833/EU); each passage keeps its
-// source URL. Run when the article list changes: node corpus/build.mjs
-import { readFileSync, writeFileSync } from "node:fs";
+// Build the corpus the agent searches (corpus/passages.json): the law from the official EUR-Lex texts, split into
+// paragraphs with stable ids, plus the synthetic insurer's policy terms, medical-claims criteria, case-law and guidance
+// summaries. Each passage records its source URL, the CELEX number and a content hash, so a rebuild shows any change.
+// EU legislation may be reused (Commission Decision 2011/833/EU).
+// Run: node corpus/build.mjs   (fetches EUR-Lex once and caches the HTML under /tmp/legal)
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { annex, article, recital } from "./eurlex.mjs";
 
-const GDPR = [4, 5, 6, 9, 10, 13, 15, 22, 25, 28, 30, 32, 35, 44, 46];
-const AI_ACT = [6, 12, 13, 14, 19, 26, 27, 50];
-const AI_ACT_ANNEX = [3];
+const SOURCES = [
+  {
+    key: "GDPR",
+    source: "GDPR",
+    celex: "32016R0679",
+    articles: [4, 5, 6, 9, 10, 13, 15, 22, 25, 28, 30, 32, 35, 44, 46, 87],
+    recitals: [26, 35, 38, 51, 71],
+  },
+  {
+    key: "AIA",
+    source: "EU AI Act",
+    celex: "32024R1689",
+    articles: [6, 12, 13, 14, 19, 26, 27, 50],
+    annexes: ["III"],
+  },
+];
 
-const clean = (html) =>
-  html
-    .replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, "")
-    .replace(/<\/(li|p|div|h\d)>/g, "\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&#8217;|&rsquo;/g, "'")
-    .replace(/&#8220;|&#8221;|&ldquo;|&rdquo;/g, '"')
-    .replace(/&#8211;|&ndash;/g, "-")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/[ \t]+/g, " ")
-    .replace(/\n\s*\n+/g, "\n")
-    .trim();
+const url = (celex) => `https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:${celex}`;
+const hash = (text) => createHash("sha256").update(text).digest("hex").slice(0, 12);
 
-async function get(url) {
-  const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (corpus build)" } });
-  if (!res.ok) throw new Error(`${url} -> ${res.status}`);
-  return res.text();
-}
-
-// The article's paragraphs are the top-level <li> of its first <ol>; nested lists stay inside their paragraph.
-function topLevelItems(body) {
-  const start = body.indexOf("<ol>");
-  if (start === -1) return [clean(body)];
-  const items = [];
-  let depth = 0;
-  let itemStart = -1;
-  const tag = /<(\/?)(ol|li)\b[^>]*>/g;
-  tag.lastIndex = start;
-  for (let m; (m = tag.exec(body));) {
-    const [, close, name] = m;
-    if (name === "ol") {
-      depth += close ? -1 : 1;
-      if (depth === 0) break;
-    } else if (depth === 1 && !close) itemStart = tag.lastIndex;
-    else if (depth === 1 && close && itemStart >= 0) {
-      items.push(clean(body.slice(itemStart, m.index)));
-      itemStart = -1;
-    }
+async function official(celex) {
+  mkdirSync("/tmp/legal", { recursive: true });
+  const file = `/tmp/legal/${celex}.html`;
+  if (!existsSync(file)) {
+    const res = await fetch(url(celex), {
+      headers: { "User-Agent": "Mozilla/5.0 (corpus build)" },
+    });
+    if (!res.ok) throw new Error(`EUR-Lex ${celex} -> ${res.status}`);
+    writeFileSync(file, await res.text());
   }
-  return items.length ? items : [clean(body)];
+  return readFileSync(file, "utf8");
 }
 
 const passages = [];
+const add = (p) => passages.push({ ...p, hash: hash(p.text) });
 
-for (const n of GDPR) {
-  const url = `https://gdpr-info.eu/art-${n}-gdpr/`;
-  const html = await get(url);
-  const title =
-    /<h1[^>]*>([\s\S]*?)<\/h1>/
-      .exec(html)?.[1]
-      .replace(/<[^>]+>/g, "")
-      .trim() ?? `Art. ${n} GDPR`;
-  const body = /<div class="entry-content">([\s\S]*?)<div class="emp/.exec(html)?.[1] ?? "";
-  const paras = topLevelItems(body);
-  paras.forEach((text, i) => {
-    if (text.length < 20) return;
-    passages.push({
-      id: `GDPR-${n}${paras.length > 1 ? `(${i + 1})` : ""}`,
-      source: "GDPR",
-      title: title.replace(/\s+/g, " "),
-      text,
-      url,
-    });
-  });
-  console.log(`GDPR Art. ${n}: ${paras.length} passages`);
-}
-
-async function aiAct(kind, n) {
-  const url = `https://artificialintelligenceact.eu/${kind}/${n}/`;
-  const html = await get(url);
-  const title = clean(/<h1[^>]*>([\s\S]*?)<\/h1>/.exec(html)?.[1] ?? `${kind} ${n}`);
-  // Each paragraph is a depth-0 block; its sub-points are the depth-1 blocks that follow it.
-  const blocks = [
-    ...html.matchAll(/<div class="para (depth-\d)"[^>]*>([\s\S]*?)<div class="para-actions">/g),
-  ];
-  const paras = [];
-  for (const [, depth, inner] of blocks) {
-    const label = clean(/<span class="para-label">([\s\S]*?)<\/span>/.exec(inner)?.[1] ?? "");
-    const text = clean(
-      (/<span class="para-text">([\s\S]*)/.exec(inner)?.[1] ?? inner).replace(
-        /<span class="term-tip">[\s\S]*?<\/span><\/span>/g,
-        "",
-      ),
-    );
-    if (depth === "depth-0" || paras.length === 0) paras.push(`${label} ${text}`.trim());
-    else paras[paras.length - 1] += `\n${label} ${text}`;
+for (const s of SOURCES) {
+  const html = await official(s.celex);
+  for (const n of s.articles) {
+    const a = article(html, n);
+    if (!a) throw new Error(`${s.key} Art. ${n} not found in ${s.celex}`);
+    // Definitions articles (GDPR Art. 4) are one paragraph of numbered points; split them into one passage each.
+    const defs = a.paragraphs.length === 1 ? a.paragraphs[0].text.split(/\n\s*\((\d+)\)\s*\n/) : [];
+    if (defs.length > 3) {
+      for (let i = 1; i < defs.length; i += 2) {
+        add({
+          id: `${s.key}-${n}(${defs[i]})`,
+          source: s.source,
+          title: `Art. ${n}(${defs[i]}) ${a.title}`,
+          text: defs[i + 1].trim(),
+          url: `${url(s.celex)}#art_${n}`,
+          celex: s.celex,
+        });
+      }
+      continue;
+    }
+    for (const p of a.paragraphs) {
+      add({
+        id: `${s.key}-${s.key === "AIA" ? "Art" : ""}${n}${p.n && a.paragraphs.length > 1 ? `(${p.n})` : ""}`,
+        source: s.source,
+        title: `Art. ${n}${p.n && a.paragraphs.length > 1 ? `(${p.n})` : ""} ${a.title}`,
+        text: p.text.slice(0, 3000),
+        url: `${url(s.celex)}#art_${n}`,
+        celex: s.celex,
+      });
+    }
   }
-  paras.forEach((text, i) =>
-    passages.push({
-      id: `AIA-${kind === "annex" ? "Annex" : "Art"}${n}${paras.length > 1 ? `(${i + 1})` : ""}`,
-      source: "EU AI Act",
-      title,
-      text: text.slice(0, 2400),
-      url,
-    }),
-  );
-  console.log(`AI Act ${kind} ${n}: ${paras.length} passages`);
+  for (const n of s.recitals ?? []) {
+    const text = recital(html, n);
+    if (!text) throw new Error(`${s.key} Recital ${n} not found`);
+    add({
+      id: `${s.key}-R${n}`,
+      source: s.source,
+      title: `Recital ${n}`,
+      text,
+      url: `${url(s.celex)}#rct_${n}`,
+      celex: s.celex,
+    });
+  }
+  for (const roman of s.annexes ?? []) {
+    const text = annex(html, roman);
+    if (!text) throw new Error(`${s.key} Annex ${roman} not found`);
+    // Split the annex into its numbered points so a search returns the relevant one.
+    const points = text.split(/\n\s*(?=\d+\.\s*\n)/).filter((t) => /^\d+\./.test(t.trim()));
+    for (const point of points) {
+      const n = /^(\d+)\./.exec(point.trim())[1];
+      add({
+        id: `${s.key}-Annex${roman === "III" ? 3 : roman}(${n})`,
+        source: s.source,
+        title: `Annex ${roman} point ${n}`,
+        text: point.trim().slice(0, 3000),
+        url: `${url(s.celex)}#anx_${roman}`,
+        celex: s.celex,
+      });
+    }
+  }
+  console.log(`${s.key}: official text ${s.celex}`);
 }
-for (const n of AI_ACT) await aiAct("article", n);
-for (const n of AI_ACT_ANNEX) await aiAct("annex", n);
 
-// Our synthetic insurer's policy terms and the summaries of case law and guidance the policy relies on.
-for (const line of readFileSync("corpus/policy-terms.jsonl", "utf8").trim().split("\n"))
-  passages.push(JSON.parse(line));
-for (const line of readFileSync("corpus/guidance.jsonl", "utf8").trim().split("\n"))
-  passages.push(JSON.parse(line));
+// The insurer's own material (synthetic) and summaries of case law and guidance, with their sources.
+for (const file of [
+  "corpus/policy-terms.jsonl",
+  "corpus/medical-criteria.jsonl",
+  "corpus/guidance.jsonl",
+]) {
+  if (!existsSync(file)) continue;
+  for (const line of readFileSync(file, "utf8").trim().split("\n")) add(JSON.parse(line));
+}
 
 writeFileSync("corpus/passages.json", JSON.stringify(passages, null, 1) + "\n");
-console.log(`wrote corpus/passages.json: ${passages.length} passages`);
+const bySource = passages.reduce((m, p) => ({ ...m, [p.source]: (m[p.source] ?? 0) + 1 }), {});
+console.log(`wrote corpus/passages.json: ${passages.length} passages`, bySource);
