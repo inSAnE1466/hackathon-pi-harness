@@ -50,8 +50,9 @@ environment, not the license.
 
 ## Who decides what
 
-Three parts, each with one job. BRANE is a gate on egress, not the orchestrator, and it does not choose between
-open and closed models.
+Three parts, each with one job. BRANE is a gate on egress, not the orchestrator. The brief says BRANE can forward a
+request to an approved model, restrict it to local processing or block it, according to the policy we configure;
+whether a local model sits behind BRANE is open until its documentation arrives.
 
 | Part             | Runs                                            | Sees raw data                                       | Decides                                                                                 |
 | ---------------- | ----------------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------- |
@@ -59,6 +60,7 @@ open and closed models.
 | **Router**       | `route()`, local code beside the orchestrator   | Yes, inside our trust boundary                      | The route per segment, from local detectors, the local classifier and the policy matrix |
 | **BRANE**        | AI-Z's firewall, in front of the external model | Only what the router sends toward `frontier` routes | Whether that payload may leave, and how it is protected; returns a verdict              |
 
+The brief's example passes the original input to BRANE, and we keep that path for everything the router releases.
 Raw input stays inside our boundary until the router has run. BRANE receives only segments the router already
 placed on a `frontier` or `frontier-protected` route, so a special-category record routed `local` or `block` is
 never sent to BRANE at all. BRANE then checks that payload again as the second, independent layer.
