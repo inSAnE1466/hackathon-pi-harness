@@ -128,12 +128,30 @@ async function run([id, scenario, expected, prompt, pass]) {
   ]
     .filter(Boolean)
     .join(" | ");
-  const output =
+  const impact =
+    {
+      cloud:
+        d.redacted === "true"
+          ? "Protected: placeholders only; the task does not need the identities, so answer quality is unchanged"
+          : "Unprotected by design: no personal data, full frontier quality",
+      local:
+        "Kept local: answered by the local model; slightly less polished than the frontier model, but the health detail never leaves",
+      refused:
+        "Refused before any model ran: the agent hands the step to an authorised person instead of answering",
+    }[d.route] ?? "";
+  const answerText =
     live && j.liveCompletion
       ? String(j.liveCompletion.preview ?? "")
           .replace(/\s+/g, " ")
-          .slice(0, 240)
-      : `dry run: ${d.route}${leaked.length ? `; leaked ${leaked.join(", ")}` : ""}`;
+          .slice(0, 160)
+      : "";
+  const output = [
+    impact,
+    answerText && `Answer: ${answerText}`,
+    leaked.length ? `LEAKED ${leaked.join(", ")}` : "",
+  ]
+    .filter(Boolean)
+    .join(" | ");
   console.log(
     `${id} ${ok ? "PASS" : "FAIL"} route=${d.route} redacted=${d.redacted ?? ""} ${detail}`,
   );
