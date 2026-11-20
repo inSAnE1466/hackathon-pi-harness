@@ -1,80 +1,85 @@
 # Primitives
 
-A primitive is one capability in one file under `src/primitives/<name>.ts`, with a typed input and output and its
-own eval cases. The agent composes them and never reimplements one inline.
+The harness is a Pi Durable agent in a Durable Object. Its claims-specific behavior is a small set of primitives, each
+one file under `src/` with one job. Each primitive exists because a measured gap or a legal rule needs it; the case
+for each is below.
 
-| Primitive | Input                                 | Output                                                      | Runs where             | Track step                |
-| --------- | ------------------------------------- | ----------------------------------------------------------- | ---------------------- | ------------------------- |
-| `brane`   | raw text, policy id                   | verdict, categories, protected text                         | BRANE                  | Detect, classify, protect |
-| `decide`  | claim step text                       | BRANE dry-run detections, semantic matches, injection score | BRANE `/policy/test`   | Classify                  |
-| `route`   | verdict, probabilities, policy matrix | `Route` per step                                            | local, pure function   | Route or block            |
-| `consult` | minimised case, expert role           | expert opinion record                                       | human, in the client   | Human oversight           |
-| `approve` | recommendation, sources               | outcome record with approver                                | human, in the client   | Human oversight           |
-| `isolate` | claim id                              | a fresh Pi conversation with no shared memory               | Pi Durable config      | Purpose limitation        |
-| `record`  | a decision and its inputs             | protocol row                                                | Durable Object storage | Document                  |
+| Primitive          | File                                  | Kind                  | What it does                                                                                      |
+| ------------------ | ------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------- |
+| `brane`            | `src/brane.ts`                        | model provider        | The only route to any model. OpenAI-compatible chat at BRANE; fails closed                        |
+| `intake`           | `src/primitives/intake.ts`            | runs before the agent | Splits health detail out of a claim on the local model so the agent can use the frontier model    |
+| `gate`             | `src/primitives/gate.ts`, `detect.ts` | Pi hooks              | Masks identifiers BRANE mislabels in every request body; logs handoffs and citations              |
+| `lookup`           | `src/primitives/lookup.ts`            | agent tool            | Searches the legal corpus and policy terms; returns citable passage ids                           |
+| `consult`          | `src/primitives/handoff.ts`           | agent tool            | Sends a minimised question to the medical adviser or legal reviewer                               |
+| `request_approval` | `src/primitives/handoff.ts`           | agent tool            | Hands a recommendation to the claims handler, who decides                                         |
+| `audit`            | `src/audit.ts`                        | storage               | One row per decision in the Durable Object's SQLite, served to the decision log, never to a model |
+| `isolate`          | `src/chat.ts`, `session.ts`           | configuration         | One claim per conversation; no shared memory across claims                                        |
 
-## Data shapes
+## The case for each
 
-```ts
-type Category = string; // keys of the policy matrix, e.g. "claimant.name", "health.diagnosis"
-type Action = "allow" | "protect" | "local" | "block";
-type Route = "frontier" | "frontier-protected" | "local" | "consult" | "block";
+### brane: the gate is the transport
 
-type Verdict = {
-  action: Action;
-  categories: Category[];
-  protectedText?: string;
-  payloadHash: string;
-};
+A check before a model call can be skipped; a missing network path cannot. `braneFetch` reaches BRANE's origin only,
+records every `X-Brane-*` decision, and throws when a response has no routing header. Retries are off, so a failure
+is never resent elsewhere. This is track test T5 (check failure), enforced by construction. Source: brief, check
+failure test; GDPR Art. 32.
 
-type PolicyRule = {
-  category: Category;
-  action: Action;
-  method?: "pseudonymise" | "mask" | "remove";
-  consult?: "medical" | "legal";
-  legalBasis: string; // the article or guidance the rule rests on
-};
+### intake: BRANE routes per request, claims need per-part routing
 
-type ProtocolRow = {
-  at: string;
-  claimId: string;
-  testCase?: string;
-  payloadHash: string; // never the raw text
-  categories: Category[];
-  verdict: Action | "error";
-  answers: Record<string, number>;
-  route: Route;
-  outcome: "sent" | "withheld" | "consulted" | "approved" | "rejected" | "error";
-  actor?: string; // the human role for consult and approve
-};
+BRANE applies the strictest category to the whole request. One word of health detail sends the entire claim to the
+local model, and the frontier model never helps with coverage reasoning or drafting. Intake runs a BRANE dry run
+first. Only when health would send the claim local, BRANE's local model rewrites the medical part as a fact sheet
+with coded invoice lines ("Invoice A: treatment, EUR 1,240"), amounts, whether a referral is present, and whether the
+medical adviser is needed. BRANE re-checks the sheet; only a clean sheet replaces the claim. A failed check keeps the
+claim local, as before. Measured: a ski-fracture claim that went local on every turn now reasons on
+`claude-haiku-5.5` with policy citations and sends the medical question to the adviser. Source: GDPR Art. 5(1)(c),
+Art. 9; insurers' code of conduct 5.1.3.
+
+### gate: BRANE mislabels identifiers that matter in insurance
+
+The golden set showed BRANE labeling a valid BSN and a passport number as `ACCOUNT_NUMBER` and a policy number as
+`PERSON`, partly masked (`PERSON_REF_2-88`). `detect.ts` holds deterministic checks (the BSN 11-proof, policy and claim
+number patterns, passport numbers), and the gate's `beforeProviderRequest` hook masks them in every request body,
+the harness's own housekeeping calls included, before BRANE sees it. Measured: the harness's unsafe decisions on the
+golden set go from 3/63 (BRANE alone) to 0/63 ([decision log](../evals/decision-log.md)). Source: GDPR Art. 87;
+national-ID rules (e.g. NL UAVG Art. 46).
+
+### lookup: claims need law and policy, cited
+
+The two models BRANE offers know neither this insurer's policy terms nor the exact legal text. `lookup` is BM25
+over `corpus/passages.json`: 125 passages of GDPR articles, EU AI Act articles and Annex III (fetched by
+`corpus/build.mjs` from public mirrors), case-law and guidance summaries, and the synthetic policy terms. It runs in
+the Worker: deterministic, no external service, nothing leaves. Every passage id it returns is logged, so the audit
+shows which clause each recommendation rests on.
+
+### consult and request_approval: people decide
+
+The agent prepares; a medical adviser judges medical questions and a claims handler decides every outcome. The tools
+return only an acknowledgement to the model, so a person's decision is never generated. BRANE's semantic category
+`CLAIM_OUTCOME_DECISION` refuses any request to decide, and these tools are the path the agent takes instead.
+Source: GDPR Art. 22; CJEU C-634/21; AI Act Art. 14; insurers' code of conduct 5.1.3.
+
+### audit: every decision traceable, none returned to a chat
+
+The track requires every decision in the test protocol. `audit_log` in the Durable Object's SQLite holds BRANE's
+decision per request and the gate's events (masked, intake, lookup, handoff). It is served at
+`GET /api/sessions/:id/audit` to the decision log panel and never written into a conversation. It stores categories
+and ids, never prompt text.
+
+### isolate: one claim, one conversation
+
+Comparing claimants is refused by BRANE (`CROSS_CLAIMANT_COMPARISON`), and the harness gives each claim its own
+conversation with no shared memory, so a claim's data cannot surface in another. Source: GDPR Art. 5(1)(b).
+
+## Flow of one claim
+
 ```
-
-The policy matrix is data (`policy/claims.json`, a list of `PolicyRule`), so the legal team edits rules without
-touching code, and the jury can read the matrix and the code side by side.
-
-## decide
-
-BRANE exposes no Decisions endpoint, so `decide` reads BRANE's own dry run (`POST /api/v1/policy/test`): each
-detected category with its detector and confidence, the matched semantic categories, and the prompt-injection
-score ([brane](brane.md)). Raw claim text then reaches no service other than BRANE. Our own questions become
-semantic categories in BRANE's policy, so BRANE's internal GPU model answers them:
-
-| Semantic category           | Asks                                                                                         | Action                                       |
-| --------------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| `CLAIM_HEALTH_CONTEXT`      | Indirect health detail: symptoms, therapy, medication, sick leave, without a named diagnosis | `local`                                      |
-| `CLAIM_OUTCOME_DECISION`    | A request to pay, reduce, deny or reject a claim, or send that decision                      | `refuse`, so the harness routes to `approve` |
-| `CROSS_CLAIMANT_COMPARISON` | Comparing or ranking several claimants' records                                              | `refuse`                                     |
-| `PROTECTED_TRAIT_PROFILING` | Selecting claims by ethnicity, religion, nationality or a proxy such as surname              | `refuse`                                     |
-
-`route()` reads the dry run's decision and these matches, and applies our own floors to the confidences: a health
-detection below its floor still routes `local`, failing safe as in the routing tiers.
-
-## Where code mode fits
-
-| Call                                       | Code mode | Why                                                                           |
-| ------------------------------------------ | --------- | ----------------------------------------------------------------------------- |
-| Running `decide` over many claim documents | yes       | Fan-out with four in flight, journaled; the model sees the routing table only |
-| Running the eval suite inside the harness  | yes       | Deterministic replay; results stay out of the chat context                    |
-| The `brane` call on each outbound request  | no        | It is the transport itself and runs on every request                          |
-| `route()`                                  | never     | A model-written script must not compute its own route                         |
-| The pseudonym map                          | never     | Re-identification stays outside every sandbox                                 |
+claim text
+  └─ intake: BRANE dry run ── health would send it local? ── yes ─ local model → fact sheet → BRANE re-check
+  └─ agent turn (Pi Durable, Durable Object)
+       ├─ lookup → passage ids                      (inside the Worker)
+       ├─ consult / request_approval → a person     (logged)
+       └─ model request
+            ├─ gate: mask BSN, passport, policy, claim ids
+            └─ brane: BRANE decides cloud protected, local or refused → X-Brane-* → audit
+```

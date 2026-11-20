@@ -109,9 +109,8 @@ context stays durable across a long claim and never crosses between claimants.
 
 ## 6. Primitives
 
-`brane` (gate and protect), `decide` (read BRANE's dry-run signals), `route` (pure tiering), `consult` (medical or
-legal expert), `approve` (handler), `isolate` (one claim per conversation), `record` (protocol row). Specified in
-[primitives](docs/primitives.md).
+`brane`, `intake`, `gate`, `lookup`, `consult`, `request_approval`, `audit`, `isolate`: each one file with one job and a
+measured reason to exist ([primitives](docs/primitives.md)).
 
 ## 7. Evals
 
