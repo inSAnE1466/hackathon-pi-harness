@@ -1,4 +1,5 @@
 import { openAICompletionsApi } from "@earendil-works/pi-ai/api/openai-completions.lazy";
+import policy from "../policy/brane.json";
 import {
   createProvider,
   type Model,
@@ -9,9 +10,9 @@ import {
 /** The one route from this harness to any model. BRANE inspects, protects and routes every request. */
 export const BRANE_PROVIDER = "brane";
 
-/** Our cloud and local models, from the organizers' list (`GET /api/v1/models`). */
-export const BRANE_CLOUD_MODEL = "openrouter:anthropic/claude-haiku-5.5";
-export const BRANE_LOCAL_MODEL = "vllm:deepseek-v4.1-flash";
+/** Our cloud and local models: chosen once, in policy/brane.json, from the organizers' list (`GET /api/v1/models`). */
+export const BRANE_CLOUD_MODEL: string = policy.models.cloud;
+export const BRANE_LOCAL_MODEL: string = policy.models.local;
 
 export type BraneEnv = { readonly BRANE_BASE_URL: string; readonly BRANE_API_KEY: string };
 
