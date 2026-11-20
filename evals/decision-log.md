@@ -17,9 +17,9 @@ ask-LLM filter call itself before the LLM ran), three runs each. Latest result i
 
 | Build                                                            | Correct | Unsafe | Stable claims | Median latency |
 | ---------------------------------------------------------------- | ------- | ------ | ------------- | -------------- |
-| Our harness (gate masks identifiers, then BRANE with our policy) | 60/63   | 0/63   | 21/21         | 659 ms         |
-| BRANE alone with our policy                                      | 57/63   | 3/63   | 21/21         | 474 ms         |
-| Ask an LLM "is this sensitive?" (local model, same labels)       | 50/63   | 6/63   | 17/21         | 1261 ms        |
+| Our harness (gate masks identifiers, then BRANE with our policy) | 60/63   | 0/63   | 21/21         | 587 ms         |
+| BRANE alone with our policy                                      | 57/63   | 3/63   | 21/21         | 608 ms         |
+| Ask an LLM "is this sensitive?" (local model, same labels)       | 49/63   | 6/63   | 18/21         | 1096 ms        |
 
 Unsafe means sensitive data would have gone to the cloud unprotected or a forbidden request would have passed. The
 gate closes BRANE's three unsafe decisions (a passport number labeled `ACCOUNT_NUMBER`) by masking it before BRANE.
