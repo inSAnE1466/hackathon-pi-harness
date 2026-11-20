@@ -1,4 +1,12 @@
-# pi-durable on Cloudflare
+# AI-Z hackathon agent
+
+Team repository for the AI-Z Challenge Track, MAIN Summit 2026. Start with [AGENTS.md](AGENTS.md) and
+[docs/README.md](docs/README.md). Everything below is upstream's README for the Pi Durable base and stays accurate
+until we replace the example agent.
+
+---
+
+## Upstream: pi-durable on Cloudflare
 
 A working example of [`@earendil-works/pi-durable`](https://www.npmjs.com/package/@earendil-works/pi-durable) running in a Cloudflare Durable Object.
 

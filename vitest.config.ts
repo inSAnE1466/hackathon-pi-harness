@@ -3,7 +3,7 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   // Workerd cannot read Vitest 5's host-filesystem module cache.
-  test: { fsModuleCache: false },
+  test: { fsModuleCache: false, include: ["test/**/*.test.{ts,tsx}"] },
   plugins: [
     cloudflareTest({
       wrangler: { configPath: "./wrangler.jsonc" },
