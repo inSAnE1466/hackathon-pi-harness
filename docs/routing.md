@@ -18,7 +18,7 @@ the job-relevant parts go `frontier-protected` while a health disclosure in the 
 
 ## Distinction 1: human expertise or a model
 
-A step goes to `human` when any of these hold. Each row names its source; the [policy matrix](policy-matrix.md)
+A step goes to `human` when any of these hold. Each row names its source; the policy matrix ([plan](plan.md) step 3)
 cites the exact article per use case.
 
 | Test                                                                                                                         | Why it forces a human                                                                                                | Source                                                              |
