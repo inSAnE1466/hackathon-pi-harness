@@ -1,0 +1,9 @@
+QC on policy claims-v5
+ok        golden     passed      29/30  (baseline 29)
+ok        golden     leaked      0/53  (baseline 0)
+ok        golden     overBlocked 0/3  (baseline 0)
+ok        heldout    passed      20/20  (baseline 20)
+ok        heldout    leaked      0/33  (baseline 0)
+ok        heldout    overBlocked 0/2  (baseline 0)
+ok        organizers passed      10/10  (baseline 10)
+PASS: no regressions
