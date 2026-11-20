@@ -1,1 +1,2 @@
-OPENAI_API_KEY=
+BRANE_BASE_URL=https://brane.ai-z.io/api/v1
+BRANE_API_KEY=

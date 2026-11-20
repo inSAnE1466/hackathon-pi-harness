@@ -2,9 +2,9 @@
 
 ## The site
 
-The Worker deploys to Cloudflare behind Cloudflare Access: an email one-time PIN for an allow-list of the team's
-and the jury's addresses. No login code lives in this repository. The same site serves manual testing, the live
-demo and the screen recordings for the video.
+The app runs locally with `pnpm dev` for building and the live demo. If the jury needs a link, the Worker deploys to
+Cloudflare behind a shared team password ([run](run.md)). The same app serves manual testing, the live demo and the
+screen recordings for the video.
 
 What a tester does by hand:
 
@@ -14,6 +14,14 @@ What a tester does by hand:
 3. Answer a `consult` or `approve` request as the medical adviser or the handler.
 4. Read the protocol rows for that claim.
 5. Open the eval board: the five track tests, every failure-mode family, and our scores beside the baseline's.
+
+## The design system
+
+Our own `src/client/tokens.css`, written from public product-design principles: a white page, grey only on tiles
+and selected rows, hairline separators instead of heavy shadows, near-black pill for the one primary action, Inter
+at 400/500/600 with four sizes (12, 14, 16, 20), spacing on a 4px scale, and tiles in a bento grid that fills the
+page. State colours appear only beside a text label: green for passed, orange for waiting on a human, red for
+blocked or failed. No design files from other projects are copied.
 
 ## The trace viewer
 

@@ -58,6 +58,21 @@ case family, including cross-record linkage (L1 to L6), which the brief's five t
 
 The same suite runs against a prompt-and-curl baseline ([baseline](baseline.md)) so every number has a comparison.
 
+## The headline
+
+One number for the jury: **impermissible transfers per 100 synthetic claims**, for three builds on the same claims:
+
+| Build              | What it is                                                                                |
+| ------------------ | ----------------------------------------------------------------------------------------- |
+| BRANE open default | All 25 categories sent as typed                                                           |
+| Ask the LLM        | A chat model is asked whether each claim is sensitive, then the claim is cleaned and sent |
+| Ours               | `policy/brane.json`, split claim steps, `route()`, fail closed                            |
+
+Beside it, **route stability**: the share of claims that route identically on three reruns. Ours should be 100%;
+the ask-the-LLM build is where reruns disagree.
+
+The organizers' T1 to T5 and our E1 to E5 run with `node scripts/brane-cases.mjs` ([run](run.md#the-organizers-tests)).
+
 ## Data sources
 
 All synthetic; licenses checked on 2026-11-20. Real claim documents never enter the repository.

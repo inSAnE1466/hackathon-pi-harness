@@ -27,17 +27,18 @@ This is a sample, not a production service. It intentionally has no authenticati
 
 ## Run it locally
 
-You need Node.js 22.19 or newer, pnpm 11, and an OpenAI API key.
+You need Node.js 22.19 or newer, pnpm 11, and the team's BRANE key.
 
 ```sh
 pnpm install
 cp .dev.vars.example .dev.vars
 ```
 
-Add your key to `.dev.vars`:
+Add the team's BRANE key to `.dev.vars` (see [docs/run.md](docs/run.md)):
 
 ```dotenv
-OPENAI_API_KEY=your-key
+BRANE_BASE_URL=https://brane.ai-z.io/api/v1
+BRANE_API_KEY=brn_live_...
 ```
 
 Then start the Worker and React client together:
@@ -76,7 +77,7 @@ Authenticate Wrangler, store the API key as a Worker secret, then deploy:
 
 ```sh
 pnpm exec wrangler login
-pnpm exec wrangler secret put OPENAI_API_KEY
+pnpm exec wrangler secret put BRANE_API_KEY
 pnpm deploy
 ```
 

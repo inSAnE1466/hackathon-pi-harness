@@ -7,7 +7,9 @@ export default defineConfig({
   plugins: [
     cloudflareTest({
       wrangler: { configPath: "./wrangler.jsonc" },
-      miniflare: { bindings: { OPENAI_API_KEY: "test-openai-key" } },
+      miniflare: {
+        bindings: { BRANE_BASE_URL: "https://brane.test/api/v1", BRANE_API_KEY: "test-brane-key" },
+      },
     }),
   ],
 });
