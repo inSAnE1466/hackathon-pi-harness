@@ -82,8 +82,10 @@ Record-keeping is required whichever way the AI Act question in section 5 is set
 
 **Design.** Every automated step writes one row to the audit log in the claim's Durable Object: BRANE's routing
 decision and its categories, identifiers masked by the gate, the intake split, cited passages, and each handoff to a
-person. The log stores categories and ids, never prompt text, so it is itself minimised. It is shown in the claims
-app and exported as CSV, and it is never returned to the model.
+person. Each person's request and each reviewer's decision on a handoff are rows too, so every row names who acted
+(a person, BRANE, the gate or the assistant) and automated rows name the policy version. Rows are hash-chained, so a
+changed or deleted row shows. The log stores categories and ids, never prompt text, so it is itself minimised. It is
+shown in the claims app and exported as CSV, and it is never returned to the model.
 
 ## 7. What must never happen
 

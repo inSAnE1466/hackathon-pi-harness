@@ -1,12 +1,13 @@
 /**
  * The decision log as the client reads it from `GET /api/sessions/:id/audit`, and the pure functions the workspace
- * derives from it: the route of each BRANE row, the headline counts, handoff wording, refusal wording and CSV.
+ * derives from it: the route of each BRANE row, the headline counts, handoff wording, refusal wording and the
+ * decision a person recorded on each handoff. The CSV export is the server's (`GET /audit?format=csv`).
  * Mirrors `AuditRow` in `src/audit.ts`; the server type is not imported because it pulls in Worker-only types.
  */
 export interface AuditRow {
   readonly id: number;
   readonly at: string;
-  readonly kind: "brane" | "masked" | "handoff" | "lookup";
+  readonly kind: "brane" | "masked" | "handoff" | "lookup" | "intake" | "request" | "human";
   readonly status: number;
   readonly routedTo: string;
   readonly action: string;
@@ -17,6 +18,43 @@ export interface AuditRow {
   readonly refusedBy: string;
   readonly modelResolved: string;
   readonly detail: string;
+  /** Who acted: `brane`, `gate`, `agent`, or a person's display name. */
+  readonly actor: string;
+  readonly policyVersion: string;
+  /** For a `human` row, the handoff it answers. */
+  readonly refId: number;
+  readonly prevHash: string;
+  readonly hash: string;
+}
+
+/** The server's check of the hash chain over every row. */
+export type ChainCheck =
+  | { readonly ok: true; readonly rows: number }
+  | { readonly ok: false; readonly rows: number; readonly brokenAt: number };
+
+export type HumanDecision = "approved" | "rejected" | "edited";
+
+/** The decision a person recorded on each handoff, keyed by the handoff's row id. */
+export function decisionsByHandoff(rows: readonly AuditRow[]): ReadonlyMap<number, AuditRow> {
+  const decisions = new Map<number, AuditRow>();
+  for (const row of rows) if (row.kind === "human") decisions.set(row.refId, row);
+  return decisions;
+}
+
+/** Who acted, in words. */
+export function actorLabel(row: AuditRow): string {
+  switch (row.actor) {
+    case "brane":
+      return "BRANE";
+    case "gate":
+      return "Our gate";
+    case "agent":
+      return "The assistant";
+    case "":
+      return "Unrecorded";
+    default:
+      return row.actor;
+  }
 }
 
 export type Route = "cloud" | "local" | "refused" | "unknown";
@@ -161,34 +199,4 @@ export function refusalOf(errorText: string, rows: readonly AuditRow[]): Refusal
     ...(description === undefined ? {} : { description }),
     ...(legalBasis === undefined ? {} : { legalBasis }),
   };
-}
-
-const CSV_COLUMNS = [
-  "id",
-  "at",
-  "kind",
-  "status",
-  "routedTo",
-  "action",
-  "redacted",
-  "piiTypes",
-  "semanticMatches",
-  "localCause",
-  "refusedBy",
-  "modelResolved",
-  "detail",
-] as const satisfies readonly (keyof AuditRow)[];
-
-const csvCell = (value: string | number | boolean): string => {
-  const text = String(value);
-  return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
-};
-
-/** The rows oldest first, one line each, with a header line. */
-export function toCsv(rows: readonly AuditRow[]): string {
-  const ordered = [...rows].sort((a, b) => a.id - b.id);
-  return [
-    CSV_COLUMNS.join(","),
-    ...ordered.map((row) => CSV_COLUMNS.map((column) => csvCell(row[column])).join(",")),
-  ].join("\n");
 }

@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import {
   type AuditRow,
+  type ChainCheck,
   actionLabel,
+  actorLabel,
   handoffOf,
   headline,
   list,
@@ -9,45 +11,48 @@ import {
   ROUTES,
   routeOf,
   ruleName,
-  toCsv,
 } from "./decision-log.ts";
 
 interface DecisionLogProps {
   readonly sessionId: string;
   readonly rows: readonly AuditRow[];
+  readonly chain?: ChainCheck;
   readonly loaded: boolean;
   readonly error?: string;
 }
 
-/** Every BRANE decision and gate event of this session, newest first, with headline counts and a CSV export. */
-export function DecisionLog({ sessionId, rows, loaded, error }: DecisionLogProps) {
+/**
+ * Every decision of this session, newest first: BRANE's routes, the gate's events, who asked and who decided. Shows
+ * whether the hash chain verifies and links the whole trail as CSV.
+ */
+export function DecisionLog({ sessionId, rows, chain, loaded, error }: DecisionLogProps) {
   const counts = headline(rows);
-
-  const exportCsv = (): void => {
-    const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `decision-log-${sessionId.slice(0, 8)}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
 
   return (
     <aside className="decision-log" aria-labelledby="decision-log-heading">
       <header className="decision-log-header">
         <div>
           <h2 id="decision-log-heading">Decision log</h2>
-          <p>What BRANE decided for every model request in this session.</p>
+          <p>Who did what, for every request in this session.</p>
+          {chain === undefined ? null : chain.ok ? (
+            <p className="chain chain--ok" role="status">
+              <span className="state state--passed">Chain verified</span> {chain.rows} rows, none
+              changed
+            </p>
+          ) : (
+            <p className="chain chain--broken" role="alert">
+              <span className="state state--blocked">Chain broken</span> at row {chain.brokenAt}
+            </p>
+          )}
         </div>
-        <button
+        <a
           className="button-secondary"
-          type="button"
-          onClick={exportCsv}
-          disabled={rows.length === 0}
+          href={`/api/sessions/${sessionId}/audit?format=csv`}
+          download
+          aria-disabled={rows.length === 0}
         >
-          Export CSV
-        </button>
+          Download trail
+        </a>
       </header>
 
       <dl className="headline" aria-label="Totals">
@@ -94,8 +99,46 @@ function Count({ label, value }: { readonly label: string; readonly value: numbe
 }
 
 export function DecisionRow({ row }: { readonly row: AuditRow }) {
-  const time = <RowTime at={row.at} />;
+  const time = (
+    <span className="decision-meta">
+      <span className="decision-actor">{actorLabel(row)}</span>
+      <RowTime at={row.at} />
+    </span>
+  );
   switch (row.kind) {
+    case "request":
+      return (
+        <article className="decision decision--gate">
+          <header>
+            <strong>{row.actor} sent a request</strong>
+            {time}
+          </header>
+        </article>
+      );
+    case "intake":
+      return (
+        <article className="decision decision--gate">
+          <header>
+            <strong>Intake on the local model</strong>
+            {time}
+          </header>
+          <Chips values={list(row.detail)} />
+        </article>
+      );
+    case "human":
+      return (
+        <article className="decision decision--handoff">
+          <header>
+            <span className={`state state--${row.action === "rejected" ? "blocked" : "passed"}`}>
+              <strong>
+                {row.actor} {row.action} the case (row {row.refId})
+              </strong>
+            </span>
+            {time}
+          </header>
+          {row.detail === "" ? null : <p className="decision-note">{row.detail}</p>}
+        </article>
+      );
     case "brane":
       return <BraneRow row={row} time={time} />;
     case "masked":

@@ -25,10 +25,33 @@ The flow is in [routing](routing.md#brane-first): BRANE first, then `decide` on 
 
 ## The audit log
 
-`src/audit.ts` writes one row per BRANE decision (status, route, action, redaction, categories, semantic matches,
-refusal rule, resolved model) to an `audit_decisions` table in the session Durable Object's SQLite, beside Pi's own
-tables. `GET /api/sessions/:id/audit` serves it to the audit view. It is never written into a conversation, so no model
-reads it, and it holds categories, never prompt text.
+`src/audit.ts` keeps the `audit_log` table in the session Durable Object's SQLite, beside Pi's own tables. It records
+who did what for every decision:
+
+| Kind                | Actor                       | Written when                                                                             |
+| ------------------- | --------------------------- | ---------------------------------------------------------------------------------------- |
+| `request`           | the person's display name   | a person sends a request (the conversation id, never the text)                           |
+| `brane`             | `brane`                     | BRANE decides a model request (status, route, action, categories, rule, resolved model)  |
+| `masked`, `intake`  | `gate`                      | the gate masks identifiers or intake splits health detail out on the local model         |
+| `lookup`, `handoff` | `agent`                     | the assistant cites passages or hands a case to a person                                 |
+| `human`             | the reviewer's display name | the reviewer approves, rejects or edits a handoff (`ref_id` names it; one decision each) |
+
+Automated rows also carry the policy version that decided them (`policy/brane.json` `version`). The rows form a hash
+chain: each stores the previous row's hash and `hash = sha256(prev_hash + its fields)`, so changing or deleting any row
+breaks every later hash. Rows written before the chain existed are sealed in id order when the table is upgraded.
+
+| Route                                    | Does                                                               |
+| ---------------------------------------- | ------------------------------------------------------------------ |
+| `GET /api/sessions/:id/audit`            | rows newest first, plus the chain check                            |
+| `GET /api/sessions/:id/audit?format=csv` | the whole trail oldest first, with actors and hashes               |
+| `GET /api/sessions/:id/audit/verify`     | the chain check alone                                              |
+| `POST /api/sessions/:id/audit/human`     | a reviewer's decision: `handoffId`, `decision`, `note`, `reviewer` |
+
+The decision log panel shows each row's actor, "Chain verified" or the row where the chain breaks, and a "Download
+trail" link; the review queue posts its decisions here, so they survive a reload. The reviewer's name is the display
+name of the signed-in team member, which the team password does not prove; per-person sign-in is the step a real
+deployment adds. The log is never written into a conversation, so no model reads it, and it holds categories, ids and
+a reviewer's own note, never prompt text.
 
 ## The gate is the transport
 

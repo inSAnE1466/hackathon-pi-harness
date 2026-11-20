@@ -370,7 +370,12 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
           )}
         </section>
 
-        <ReviewQueue rows={decisionLog.rows} />
+        <ReviewQueue
+          sessionId={sessionId}
+          username={username}
+          rows={decisionLog.rows}
+          onRecorded={decisionLog.reload}
+        />
 
         <form className="prompt-bar" onSubmit={submit}>
           <label className="visually-hidden" htmlFor="prompt">
@@ -400,6 +405,7 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
       <DecisionLog
         sessionId={sessionId}
         rows={decisionLog.rows}
+        {...(decisionLog.chain === undefined ? {} : { chain: decisionLog.chain })}
         loaded={decisionLog.loaded}
         {...(decisionLog.error === undefined ? {} : { error: decisionLog.error })}
       />

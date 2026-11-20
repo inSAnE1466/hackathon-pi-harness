@@ -1,25 +1,59 @@
 import { useState } from "react";
-import { type AuditRow, handoffOf } from "./decision-log.ts";
+import {
+  type AuditRow,
+  type HumanDecision,
+  decisionsByHandoff,
+  handoffOf,
+} from "./decision-log.ts";
 
-type Choice =
-  | { readonly kind: "approved" }
-  | { readonly kind: "rejected" }
-  | { readonly kind: "editing"; readonly note: string }
-  | { readonly kind: "edited"; readonly note: string };
+const DECISION_LABEL: Record<HumanDecision, string> = {
+  approved: "Approved",
+  rejected: "Rejected",
+  edited: "Edited",
+};
 
-const CHOICE_LABEL = { approved: "Approved", rejected: "Rejected", edited: "Edited" } as const;
+interface ReviewQueueProps {
+  readonly sessionId: string;
+  /** The reviewer's display name, recorded as the actor of the decision. */
+  readonly username: string;
+  readonly rows: readonly AuditRow[];
+  /** Called after a decision is stored, so the decision log reads it back. */
+  readonly onRecorded: () => void;
+}
 
 /**
- * The human decision step: one card per handoff in the decision log. A choice is recorded only in this browser for
- * the demo; no model is called and nothing is sent.
+ * The human decision step: one card per handoff in the decision log. A decision is posted to the session's audit
+ * log with the reviewer's name, so it is part of the hash-chained trail and survives a reload. No model is called.
  */
-export function ReviewQueue({ rows }: { readonly rows: readonly AuditRow[] }) {
-  const [choices, setChoices] = useState<Readonly<Record<number, Choice>>>({});
+export function ReviewQueue({ sessionId, username, rows, onRecorded }: ReviewQueueProps) {
+  const [drafts, setDrafts] = useState<Readonly<Record<number, string>>>({});
+  const [pending, setPending] = useState<number | undefined>();
+  const [error, setError] = useState<string | undefined>();
   const handoffs = rows.filter((row) => row.kind === "handoff");
   if (handoffs.length === 0) return null;
+  const decided = decisionsByHandoff(rows);
 
-  const choose = (id: number, choice: Choice): void =>
-    setChoices((current) => ({ ...current, [id]: choice }));
+  const record = async (handoffId: number, decision: HumanDecision, note = ""): Promise<void> => {
+    setPending(handoffId);
+    setError(undefined);
+    try {
+      const response = await fetch(`/api/sessions/${sessionId}/audit/human`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ handoffId, decision, note, reviewer: username }),
+      });
+      if (!response.ok) {
+        const body = (await response.json().catch(() => ({}))) as { readonly error?: string };
+        throw new Error(body.error ?? `Not recorded (${response.status})`);
+      }
+      setDrafts(({ [handoffId]: _, ...rest }) => rest);
+      onRecorded();
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Not recorded");
+    } finally {
+      setPending(undefined);
+    }
+  };
 
   return (
     <section className="review-queue" aria-labelledby="review-queue-heading">
@@ -27,10 +61,17 @@ export function ReviewQueue({ rows }: { readonly rows: readonly AuditRow[] }) {
         <h2 id="review-queue-heading">Review queue</h2>
         <p>A person decides. The assistant only prepares the case.</p>
       </header>
+      {error === undefined ? null : (
+        <p className="review-error" role="alert">
+          {error}
+        </p>
+      )}
       <ul>
         {handoffs.map((row) => {
           const handoff = handoffOf(row);
-          const choice = choices[row.id];
+          const decision = decided.get(row.id);
+          const draft = drafts[row.id];
+          const busy = pending === row.id;
           return (
             <li key={row.id} className="review-card">
               <div className="review-card-text">
@@ -39,12 +80,26 @@ export function ReviewQueue({ rows }: { readonly rows: readonly AuditRow[] }) {
                 </span>
                 <p>{handoff.sentence}</p>
               </div>
-              {choice?.kind === "editing" ? (
+              {decision !== undefined ? (
+                <p className="review-recorded" role="status">
+                  <span
+                    className={`state state--${decision.action === "rejected" ? "blocked" : "passed"}`}
+                  >
+                    {DECISION_LABEL[decision.action as HumanDecision] ?? decision.action}
+                  </span>
+                  {decision.detail === "" ? null : `: ${decision.detail}`}
+                  <span className="review-recorded-note">
+                    {" "}
+                    by {decision.actor}, {new Date(decision.at).toLocaleTimeString()}. In the audit
+                    trail.
+                  </span>
+                </p>
+              ) : draft !== undefined ? (
                 <form
                   className="review-edit"
                   onSubmit={(event) => {
                     event.preventDefault();
-                    choose(row.id, { kind: "edited", note: choice.note.trim() });
+                    void record(row.id, "edited", draft.trim());
                   }}
                 >
                   <label className="visually-hidden" htmlFor={`review-note-${row.id}`}>
@@ -52,51 +107,46 @@ export function ReviewQueue({ rows }: { readonly rows: readonly AuditRow[] }) {
                   </label>
                   <input
                     id={`review-note-${row.id}`}
-                    value={choice.note}
+                    value={draft}
                     placeholder="Your change, e.g. pay 6 of 9 sessions"
+                    maxLength={500}
                     autoFocus
-                    onChange={(event) =>
-                      choose(row.id, { kind: "editing", note: event.currentTarget.value })
-                    }
+                    onChange={(event) => {
+                      const value = event.currentTarget.value;
+                      setDrafts((current) => ({ ...current, [row.id]: value }));
+                    }}
                   />
-                  <button className="button-secondary" type="submit">
+                  <button className="button-secondary" type="submit" disabled={busy}>
                     Save
                   </button>
                 </form>
-              ) : choice === undefined ? (
+              ) : (
                 <div className="review-actions">
                   <button
                     className="button-secondary"
                     type="button"
-                    onClick={() => choose(row.id, { kind: "approved" })}
+                    disabled={busy}
+                    onClick={() => void record(row.id, "approved")}
                   >
                     Approve
                   </button>
                   <button
                     className="button-secondary"
                     type="button"
-                    onClick={() => choose(row.id, { kind: "editing", note: "" })}
+                    disabled={busy}
+                    onClick={() => setDrafts((current) => ({ ...current, [row.id]: "" }))}
                   >
                     Edit
                   </button>
                   <button
                     className="button-secondary"
                     type="button"
-                    onClick={() => choose(row.id, { kind: "rejected" })}
+                    disabled={busy}
+                    onClick={() => void record(row.id, "rejected")}
                   >
                     Reject
                   </button>
                 </div>
-              ) : (
-                <p className="review-recorded" role="status">
-                  <span
-                    className={`state state--${choice.kind === "rejected" ? "blocked" : "passed"}`}
-                  >
-                    {CHOICE_LABEL[choice.kind]}
-                  </span>
-                  {choice.kind === "edited" && choice.note !== "" ? `: ${choice.note}` : null}
-                  <span className="review-recorded-note"> Recorded in this browser only.</span>
-                </p>
               )}
             </li>
           );

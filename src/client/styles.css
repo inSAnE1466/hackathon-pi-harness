@@ -628,6 +628,12 @@ button:disabled {
   font-size: var(--text-xs);
 }
 
+.review-error {
+  margin: 0;
+  color: var(--color-blocked);
+  font-size: var(--text-xs);
+}
+
 /* Composer */
 
 .prompt-bar {
@@ -757,6 +763,41 @@ button:disabled {
   color: var(--color-secondary);
   font-size: var(--text-xs);
   font-variant-numeric: tabular-nums;
+}
+
+.decision-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.decision-actor {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+}
+
+.decision-note {
+  margin: 0;
+  font-size: var(--text-xs);
+}
+
+.decision-log-header .chain {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.decision-log-header a.button-secondary {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.decision-log-header a[aria-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 .decision--handoff .state {

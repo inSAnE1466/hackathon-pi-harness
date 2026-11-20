@@ -61,10 +61,11 @@ Source: GDPR Art. 22; CJEU C-634/21; AI Act Art. 14; insurers' code of conduct 5
 
 ### audit: every decision traceable, none returned to a chat
 
-The track requires every decision in the test protocol. `audit_log` in the Durable Object's SQLite holds BRANE's
-decision per request and the gate's events (masked, intake, lookup, handoff). It is served at
-`GET /api/sessions/:id/audit` to the decision log panel and never written into a conversation. It stores categories
-and ids, never prompt text.
+The track requires every decision in the test protocol. `audit_log` in the Durable Object's SQLite holds who did
+what: each person's request, BRANE's decision per request, the gate's and the assistant's events, and the reviewer's
+decision on each handoff, each with its actor, in a hash chain. It is served at `GET /api/sessions/:id/audit` to the
+decision log panel and never written into a conversation. [Architecture](architecture.md#the-audit-log) owns its
+rows, routes and chain.
 
 ### isolate: one claim, one conversation
 

@@ -4,7 +4,7 @@ const json = (body: unknown, status: number, headers?: HeadersInit): Response =>
   Response.json(body, { status, headers });
 
 const sessionRoute = /^\/api\/sessions\/([^/]+)\/?$/;
-const auditRoute = /^\/api\/sessions\/([^/]+)\/audit\/?$/;
+const auditRoute = /^\/api\/sessions\/([^/]+)\/audit(?:\/(human|verify))?\/?$/;
 const COOKIE = "team_session";
 
 /** The cookie value: a hash of the password, so the password itself is never stored in the browser. */
@@ -67,9 +67,11 @@ export default {
 
     const audit = auditRoute.exec(url.pathname);
     if (audit !== null) {
-      if (request.method !== "GET")
-        return json({ error: "Method not allowed" }, 405, { Allow: "GET" });
-      return env.SESSIONS.getByName(audit[1]).fetch(request);
+      // A person's decision is the only write; every other audit route is read-only.
+      const allowed = audit[2] === "human" ? "POST" : "GET";
+      if (request.method !== allowed)
+        return json({ error: "Method not allowed" }, 405, { Allow: allowed });
+      return env.SESSIONS.getByName(audit[1]!).fetch(request);
     }
 
     const sessionMatch = sessionRoute.exec(url.pathname);

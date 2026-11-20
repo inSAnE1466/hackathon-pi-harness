@@ -233,9 +233,8 @@ export class Session extends DurableObject<Env> {
   }
 
   override async fetch(request: Request): Promise<Response> {
-    if (new URL(request.url).pathname.endsWith("/audit")) {
-      return json({ decisions: this.#audit.list() }, 200);
-    }
+    const audit = /\/audit(?:\/(human|verify))?\/?$/.exec(new URL(request.url).pathname);
+    if (audit !== null) return this.#auditRequest(request, audit[1]);
     if (request.method !== "GET") {
       return json({ error: "Method not allowed" }, 405, { Allow: "GET" });
     }
@@ -279,6 +278,46 @@ export class Session extends DurableObject<Env> {
     } catch (error) {
       reportError("Session WebSocket message failed", error);
     }
+  }
+
+  /**
+   * The audit API: `GET /audit` (rows and the chain check), `GET /audit?format=csv` (the whole trail),
+   * `GET /audit/verify` (the chain check alone) and `POST /audit/human` (a person's decision on a handoff).
+   */
+  async #auditRequest(request: Request, action: string | undefined): Promise<Response> {
+    if (action === "human") {
+      if (request.method !== "POST")
+        return json({ error: "Method not allowed" }, 405, { Allow: "POST" });
+      let body: Record<string, unknown> = {};
+      try {
+        const parsed: unknown = await request.json();
+        if (typeof parsed === "object" && parsed !== null) body = parsed as Record<string, unknown>;
+      } catch {
+        return json({ error: "Body must be JSON" }, 400);
+      }
+      const result = this.#audit.human({
+        handoffId: body.handoffId,
+        decision: body.decision,
+        note: body.note,
+        reviewer: body.reviewer,
+      });
+      return result.ok
+        ? json({ decision: result.row }, 201)
+        : json({ error: result.error }, result.status);
+    }
+    if (request.method !== "GET")
+      return json({ error: "Method not allowed" }, 405, { Allow: "GET" });
+    if (action === "verify") return json({ chain: this.#audit.verify() }, 200);
+    if (new URL(request.url).searchParams.get("format") === "csv") {
+      return new Response(this.#audit.csv(), {
+        status: 200,
+        headers: {
+          "Content-Type": "text/csv; charset=utf-8",
+          "Content-Disposition": `attachment; filename="audit-trail-${this.ctx.id.toString().slice(0, 8)}.csv"`,
+        },
+      });
+    }
+    return json({ decisions: this.#audit.list(), chain: this.#audit.verify() }, 200);
   }
 
   async #processMessage(socket: WebSocket, message: WSMessage): Promise<void> {
@@ -488,6 +527,10 @@ export class Session extends DurableObject<Env> {
         // Arm before admitting work: `onWake` runs after the commit, so an instance that dies in between is
         // still woken. An early alarm is harmless; a missing one strands the turn.
         await this.#arm({ ...this.#harness.wake(), active: true });
+        this.#audit.request(
+          connectionState(socket)?.username ?? "Guest",
+          String(command.conversationId),
+        );
         // Intake: when BRANE would keep the whole claim local for health reasons, the local model first reduces the
         // medical part to a health-free fact sheet, so the agent's turns can use the frontier model.
         const split = await intake(this.env, command.content);
