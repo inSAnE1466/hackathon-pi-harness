@@ -1,83 +1,73 @@
 # Routing: who may see which data, and who decides
 
-Every unit of work the agent handles goes to exactly one **route**. The route is decided by code from the
-classification of the data and the task, never by the model that would receive the data.
+Every step of a claim goes to exactly one **route**. Code decides the route from BRANE's verdict, the Decisions
+classifier's answers and the policy matrix. The model that would receive the data never decides.
+
+## BRANE first
+
+Raw input goes to BRANE before anything else sees it. A hosted classifier is an external recipient like any model,
+so classifying raw health data with one would itself be the transfer we are trying to control. BRANE is the one
+place raw data is inspected; every other component, the classifier included, sees BRANE's protected output.
+
+```
+claim documents ──► BRANE (detect, classify, protect, verdict)
+                        │ protected text + categories + verdict
+                        ▼
+                    decide (OpenAI Decisions on protected text) ──► route() ◄── policy matrix
+                                                                      │
+              ┌───────────────┬────────────────┬──────────────────┬───┴──────────┐
+              ▼               ▼                ▼                  ▼              ▼
+          frontier      frontier-protected   local             consult        block
+       (OpenAI chat)   (OpenAI on BRANE's    (BRANE local    (medical or     (refuse)
+                        protected payload)    processing)    legal expert)
+                                                                  │
+                                              approve (claims handler decides the outcome)
+```
+
+## The parts
+
+| Part             | Sees                                            | Decides                                                                   |
+| ---------------- | ----------------------------------------------- | ------------------------------------------------------------------------- |
+| **BRANE**        | Raw claim documents                             | What leaves, in what form (allow, protect, local only, block)             |
+| **decide**       | BRANE's protected text and categories           | Probabilities for our routing questions; nothing else                     |
+| **route()**      | Verdict, probabilities, policy matrix           | The route per step; pure code                                             |
+| **Orchestrator** | Only what `route()` released, with pseudonyms   | The next step of the claim workflow; it cannot choose or change a route   |
+| **consult**      | The prepared, minimised case for one expert     | A medical or legal opinion the agent needs before it can continue         |
+| **approve**      | The agent's prepared recommendation and sources | The claim outcome; the agent never pays, reduces or denies a claim itself |
+
+BRANE's verdict sets the ceiling: `route()` may make a step stricter than BRANE's verdict (a `consult` or `block`
+BRANE did not ask for) but never looser.
 
 ## The routes
 
-| Route                | Who processes it                                                                  | Track action       | When                                                                                                                                        |
-| -------------------- | --------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `frontier`           | An external closed frontier model (OpenAI via BRANE)                              | ALLOW              | The payload holds only data the policy matrix releases, and the task needs frontier reasoning.                                              |
-| `frontier-protected` | The same model, after BRANE pseudonymises or masks the payload                    | PROTECT            | The task needs frontier reasoning; the identifying or sensitive fields are not needed for it.                                               |
-| `local`              | An open-weight model in an approved environment we control, or deterministic code | LOCAL ONLY         | The data may not leave (special categories, trade secrets, re-identification keys), but the task can be automated.                          |
-| `human`              | An authorised person, with the agent's prepared material                          | none; a human gate | The decision has legal or similarly significant effect, needs professional judgement or accountability, or the classifier is not confident. |
-| `block`              | Nobody                                                                            | BLOCK              | The processing is not permitted at all, or a bypass attempt is detected.                                                                    |
+| Route                | Who processes it                                  | Track action | When                                                                                        |
+| -------------------- | ------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------- |
+| `frontier`           | OpenAI through BRANE                              | ALLOW        | Only released categories, and the step needs model reasoning                                |
+| `frontier-protected` | OpenAI on BRANE's pseudonymised or masked payload | PROTECT      | The step needs model reasoning; identities and unneeded health detail do not                |
+| `local`              | BRANE's local processing, or deterministic code   | LOCAL ONLY   | The data may not leave, but the step can be automated                                       |
+| `consult`            | A named medical or legal expert, in the client    | none         | The step needs professional judgement, or a classifier answer is below its confidence floor |
+| `block`              | Nobody                                            | BLOCK        | Not permitted at all, a bypass attempt, or a cross-claim comparison                         |
 
-`frontier-protected` is a payload transform followed by `frontier`, not a third kind of model. A request can split:
-the job-relevant parts go `frontier-protected` while a health disclosure in the same document goes `block`.
+The claim outcome always ends in `approve` by an authorised claims handler, whatever the routes before it.
 
-## Distinction 1: human expertise or a model
+## When a human is involved
 
-A step goes to `human` when any of these hold. Each row names its source; the policy matrix ([plan](plan.md) step 3)
-cites the exact article per use case.
+The brief asks which decisions humans must control and requires "necessary human approvals, access rights and
+other organisational requirements". Its example keeps the final decision with "authorised people" and allows "no
+autonomous decision by the agent". For a claim:
 
-| Test                                                                                                                         | Why it forces a human                                                                                                | Source                                                              |
-| ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| The output is a decision with legal or similarly significant effect on a person (hire, reject, credit, diagnosis, dismissal) | Solely automated decisions of this kind are restricted; meaningful human involvement is required, not a rubber stamp | GDPR Art. 22; WP251rev.01                                           |
-| The system is high-risk under the AI Act (employment, credit, essential services, and others in Annex III)                   | Deployers must assign human oversight to competent people who can override                                           | AI Act Art. 14, Art. 26, Annex III                                  |
-| A regulated profession signs it (lawyer, doctor, auditor)                                                                    | Accountability cannot be delegated to a model                                                                        | Sector law per use case                                             |
-| The classifier's confidence on any routing question is below the threshold                                                   | Uncertain classification is not evidence of permission                                                               | Our policy; tuned in [evals](evals.md#hill-climbing-the-conditions) |
-| The input contains a conflict the policy matrix does not cover                                                               | No rule exists, so no automated rule can apply it                                                                    | Our policy                                                          |
+| Human step                       | Trigger                                                                                               | Source (verified by the legal team)                                                       |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| **approve**: claims handler      | Every outcome: pay, reduce, deny, request more documents                                              | GDPR Art. 22; WP251rev.01 on meaningful human involvement                                 |
+| **consult**: medical adviser     | Whether a treatment is medically necessary, causality between incident and injury, coding a diagnosis | GDPR Art. 9(2)(h) and 9(3): health data processed under a professional secrecy obligation |
+| **consult**: legal or compliance | Policy wording disputes, exclusions, suspected fraud, a request outside the policy matrix             | Our policy; national insurance law                                                        |
+| **consult**: any                 | A Decisions answer below its confidence floor                                                         | Our policy; floors tuned in [evals](evals.md)                                             |
 
-The agent may **prepare** material for every human step (summaries, comparisons, extracted facts) on the routes
-the data allows. The final act stays with a named role, and the test protocol records who acted.
+Life and health insurance risk assessment and pricing are high-risk under AI Act Annex III(5)(c). Claims handling
+is not named there; the legal team decides whether our system falls under it and cites the answer.
 
-## Distinction 2: closed frontier or open-weight local
+## One claim per run
 
-"Frontier" here means a hosted closed model reached through BRANE. "Local" means an open-weight model or plain code
-running where the data already is. The question is not which model is smarter. It is **where the bytes go**.
-
-| Prefer `local` when                                                                                  | Prefer `frontier` when                                                                             |
-| ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| The data is a GDPR Art. 9 special category, or Art. 10 criminal data                                 | The payload holds only released categories after protection                                        |
-| The data is a trade secret or under a confidentiality obligation that forbids third-party processors | Long-context reasoning, drafting or comparison quality matters for the task                        |
-| The step is extraction, redaction, matching or classification that a small model or regex does well  | The step is synthesis across many released facts                                                   |
-| The data includes the re-identification key (the pseudonym map)                                      | The step's output goes back to a human, not to an automated decision                               |
-| BRANE or the processor contract does not cover the data category                                     | The processor contract, data residency and retention terms cover it (Art. 28, Chapter V transfers) |
-
-Open-weight does not mean safe: a local model on a third party's cloud is an external transfer. `local` names the
-environment, not the license.
-
-## Who decides what
-
-Three parts, each with one job. BRANE is a gate on egress, not the orchestrator. The brief says BRANE can forward a
-request to an approved model, restrict it to local processing or block it, according to the policy we configure;
-whether a local model sits behind BRANE is open until its documentation arrives.
-
-| Part             | Runs                                            | Sees raw data                                       | Decides                                                                                 |
-| ---------------- | ----------------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| **Orchestrator** | The Pi Durable agent in our Durable Object      | Only what the router released to it, plus tokens    | Which step of the task comes next; it cannot pick a route                               |
-| **Router**       | `route()`, local code beside the orchestrator   | Yes, inside our trust boundary                      | The route per segment, from local detectors, the local classifier and the policy matrix |
-| **BRANE**        | AI-Z's firewall, in front of the external model | Only what the router sends toward `frontier` routes | Whether that payload may leave, and how it is protected; returns a verdict              |
-
-The brief's example passes the original input to BRANE, and we keep that path for everything the router releases.
-Raw input stays inside our boundary until the router has run. BRANE receives only segments the router already
-placed on a `frontier` or `frontier-protected` route, so a special-category record routed `local` or `block` is
-never sent to BRANE at all. BRANE then checks that payload again as the second, independent layer.
-
-Whether BRANE itself is an external processor decides one thing: if it runs outside our environment, sending it raw
-special-category data is itself a transfer, and local pre-routing is mandatory rather than defence in depth. The
-BRANE documentation settles this ([plan](plan.md) step 1).
-
-## How the route is computed
-
-1. **Local detectors**: regex and checksums for emails, IBANs, phone numbers, BSN and other identifiers.
-   Deterministic, measurable recall.
-2. **Local classifier**: closed questions on the residual text: data category, injection, whether the step decides
-   something significant about a person, whether it combines several people's records. Its questions and
-   thresholds are the conditions we hill-climb ([primitives](primitives.md#classify)).
-3. **`route(detections, classifierAnswers, policy)`**: a pure function and the only place a route is decided. Below a
-   confidence floor on any question, the route is `human`.
-4. **BRANE** on every outbound request: detect, classify, protect, verdict. No verdict, no request. A BRANE verdict
-   stricter than the router's route wins; a looser one never widens it.
-5. **Record**: the decision, its inputs as categories and hashes, and the outcome go to the test protocol.
+Each claim runs in its own Pi conversation with no shared memory. Comparing one claimant's records with another's
+is `block`. A claimant's own earlier claims are reachable only through a fraud check that a human approves. This
+closes the linkage failures L1, L2 and L5 ([failure modes](failure-modes.md#linkage-records-combined-that-must-stay-apart)).

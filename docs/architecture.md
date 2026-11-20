@@ -20,35 +20,23 @@ runtime where calling an HTTP endpoint is one `fetch`.
 
 ## Target shape
 
-```
-document(s) ──► ingest (local) ──► detectors (local, deterministic)
-                                        │
-                                        ▼
-                          classify (local) ──► route()  ◄── policy matrix (data)
-                                                           │
-             ┌──────────────┬──────────────┬───────────────┼──────────────┐
-             ▼              ▼              ▼               ▼              ▼
-          frontier   frontier-protected   local          human          block
-         (BRANE→OpenAI)  (BRANE protect→OpenAI)  (code/open model)  (approval queue)  (refuse)
-             └──────────────┴──────────────┴───────────────┴──────────────┘
-                                        │
-                                        ▼
-                               test protocol (append-only)
-```
+The flow is in [routing](routing.md#brane-first): BRANE first, then `decide` on BRANE's protected text, then
+`route()`, then one of five routes, with `approve` closing every claim. Everything writes protocol rows.
 
 ## The gate is the transport
 
 The one rule that wins the security tests: **the agent has no model transport except the BRANE one.**
 
-- `src/chat.ts` registers exactly one provider, `brane`, whose `baseUrl` is the BRANE endpoint. The upstream
+- `src/chat.ts` registers exactly one provider, `brane`, whose `baseUrl` is the BRANE endpoint. It carries the chat
+  model and the `openai-decisions` classifier model. The upstream
   `openaiProvider()` and any direct OpenAI key are removed. A bypass is then not a missed check but a missing
   network path.
 - The BRANE provider throws on any non-success from BRANE (timeout, 5xx, malformed verdict, a verdict of `block`).
   Pi records the failed model call; nothing is retried against another provider. This is the **check failure** test.
-- Prompt injection inside documents cannot change the route, because `route()` is code that reads classifier
-  answers and the policy, not model output. This is the **bypass attempt** test.
-- The pseudonym map stays in the Durable Object's storage. The model only ever sees `CANDIDATE_01`-style tokens;
-  re-identification happens in the client for authorised users.
+- Prompt injection inside documents cannot change the route, because `route()` is code that reads BRANE's verdict,
+  classifier answers and the policy, not model output. This is the **bypass attempt** test.
+- The pseudonym map stays in the Durable Object's storage. The model only ever sees `CLAIMANT_01`-style tokens;
+  re-identification happens in the client for the authorised handler.
 
 Open until the organizers hand out the endpoint: BRANE's request and response shape, whether it proxies the
 OpenAI API (then it is a `baseUrl` swap) or returns a verdict we act on, and how its policies are configured.
@@ -57,7 +45,7 @@ OpenAI API (then it is a `baseUrl` swap) or returns a verdict we act on, and how
 ## Code mode and the classifier
 
 Scripts in code mode can call `models.classify(model, { state, questions })` from a QuickJS sandbox; each call is a
-journaled, durable nested call. That lets one script classify 40 documents in parallel (four in flight at once) and
-return only the routing table to the model, and it keeps the classifier's raw inputs out of the chat context. When
-the local classifier is wrapped as a pi-ai provider with `classify()`, code mode picks it up with no extra glue.
+journaled, durable nested call. That lets one script classify a claim bundle's documents in parallel (four in flight at once) and
+return only the routing table to the model, and it keeps the classifier's raw inputs out of the chat context. Because
+the Decisions model is an entry in the `brane` provider, code mode picks it up with no extra glue.
 [Primitives](primitives.md#where-code-mode-fits) says which calls belong in code mode.

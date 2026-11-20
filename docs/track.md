@@ -52,11 +52,22 @@ protection rules, **five** documented test cases, verifiable sources for key dec
 
 ## Judging
 
-| Category                      | Criteria                                                                          | Points |
-| ----------------------------- | --------------------------------------------------------------------------------- | ------ |
-| Technology and execution      | Functionality, architecture, BRANE integration, technical enforcement, robustness | 40     |
-| Legal research and governance | Legal analysis, sources, data classification, derived policies                    | 40     |
-| Business impact               | Problem relevance, practical value, scalability                                   | 20     |
+The organizers' scoring sheet has eight criteria. The brief groups them as technology and execution (40),
+legal research and governance (40) and business impact (20).
+
+| Criterion                                   | Weight | Where we earn it                                                                                                                         |
+| ------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent does the task reliably and repeatedly | 15%    | Every security case runs three times with identical routes ([evals](evals.md)); the demo claim completes end to end                      |
+| BRANE integration and technical enforcement | 15%    | BRANE is the only transport ([architecture](architecture.md#the-gate-is-the-transport)); BRANE first ([routing](routing.md#brane-first)) |
+| Robustness and quality of test protocol     | 10%    | Generated suite over every [failure mode](failure-modes.md); oracle on outbound bytes; protocol rows per decision                        |
+| Quality and verifiability of sources        | 15%    | Each policy rule cites an article, guidance paragraph or ruling with a link                                                              |
+| Data classification and necessity reasoning | 10%    | Policy matrix: per category, why the step needs it or does not                                                                           |
+| Policies clearly derived from the research  | 15%    | Each `policy/claims.json` rule names the research section it comes from                                                                  |
+| Problem relevance                           | 10%    | Health insurance claims: high volume, health data, regulated                                                                             |
+| Practical value and demo clarity            | 10%    | Live run on the deployed site, the trace viewer, the [baseline](baseline.md) comparison, a video backup                                  |
+
+Half the weight (sources, classification, derived policies, and part of enforcement) depends on the legal research,
+so the legal team's documents are a product, not an appendix.
 
 ## The five security tests (pass or fail, independent of points)
 
