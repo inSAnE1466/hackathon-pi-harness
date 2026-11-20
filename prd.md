@@ -52,6 +52,24 @@ The call settled on two questions in a fixed order. Both run on BRANE, so raw cl
 The most restrictive answer wins, and the stages add up: a request flagged for a human by the gate still passes
 the router when it is drafted after approval.
 
+### Labels in BRANE terms
+
+The [label taxonomy](labels_routing.md) names our labels; BRANE has its own category names. The core set maps like this:
+
+| Our label          | Classifier | BRANE mechanism                                                                                          | Action                                                              |
+| ------------------ | ---------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `ADVERSE_DECISION` | gate       | semantic category (claim outcome: reject, reduce, fraud flag, cancel)                                    | `refuse`, then `approve`                                            |
+| `DISCRIMINATORY`   | gate       | semantic category (selection by protected trait or proxy such as surname)                                | `refuse`                                                            |
+| `INJECTION`        | gate       | BRANE's prompt-injection score (`prompt_injection_local`) plus a semantic category for override attempts | `refuse`                                                            |
+| `PERSON`           | router     | `PERSON`                                                                                                 | `placeholder`                                                       |
+| `FINANCIAL_ID`     | router     | `IBAN`, `ACCOUNT_NUMBER`, `CREDIT_CARD` (a Dutch IBAN was detected as `ACCOUNT_NUMBER`)                  | `placeholder`                                                       |
+| `NATIONAL_ID`      | router     | `SSN`, `PASSPORT`, `TAX_NUMBER`, `INSURANCE_NUMBER` (whether a BSN lands in one of these is untested)    | `local`, or `refuse` if it never belongs in a prompt                |
+| `HEALTH`           | router     | `HEALTH_DATA` plus a semantic category for indirect health (burnout and sertraline were missed)          | `local`                                                             |
+| `THIRD_PARTY`      | router     | no BRANE category: BRANE sees a `PERSON` but not whose                                                   | `placeholder` via `PERSON`; a product gap for the policy matrix CSV |
+
+BRANE applies the strictest action to the whole request, so a request with `HEALTH` and `PERSON` goes local as a
+whole. Where a step only needs the non-health part, the harness sends that part as its own request.
+
 ## 4. The four tiers
 
 | Tier | Route                                     | Trigger                                                             | BRANE mechanism                                                                                        | Legal basis (to verify)                      |
@@ -62,7 +80,7 @@ the router when it is drafted after approval.
 | 4    | Refuse and log                            | Discriminatory request, prompt injection, cross-claimant comparison | Semantic action `refuse`; injection routed by BRANE                                                    | GDPR Art. 9; non-discrimination; OWASP LLM01 |
 
 Low confidence routes up: a health score of 0.35 goes to Tier 2, not Tier 1. Worked examples for each tier are in
-the [routing tiers](routing-tiers_hackathon.md).
+the [routing tiers](routing-tiers_hackathon.md); every label is in the [label taxonomy](labels_routing.md).
 
 ## 5. Reconciling a claim
 

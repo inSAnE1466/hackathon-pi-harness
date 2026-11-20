@@ -7,6 +7,7 @@
 | What have we decided, and why?                                      | [decisions.md](decisions.md)                              |
 | Which sources back each decision?                                   | [sources.md](sources.md)                                  |
 | What BRANE's API and policy can do, and what we observed            | [brane.md](brane.md)                                      |
+| Which labels does each classifier use?                              | [label taxonomy](../labels_routing.md)                    |
 | How are routes tiered, with worked claim examples?                  | [routing tiers](../routing-tiers_hackathon.md)            |
 | What does the track require, and how is it judged?                  | [track.md](track.md)                                      |
 | What is the use case, and its data categories?                      | [use-case.md](use-case.md)                                |
