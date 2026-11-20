@@ -13,7 +13,7 @@ dev and test are kept apart by construction:
   * different shells and task phrasings (they live in the banks)
 eval/check_leakage.py verifies the separation afterwards.
 
-  python3 data/generator/compose.py --bank data/generator/bank_dev.json  --pool dev  --n 600 --start 201 --prefix dev  --out data/dev_composed.csv
+  python3 data/generator/compose.py --bank data/generator/bank_dev.json  --pool dev  --n 600 --start 201 --prefix dev  --out data/dev_composed.csv   (then appended to data/dev.csv: dev = 800 rows)
   python3 data/generator/compose.py --bank data/generator/bank_test.json --pool test --n 200 --start 1   --prefix test --out data/test.csv
 """
 from __future__ import annotations

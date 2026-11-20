@@ -1,0 +1,150 @@
+{
+  "team": "Team 03",
+  "departmentId": "0aa4a8bc-f0a5-4688-a891-e7f63a6ac4f3",
+  "routingMode": "cloud-preferred",
+  "piiSensitivity": "standard",
+  "categories": {
+    "PERSON": "placeholder",
+    "EMAIL": "placeholder",
+    "PHONE": "placeholder",
+    "ADDRESS": "placeholder",
+    "IP_ADDRESS": "placeholder",
+    "ORG": "allow",
+    "TRADE_REGISTER": "allow",
+    "VAT_ID": "allow",
+    "DATE_OF_BIRTH": "placeholder",
+    "SSN": "local",
+    "PASSPORT": "local",
+    "TAX_NUMBER": "local",
+    "INSURANCE_NUMBER": "placeholder",
+    "IBAN": "placeholder",
+    "CREDIT_CARD": "placeholder",
+    "ACCOUNT_NUMBER": "placeholder",
+    "PASSWORD": "refuse",
+    "SECRET_KEY": "refuse",
+    "HEALTH_DATA": "local",
+    "ETHNIC_ORIGIN": "local",
+    "POLITICAL_OPINION": "local",
+    "RELIGIOUS_BELIEF": "local",
+    "SEXUAL_ORIENTATION": "local",
+    "TRADE_UNION": "local",
+    "SENSITIVE_CONTEXT": "local"
+  },
+  "semanticCategories": [
+    {
+      "id": "a04829b7-db79-4b9f-a933-4c0723e2e6b1",
+      "code": "CLAIM_HEALTH_CONTEXT",
+      "name": "Indirect health detail in a claim",
+      "description": "Health information about a specific person in a claim: their injury, fracture, symptoms, dental or eye treatment, procedure, diagnosis, treatment they received, therapy, medication, surgery, hospital or clinic stay, sick leave, inability to work, disability, pregnancy or mental health, even when no diagnosis is named. The name of the hospital or clinic where that person was treated counts. General policy wording about what care is covered, with no person, is not health information.",
+      "keywords": [
+        "fractured",
+        "her wrist",
+        "his wrist",
+        "plaster",
+        "burnout",
+        "sertraline",
+        "sick leave",
+        "unable to work",
+        "was hospitalised",
+        "was admitted",
+        "her surgery",
+        "his surgery",
+        "UMC",
+        "dental",
+        "crown",
+        "molar",
+        "laser",
+        "eye surgery",
+        "hearing aid",
+        "hearing aids"
+      ],
+      "legalBasis": "GDPR Art. 9(1); UAVG Art. 30(3)(b) and 30(4); Insurers' code of conduct 5.1",
+      "action": "local",
+      "enabled": true
+    },
+    {
+      "id": "88d18449-8451-4b2e-bcd0-d4ce9f34909e",
+      "code": "CLAIM_OUTCOME_DECISION",
+      "name": "Final claim decision without a handler",
+      "description": "A request for the AI to reject, deny, reduce, approve for payment, cancel a policy or flag fraud on a claim, or to send such a decision to the claimant, without a human claims handler deciding.",
+      "keywords": [
+        "reject this claim",
+        "deny the claim",
+        "send the rejection",
+        "reduce the payout",
+        "flag as fraud",
+        "cancel the policy"
+      ],
+      "legalBasis": "GDPR Art. 22; CJEU C-634/21 SCHUFA; UAVG Art. 40; EU AI Act Art. 14",
+      "action": "refuse",
+      "enabled": true
+    },
+    {
+      "id": "f6bdfd78-1f43-4366-a67e-965f36e10eb6",
+      "code": "CROSS_CLAIMANT_COMPARISON",
+      "name": "Comparing or ranking several claimants",
+      "description": "A request to compare, rank, match or combine the records of more than one claimant or policyholder, including their health or claim history.",
+      "keywords": [
+        "compare claimants",
+        "rank the claimants",
+        "which claimant",
+        "across all claims",
+        "all claimants with"
+      ],
+      "legalBasis": "GDPR Art. 5(1)(b) purpose limitation and 5(1)(c) minimisation; Insurers' code of conduct 5.1.1",
+      "action": "refuse",
+      "enabled": true
+    },
+    {
+      "id": "faeb08d1-fb7d-47e2-9a86-91853a7e752f",
+      "code": "PROTECTED_TRAIT_PROFILING",
+      "name": "Selecting claims by protected trait or proxy",
+      "description": "A request to select, flag, price or treat claims differently by ethnicity, nationality, religion, sex, sexual orientation or a proxy for them such as surname, first name or country of birth.",
+      "keywords": [
+        "surnames",
+        "nationality",
+        "foreign names",
+        "ethnicity",
+        "religion",
+        "country of origin"
+      ],
+      "legalBasis": "GDPR Art. 9(1); EU Charter Art. 21; CJEU C-236/09 Test-Achats",
+      "action": "refuse",
+      "enabled": true
+    },
+    {
+      "id": "4c2f816c-33bc-4a95-a1b7-1ff55aefb7a9",
+      "code": "RULE_OVERRIDE_ATTEMPT",
+      "name": "Instruction to bypass data protection",
+      "description": "Text inside a claim or request that tells the AI or a reviewer to ignore rules, send raw data to an external model, approve in full, or otherwise change how the claim is handled.",
+      "keywords": [
+        "ignore all",
+        "system override",
+        "send unredacted",
+        "approve in full",
+        "note to reviewer",
+        "disregard previous"
+      ],
+      "legalBasis": "GDPR Art. 32 security of processing; OWASP LLM01 prompt injection",
+      "action": "refuse",
+      "enabled": true
+    }
+  ],
+  "summary": {
+    "allow": 3,
+    "placeholder": 10,
+    "local": 10,
+    "refuse": 2,
+    "activeSemanticCategories": 5,
+    "isOpenBaseline": false
+  },
+  "updatedAt": "2026-11-20T22:06:37.459Z",
+  "availableActions": [
+    "allow",
+    "placeholder",
+    "local",
+    "refuse"
+  ],
+  "catalogEndpoint": "/api/v1/policy/catalog",
+  "testEndpoint": "/api/v1/policy/test"
+}

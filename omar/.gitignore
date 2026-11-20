@@ -1,0 +1,11 @@
+# secrets: never commit the team key
+.env
+.env.*
+*.key
+# raw API responses and local runs (regenerate with eval/run_eval.py)
+results/raw/
+results/mock/
+results/handler_outbox/
+__pycache__/
+*.pyc
+.DS_Store

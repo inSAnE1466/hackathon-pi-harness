@@ -4,8 +4,7 @@ All rows are **synthetic**. Labels: 14 yes/no columns -> `gold_tier` -> `gold_ro
 
 | File | Rows | Use | Written by | Vocabulary | Population | Entities |
 |---|---|---|---|---|---|---|
-| `data/dev.csv` | 200 | tune policy descriptions, train baselines | free-form LLM drafting + validator | Half A | working-age | dev pools |
-| `data/dev_composed.csv` | 600 | same as dev (dev = 800 total) | `generator/compose.py` from `bank_dev.json` | Half A | working-age | dev pools, CLM-2026-1000..4999 |
+| `data/dev.csv` | **800** | tune policy descriptions, train baselines | dev-001..200 free-form LLM drafting; dev-201..800 `generator/compose.py` from `bank_dev.json` | Half A | working-age | dev pools, CLM-2026-1000..4999 |
 | `data/val.csv` | 80 | **choose** between policies / classifiers / combinations | separate author, different styles (WhatsApp, broker mail, OCR, notes) | Half A | mixed | own |
 | `data/test.csv` | 200 | **held out: one run per predictor**, sha256 recorded before any run | `compose.py` from `bank_test.json`, author never saw dev/val/guidelines/policies | **Half B** | **65+** | test pools, CLM-2026-6000..9999 |
 | `data/gold.csv` | ~40 (to write) | held out, human-labelled, one run | teammates, from `gold_briefs.md` only | Half B | mixed | own |

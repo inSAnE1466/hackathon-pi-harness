@@ -8,8 +8,8 @@ deterministic code as every other predictor. Trained on dev only; never on val/t
 Preprocessing masks values so the model cannot memorise specific numbers: emails -> __email__,
 IBANs -> __iban__, any digit run -> __numN__ (N = length).
 
-  python3 eval/tfidf_lr.py --train data/dev.csv data/dev_composed.csv --data data/val.csv --tag lr_val
-  python3 eval/tfidf_lr.py --train data/dev.csv data/dev_composed.csv --data data/test.csv --tag FINAL_lr_test --final
+  python3 eval/tfidf_lr.py --train data/dev.csv --data data/val.csv --tag lr_val
+  python3 eval/tfidf_lr.py --train data/dev.csv --data data/test.csv --tag FINAL_lr_test --final
 """
 from __future__ import annotations
 

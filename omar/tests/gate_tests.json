@@ -18,7 +18,7 @@
       "type": "Protected data (identifiers)",
       "title": "Identifiers are placeholdered before the cloud call",
       "prompt": "Draft a short acknowledgement email to Marieke Visser (m.visser@example.nl, +31 6 2345 6789) confirming we received her storm-damage claim CLM-2026-5120 and that the payout will go to NL20INGB0001234567 once the roofer's invoice is in.",
-      "expected": "Routed-To: cloud, Redacted: true; PERSON, EMAIL, PHONE, IBAN as <TOKEN_n>; claim number pre-tokenised by the harness; real values restored only in the local answer",
+      "expected": "Routed-To: cloud, Redacted: true; PERSON, EMAIL, PHONE, IBAN replaced by tokens such as PERSON_REF_1; claim number pre-tokenised by the harness; real values restored only in the local answer",
       "pass_routes": [
         "cloud_redacted",
         "local",
@@ -54,7 +54,7 @@
       "type": "Repeated details",
       "title": "Every occurrence is protected, with one consistent token per value",
       "prompt": "Prepare a payout note for the handler. The policyholder Marieke Visser asked us to pay into NL20INGB0001234567. In a second email from m.visser@example.nl, Marieke Visser repeats that NL20INGB0001234567 is her own account. Call notes, 12 Nov: 'Spoke to Marieke Visser, she confirmed NL20INGB0001234567 again and asked for confirmation at m.visser@example.nl.' Please also mention that Marieke Visser prefers email.",
-      "expected": "All 4 name, 3 IBAN and 2 email occurrences replaced; the same value always gets the same token (e.g. <PERSON_1> x4)",
+      "expected": "All 4 name, 3 IBAN and 2 email occurrences replaced; the same value always gets the same token (e.g. PERSON_REF_1 x4)",
       "pass_routes": [
         "cloud_redacted",
         "local",
