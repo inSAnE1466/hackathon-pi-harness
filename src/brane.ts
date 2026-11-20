@@ -43,6 +43,18 @@ export function readDecision(status: number, headers: Record<string, string>): B
   };
 }
 
+const EMPTY_DECISION: BraneDecision = {
+  status: 0,
+  routedTo: "",
+  action: "",
+  redacted: false,
+  piiTypes: "",
+  semanticMatches: "",
+  localCause: "",
+  refusedBy: "",
+  modelResolved: "",
+};
+
 function model(id: string, name: string, baseUrl: string): Model<"openai-completions"> {
   return {
     id,
@@ -73,12 +85,20 @@ export function braneFetch(
     const url = new URL(input instanceof Request ? input.url : String(input));
     if (url.origin !== base.origin)
       throw new Error(`Blocked model request to ${url.origin}: only BRANE is allowed`);
-    const response = await fetch(input, init);
+    let response: Response;
+    try {
+      response = await fetch(input, init);
+    } catch (error) {
+      // BRANE unreachable: record the withheld request and fail the turn. Nothing goes anywhere else.
+      onDecision({ ...EMPTY_DECISION, routedTo: "withheld", localCause: "brane_unreachable" });
+      throw error;
+    }
     const headers: Record<string, string> = {};
     response.headers.forEach((value, key) => (headers[key] = value));
     const decision = readDecision(response.status, headers);
-    onDecision(decision);
+    if (decision.routedTo !== "" || response.status === 422) onDecision(decision);
     if (decision.routedTo === "" && response.status !== 422) {
+      onDecision({ ...decision, routedTo: "withheld", localCause: "no_brane_decision" });
       throw new Error("BRANE returned no routing decision; nothing is sent");
     }
     return response;

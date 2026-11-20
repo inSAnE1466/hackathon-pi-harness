@@ -53,6 +53,8 @@ const isHealthLocal = (j: Awaited<ReturnType<typeof dryRun>>) =>
 
 export async function intake(env: BraneEnv, claim: string): Promise<IntakeResult> {
   try {
+    // An unreachable BRANE fails here and the claim is passed on unchanged; the model request that follows is then
+    // withheld by the provider, so nothing is sent.
     if (!isHealthLocal(await dryRun(env, claim))) return { kind: "unchanged" };
 
     const res = await fetch(`${env.BRANE_BASE_URL.replace(/\/+$/, "")}/chat/completions`, {
