@@ -1,8 +1,17 @@
-import { type SubmitEvent, useState } from "react";
+import { useState } from "react";
 import { ChatSession } from "./ChatSession.tsx";
-import { loadUsername, MAX_USERNAME_CHARACTERS, saveUsername } from "./identity.ts";
+import { loadUsername, saveUsername } from "./identity.ts";
+import { SAMPLE_CLAIMS, stashDraft } from "./samples.ts";
 
 const sessionRoute = /^\/sessions\/([^/]+)\/?$/;
+
+/**
+ * Everyone in the workspace speaks as a role, not a name: the harness prefixes each prompt with the speaker, and a
+ * personal name there would be one more piece of personal data in every request.
+ */
+const DEFAULT_SPEAKER = "Claims handler";
+
+const speaker = (): string => loadUsername() ?? saveUsername(DEFAULT_SPEAKER);
 
 export function App() {
   const pathname = window.location.pathname;
@@ -11,117 +20,93 @@ export function App() {
   const match = sessionRoute.exec(pathname);
   if (match !== null && match[1].length > 0) {
     // Keep the session ID as the opaque encoded path segment PartySocket will reuse.
-    return <ExistingSession sessionId={match[1]} />;
+    return <ChatSession sessionId={match[1]} username={speaker()} />;
   }
 
   return (
-    <main>
+    <main className="landing">
       <h1>Page not found</h1>
       <p>
-        <a href="/">Return to the landing page</a>
+        <a href="/">Back to the claims assistant</a>
       </p>
     </main>
   );
 }
 
 function LandingPage() {
-  const [creating, setCreating] = useState(false);
+  const [creating, setCreating] = useState<string>();
   const [error, setError] = useState<string>();
-  const [username, setUsername] = useState(() => loadUsername() ?? "");
 
-  const createSession = async (event: SubmitEvent<HTMLFormElement>): Promise<void> => {
-    event.preventDefault();
-    setCreating(true);
+  const open = async (key: string, draft: string): Promise<void> => {
+    setCreating(key);
     setError(undefined);
     try {
-      saveUsername(username);
+      speaker();
       const response = await fetch("/api/sessions", { method: "POST" });
-      if (!response.ok) throw new Error(`Session creation failed (${response.status})`);
-      const result = (await response.json()) as { readonly url?: unknown };
-      if (typeof result.url !== "string")
-        throw new Error("The server returned an invalid session URL");
+      if (!response.ok) throw new Error(`Could not open a session (${response.status})`);
+      const result = (await response.json()) as {
+        readonly sessionId?: unknown;
+        readonly url?: unknown;
+      };
+      if (typeof result.url !== "string" || typeof result.sessionId !== "string")
+        throw new Error("The server returned an invalid session");
+      if (draft !== "") stashDraft(result.sessionId, draft);
       window.location.assign(result.url);
     } catch (error) {
-      setCreating(false);
-      setError(error instanceof Error ? error.message : "Session creation failed");
+      setCreating(undefined);
+      setError(error instanceof Error ? error.message : "Could not open a session");
     }
   };
 
   return (
-    <main>
-      <header>
-        <h1>pi-durable</h1>
-        <p>A minimal chat interface for durable conversations and forks.</p>
+    <main className="landing">
+      <header className="landing-header">
+        <p className="eyebrow">Gezira · AI-Z Challenge</p>
+        <h1>Claims assistant</h1>
+        <p className="landing-lede">
+          The assistant prepares health and travel claims. BRANE decides what may leave for a model.
+          People decide the claims.
+        </p>
       </header>
-      <section aria-labelledby="create-session-heading">
-        <h2 id="create-session-heading">Start a session</h2>
-        <p>Create an isolated durable session, send messages, and fork its transcript.</p>
-        <form onSubmit={createSession}>
-          <p>
-            <label htmlFor="username">Display name</label>{" "}
-            <input
-              id="username"
-              name="username"
-              value={username}
-              maxLength={MAX_USERNAME_CHARACTERS}
-              autoComplete="nickname"
-              required
-              onChange={(event) => setUsername(event.currentTarget.value)}
-            />
-          </p>
-          <button type="submit" disabled={creating}>
-            {creating ? "Creating session…" : "Create session"}
-          </button>
-        </form>
-        {error === undefined ? null : <p role="alert">{error}</p>}
+
+      <section aria-labelledby="samples-heading">
+        <h2 id="samples-heading">Try a sample claim</h2>
+        <ul className="sample-grid">
+          {SAMPLE_CLAIMS.map((sample) => (
+            <li key={sample.id}>
+              <button
+                className="sample-tile"
+                type="button"
+                disabled={creating !== undefined}
+                onClick={() => void open(sample.id, sample.text)}
+              >
+                <span className="sample-title">{sample.title}</span>
+                <span className="sample-text">{sample.text}</span>
+                <span className="sample-expected">
+                  {creating === sample.id ? "Opening…" : sample.expected}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
       </section>
-    </main>
-  );
-}
 
-function ExistingSession({ sessionId }: { readonly sessionId: string }) {
-  const [username, setUsername] = useState(loadUsername);
-  const [draft, setDraft] = useState("");
-  const [error, setError] = useState<string>();
-
-  if (username !== undefined) return <ChatSession sessionId={sessionId} username={username} />;
-
-  const join = (event: SubmitEvent<HTMLFormElement>): void => {
-    event.preventDefault();
-    setError(undefined);
-    try {
-      setUsername(saveUsername(draft));
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Unable to join session");
-    }
-  };
-
-  return (
-    <main>
-      <header>
-        <h1>pi-durable</h1>
-        <p>You have been invited to a shared session.</p>
-      </header>
-      <section aria-labelledby="join-session-heading">
-        <h2 id="join-session-heading">Join session</h2>
-        <form onSubmit={join}>
-          <p>
-            <label htmlFor="join-username">Display name</label>{" "}
-            <input
-              id="join-username"
-              name="username"
-              value={draft}
-              maxLength={MAX_USERNAME_CHARACTERS}
-              autoComplete="nickname"
-              autoFocus
-              required
-              onChange={(event) => setDraft(event.currentTarget.value)}
-            />
-          </p>
-          <button type="submit">Join</button>
-        </form>
-        {error === undefined ? null : <p role="alert">{error}</p>}
-      </section>
+      <p>
+        <button
+          className="button-primary"
+          type="button"
+          disabled={creating !== undefined}
+          onClick={() => void open("blank", "")}
+        >
+          {creating === "blank" ? "Opening…" : "Start an empty session"}
+        </button>
+      </p>
+      {error === undefined ? null : (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      )}
+      <p className="landing-note">All claims here are synthetic.</p>
     </main>
   );
 }

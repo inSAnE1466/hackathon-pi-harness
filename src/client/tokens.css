@@ -1,0 +1,44 @@
+/*
+ * Design tokens for the claims workspace. White page, grey only on tiles and selected rows, hairlines instead of
+ * shadows, one near-black pill for the primary action. State colours appear only beside a text label.
+ */
+:root {
+  --color-page: #ffffff;
+  --color-tile: #f5f5f5;
+  --color-hairline: #e8e8e8;
+  --color-ink: #171717;
+  --color-secondary: #666666;
+  --color-primary: #171717;
+  --color-on-primary: #ffffff;
+
+  --color-passed: #1a7f37;
+  --color-passed-tint: #e9f6ec;
+  --color-waiting: #b25e00;
+  --color-waiting-tint: #fdf1e3;
+  --color-blocked: #c62828;
+  --color-blocked-tint: #fcebeb;
+
+  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-md: 16px;
+  --text-lg: 20px;
+  --leading: 1.45;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  --radius-tile: 10px;
+  --radius-chip: 6px;
+  --radius-pill: 999px;
+}
