@@ -24,7 +24,7 @@ runtime where calling an HTTP endpoint is one `fetch`.
 document(s) ──► ingest (local) ──► detectors (local, deterministic)
                                         │
                                         ▼
-                          brain.classify (via BRANE) ──► route()  ◄── policy matrix (data)
+                          classify (local) ──► route()  ◄── policy matrix (data)
                                                            │
              ┌──────────────┬──────────────┬───────────────┼──────────────┐
              ▼              ▼              ▼               ▼              ▼
@@ -54,10 +54,10 @@ Open until the organizers hand out the endpoint: BRANE's request and response sh
 OpenAI API (then it is a `baseUrl` swap) or returns a verdict we act on, and how its policies are configured.
 [Plan](plan.md) step 1 settles this with a prototype.
 
-## Code mode and the brain
+## Code mode and the classifier
 
 Scripts in code mode can call `models.classify(model, { state, questions })` from a QuickJS sandbox; each call is a
 journaled, durable nested call. That lets one script classify 40 documents in parallel (four in flight at once) and
 return only the routing table to the model, and it keeps the classifier's raw inputs out of the chat context. When
-the brain endpoint is wrapped as a pi-ai provider with `classify()`, code mode picks it up with no extra glue.
+the local classifier is wrapped as a pi-ai provider with `classify()`, code mode picks it up with no extra glue.
 [Primitives](primitives.md#where-code-mode-fits) says which calls belong in code mode.

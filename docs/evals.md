@@ -46,7 +46,11 @@ real endpoint (for the demo and the protocol we hand in).
 | Bypass attempt         | injected instructions in documents, rephrased user requests, role-play, encoding, multilingual (German, Dutch) | 40            |
 | Check failure          | BRANE down, timeout, 5xx, malformed verdict, verdict missing a field                                           | 10            |
 
-Bypass gets the most cases because it is the test teams fail.
+Bypass gets the most cases because it is the test teams fail. [Failure modes](failure-modes.md) lists every
+case family, including cross-record linkage (L1 to L6), which the brief's five tests do not name but the
+"protected data" and "bypass" tests cover.
+
+The same suite runs against a prompt-and-curl baseline ([baseline](baseline.md)) so every number has a comparison.
 
 ## Data sources
 
@@ -71,7 +75,7 @@ knows its ground truth. The generator is the lever; the cases are its output.
 
 ## Hill-climbing the conditions
 
-The tunable conditions are the brain's question wording and criteria, and the per-question thresholds in policy
+The tunable conditions are the local classifier's question wording and criteria, and the per-question thresholds in policy
 data. Run the [hillclimb playbook](../.agents/vendor/pstack/skills/poteto-mode/playbooks/hillclimb.md):
 
 - **Metric:** routing recall on protected segments at a fixed false-block rate on control segments. Recall must be

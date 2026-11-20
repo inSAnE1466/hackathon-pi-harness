@@ -48,13 +48,34 @@ running where the data already is. The question is not which model is smarter. I
 Open-weight does not mean safe: a local model on a third party's cloud is an external transfer. `local` names the
 environment, not the license.
 
+## Who decides what
+
+Three parts, each with one job. BRANE is a gate on egress, not the orchestrator, and it does not choose between
+open and closed models.
+
+| Part             | Runs                                            | Sees raw data                                       | Decides                                                                                 |
+| ---------------- | ----------------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **Orchestrator** | The Pi Durable agent in our Durable Object      | Only what the router released to it, plus tokens    | Which step of the task comes next; it cannot pick a route                               |
+| **Router**       | `route()`, local code beside the orchestrator   | Yes, inside our trust boundary                      | The route per segment, from local detectors, the local classifier and the policy matrix |
+| **BRANE**        | AI-Z's firewall, in front of the external model | Only what the router sends toward `frontier` routes | Whether that payload may leave, and how it is protected; returns a verdict              |
+
+Raw input stays inside our boundary until the router has run. BRANE receives only segments the router already
+placed on a `frontier` or `frontier-protected` route, so a special-category record routed `local` or `block` is
+never sent to BRANE at all. BRANE then checks that payload again as the second, independent layer.
+
+Whether BRANE itself is an external processor decides one thing: if it runs outside our environment, sending it raw
+special-category data is itself a transfer, and local pre-routing is mandatory rather than defence in depth. The
+BRANE documentation settles this ([plan](plan.md) step 1).
+
 ## How the route is computed
 
-1. Deterministic detectors run first (regex and checksums for emails, IBANs, phone numbers, national identifiers).
-   They are cheap and their recall is measurable.
-2. BRANE runs on every outbound request: detect, classify, protect. Its verdict is required. No verdict, no request.
-3. The **brain** classifier answers the routing questions ([primitives](primitives.md#classify)) on the task and the
-   remaining text. Its questions and thresholds are the conditions we hill-climb.
-4. A pure function `route(detections, braneVerdict, brainAnswers, policy)` returns the route. It is the only place
-   the route is decided, and the eval suite drives it directly.
-5. The decision, its inputs (as categories and hashes, never raw values) and the outcome go to the test protocol.
+1. **Local detectors**: regex and checksums for emails, IBANs, phone numbers, BSN and other identifiers.
+   Deterministic, measurable recall.
+2. **Local classifier**: closed questions on the residual text: data category, injection, whether the step decides
+   something significant about a person, whether it combines several people's records. Its questions and
+   thresholds are the conditions we hill-climb ([primitives](primitives.md#classify)).
+3. **`route(detections, classifierAnswers, policy)`**: a pure function and the only place a route is decided. Below a
+   confidence floor on any question, the route is `human`.
+4. **BRANE** on every outbound request: detect, classify, protect, verdict. No verdict, no request. A BRANE verdict
+   stricter than the router's route wins; a looser one never widens it.
+5. **Record**: the decision, its inputs as categories and hashes, and the outcome go to the test protocol.

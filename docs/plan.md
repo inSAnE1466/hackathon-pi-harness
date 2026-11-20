@@ -14,7 +14,7 @@ is transient and goes away when the plan is done.
    fill `docs/policy-matrix.md` and `policy/<use-case>.json`, one rule per category with its legal basis. Check: at
    least three rules with different actions, each citing an article.
 4. **Primitives.** `detect`, `protect`, `route`, `record` as pure functions in `src/primitives/`, then `classify`
-   over the brain endpoint as a pi-ai provider with `classify()`. Check: the eval runner drives `route()` over the
+   as a local pi-ai provider with `classify()`. Check: the eval runner drives `route()` over the
    seed cases.
 5. **Eval runner and generator.** `evals/generate.mjs` (seeded) and `evals/run.mjs` with the recording transport and
    stub BRANE; `pnpm eval` prints pass or fail per track test and writes the protocol. Check: a deliberately

@@ -3,14 +3,14 @@
 A primitive is one capability with one owner file under `src/primitives/<name>.ts`, a typed input and output, and
 its own eval cases. The agent composes them; it never reimplements one inline. Six cover the track.
 
-| Primitive  | Input                                               | Output                                   | Runs where               | Track step      |
-| ---------- | --------------------------------------------------- | ---------------------------------------- | ------------------------ | --------------- |
-| `detect`   | text                                                | `Detection[]` (category, span, detector) | local, deterministic     | Detect          |
-| `classify` | text or fields, routing questions                   | answers with probabilities               | brain endpoint via BRANE | Classify        |
-| `protect`  | text, detections, policy                            | protected text, pseudonym map entries    | local                    | Protect         |
-| `route`    | detections, BRANE verdict, classify answers, policy | `Route` per segment                      | local, pure function     | Route or block  |
-| `approve`  | prepared material, role                             | approval record                          | human, in the client     | Human oversight |
-| `record`   | decision and its inputs                             | protocol row                             | Durable Object storage   | Document        |
+| Primitive  | Input                                | Output                                   | Runs where             | Track step      |
+| ---------- | ------------------------------------ | ---------------------------------------- | ---------------------- | --------------- |
+| `detect`   | text                                 | `Detection[]` (category, span, detector) | local, deterministic   | Detect          |
+| `classify` | text or fields, routing questions    | answers with probabilities               | local classifier       | Classify        |
+| `protect`  | text, detections, policy             | protected text, pseudonym map entries    | local                  | Protect         |
+| `route`    | detections, classify answers, policy | `Route` per segment                      | local, pure function   | Route or block  |
+| `approve`  | prepared material, role              | approval record                          | human, in the client   | Human oversight |
+| `record`   | decision and its inputs              | protocol row                             | Durable Object storage | Document        |
 
 ## Data shapes
 
@@ -35,8 +35,8 @@ type ProtocolRow = {
   testCase?: string;
   segment: string; // sha256 of the segment, never the raw text
   categories: Category[];
-  braneVerdict: string;
-  brainAnswers: Record<string, number>;
+  braneVerdict?: string;
+  classifierAnswers: Record<string, number>;
   route: Route;
   outcome: "sent" | "withheld" | "approved" | "rejected" | "error";
 };
@@ -47,7 +47,7 @@ touching code, and the jury can read the matrix and the code side by side.
 
 ## classify
 
-The brain is a classifier, not a chat model. Ask it closed questions with written criteria; never ask it whether
+The router's classifier runs locally, before any egress. It is a classifier, not a chat model. Ask it closed questions with written criteria; never ask it whether
 something is "allowed". Example question set for a segment:
 
 ```ts
@@ -87,7 +87,7 @@ and are what [evals](evals.md#hill-climbing-the-conditions) tunes.
 
 ## Where code mode fits
 
-Put a brain call in code mode when the script, not the model, should see the inputs and the model should see only
+Put a classifier call in code mode when the script, not the model, should see the inputs and the model should see only
 the result.
 
 | Call                                                   | Code mode                      | Why                                                                                            |
