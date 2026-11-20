@@ -18,6 +18,15 @@ The held-out set (`evals/golden/heldout.jsonl`, 20 claims written after claims-v
 fertility, oncology, cardiology, stroke rehabilitation, HIV, German and Dutch wording) caught two health leaks the
 tuning set did not. `node evals/golden.mjs --set=heldout` runs it.
 
+## Autonomous climb
+
+`node evals/climb.mjs` tries each candidate in `evals/candidates.json` (a semantic category plus keywords or
+description text), applies it to the live department, scores the golden and held-out sets and the organizers'
+tests, keeps it only if something improves and nothing regresses, and otherwise reverts it and reapplies the old
+policy. Each attempt is a row in `evals/climb-log.tsv` (gitignored). First run on claims-v5: all three candidates
+reverted, because the sets were already at 0 leaks and none improved them; the live policy ended unchanged. The
+next climb needs harder cases than the sets now hold.
+
 ## Benchmark: three builds on the golden set
 
 `node evals/compare.mjs 3`, scored on the 21 claims all three builds judged (9 excluded because BRANE refused the

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "health keywords: cast, stitches, scan",
+    "category": "CLAIM_HEALTH_CONTEXT",
+    "keywords": ["cast", "stitches", "scan"]
+  },
+  {
+    "name": "health keyword: ward (overly broad, expected to over-block)",
+    "category": "CLAIM_HEALTH_CONTEXT",
+    "description": "Any mention of a building, room or department counts."
+  },
+  {
+    "name": "profiling keywords: first name, accent",
+    "category": "PROTECTED_TRAIT_PROFILING",
+    "keywords": ["first names", "accent"]
+  }
+]
