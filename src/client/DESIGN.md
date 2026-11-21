@@ -22,11 +22,11 @@ All values live in `tokens.css`. Components use the tokens, never raw values.
 
 ## The three regions
 
-| Region | Width at 1440 px     | Content                                                                         |
-| ------ | -------------------- | ------------------------------------------------------------------------------- |
-| Queue  | 280 px, 56 px folded | The fixed claims queue (`queue.ts`), one row each: type icon, title, status     |
-| Chat   | Flexible             | The selected claim's one session: claim, answers, the claims handler's decision |
-| Panel  | 420 px               | "How the harness decided": Trace and Audit log tabs                             |
+| Region | Width at 1440 px     | Content                                                                     |
+| ------ | -------------------- | --------------------------------------------------------------------------- |
+| Queue  | 280 px, 56 px folded | The fixed claims queue (`queue.ts`), one row each: type icon, title, status |
+| Chat   | Flexible             | The selected claim's session: messages, decision cards, the message box     |
+| Panel  | 420 px               | "How the harness decided": Trace and Audit log tabs                         |
 
 At 1280 px and below the queue starts folded to icons; the toggle opens it. Below 1100 px the panel moves under the
 chat. The header holds the product name, one line of subtitle, the policy version from `policy/brane.json` and the
@@ -36,13 +36,15 @@ synthetic-data note.
 
 | Thing        | States                                                                                          |
 | ------------ | ----------------------------------------------------------------------------------------------- |
-| Claim status | New, In progress, Waiting on expert, Prepared, Refused, Decided: approved / rejected / edited   |
+| Claim status | New, In progress, Waiting on expert, Prepared, Refused, Approved, Edited, Rejected              |
 | Trace node   | Not reached (hollow, muted), done (ink), active (yellow), refused (red with label)              |
 | Route        | Cloud, protected (green), Local model (green), Refused (red), No decision (red)                 |
 | Data         | Loading text in place of rows, an empty line with what fills it, an inline error with the cause |
 
 The trace has five fixed nodes (Intake, Gate, BRANE, Tools, Person) with fixed heights, so it fills without moving.
-Every button has hover, focus-visible, active and disabled styles; every control is a native button, link, input or
+A person's decision is a square node wherever a model step is a round one (run thread, trace). Motion draws shapes
+in: a trace connector grows down once its step is passed, a used routing lane strokes from the claim to its node.
+Nothing pops; reduced motion turns both off. Every button has hover, focus-visible, active and disabled styles; every control is a native button, link, input or
 tab with a visible focus ring.
 
 ## Copy
