@@ -1,0 +1,18 @@
+{"id":"h01","kind":"paraphrase","q":"a person asks for a human to look again at a machine-made outcome","want":[["GDPR-22(3)"]]}
+{"id":"h02","kind":"paraphrase","q":"who has to be able to show that the rules were followed","want":[["GDPR-5(2)"]]}
+{"id":"h03","kind":"paraphrase","q":"people watching the system must be able to stop it or overrule it","want":[["AIA-Art14(4)"]]}
+{"id":"h04","kind":"paraphrase","q":"the affected person wants the reasons behind a decision an AI system helped make","want":[["AIA-Art86(1)","POL-5.1","POL-4.2"]]}
+{"id":"h05","kind":"paraphrase","q":"are pregnancy scans paid for","want":[["POL-2.6"]]}
+{"id":"h06","kind":"paraphrase","q":"treatment that began before the insurance started","want":[["POL-4.3"]]}
+{"id":"h07","kind":"paraphrase","q":"wheelchair hire while a broken leg heals","want":[["MED-7"]]}
+{"id":"h08","kind":"paraphrase","q":"what share is paid at a hospital the insurer has no contract with","want":[["POL-2.3"]]}
+{"id":"h09","kind":"dutch","q":"vergoeding van een gehoorapparaat","want":[["POL-2.5","MED-7"]]}
+{"id":"h10","kind":"dutch","q":"mag de verzekeraar gezondheidsgegevens voor een andere verzekering gebruiken","want":[["GVPV-5.1.1"]]}
+{"id":"h11","kind":"dutch","q":"German rule on automated decisions when an insurance benefit is granted","want":[["BDSG-37"]]}
+{"id":"h12","kind":"dutch","q":"zorgaanbieder verstrekt gezondheidsgegevens aan de zorgverzekeraar","want":[["ZVW-87"]]}
+{"id":"h13","kind":"multi-hop","q":"a probability score the handler leans on: is the score itself a decision, and what makes human review real","want":[["CJEU-C-634/21"],["WP251"]]}
+{"id":"h14","kind":"multi-hop","q":"tell customers who receives their data and keep a register of those recipients","want":[["GDPR-13(1)","GDPR-14(1)"],["GDPR-30(1)"]]}
+{"id":"h15","kind":"category-to-rule","q":"religion mentioned in a claim letter","want":[["GDPR-9(1)"]]}
+{"id":"h16","kind":"category-to-rule","q":"tax number or other national identification number","want":[["GDPR-87","UAVG-46"]]}
+{"id":"h17","kind":"category-to-rule","q":"scoring how likely a customer is to claim again","want":[["GDPR-4(4)","GDPR-R71"]]}
+{"id":"h18","kind":"paraphrase","q":"what the insurance supervisor expects of AI uses that are not on the high-risk list","want":[["EIOPA-AI-2025"]]}

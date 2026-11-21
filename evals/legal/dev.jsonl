@@ -1,0 +1,54 @@
+{"id": "p01", "kind": "paraphrase", "q": "can a computer alone turn down someone's claim", "want": [["GDPR-22(1)", "POL-5.1", "MED-9", "GVPV-4.2.2"]]}
+{"id": "p02", "kind": "paraphrase", "q": "after swapping names for codes, is the record still about a real person", "want": [["GDPR-R26", "GDPR-4(5)", "EDPB-01/2025", "CJEU-C-413/23P"]]}
+{"id": "p03", "kind": "paraphrase", "q": "what counts as information about someone's physical or mental condition", "want": [["GDPR-4(15)", "GDPR-R35"]]}
+{"id": "p04", "kind": "paraphrase", "q": "sending customer files to a company in the United States", "want": [["GDPR-44", "GDPR-46(1)", "GDPR-45(1)", "METHOD-TRANSFERS"]]}
+{"id": "p05", "kind": "paraphrase", "q": "how long must the system's event history be stored", "want": [["AIA-Art26(6)", "AIA-Art19(1)"]]}
+{"id": "p06", "kind": "paraphrase", "q": "collect only what the job needs and nothing more", "want": [["GDPR-5(1)", "GDPR-25(2)"]]}
+{"id": "p07", "kind": "paraphrase", "q": "building privacy safeguards into the software from the start", "want": [["GDPR-25(1)"]]}
+{"id": "p08", "kind": "paraphrase", "q": "agreement with an outside vendor that handles our customers' data for us", "want": [["GDPR-28(3)"]]}
+{"id": "p09", "kind": "paraphrase", "q": "must we study the risks before handling medical files at scale", "want": [["GDPR-35(3)", "GDPR-35(1)", "AP-DPIA-7", "METHOD-PRIVACY-TRIAGE"]]}
+{"id": "p10", "kind": "paraphrase", "q": "the reviewer only rubber-stamps what the software proposes", "want": [["WP251", "AIA-Art14(4)", "CJEU-C-634/21"]]}
+{"id": "p11", "kind": "paraphrase", "q": "telling the customer that software took part in handling their file", "want": [["GDPR-13(2)", "GDPR-14(2)", "AIA-Art26(11)", "AIA-Art50(1)", "AIA-Art86(1)"]]}
+{"id": "p12", "kind": "paraphrase", "q": "words hidden in an uploaded letter try to steer the assistant", "want": [["OWASP-LLM01"]]}
+{"id": "p13", "kind": "paraphrase", "q": "suitcase never arrived after the flight", "want": [["POL-3.2", "MED-10"]]}
+{"id": "p14", "kind": "paraphrase", "q": "bill far above what others ask for the same care", "want": [["MED-8"]]}
+{"id": "p15", "kind": "paraphrase", "q": "the customer waited three weeks after the fall before seeing anyone", "want": [["MED-5"]]}
+{"id": "p16", "kind": "paraphrase", "q": "is a therapist paid for without a note from the family doctor", "want": [["POL-2.4", "MED-6"]]}
+{"id": "p17", "kind": "paraphrase", "q": "how many months does a customer have to send in the bill", "want": [["POL-4.2"]]}
+{"id": "p18", "kind": "paraphrase", "q": "nose job done for looks only", "want": [["POL-4.3"]]}
+{"id": "p19", "kind": "paraphrase", "q": "scrambling stored records so a break-in reveals nothing", "want": [["GDPR-32(1)"]]}
+{"id": "p20", "kind": "paraphrase", "q": "the other driver has been in prison before", "want": [["GDPR-10", "UAVG-31", "UAVG-33(2)"]]}
+{"id": "m01", "kind": "multi-hop", "q": "may an insurer use medical details to settle a claim, and which staff may see them", "want": [["UAVG-30(3)(b)", "GDPR-9(2)", "GVPV-5.1.1"], ["UAVG-30(4)", "GVPV-5.1.3", "ZVW-87", "POL-5.2"]]}
+{"id": "m02", "kind": "multi-hop", "q": "automated rejection of a medical claim: the general ban and the extra rule for special categories", "want": [["GDPR-22(1)"], ["GDPR-22(4)"]]}
+{"id": "m03", "kind": "multi-hop", "q": "is claims handling on the high-risk list, and what logs must a deployer of a high-risk system keep", "want": [["AIA-Annex3(5)", "EIOPA-AI-2025"], ["AIA-Art26(6)", "AIA-Art12(1)", "AIA-Art12(2)"]]}
+{"id": "m04", "kind": "multi-hop", "q": "physiotherapy after a hip operation: the policy limit and when the medical adviser gives an opinion", "want": [["POL-2.2"], ["MED-3", "MED-1"]]}
+{"id": "m05", "kind": "multi-hop", "q": "hospital stay while travelling: what is paid and which papers complete the claim", "want": [["POL-3.1", "MED-4"], ["MED-2", "POL-4.1"]]}
+{"id": "m06", "kind": "multi-hop", "q": "pseudonymised claim text sent to a model outside the EU: is it still personal data and is a transfer safeguard needed", "want": [["GDPR-R26", "EDPB-01/2025", "CJEU-C-413/23P", "GDPR-4(5)"], ["GDPR-44", "GDPR-46(1)", "METHOD-TRANSFERS"]]}
+{"id": "m07", "kind": "multi-hop", "q": "picking claims for extra checks by surname: does a name reveal a special category, and which equal treatment rule applies", "want": [["CJEU-C-184/20", "GDPR-9(1)"], ["RED-2000/43-2", "CHARTER-21"]]}
+{"id": "m08", "kind": "multi-hop", "q": "who takes the decision on a claim and who writes the medical opinion", "want": [["POL-5.1", "MED-9"], ["GVPV-5.1.3", "MED-1", "POL-1.1"]]}
+{"id": "d01", "kind": "dutch", "q": "mag een verzekeraar gezondheidsgegevens verwerken voor de uitvoering van de verzekering", "want": [["UAVG-30(3)(b)", "GVPV-5.1.1"]]}
+{"id": "d02", "kind": "dutch", "q": "geheimhoudingsplicht bij gezondheidsgegevens", "want": [["UAVG-30(4)", "ZVW-87"]]}
+{"id": "d03", "kind": "dutch", "q": "waarvoor mag het burgerservicenummer worden gebruikt", "want": [["ZVW-86", "UAVG-46"]]}
+{"id": "d04", "kind": "dutch", "q": "wie mag een medisch advies opstellen", "want": [["GVPV-5.1.3"]]}
+{"id": "d05", "kind": "dutch", "q": "is geautomatiseerde besluitvorming bij een verzekering toegestaan", "want": [["GVPV-4.2.2", "UAVG-40"]]}
+{"id": "d06", "kind": "dutch", "q": "is een DPIA verplicht voor een verzekeraar die gezondheidsgegevens verwerkt", "want": [["AP-DPIA-7"]]}
+{"id": "d07", "kind": "dutch", "q": "Dutch rule on what a citizen service number may be used for", "want": [["UAVG-46", "ZVW-86"]]}
+{"id": "d08", "kind": "dutch", "q": "Netherlands exception that lets insurers handle medical information", "want": [["UAVG-30(3)(b)"]]}
+{"id": "d09", "kind": "dutch", "q": "hoe werkt het eigen risico", "want": [["POL-2.1"]]}
+{"id": "d10", "kind": "dutch", "q": "fysiotherapie na een knieoperatie", "want": [["POL-2.2", "MED-3"]]}
+{"id": "d11", "kind": "dutch", "q": "German rule on getting medical records from a doctor", "want": [["VVG-213"]]}
+{"id": "d12", "kind": "dutch", "q": "bagage kwijtgeraakt door de luchtvaartmaatschappij", "want": [["POL-3.2", "MED-10"]]}
+{"id": "d13", "kind": "dutch", "q": "strafrechtelijke gegevens in een schadeclaim", "want": [["GDPR-10", "UAVG-31", "UAVG-33(2)"]]}
+{"id": "d14", "kind": "dutch", "q": "ziekenhuisopname in het buitenland", "want": [["POL-3.1", "MED-4"]]}
+{"id": "c01", "kind": "category-to-rule", "q": "IBAN in a claim: which rule says to mask it before an outside model sees it", "want": [["GDPR-5(1)", "GDPR-32(1)", "GDPR-25(1)"]]}
+{"id": "c02", "kind": "category-to-rule", "q": "BSN in a claim form: which rule limits its use", "want": [["UAVG-46", "ZVW-86", "GDPR-87"]]}
+{"id": "c03", "kind": "category-to-rule", "q": "diagnosis and medication in a claim: which rule makes this a special category", "want": [["GDPR-9(1)", "GDPR-4(15)", "UAVG-30(3)(b)"]]}
+{"id": "c04", "kind": "category-to-rule", "q": "trade union membership mentioned in a letter", "want": [["GDPR-9(1)"]]}
+{"id": "c05", "kind": "category-to-rule", "q": "name and address of a garage company: is that covered by data protection law", "want": [["GDPR-R14"]]}
+{"id": "c06", "kind": "category-to-rule", "q": "conviction for drunk driving of the claimant", "want": [["GDPR-10", "UAVG-31", "UAVG-33(2)"]]}
+{"id": "c07", "kind": "category-to-rule", "q": "is a witness's email address personal data", "want": [["GDPR-4(1)"]]}
+{"id": "c08", "kind": "category-to-rule", "q": "is an IP address personal data", "want": [["CJEU-C-582/14", "GDPR-4(1)"]]}
+{"id": "c09", "kind": "category-to-rule", "q": "surname used as a hint of ethnic origin", "want": [["CJEU-C-184/20", "RED-2000/43-2", "GDPR-9(1)", "CHARTER-21"]]}
+{"id": "c10", "kind": "category-to-rule", "q": "password pasted into a claim note", "want": [["GDPR-32(1)"]]}
+{"id": "c11", "kind": "category-to-rule", "q": "DNA test result in a medical file", "want": [["GDPR-4(13)", "GDPR-9(1)"]]}
+{"id": "c12", "kind": "category-to-rule", "q": "audit log of every automated step: which rule asks for it", "want": [["GDPR-5(2)", "GDPR-30(1)", "AIA-Art12(1)", "AIA-Art26(6)", "AIA-Art19(1)"]]}

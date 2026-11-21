@@ -1,0 +1,6 @@
+{
+  "name": "03-policy-v4",
+  "policy": "evals/variants/policy-claims-v4.json",
+  "gate": false,
+  "classifier": null
+}
