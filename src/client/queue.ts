@@ -1,7 +1,8 @@
 /**
- * The demo's claims queue: eight synthetic claims as they arrive, the claimant's request in their own words plus the
- * attached documents as text. Nothing is pre-structured or pre-solved; the harness does the work. The cases follow
- * `evals/golden/claims.jsonl` (the golden id is in `golden`); every name, number and address is invented.
+ * The demo's claims queue: ten synthetic claims as they arrive, the claimant's request in their own words plus the
+ * attached documents as text. Nothing is pre-structured or pre-solved; the harness does the work. Most cases follow
+ * `evals/golden/claims.jsonl` (the golden id is in `golden`); the health claims with an empty `golden` are drawn from
+ * `evals/golden/health.jsonl`. Every name, number and address is invented.
  */
 export type ClaimType = "health" | "travel" | "motor" | "request";
 
@@ -53,25 +54,21 @@ export const QUEUE: readonly QueueClaim[] = [
     ],
   },
   {
-    id: "ski",
-    golden: "g01",
-    title: "Ski fracture in Austria",
-    claimant: "Daan Mulder",
+    id: "ski-abroad",
+    golden: "",
+    title: "Ski fracture, surgery abroad",
+    claimant: "Noor El Amrani",
     type: "health",
     request:
-      "Can I get my ski accident costs in Austria covered? I broke my lower leg in Ischgl and was flown home. Policy POL-4410-17.",
+      "I broke my lower leg skiing and had surgery in Verona. I did not have my EHIC card with me and we only called the emergency line after about 60 hours. Please tell me what is covered.",
     documents: [
       {
-        name: "Discharge note, Klinik Innsbruck",
-        text: "Patient: Daan Mulder, born 03-06-1991. Admitted 12 February 2026 after a skiing fall. Diagnosis: closed fracture of the left tibia. Treatment: intramedullary nailing under general anaesthesia, 3 nights inpatient. Discharged fit to fly with leg support.",
+        name: "Claim form",
+        text: "CLAIM FORM (synthetic)\nClaim number: CLM-2026-3850\nPolicy number: POL-3561-76\nPolicyholder: Noor El Amrani\nTrip: Verona, Italy\nItems claimed: hospital invoice EUR 2,942; ski pass refund EUR 150",
       },
       {
-        name: "Invoice, Klinik Innsbruck",
-        text: "Invoice KI-2026-01877. Surgery EUR 2,140.00. Inpatient stay 3 nights EUR 960.00. Imaging EUR 180.00. Total EUR 3,280.00. Hospital is outside the insurer's contracted network.",
-      },
-      {
-        name: "Ambulance flight invoice",
-        text: "Alpine Air Ambulance, 15 February 2026. Innsbruck to Maastricht Aachen Airport, medical escort. EUR 2,150.00.",
+        name: "Hospital invoice",
+        text: "Ospedale Lago Blu, Verona (synthetic)\nPatient: Noor El Amrani\nSurgery after a ski fracture of the lower leg; two nights admitted\nTotal: EUR 2,942\nEHIC: not shown",
       },
     ],
   },
@@ -95,21 +92,59 @@ export const QUEUE: readonly QueueClaim[] = [
     ],
   },
   {
-    id: "motor",
-    golden: "g17",
-    title: "Car hit by a third party",
-    claimant: "Our policyholder",
-    type: "motor",
+    id: "dental-crown",
+    golden: "",
+    title: "Dental crown, payout to IBAN",
+    claimant: "Gerrit Yilmaz",
+    type: "health",
     request:
-      "Someone drove into my car at a junction in Sittard. Can you write to his insurer so they pay for the repair?",
+      "I had a crown placed on a lower molar. The invoice is EUR 1,066. Is this covered under my supplementary package, and can you pay it to my account?",
     documents: [
       {
-        name: "European accident statement",
-        text: "Date: 2 October 2026, 08:40, junction Rijksweg and Molenweg, Sittard. Vehicle B, driven by Pieter Jansen, Molenweg 7, Sittard, plate 12-ABC-3, did not give way and hit vehicle A on the right front. Both drivers signed.",
+        name: "Payout form",
+        text: "PAYOUT FORM (synthetic)\nName: Gerrit Yilmaz\nBSN: 417395176\nIBAN: NL25INGB5805547831\nPolicy: POL-2953-96\nClaim: CLM-2026-1667",
       },
       {
-        name: "Repair estimate",
-        text: "Garage Limburg Auto. Right front wing, headlight and bumper. Parts EUR 1,180.00, labour EUR 640.00. Total EUR 1,820.00.",
+        name: "Dentist invoice",
+        text: "Mergelland Kliniek (synthetic)\nPatient: Gerrit Yilmaz\nTreatment: crown placed on a lower molar\nAmount: EUR 1,066",
+      },
+    ],
+  },
+  {
+    id: "maternity",
+    golden: "",
+    title: "Maternity care and own risk",
+    claimant: "Hanneke Vos",
+    type: "health",
+    request:
+      "I am pregnant and under the care of a midwife. I am claiming my antenatal checks and a home birth kit, EUR 309 in total. Do these count toward my own risk?",
+    documents: [
+      {
+        name: "Claim form",
+        text: "CLAIM FORM (synthetic)\nClaim number: CLM-2026-4254\nPolicyholder: Hanneke Vos\nDate of birth: 09-07-1990\nItems claimed: antenatal checks EUR 240; home birth kit EUR 69",
+      },
+      {
+        name: "Midwife statement",
+        text: "Mergelland Kliniek (synthetic)\nCare by dr. Franssen\nHanneke Vos is pregnant and under care of a midwife; antenatal checks on schedule.",
+      },
+    ],
+  },
+  {
+    id: "scan-report",
+    golden: "",
+    title: "Scanned medical report (OCR)",
+    claimant: "Sanne Hermans",
+    type: "health",
+    request:
+      "Here is the scan of my medical report for the wrist fracture. Please add it to my claim and tell me what else you need.",
+    documents: [
+      {
+        name: "Medical report (OCR)",
+        text: "MED1SCH VERSLAG   Sint Servaas Kliniek (synthetic)\nPatiënt: Sanne Hermans   geb. 10-05-1993   BSN 647024809\nBehandelaar: dr. Claessen\nD1agnose: fractuur distale radius links (ICD-10 S52.5)\nMedicatie: paracetamol 1000 mg (ATC N02BE01)\nAdvies: 6 weken gips, controle na 2 weken",
+      },
+      {
+        name: "Claim form",
+        text: "CLAIM FORM (synthetic)\nPolicy number: POL-2231-90\nItems claimed: emergency department visit EUR 310; plaster cast EUR 95",
       },
     ],
   },
