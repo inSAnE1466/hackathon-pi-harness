@@ -1,4 +1,11 @@
-import { BRANE_LOCAL_MODEL, type BraneEnv } from "../brane.ts";
+import {
+  BRANE_LOCAL_MODEL,
+  braneFetch,
+  isLocalModel,
+  type BraneDecision,
+  type BraneEnv,
+} from "../brane.ts";
+import { findIdentifiers, mask } from "./detect.ts";
 
 /**
  * intake: split a claim before the orchestrator sees it.
@@ -10,6 +17,15 @@ import { BRANE_LOCAL_MODEL, type BraneEnv } from "../brane.ts";
  * medical text, so its turns can go to the frontier model while health detail never leaves.
  *
  * It only runs when BRANE says the claim would go local for health reasons. Everything else passes through unchanged.
+ *
+ * Egress rules, because intake handles the claim before the agent's gate does:
+ * - Identifiers (BSN, policy and claim numbers, passport, plate) are masked before either BRANE call, as the gate
+ *   does for the agent's requests.
+ * - The extraction is pinned to a local model id (`vllm:*`). BRANE runs an explicitly requested local model on its
+ *   local lane whatever its classifiers say for that request, so a classifier that varies between the dry run and
+ *   the call cannot move the health text to the cloud. A model id that is not local is refused before any call.
+ * - The extraction goes through `braneFetch`: it is recorded as a `brane` audit row and fails closed on a response
+ *   without a routing decision. The body is read only after the response says it ran locally on a local model.
  */
 export type IntakeResult =
   | { readonly kind: "unchanged" }
@@ -52,15 +68,20 @@ const isHealthLocal = (j: Awaited<ReturnType<typeof dryRun>>) =>
 
 export async function intake(
   env: BraneEnv,
-  claim: string,
+  rawClaim: string,
   localModel: string = BRANE_LOCAL_MODEL,
+  onDecision: (decision: BraneDecision) => void = () => {},
 ): Promise<IntakeResult> {
+  if (!isLocalModel(localModel))
+    return { kind: "failed", reason: `${localModel} is not a local model; nothing sent` };
+  const claim = mask(rawClaim, findIdentifiers(rawClaim));
+  const gatedFetch = braneFetch(env, onDecision);
   try {
     // An unreachable BRANE fails here and the claim is passed on unchanged; the model request that follows is then
     // withheld by the provider, so nothing is sent.
     if (!isHealthLocal(await dryRun(env, claim))) return { kind: "unchanged" };
 
-    const res = await fetch(`${env.BRANE_BASE_URL.replace(/\/+$/, "")}/chat/completions`, {
+    const res = await gatedFetch(`${env.BRANE_BASE_URL.replace(/\/+$/, "")}/chat/completions`, {
       method: "POST",
       headers: { Authorization: `Bearer ${env.BRANE_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -69,11 +90,11 @@ export async function intake(
       }),
     });
     // The extraction itself carries the health text, so it must stay local; anything else is a failure.
-    if (res.headers.get("x-brane-routed-to") !== "local") {
-      return {
-        kind: "failed",
-        reason: `extraction routed ${res.headers.get("x-brane-routed-to") || "nowhere"}`,
-      };
+    const routedTo = res.headers.get("x-brane-routed-to") ?? "";
+    const resolved = res.headers.get("x-brane-model-resolved") ?? "";
+    if (routedTo !== "local" || !isLocalModel(resolved)) {
+      await res.body?.cancel();
+      return { kind: "failed", reason: `extraction routed ${routedTo || "nowhere"} ${resolved}` };
     }
     const body = (await res.json()) as { choices?: { message?: { content?: string } }[] };
     const sheet = body.choices?.[0]?.message?.content?.trim() ?? "";

@@ -28,7 +28,9 @@ failure test; GDPR Art. 32.
 
 BRANE applies the strictest category to the whole request. One word of health detail sends the entire claim to the
 local model, and the frontier model never helps with coverage reasoning or drafting. Intake runs a BRANE dry run
-first. Only when health would send the claim local, BRANE's local model rewrites the medical part as a fact sheet
+first. Identifiers are masked before either call, the extraction is pinned to a `vllm:` model id (BRANE runs an
+explicitly requested local model on its local lane, cause `explicit_local_model`), and it goes through `braneFetch`, so
+it is a `brane` audit row and fails closed. Only when health would send the claim local, BRANE's local model rewrites the medical part as a fact sheet
 with coded invoice lines ("Invoice A: treatment, EUR 1,240"), amounts, whether a referral is present, and whether the
 medical adviser is needed. BRANE re-checks the sheet; only a clean sheet replaces the claim. A failed check keeps the
 claim local, as before. Measured: a ski-fracture claim that went local on every turn now reasons on

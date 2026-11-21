@@ -1,4 +1,4 @@
-import { BRANE_CLOUD_MODEL, BRANE_LOCAL_MODEL } from "./brane.ts";
+import { BRANE_CLOUD_MODEL, BRANE_LOCAL_MODEL, isLocalModel } from "./brane.ts";
 import { sha256 } from "./sha256.ts";
 
 /**
@@ -14,7 +14,7 @@ export type Switches = {
   readonly braneTiming: "preflight" | "inline";
   /** The model the agent asks BRANE for. BRANE still moves a request to its local model when the policy says so. */
   readonly cloudModel: string;
-  /** The local model for intake's extraction. */
+  /** The local model for intake's extraction; a `vllm:` id only. */
   readonly localModel: string;
   readonly promptVariant: PromptVariant;
   /** Replaces the variant's instructions when not empty. */
@@ -86,6 +86,9 @@ export function applySwitches(current: Switches, change: unknown): SwitchesResul
             ok: false,
             error: `${key} must be a BRANE model id (openrouter:... or vllm:...)`,
           };
+        // Intake sends health text to this model, so it can only be one of BRANE's local models.
+        if (key === "localModel" && !isLocalModel(value))
+          return { ok: false, error: "localModel must be a local model id (vllm:...)" };
         next[key] = value;
         break;
       case "instructions":

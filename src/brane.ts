@@ -14,6 +14,9 @@ export const BRANE_PROVIDER = "brane";
 export const BRANE_CLOUD_MODEL: string = policy.models.cloud;
 export const BRANE_LOCAL_MODEL: string = policy.models.local;
 
+/** BRANE's local models are the `vllm:` ids; asking for one by name pins the request to BRANE's local lane. */
+export const isLocalModel = (id: string): boolean => id.startsWith("vllm:");
+
 export type BraneEnv = { readonly BRANE_BASE_URL: string; readonly BRANE_API_KEY: string };
 
 /** What BRANE decided for one request, read from its `X-Brane-*` headers. */

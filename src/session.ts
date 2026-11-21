@@ -608,7 +608,9 @@ export class Session extends DurableObject<Env> {
         const switches = this.#switches.current;
         const split: IntakeResult =
           switches.intake === "on" && switches.braneTiming === "preflight"
-            ? await intake(this.env, command.content, switches.localModel)
+            ? await intake(this.env, command.content, switches.localModel, (decision) =>
+                this.#audit.brane(decision),
+              )
             : { kind: "unchanged" };
         this.#audit.gate({
           kind: "intake",
