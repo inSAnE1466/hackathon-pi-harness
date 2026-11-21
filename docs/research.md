@@ -72,10 +72,9 @@ data and from the point of view of the controller" (C-413/23 P, para. 111). The 
 providers as recipients in its privacy notice (Art. 13(1)(e)) [GDPR-13(1)] and records the transfer in its record of
 processing (Art. 30(1)(d) and (e)) [GDPR-30(1)].
 
-**Transfers outside the EU.** The cloud model is reached through OpenRouter, Inc. (New York). A transfer to a third
-country is lawful only under Chapter V (Art. 44) [GDPR-44]: an adequacy decision (Art. 45) [GDPR-45(1)] or appropriate
-safeguards such as the Commission's standard contractual clauses (Art. 46(2)(c)) [GDPR-46(2)]. Pseudonymisation lowers
-the risk but does not remove the need for a mechanism. Section 10, question 3 says what the insurer needs.
+**Transfers outside the EU.** A cloud model outside the EEA is a third-country transfer under Chapter V (Art. 44)
+[GDPR-44]. Pseudonymisation lowers the risk but does not remove that. The vendor contract is out of scope here
+(section 10, question 3); the routing rules keep health data off the cloud either way.
 
 ## 4. Who decides
 
@@ -164,8 +163,8 @@ Yes. Triage method: [claude-for-legal privacy use-case triage](https://github.co
   cloud recipient outside the EEA.
 - The insurers' code requires the insurer to decide on a DPIA before a new category of health-data processing
   (art. 5.1.2).
-- What the DPIA must cover for this system: the health-data split between local and cloud models, the OpenRouter
-  transfer and its mechanism, the human decision point and automation bias, BRANE detection gaps found in testing
+- What the DPIA must cover for this system: the health-data split between local and cloud models, the human
+  decision point and automation bias, BRANE detection gaps found in testing
   ([decisions](decisions.md)), and retention of the audit log.
 
 ## 8. What must never happen
@@ -205,22 +204,10 @@ set and the organizers' tests run on every policy change (`node evals/qc.mjs`).
    from flowing into risk assessment. Even inside Annex III, Art. 6(3)(d) would exempt "a preparatory task to an
    assessment", unless the system profiles natural persons [AIA-Art6(3)]. If a supervisor disagreed, the high-risk
    duties would apply from 2 December 2027 (Art. 113 as amended).
-3. **Transfer mechanism for the cloud models.** OpenRouter, Inc. is a US company. Its privacy policy says it relies
-   on adequacy decisions and the Commission's standard contractual clauses, and its terms incorporate a Data
-   Processing Agreement for business users. The insurer needs:
-   - a processor agreement meeting Art. 28(3) with OpenRouter and its sub-processors (the model providers), including
-     confidentiality of staff (Art. 28(3)(b)) and documented instructions on transfers (Art. 28(3)(a)) [GDPR-28(3)];
-   - a transfer mechanism: the EU-US Data Privacy Framework (Decision (EU) 2023/1795, Art. 1) where OpenRouter and
-     each model provider are certified, otherwise standard contractual clauses (Decision (EU) 2021/914, Art. 46(2)(c))
-     with a transfer impact assessment. The General Court upheld the framework on 3 September 2025 (T-553/23
-     Latombe); check whether an appeal is pending before relying on it alone;
-   - zero-data-retention endpoints and OpenRouter's EU in-region routing (`eu.openrouter.ai`, Business and
-     Enterprise plans), which keeps prompts and completions in the EU and removes the third-country transfer for
-     inference;
-   - an entry in the Art. 30 record and the privacy notice naming OpenRouter and the model providers.
-
-   We have not read OpenRouter's DPA itself (it is not public at a stable URL). The team should read it before
-   relying on it.
+3. **Cloud model vendor terms.** Out of scope for this analysis. The research covers how an insurer handles claims
+   with an AI assistant; which contract the insurer signs with its model vendor (a processor agreement under Art. 28,
+   a transfer mechanism under Chapter V) is a procurement step that does not change the routing rules. In the
+   hackathon, BRANE is the only model endpoint and holds the provider access.
 
 4. **Must the insured be told an AI prepared the recommendation?**
    - AI Act Art. 50(1): no. It applies to "AI systems intended to interact directly with natural persons"

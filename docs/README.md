@@ -10,6 +10,7 @@
 | Which official wording backs each legal claim, and is it right?     | [legal-verification.md](legal-verification.md)            |
 | How do we set secrets, run, test and deploy?                        | [run.md](run.md)                                          |
 | What do we check and run on demo day?                               | [runbook.md](runbook.md)                                  |
+| How do we hill-climb the harness against its rewards?               | [harness-environment.md](harness-environment.md)          |
 | What BRANE's API and policy can do, and what we observed            | [brane.md](brane.md)                                      |
 | Which labels does each classifier use?                              | [label taxonomy](../labels_routing.md)                    |
 | How are routes tiered, with worked claim examples?                  | [routing tiers](../routing-tiers_hackathon.md)            |
