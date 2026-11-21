@@ -4,6 +4,7 @@ const json = (body: unknown, status: number, headers?: HeadersInit): Response =>
   Response.json(body, { status, headers });
 
 const sessionRoute = /^\/api\/sessions\/([^/]+)\/?$/;
+const switchesRoute = /^\/api\/sessions\/([^/]+)\/switches\/?$/;
 const auditRoute = /^\/api\/sessions\/([^/]+)\/audit(?:\/(human|verify))?\/?$/;
 const COOKIE = "team_session";
 
@@ -62,7 +63,32 @@ export default {
         return json({ error: "Method not allowed" }, 405, { Allow: "POST" });
       }
       const sessionId = crypto.randomUUID();
-      return json({ sessionId, url: `/sessions/${sessionId}` }, 201);
+      // An eval run may set the session's harness switches as it creates the session.
+      let body: { switches?: unknown } = {};
+      try {
+        const parsed: unknown = await request.json();
+        if (typeof parsed === "object" && parsed !== null) body = parsed;
+      } catch {
+        // No body, or not JSON: a session with the default switches.
+      }
+      if (body.switches === undefined)
+        return json({ sessionId, url: `/sessions/${sessionId}` }, 201);
+      const set = await env.SESSIONS.getByName(sessionId).fetch(
+        new Request(new URL(`/api/sessions/${sessionId}/switches`, url), {
+          method: "PUT",
+          body: JSON.stringify(body.switches),
+        }),
+      );
+      if (!set.ok) return set;
+      const { switches } = await set.json<{ switches: unknown }>();
+      return json({ sessionId, url: `/sessions/${sessionId}`, switches }, 201);
+    }
+
+    const switches = switchesRoute.exec(url.pathname);
+    if (switches !== null) {
+      if (request.method !== "GET" && request.method !== "PUT")
+        return json({ error: "Method not allowed" }, 405, { Allow: "GET, PUT" });
+      return env.SESSIONS.getByName(switches[1]!).fetch(request);
     }
 
     const audit = auditRoute.exec(url.pathname);

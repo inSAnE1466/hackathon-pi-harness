@@ -1,4 +1,5 @@
 import { defineExtension, GenerationTask, hook, ToolTask } from "@earendil-works/pi-durable";
+import { DEFAULT_SWITCHES, TOOL_NAMES, type Switches, type ToolName } from "../switches.ts";
 import { findIdentifiers, mask } from "./detect.ts";
 
 /** One event for the decision log, written outside every conversation. */
@@ -19,8 +20,14 @@ export type GateEvent =
  * - beforeProviderRequest: every request body, the harness's own housekeeping calls included, has BSNs, policy and
  *   claim numbers and passport numbers replaced with tokens before it reaches BRANE (BRANE mislabels these).
  * - afterTool: handoffs (consult, request_approval) and lookups are logged with what they cite.
+ * The same two hooks apply the session's switches: the model asked for, and the tools offered and callable.
  */
-export function gateExtension(onEvent: (event: GateEvent) => void) {
+export function gateExtension(
+  onEvent: (event: GateEvent) => void,
+  switches: () => Switches = () => DEFAULT_SWITCHES,
+) {
+  const switchedOff = (name: string): boolean =>
+    TOOL_NAMES.includes(name as ToolName) && !switches().tools.includes(name as ToolName);
   const maskString = (s: string): string => {
     const findings = findIdentifiers(s);
     if (findings.length === 0) return s;
@@ -40,12 +47,27 @@ export function gateExtension(onEvent: (event: GateEvent) => void) {
     hooks: [
       hook(GenerationTask, {
         beforeProviderRequest: ({ payload }) => {
-          const p = payload as { messages?: unknown[] };
+          const p = payload as {
+            messages?: unknown[];
+            tools?: { function?: { name?: string } }[];
+          };
           if (!Array.isArray(p.messages)) return undefined;
-          return { payload: { ...p, messages: maskDeep(p.messages) } };
+          const tools = p.tools?.filter((tool) => !switchedOff(tool.function?.name ?? ""));
+          return {
+            payload: {
+              ...p,
+              model: switches().cloudModel,
+              messages: maskDeep(p.messages),
+              ...(tools === undefined ? {} : { tools }),
+            },
+          };
         },
       }),
       hook(ToolTask, {
+        beforeTool: (call) =>
+          switchedOff(call.name)
+            ? { block: `${call.name} is switched off for this run` }
+            : undefined,
         afterTool: (call, result, api) => {
           const details = (result as { details?: Record<string, unknown> }).details ?? {};
           if (call.name === "consult" || call.name === "request_approval") {

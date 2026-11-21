@@ -61,6 +61,27 @@ The `reviewer` is a display string that the team password does not prove; per-pe
 deployment adds. The audit log itself is never written into a conversation, so no model reads it, and it holds
 categories, ids and a person's own note, never prompt text.
 
+## Harness switches
+
+`src/switches.ts` holds what an eval run can change about one session without a code edit. Set them when the session
+is created (`POST /api/sessions` with `{"switches": {...}}`) or later (`PUT /api/sessions/:id/switches`, partial);
+`GET /api/sessions/:id/switches` reads them. They are stored in the session's SQLite and read at every model request.
+An unknown key or a bad value is a 400 and changes nothing. Each change writes a `config` audit row (actor `operator`)
+with the full resolved set, and `GET /audit` returns the current set as `switches`.
+
+| Switch          | Values (default first)                                     | Effect                                                                                                                   |
+| --------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `intake`        | `on`, `off`                                                | Split health detail out on the local model before the turn                                                               |
+| `braneTiming`   | `preflight`, `inline`                                      | `preflight` dry-runs the prompt at BRANE before the turn (intake needs it); `inline` relies on the chat call's own check |
+| `cloudModel`    | `policy.models.cloud`, any BRANE model id                  | The model every agent request asks BRANE for                                                                             |
+| `localModel`    | `policy.models.local`, any BRANE model id                  | The model for intake's extraction                                                                                        |
+| `promptVariant` | `default`, `minimal`, `strict`                             | Which instructions in `src/chat.ts` the agent gets                                                                       |
+| `instructions`  | empty, or text up to 8,000 characters                      | Replaces the variant; logged as a hash                                                                                   |
+| `tools`         | all of `lookup`, `web_read`, `consult`, `request_approval` | Tools offered to the model; a call to one that is off is blocked                                                         |
+
+No switch opens a path around BRANE. The provider is still the only transport, and BRANE checks every request
+whatever the timing.
+
 ## The gate is the transport
 
 The one rule that wins the security tests: **the agent has no model transport except the BRANE one.**

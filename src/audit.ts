@@ -7,7 +7,8 @@ import { sha256 } from "./sha256.ts";
 /**
  * The decision log: one row per decision, in the session Durable Object's own SQLite, beside Pi's tables. Kinds:
  * BRANE's routing decision for each model request, the gate's own events (identifiers masked, a handoff to a
- * person, the passages a lookup cited, intake), a person's request, and a person's decision on a handoff.
+ * person, the passages a lookup cited, intake), a person's request, a person's decision on a handoff, and a change
+ * of the harness switches.
  *
  * Every row names its actor (`brane`, `gate`, `agent`, or the person's display name) and, for automated rows, the
  * policy version that decided it. Rows form a hash chain: each stores the previous row's hash and the SHA-256 of
@@ -18,7 +19,7 @@ import { sha256 } from "./sha256.ts";
 export type AuditRow = {
   readonly id: number;
   readonly at: string;
-  readonly kind: "brane" | GateEvent["kind"] | "request" | "human";
+  readonly kind: "brane" | GateEvent["kind"] | "request" | "human" | "config";
   readonly status: number;
   readonly routedTo: string;
   readonly action: string;
@@ -225,6 +226,11 @@ export class AuditLog {
       ref_id: answers,
       conversation_id: conversationId,
     });
+  }
+
+  /** The harness switches were set for this session; `detail` is the full resolved set as JSON. */
+  config(detail: string): void {
+    this.#insert({ kind: "config", actor: "operator", detail, policy_version: POLICY_VERSION });
   }
 
   /**

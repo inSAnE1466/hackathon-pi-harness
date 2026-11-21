@@ -1,5 +1,4 @@
-import type { BraneEnv } from "../brane.ts";
-import { BRANE_LOCAL_MODEL } from "../brane.ts";
+import { BRANE_LOCAL_MODEL, type BraneEnv } from "../brane.ts";
 
 /**
  * intake: split a claim before the orchestrator sees it.
@@ -51,7 +50,11 @@ const isHealthLocal = (j: Awaited<ReturnType<typeof dryRun>>) =>
     `${j.simulatedHeaders?.["X-Brane-Pii-Types"] ?? ""} ${j.simulatedHeaders?.["X-Brane-Semantic-Matches"] ?? ""}`,
   );
 
-export async function intake(env: BraneEnv, claim: string): Promise<IntakeResult> {
+export async function intake(
+  env: BraneEnv,
+  claim: string,
+  localModel: string = BRANE_LOCAL_MODEL,
+): Promise<IntakeResult> {
   try {
     // An unreachable BRANE fails here and the claim is passed on unchanged; the model request that follows is then
     // withheld by the provider, so nothing is sent.
@@ -61,7 +64,7 @@ export async function intake(env: BraneEnv, claim: string): Promise<IntakeResult
       method: "POST",
       headers: { Authorization: `Bearer ${env.BRANE_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: BRANE_LOCAL_MODEL,
+        model: localModel,
         messages: [{ role: "user", content: EXTRACT + claim }],
       }),
     });

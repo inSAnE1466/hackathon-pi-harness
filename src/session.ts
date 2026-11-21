@@ -17,7 +17,7 @@ import { openDurableObjectSqliteStorage } from "@earendil-works/pi-durable/stora
 import { normalizeUsername } from "./identity.ts";
 import { createChatHarnessOptions } from "./chat.ts";
 import { AuditLog, handoffTool, type AuditRow } from "./audit.ts";
-import { intake } from "./primitives/intake.ts";
+import { intake, type IntakeResult } from "./primitives/intake.ts";
 import {
   InvalidClientCommand,
   MAX_CLIENT_FRAME_CHARACTERS,
@@ -27,6 +27,7 @@ import {
   type ServerEvent,
 } from "./protocol.ts";
 import { KeyedSerialQueue } from "./serial.ts";
+import { SwitchStore, switchesForAudit } from "./switches.ts";
 
 const json = (body: unknown, status: number, headers?: HeadersInit): Response =>
   Response.json(body, { status, headers });
@@ -176,10 +177,12 @@ export class Session extends DurableObject<Env> {
   readonly #connectionOperations = new KeyedSerialQueue<WebSocket>();
   #alarmWrites: Promise<void> = Promise.resolve();
   readonly #audit: AuditLog;
+  readonly #switches: SwitchStore;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     this.#audit = new AuditLog(ctx.storage.sql);
+    this.#switches = new SwitchStore(ctx.storage.sql);
     void ctx.blockConcurrencyWhile(() => this.#initialize());
   }
 
@@ -196,6 +199,7 @@ export class Session extends DurableObject<Env> {
         ...createChatHarnessOptions(
           (decision) => this.#audit.brane(decision),
           (event) => this.#audit.gate(event),
+          () => this.#switches.current,
         ),
         // `kind` says what happened, e.g. `task_faulted` or `task_interrupted`, with the task and extension.
         onReport: ({ error, ...report }) =>
@@ -250,6 +254,7 @@ export class Session extends DurableObject<Env> {
   override async fetch(request: Request): Promise<Response> {
     const audit = /\/audit(?:\/(human|verify))?\/?$/.exec(new URL(request.url).pathname);
     if (audit !== null) return this.#auditRequest(request, audit[1]);
+    if (/\/switches\/?$/.test(new URL(request.url).pathname)) return this.#switchesRequest(request);
     if (request.method !== "GET") {
       return json({ error: "Method not allowed" }, 405, { Allow: "GET" });
     }
@@ -332,7 +337,31 @@ export class Session extends DurableObject<Env> {
         },
       });
     }
-    return json({ decisions: this.#audit.list(), chain: this.#audit.verify() }, 200);
+    return json(
+      {
+        decisions: this.#audit.list(),
+        chain: this.#audit.verify(),
+        switches: this.#switches.current,
+      },
+      200,
+    );
+  }
+
+  /** `GET /switches` reads the session's harness switches; `PUT /switches` changes the given ones. */
+  async #switchesRequest(request: Request): Promise<Response> {
+    if (request.method === "GET") return json({ switches: this.#switches.current }, 200);
+    if (request.method !== "PUT")
+      return json({ error: "Method not allowed" }, 405, { Allow: "GET, PUT" });
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return json({ error: "Body must be JSON" }, 400);
+    }
+    const result = this.#switches.set(body);
+    if (!result.ok) return json({ error: result.error }, 400);
+    this.#audit.config(switchesForAudit(result.switches));
+    return json({ switches: result.switches }, 200);
   }
 
   /**
@@ -574,10 +603,22 @@ export class Session extends DurableObject<Env> {
         this.#audit.request(connectionState(socket)?.username ?? "Guest", command.conversationId);
         // Intake: when BRANE would keep the whole claim local for health reasons, the local model first reduces the
         // medical part to a health-free fact sheet, so the agent's turns can use the frontier model.
-        const split = await intake(this.env, command.content);
+        // Both need BRANE's dry run before the turn, so `braneTiming: inline` skips intake too.
+        const switches = this.#switches.current;
+        const split: IntakeResult =
+          switches.intake === "on" && switches.braneTiming === "preflight"
+            ? await intake(this.env, command.content, switches.localModel)
+            : { kind: "unchanged" };
         this.#audit.gate({
           kind: "intake",
-          result: split.kind === "failed" ? `kept local: ${split.reason}` : split.kind,
+          result:
+            split.kind === "failed"
+              ? `kept local: ${split.reason}`
+              : switches.intake === "off"
+                ? "off"
+                : switches.braneTiming === "inline"
+                  ? "skipped: inline"
+                  : split.kind,
         });
         const submission = await conversation.submit(
           {
