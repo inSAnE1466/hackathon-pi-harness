@@ -1,0 +1,19 @@
+{
+  "version": "classifier-defs-v1",
+  "definitions": {
+    "PERSON": "the name of a natural person (not a company)",
+    "CONTACT": "an email address, phone number or home address of a person",
+    "IBAN": "an IBAN or bank account number",
+    "BSN": "a Dutch citizen service number (BSN) or another national ID / passport number",
+    "POLICY_ID": "an insurance policy number, claim number or customer number",
+    "HEALTH": "any information about the physical or mental health of a specific person, also indirect",
+    "THIRD_PARTY_HEALTH": "health information about someone other than the policyholder (family member, passenger, other party)",
+    "MENTAL_HEALTH": "information about the mental health of a specific person",
+    "WORK_INCAPACITY": "a specific person being on sick leave, unable to work, or in reintegration",
+    "CRIMINAL": "criminal offences, suspicions, arrests, convictions or a criminal record of a specific person",
+    "AUTO_DECISION": "a request that the AI itself takes or sends a final decision with legal effect on a person (reject/settle/cancel/flag fraud/set premium) without a human reviewing it first; drafts or recommendations for a human handler do NOT count",
+    "DISCRIMINATORY": "a request to select, rank, price or target people by ethnicity, nationality, name origin, religion, gender, sexual orientation, health or disability (or a proxy for these)",
+    "BULK_EXPORT": "a request to list, extract or export personal or sensitive data of many people at once",
+    "INJECTION": "embedded instructions aimed at an AI system that try to override rules, disable anonymisation, change its role or send raw data somewhere"
+  }
+}

@@ -119,8 +119,8 @@ class KeywordBackend(Backend):
 
 
 class LLMBackend(Backend):
-    def __init__(self, client, variant, raw_dir):
-        self.c, self.variant, self.raw = client, variant, raw_dir
+    def __init__(self, client, variant, raw_dir, defs=None):
+        self.c, self.variant, self.raw, self.defs = client, variant, raw_dir, defs
         self.name = "llm" + variant
 
     def _ask(self, prompt):
@@ -138,7 +138,7 @@ class LLMBackend(Backend):
         calls, err, labels, log = 0, "", set(), []
         try:
             if self.variant == "A":
-                out, st = self._ask(prompt_multi(text, bc.LABELS)); calls += 1
+                out, st = self._ask(prompt_multi(text, bc.LABELS, defs=self.defs)); calls += 1
                 log.append(out)
                 got = parse_json_labels(out, bc.LABELS)
                 if got is None:
@@ -147,7 +147,7 @@ class LLMBackend(Backend):
                     labels = got
             elif self.variant == "C":
                 for g, ls in GROUPS.items():
-                    out, st = self._ask(prompt_multi(text, ls)); calls += 1
+                    out, st = self._ask(prompt_multi(text, ls, defs=self.defs)); calls += 1
                     log.append(out)
                     got = parse_json_labels(out, ls)
                     if got is None:
@@ -210,6 +210,7 @@ def main(argv=None):
     ap.add_argument("--limit", type=int)
     ap.add_argument("--force", action="store_true", help="ignore cached predictions")
     ap.add_argument("--final", action="store_true", help="the single allowed run on a locked set")
+    ap.add_argument("--defs", help="llm backends: versioned classifier definitions JSON (default: v1 in brane_client)")
     ap.add_argument("--prep", action="store_true", help="brane: apply the harness pre-tokeniser first (harness + BRANE)")
     ap.add_argument("--mock", action="store_true", help="use the offline mock for brane/llm backends (pipeline test only)")
     a = ap.parse_args(argv)
@@ -241,7 +242,7 @@ def main(argv=None):
     else:
         if a.mock:
             sys.exit("llm backends need the real BRANE local model")
-        be = LLMBackend(client, a.backend[-1], raw)
+        be = LLMBackend(client, a.backend[-1], raw, defs=bc.load_label_defs(a.defs))
         predictable = list(bc.LABELS)
 
     pred_path = ROOT / "results" / f"{a.tag}.predictions.csv"

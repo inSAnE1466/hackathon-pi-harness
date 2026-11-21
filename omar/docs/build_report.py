@@ -159,6 +159,17 @@ table.num td:not(:first-child), table.num th:not(:first-child) { text-align: rig
 .pb { break-before: page; }
 code { font-family: Menlo, monospace; font-size: 8.2pt; background: #f1f4f8; padding: 0 3px; border-radius: 3px; }
 .warn { color: #9c4221; }
+.plain h2 { border-bottom-color: #2f855a; }
+.story { font-size: 11pt; line-height: 1.55; }
+.story li { margin: 3px 0; }
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0; }
+.kpi { border: 1px solid #dfe5ee; border-radius: 6px; padding: 8px; text-align: center; background: #fbfcfe; }
+.kpi b { display: block; font-size: 17pt; color: #0b2545; }
+.kpi span { font-size: 8.4pt; color: #4a5568; }
+.pic { display: flex; align-items: stretch; gap: 6px; margin: 10px 0; font-size: 9pt; }
+.pic div { flex: 1; border-radius: 6px; padding: 7px; text-align: center; border: 1.5px solid #0b6bcb; }
+.pic .a { color: #0b6bcb; border: none; flex: 0 0 14px; font-size: 14pt; padding: 0; align-self: center; }
+.gl td:first-child { font-weight: 600; white-space: nowrap; width: 22%; }
 """
 
 
@@ -210,6 +221,47 @@ def build():
 BRANE stops data leaving; our harness makes the AI do useful claims work inside those limits, and proves it with a gate test suite and a
 leakage-guarded evaluation.</div>
 
+
+<div class="plain">
+<h2>In plain words (1 page)</h2>
+<ol class="story">
+<li><b>The problem.</b> Insurance staff want to use AI for claims, but claims contain private data: names, bank numbers, health, police
+reports. Sending that to an outside AI (like ChatGPT) is not allowed under EU privacy law.</li>
+<li><b>Our solution.</b> A safety layer: every message first passes BRANE (AI-Z's "security guard") and our own second check.
+Together they decide: <i>send to the outside AI</i>, <i>send with names hidden</i>, <i>keep it on the company's own AI</i>, or <i>block it</i>.
+A human always approves the result; the AI never decides or sends anything itself.</li>
+<li><b>We proved it.</b> It passes all 13 security tests, 3 times in a row, including "if the guard is down, nothing goes out".</li>
+<li><b>We tested it fairly.</b> 1,500 practice examples, plus a final exam of 200 examples written with different words and about
+different people (elderly customers), so the system could not have memorised the answers.</li>
+<li><b>The result.</b> BRANE alone let about 1 in 6 sensitive cases slip out. With our second check added, it is <b>about 1 in 100</b>.</li>
+</ol>
+<div class="pic">
+<div>Employee pastes a claim</div><div class="a">→</div>
+<div>Our harness hides company numbers + checks</div><div class="a">→</div>
+<div style="border-color:#b7791f;background:#fffaf0">BRANE decides: outside AI / names hidden / own AI / block</div><div class="a">→</div>
+<div style="border-color:#2f855a;background:#f0fff4">Human approves, edits or rejects</div>
+</div>
+<div class="kpis">
+<div class="kpi"><b>13/13</b><span>security tests passed, 3 runs in a row</span></div>
+<div class="kpi"><b>~1%</b><span>leak on the final exam (BRANE alone: 16-22%)</span></div>
+<div class="kpi"><b>0%</b><span>names / bank numbers sent unmasked</span></div>
+<div class="kpi"><b>100%</b><span>of decisions made by a human</span></div>
+</div>
+<h3>Words used in this report</h3>
+<table class="gl small"><tbody>
+<tr><td>BRANE</td><td>AI-Z's AI firewall: the "security guard" between our app and every AI model. It detects private data and decides where a message may go.</td></tr>
+<tr><td>Our classifier</td><td>A second check we built: it asks the company's own AI "which kinds of private data are in this text?". It can only make the decision stricter, never looser.</td></tr>
+<tr><td>Placeholder</td><td>A code that replaces private data before it leaves, e.g. "Marieke Visser" becomes PERSON_REF_1. The real name is put back afterwards, inside the company.</td></tr>
+<tr><td>Local / own AI</td><td>The company's internal AI model. Nothing sent to it leaves the company.</td></tr>
+<tr><td>Leak</td><td>Private data reaching the outside AI when it should have stayed inside. One leak fails AI-Z's security gate.</td></tr>
+<tr><td>Over-block</td><td>A harmless request that was kept inside or blocked anyway. Safe, but it makes the tool less useful.</td></tr>
+<tr><td>Route F1</td><td>One score (0 to 1) for "did each message go to the right place?". 1.0 is perfect.</td></tr>
+<tr><td>dev / val / test / gold</td><td>Practice examples (to improve) / choosing examples (to pick the best version) / final exam (used once) / human-written final check.</td></tr>
+<tr><td>Minimal pairs</td><td>Two almost identical sentences where one word changes the right answer ("her <i>son</i> was in hospital" vs "her <i>dog</i> was at the vet"). Tests understanding, not memorising.</td></tr>
+</tbody></table>
+<p class="small">The pages that follow are the details for the jury: legal sources, every rule, all test evidence and all numbers.</p>
+</div>
+<h1 class="pb" style="font-size:16pt">Details for the jury</h1>
 <h2>1. Problem</h2>
 <div class="grid">
 <div class="card"><b class="t">Business</b>Claims handlers want AI to summarise claims, check coverage and draft letters. Claims are full of
@@ -277,6 +329,16 @@ to cloud), identifier leaks, over-block (benign rows not sent to cloud), cost an
 <p class="small">Recorded in <code>results/selection_round2.json</code>. BRANE passes were repeated twice (run-to-run variance). Winner:
 <b>BRANE policy v1-nokw + harness classifier, stricter route wins</b>; it was already on the round-1 pre-registered reference list and
 was run once on test (table below: 1.0% leak). The larger val now agrees with test (BRANE alone ~16% leak), unlike the 80-row val.</p>
+<h3>Iterating to a plateau (errors found on dev, confirmed on val 500, BRANE run twice)</h3>
+<table class="small"><thead><tr><th>Round</th><th>Change</th><th>Leak (2 runs)</th><th>Over-block</th><th>Route F1</th><th>Minimal pairs</th><th>Kept?</th></tr></thead><tbody>
+<tr><td>0</td><td>BRANE v1-nokw + classifier v1 (final system)</td><td>0.8% / 0.4%</td><td>3.2% / 1.6%</td><td>0.893 / 0.933</td><td>57%</td><td>baseline</td></tr>
+<tr><td>1</td><td>"does NOT count" boundaries in BRANE (v5) and classifier (defs v2)</td><td>2.4% / 2.4%</td><td>1.6%</td><td>0.953</td><td>82%</td><td>No: more leaks</td></tr>
+<tr><td>2</td><td>BRANE v1-nokw + classifier defs v2</td><td>2.4% / 1.6%</td><td>3.2% / 1.6%</td><td>0.911 / 0.953</td><td>85%</td><td>No: more leaks</td></tr>
+</tbody></table>
+<p class="small"><b>Plateau after two rounds without a gain.</b> Sharper exclusions make the models more precise (fewer false alarms, pairs
+57% → 85-88%) but more lenient (more leaks). For privacy we keep recall: an over-block is an inconvenience, a leak is a breach.
+<b>Minimal pairs</b> (40 near-identical sentence pairs, no keywords): keyword baseline 5%, classifier 57%, BRANE 75%; the injection pairs
+fail for every system because BRANE's built-in injection detector also blocks quoted instructions (not configurable).</p>
 <h3>Round 1: selection on val (80 rows)</h3>
 {table(RES_HEAD, results_rows(val_tags, {"brane_v1_nokw_val"}), "num")}
 <p class="small">Selection rule, recorded in <code>results/selection.json</code> before any test run: minimise leak, then over-block, then route F1.
