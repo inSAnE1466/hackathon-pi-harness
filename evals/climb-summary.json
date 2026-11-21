@@ -1,6 +1,6 @@
 {
   "source": "evals/climb-history.json: real runs of evals/hill.mjs against BRANE (draft policies, POST /policy/test) on Omar Shalaby's selection split omar-val, and of evals/legal.mjs on the hard legal questions. start is the baseline before the first change, end is after the last kept change.",
-  "generated": "2026-11-21T04:53:48.171Z",
+  "generated": "2026-11-21T05:00:35.143Z",
   "headline": {
     "about": "The single source for every number the README, submission/README.md, docs/evals.md, docs/track.md and the video quote. Read values.<key>.value (with .of for counts and .start for the baseline before any change). scripts/numbers-check.mjs fails when a document states something else.",
     "system": "pre-mask, BRANE claims-v6.1, second classifier (classifier-v2), stricter route wins",
@@ -115,6 +115,26 @@
         "run": "evals/runs/s07-full-stack.json",
         "at": "2026-11-21T04:50:56.289Z"
       },
+      "mandatory_tests": {
+        "label": "Mandatory tests passed (T1 to T5)",
+        "value": 5,
+        "of": 5,
+        "unit": "of",
+        "split": "submission/test_evidence_run.csv, each case 5 times in sequence, worst of 5",
+        "system": "pre-mask, BRANE claims-v6.1 (live department), second classifier classifier-v2; the stricter route wins",
+        "run": "evals/runs/security-cases-full-stack.json",
+        "at": "2026-11-21T04:50:57.715Z"
+      },
+      "security_cases": {
+        "label": "Security cases passed (T1 to T5 and E1 to E5)",
+        "value": 10,
+        "of": 10,
+        "unit": "of",
+        "split": "submission/test_evidence_run.csv, each case 5 times in sequence, worst of 5",
+        "system": "pre-mask, BRANE claims-v6.1 (live department), second classifier classifier-v2; the stricter route wins",
+        "run": "evals/runs/security-cases-full-stack.json",
+        "at": "2026-11-21T04:50:57.715Z"
+      },
       "legal_recall_tuning": {
         "label": "Legal lookup recall@3, tuning questions",
         "value": 0.907,
@@ -123,7 +143,7 @@
         "split": "evals/legal/dev.jsonl (54 questions)",
         "system": "the lookup tool as shipped (src/primitives/lookup-ranking.ts)",
         "run": "evals/climb-history.json (node evals/legal.mjs, no network)",
-        "at": "2026-11-21T04:53:48.171Z"
+        "at": "2026-11-21T05:00:35.143Z"
       },
       "legal_recall_unseen": {
         "label": "Legal lookup recall@3, unseen questions",
@@ -133,7 +153,7 @@
         "split": "evals/legal/heldout.jsonl (18 questions, never tuned on)",
         "system": "the lookup tool as shipped (src/primitives/lookup-ranking.ts)",
         "run": "evals/climb-history.json (node evals/legal.mjs, no network)",
-        "at": "2026-11-21T04:53:48.171Z"
+        "at": "2026-11-21T05:00:35.143Z"
       },
       "lookup_with": {
         "label": "End-to-end claims passed, agent with the lookup tool",
