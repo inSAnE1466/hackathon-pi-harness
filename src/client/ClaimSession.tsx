@@ -10,16 +10,21 @@ import {
 import { MAX_PROMPT_CHARACTERS, ROOT_CONVERSATION_ID } from "../protocol.ts";
 import type { ConversationSnapshot } from "./session-state.ts";
 import { ActivityPanel } from "./ActivityPanel.tsx";
-import { DecisionLog } from "./DecisionLog.tsx";
+import { useDecision } from "./claims.ts";
+import { DecisionCard } from "./DecisionCard.tsx";
+import { HarnessPanel } from "./HarnessPanel.tsx";
+import { Markdown } from "./Markdown.tsx";
+import { ClaimMessage } from "./ClaimMessage.tsx";
+import { claimText, type QueueClaim, TYPE_LABEL } from "./queue.ts";
+import { RunThread } from "./RunThread.tsx";
 import { refusalOf } from "./decision-log.ts";
 import { RefusalCard } from "./RefusalCard.tsx";
-import { ReviewQueue } from "./ReviewQueue.tsx";
-import { takeDraft } from "./samples.ts";
 import { MessageText, TranscriptList } from "./Transcript.tsx";
 import { useDecisionLog } from "./useDecisionLog.ts";
 import { usePiSession } from "./usePiSession.ts";
 
-interface ChatSessionProps {
+interface ClaimSessionProps {
+  readonly claim: QueueClaim;
   readonly sessionId: string;
   readonly username: string;
 }
@@ -47,10 +52,11 @@ const conversationIdFromLocation = (): number | undefined => {
   return Number.isSafeInteger(id) && id > 0 ? id : undefined;
 };
 
-export function ChatSession({ sessionId, username }: ChatSessionProps) {
+/** One claim's session: the chat in the centre and "How the harness decided" on the right. */
+export function ClaimSession({ claim, sessionId, username }: ClaimSessionProps) {
   const [initialConversationId] = useState(conversationIdFromLocation);
   const session = usePiSession(sessionId, username, initialConversationId);
-  const [draft, setDraft] = useState(() => takeDraft(sessionId));
+  const [draft, setDraft] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
   const activityToggleRef = useRef<HTMLButtonElement | null>(null);
@@ -75,10 +81,14 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
     isConnected && activeConversationId !== undefined && !submitting && draft.trim().length > 0;
   const running = activeConversation?.live?.active === true || submitting;
   const decisionLog = useDecisionLog(sessionId, running);
+  const decision = useDecision(sessionId);
   const failure = activeConversation?.failure;
   const refusal = failure === undefined ? undefined : refusalOf(failure.message, decisionLog.rows);
   // The refused assistant entry in the transcript already shows the card for the latest failure.
   const refusalShown = activeConversation?.entries.at(-1)?.text.includes("422: {") === true;
+  const approvalReasons = activeConversation?.entries
+    .flatMap((entry) => entry.toolCalls ?? [])
+    .findLast((call) => call.name === "request_approval")?.args.reasons;
 
   const stopTyping = (): void => {
     if (typingTimeoutRef.current !== undefined) clearTimeout(typingTimeoutRef.current);
@@ -184,20 +194,23 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
-  const submit = async (event: SubmitEvent<HTMLFormElement>): Promise<void> => {
-    event.preventDefault();
-    const content = draft.trim();
+  const send = async (content: string): Promise<boolean> => {
     if (content.length === 0 || activeConversationId === undefined || !isConnected || submitting) {
-      return;
+      return false;
     }
     stopTyping();
     setSubmitting(true);
     try {
-      const accepted = await session.submitPrompt(activeConversationId, content);
-      if (accepted) setDraft((current) => (current === draft ? "" : current));
+      return await session.submitPrompt(activeConversationId, content);
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const submit = async (event: SubmitEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault();
+    const sent = draft;
+    if (await send(sent.trim())) setDraft((current) => (current === sent ? "" : current));
   };
 
   const trackTranscriptPosition = (): void => {
@@ -235,41 +248,45 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
     requestAnimationFrame(() => activityToggleRef.current?.focus());
   };
 
-  return (
-    <div className={`session-workspace${activityOpen ? " session-workspace--activity-open" : ""}`}>
-      <header className="session-bar">
-        <a className="product-link" href="/">
-          Claims assistant
-        </a>
-        <p className="session-bar-note">Every model request passes BRANE first.</p>
-        <p className="connection-status" role="status">
-          <span className={`state state--${statusTone[session.status]}`}>
-            {statusLabel[session.status]}
-          </span>
-        </p>
-        <button
-          ref={activityToggleRef}
-          className="button-secondary activity-toggle"
-          type="button"
-          aria-controls="activity-panel"
-          aria-expanded={activityOpen}
-          onClick={toggleActivity}
-        >
-          Activity <span aria-hidden="true">{activityCount}</span>
-        </button>
-      </header>
+  const started = (activeConversation?.entries.length ?? 0) > 0 || activeConversation?.live != null;
+  const runThread = (
+    <RunThread rows={decisionLog.rows} tools={activeConversation?.tools ?? []} running={running} />
+  );
 
-      <main className="conversation-view" aria-labelledby="transcript-heading">
-        <h1
-          ref={conversationHeadingRef}
-          id="transcript-heading"
-          className="visually-hidden"
-          tabIndex={-1}
-        >
-          Claim conversation
-        </h1>
+  return (
+    <>
+      <main
+        className={`chat${activityOpen ? " chat--activity-open" : ""}`}
+        aria-labelledby="claim-heading"
+      >
+        <header className="chat-header">
+          <div className="chat-title">
+            <h2 ref={conversationHeadingRef} id="claim-heading" tabIndex={-1}>
+              {claim.title}
+            </h2>
+            <p>
+              {TYPE_LABEL[claim.type]} · {claim.claimant}
+            </p>
+          </div>
+          <p className="connection-status" role="status">
+            <span className={`state state--${statusTone[session.status]}`}>
+              {statusLabel[session.status]}
+            </span>
+          </p>
+          <button
+            ref={activityToggleRef}
+            className="button-secondary"
+            type="button"
+            aria-controls="activity-panel"
+            aria-expanded={activityOpen}
+            onClick={toggleActivity}
+          >
+            Activity <span className="count">{activityCount}</span>
+          </button>
+        </header>
+
         {session.error === undefined ? null : (
-          <p className="session-error" role="alert">
+          <p className="inline-error" role="alert">
             {session.error}
           </p>
         )}
@@ -277,7 +294,7 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
         <section
           ref={transcriptRef}
           className="transcript"
-          aria-labelledby="transcript-heading"
+          aria-label="Conversation"
           role="log"
           tabIndex={0}
           onScroll={trackTranscriptPosition}
@@ -286,11 +303,24 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
           onPointerDown={interruptAutoScroll}
         >
           {activeConversation === undefined ? (
-            <p className="transcript-empty">Loading the conversation…</p>
-          ) : activeConversation.entries.length === 0 && activeConversation.live === null ? (
-            <p className="transcript-empty">
-              Paste a claim or ask about one. Send it, then watch the decision log on the right.
-            </p>
+            <div className="skeleton" aria-busy="true" aria-label="Loading the conversation">
+              <span />
+              <span />
+              <span />
+            </div>
+          ) : !started ? (
+            <div className="transcript-list">
+              <article className="transcript-message transcript-message--user">
+                <header>
+                  <div className="transcript-message-title">
+                    <strong>{claim.claimant}</strong>
+                    <span>New claim</span>
+                  </div>
+                </header>
+                <ClaimMessage request={claim.request} documents={claim.documents} />
+              </article>
+              {submitting ? runThread : null}
+            </div>
           ) : (
             <>
               {activeConversation.earlier ? (
@@ -309,7 +339,9 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
                 runActive={activeConversation.live !== null}
                 auditRows={decisionLog.rows}
                 onFillGap={(gap) => session.fillGap(activeConversation.id, gap)}
+                afterFirstPrompt={runThread}
               />
+              {activeConversation.entries.some((entry) => entry.role === "user") ? null : runThread}
             </>
           )}
 
@@ -326,7 +358,7 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
               {activeConversation.live.text.length === 0 ? (
                 <p className="responding">Waiting for BRANE and the model…</p>
               ) : (
-                <MessageText text={activeConversation.live.text} />
+                <Markdown text={activeConversation.live.text} />
               )}
               {activeConversation.live.retry === undefined ? null : (
                 <p role="status">Retrying: {activeConversation.live.retry.error}</p>
@@ -368,39 +400,63 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
               ))}
             </ol>
           )}
+
+          {running ? null : (
+            <DecisionCard
+              sessionId={sessionId}
+              rows={decisionLog.rows}
+              {...(typeof approvalReasons === "string" ? { reasons: approvalReasons } : {})}
+            />
+          )}
         </section>
 
-        <ReviewQueue rows={decisionLog.rows} />
-
-        <form className="prompt-bar" onSubmit={submit}>
-          <label className="visually-hidden" htmlFor="prompt">
-            Claim or question
-          </label>
-          <textarea
-            id="prompt"
-            name="prompt"
-            rows={3}
-            maxLength={MAX_PROMPT_CHARACTERS}
-            value={draft}
-            placeholder="Paste a claim or ask about one…"
-            onChange={(event) => updateDraft(event.currentTarget.value)}
-            onKeyDown={submitWithKeyboardShortcut}
-            aria-keyshortcuts="Meta+Enter Control+Enter"
-            disabled={!isConnected || activeConversationId === undefined}
-          />
-          <button className="button-primary" type="submit" disabled={!canSubmit}>
-            {submitting ? "Sending…" : "Send"}
-          </button>
-          <p className="typing-indicator" aria-live="polite">
-            {typingLabel(activeConversation?.typing ?? [])}
-          </p>
-        </form>
+        {started ? (
+          <form className="composer" onSubmit={submit}>
+            <label className="visually-hidden" htmlFor="prompt">
+              Follow-up question
+            </label>
+            <textarea
+              id="prompt"
+              name="prompt"
+              rows={2}
+              maxLength={MAX_PROMPT_CHARACTERS}
+              value={draft}
+              placeholder="Ask a follow-up about this claim"
+              onChange={(event) => updateDraft(event.currentTarget.value)}
+              onKeyDown={submitWithKeyboardShortcut}
+              aria-keyshortcuts="Meta+Enter Control+Enter"
+              disabled={!isConnected || activeConversationId === undefined}
+            />
+            <button className="button-secondary button-send" type="submit" disabled={!canSubmit}>
+              {submitting ? "Sending…" : "Send"}
+            </button>
+            <p className="typing-indicator" aria-live="polite">
+              {typingLabel(activeConversation?.typing ?? [])}
+            </p>
+          </form>
+        ) : (
+          <div className="composer composer--start">
+            <p className="quiet">
+              The assistant prepares the claim. BRANE checks every model request, and you decide.
+            </p>
+            <button
+              className="button-primary"
+              type="button"
+              disabled={!isConnected || activeConversationId === undefined || submitting}
+              onClick={() => void send(claimText(claim))}
+            >
+              {submitting ? "Starting…" : "Start"}
+            </button>
+          </div>
+        )}
       </main>
 
-      <DecisionLog
+      <HarnessPanel
         sessionId={sessionId}
         rows={decisionLog.rows}
         loaded={decisionLog.loaded}
+        running={running}
+        {...(decision === undefined ? {} : { decision: decision.kind })}
         {...(decisionLog.error === undefined ? {} : { error: decisionLog.error })}
       />
 
@@ -411,15 +467,22 @@ export function ChatSession({ sessionId, username }: ChatSessionProps) {
         closeButtonRef={activityCloseRef}
         onOpenConversation={(conversationId) => {
           if (conversationId !== session.activeConversationId) {
-            window.history.pushState(null, "", `?conversation=${conversationId}`);
+            window.history.pushState(null, "", conversationHref(conversationId));
             session.openConversation(conversationId);
           }
           setActivityOpen(false);
           requestAnimationFrame(() => conversationHeadingRef.current?.focus());
         }}
       />
-    </div>
+    </>
   );
+}
+
+/** The current URL with `conversation` set, keeping the selected claim. */
+function conversationHref(conversationId: number): string {
+  const params = new URLSearchParams(window.location.search);
+  params.set("conversation", String(conversationId));
+  return `?${params.toString()}`;
 }
 
 function compactionStatusText(compactions: ConversationSnapshot["compactions"]): string {

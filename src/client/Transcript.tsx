@@ -1,11 +1,15 @@
+import type { ReactNode } from "react";
 import type { ToolDiagnostic } from "@earendil-works/pi-durable";
+import { ClaimMessage } from "./ClaimMessage.tsx";
+import { parseClaimText } from "./queue.ts";
 import type {
   TranscriptEntry,
   TranscriptGap,
   TranscriptToolCall,
   ToolProgress,
 } from "./session-state.ts";
-import { type AuditRow, refusalOf } from "./decision-log.ts";
+import { type AuditRow, handoffFor, passageIds, refusalOf } from "./decision-log.ts";
+import { Markdown } from "./Markdown.tsx";
 import { RefusalCard } from "./RefusalCard.tsx";
 
 interface TranscriptListProps {
@@ -18,6 +22,8 @@ interface TranscriptListProps {
   readonly auditRows?: readonly AuditRow[];
   readonly onFork?: (entryId: number) => void;
   readonly onFillGap?: (gap: TranscriptGap) => void;
+  /** Shown right after the first user message, e.g. the run's activity thread. */
+  readonly afterFirstPrompt?: ReactNode;
 }
 
 export function TranscriptList({
@@ -28,20 +34,27 @@ export function TranscriptList({
   auditRows = [],
   onFork,
   onFillGap,
+  afterFirstPrompt,
 }: TranscriptListProps) {
   const { resultsByRequest, groupedResultIds } = correlateToolResults(entries);
   const progress = new Map(tools.map((tool) => [tool.callId, tool]));
   const gapsAfter = new Map<number, TranscriptGap>(gaps.map((gap) => [gap.after, gap]));
+  const firstPromptId = entries.find((entry) => entry.role === "user")?.id;
 
   return (
     <ol className="transcript-list">
       {entries.flatMap((entry) => {
         const gap = gapsAfter.get(entry.id);
         const row = transcriptRow(entry);
+        const after =
+          entry.id === firstPromptId && afterFirstPrompt !== undefined
+            ? [<li key="after-first-prompt">{afterFirstPrompt}</li>]
+            : [];
         return gap === undefined
-          ? [row]
+          ? [row, ...after]
           : [
               row,
+              ...after,
               <li key={`gap-${gap.after}`}>
                 <button
                   className="text-button transcript-load"
@@ -200,6 +213,22 @@ function ToolExecution({
   const details = committed?.details ?? progress?.details;
   const diagnostics = result?.diagnostics ?? progress?.diagnostics;
   const timestamp = result?.timestamp === undefined ? undefined : new Date(result.timestamp);
+  const summary = status === "completed" ? compactResult(call, output, details) : undefined;
+
+  if (summary !== undefined) {
+    return (
+      <article className="tool-execution tool-execution--compact">
+        {summary.passages === undefined ? (
+          <p className="tool-line">{summary.line}</p>
+        ) : (
+          <details>
+            <summary className="tool-line">{summary.line}</summary>
+            <MessageText text={summary.passages} />
+          </details>
+        )}
+      </article>
+    );
+  }
 
   return (
     <article
@@ -235,6 +264,39 @@ function ToolExecution({
       )}
     </article>
   );
+}
+
+/**
+ * The claim tools' results as one line each: a lookup names the passages it cited (expandable to their text), a
+ * handoff names who has the case. Other tools keep the full view.
+ */
+function compactResult(
+  call: TranscriptToolCall,
+  output: string | undefined,
+  details: unknown,
+): { readonly line: string; readonly passages?: string } | undefined {
+  const fields =
+    typeof details === "object" && details !== null ? (details as Record<string, unknown>) : {};
+  const field = (name: string): string => {
+    const value = fields[name] ?? call.args[name];
+    return typeof value === "string" ? value : "";
+  };
+  switch (call.name) {
+    case "lookup": {
+      const ids = Array.isArray(fields.ids)
+        ? fields.ids.filter((id): id is string => typeof id === "string")
+        : passageIds(output ?? "");
+      return ids.length === 0
+        ? { line: "No passage matched" }
+        : { line: `Cited: ${ids.join(", ")}`, passages: output ?? "" };
+    }
+    case "consult":
+      return { line: handoffFor("consult", field("expert")).sentence };
+    case "request_approval":
+      return { line: handoffFor("request_approval", field("recommendation")).sentence };
+    default:
+      return undefined;
+  }
 }
 
 const toolStatusLabel: Record<ToolDisplayStatus, string> = {
@@ -296,7 +358,13 @@ export function TranscriptMessage({
         <EntryTitle entryId={entry.id} label={label} timestamp={timestamp} />
         {!entry.canFork || onFork === undefined ? null : <ForkAction onFork={onFork} />}
       </header>
-      <MessageText text={text} />
+      {entry.role === "assistant" ? (
+        <Markdown text={text} />
+      ) : entry.role === "user" && text.includes("\n\nAttachment: ") ? (
+        <ClaimMessage {...parseClaimText(text)} />
+      ) : (
+        <MessageText text={text} />
+      )}
       {entry.diagnostics === undefined ? null : <Diagnostics diagnostics={entry.diagnostics} />}
     </article>
   );
