@@ -1,5 +1,5 @@
 {
-  "version": "claims-v6",
+  "version": "claims-v6.1",
   "routingMode": "cloud-preferred",
   "piiSensitivity": "standard",
   "models": {
@@ -60,7 +60,7 @@
         "ent specialist",
         "hearing aids"
       ],
-      "legalBasis": "GDPR Art. 9(1); UAVG Art. 30(3)(b) and 30(4); Insurers' code of conduct 5.1",
+      "legalBasis": "GDPR Art. 9(1); UAVG Art. 30(3)(b) and 30(4) (Netherlands); Insurers' code of conduct 5.1; kept local by design, stricter than the legal minimum",
       "action": "local"
     },
     {
@@ -75,7 +75,7 @@
         "flag as fraud",
         "cancel the policy"
       ],
-      "legalBasis": "GDPR Art. 22; CJEU C-634/21 SCHUFA; UAVG Art. 40; EU AI Act Art. 14",
+      "legalBasis": "GDPR Art. 22(3)-(4); CJEU C-634/21 SCHUFA; EU AI Act Art. 14; design choice: a claims handler decides every outcome",
       "action": "refuse"
     },
     {
@@ -104,7 +104,7 @@
         "religion",
         "country of origin"
       ],
-      "legalBasis": "GDPR Art. 9(1); EU Charter Art. 21; CJEU C-236/09 Test-Achats",
+      "legalBasis": "GDPR Art. 9(1); CJEU C-184/20 (proxies that reveal a special category); Directive 2000/43/EC Arts. 2 and 3(1)(h); EU Charter Art. 21",
       "action": "refuse"
     },
     {
