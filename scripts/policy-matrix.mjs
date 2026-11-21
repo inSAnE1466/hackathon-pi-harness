@@ -65,7 +65,7 @@ const rows = [
     code: "BRANE placeholder",
     gap: "BRANE cannot generalise a date to an age band; it can only mask or keep it",
     evidence: "X-Brane-Pii-Types: DATE_OF_BIRTH",
-    tests: "T5",
+    tests: "E1",
   },
   {
     id: "R6",
@@ -79,7 +79,7 @@ const rows = [
     gap: "Built-in HEALTH_DATA missed 'burnout', 'sertraline', 'fractured her wrist' and a hospital name; a semantic category was needed. One request goes local as a whole, so the harness must split a claim into steps to keep the non-health part on the cloud",
     evidence:
       "X-Brane-Routed-To: local | X-Brane-Local-Cause: semantic_category_local | X-Brane-Model-Resolved: vllm:deepseek-v4.1-flash",
-    tests: "T5 / E1",
+    tests: "E1 / E2",
   },
   {
     id: "R7",
@@ -112,7 +112,7 @@ const rows = [
     gap: "BRANE can only refuse; a 'route to human' action would make the handoff part of the policy instead of the agent code",
     evidence:
       "X-Brane-Refused-By: semantic:CLAIM_OUTCOME_DECISION->refuse; decision log kind=handoff",
-    tests: "E2 / Demo",
+    tests: "E3 / Demo",
   },
   {
     id: "R9",
@@ -136,7 +136,7 @@ const rows = [
     code: "BRANE semantic category refuses; the harness also keeps one claim per conversation with no shared memory",
     gap: "None observed",
     evidence: "X-Brane-Refused-By: semantic:CROSS_CLAIMANT_COMPARISON->refuse",
-    tests: "E4",
+    tests: "golden g24",
   },
   {
     id: "R11",
@@ -149,7 +149,7 @@ const rows = [
     gap: "None observed",
     evidence:
       "X-Brane-Refused-By: semantic:...->refuse | X-Brane-Semantic-Matches: PROTECTED_TRAIT_PROFILING",
-    tests: "E3",
+    tests: "E4",
   },
   {
     id: "R12",
@@ -172,8 +172,9 @@ const rows = [
     code: "The harness's only model provider is BRANE; its fetch reaches BRANE's origin only, fails when a response has no X-Brane-Routed-To header, and never retries elsewhere",
     target: "BLOCK",
     gap: "Enforced in agent code; BRANE cannot enforce its own absence",
-    evidence: "src/brane.ts braneFetch; decision log row with status 0 when no decision",
-    tests: "T5 (check failure)",
+    evidence:
+      "test/brane.test.ts (6 tests: unreachable, 502 or 200 without a routing decision, foreign origin, 422); audit row routedTo=withheld with Local-Cause brane_unreachable or no_brane_decision",
+    tests: "T5",
   },
   {
     id: "R15",
