@@ -369,6 +369,51 @@
   "hash": "e5cdef561248"
  },
  {
+  "id": "GDPR-14(1)",
+  "source": "GDPR",
+  "title": "Art. 14(1) Information to be provided where personal data have not been obtained from the data subject",
+  "text": "Where personal data have not been obtained from the data subject, the controller shall provide the data subject with the following information:\n (a)  the identity and the contact details of the controller and, where applicable, of the controller's representative;\n (b)  the contact details of the data protection officer, where applicable;\n (c)  the purposes of the processing for which the personal data are intended as well as the legal basis for the processing;\n (d)  the categories of personal data concerned;\n (e)  the recipients or categories of recipients of the personal data, if any;\n (f)  where applicable, that the controller intends to transfer personal data to a recipient in a third country or international organisation and the existence or absence of an adequacy decision by the Commission, or in the case of transfers referred to in Article 46 or 47, or the second subparagraph of Article 49(1), reference to the appropriate or suitable safeguards and the means to obtain a copy of them or where they have been made available.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#art_14",
+  "celex": "32016R0679",
+  "hash": "d6cb4eeec862"
+ },
+ {
+  "id": "GDPR-14(2)",
+  "source": "GDPR",
+  "title": "Art. 14(2) Information to be provided where personal data have not been obtained from the data subject",
+  "text": "In addition to the information referred to in paragraph 1, the controller shall provide the data subject with the following information necessary to ensure fair and transparent processing in respect of the data subject:\n (a)  the period for which the personal data will be stored, or if that is not possible, the criteria used to determine that period;\n (b)  where the processing is based on point (f) of Article 6(1), the legitimate interests pursued by the controller or by a third party;\n (c)  the existence of the right to request from the controller access to and rectification or erasure of personal data or restriction of processing concerning the data subject and to object to processing as well as the right to data portability;\n (d)  where processing is based on point (a) of Article 6(1) or point (a) of Article 9(2), the existence of the right to withdraw consent at any time, without affecting the lawfulness of processing based on consent before its withdrawal;\n (e)  the right to lodge a complaint with a supervisory authority;\n (f)  from which source the personal data originate, and if applicable, whether it came from publicly accessible sources;\n (g)  the existence of automated decision-making, including profiling, referred to in Article 22(1) and (4) and, at least in those cases, meaningful information about the logic involved, as well as the significance and the envisaged consequences of such processing for the data subject.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#art_14",
+  "celex": "32016R0679",
+  "hash": "ced72a42b0a7"
+ },
+ {
+  "id": "GDPR-14(3)",
+  "source": "GDPR",
+  "title": "Art. 14(3) Information to be provided where personal data have not been obtained from the data subject",
+  "text": "The controller shall provide the information referred to in paragraphs 1 and 2:\n (a)  within a reasonable period after obtaining the personal data, but at the latest within one month, having regard to the specific circumstances in which the personal data are processed;\n (b)  if the personal data are to be used for communication with the data subject, at the latest at the time of the first communication to that data subject; or\n (c)  if a disclosure to another recipient is envisaged, at the latest when the personal data are first disclosed.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#art_14",
+  "celex": "32016R0679",
+  "hash": "0d912607596a"
+ },
+ {
+  "id": "GDPR-14(4)",
+  "source": "GDPR",
+  "title": "Art. 14(4) Information to be provided where personal data have not been obtained from the data subject",
+  "text": "Where the controller intends to further process the personal data for a purpose other than that for which the personal data were obtained, the controller shall provide the data subject prior to that further processing with information on that other purpose and with any relevant further information as referred to in paragraph 2.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#art_14",
+  "celex": "32016R0679",
+  "hash": "12bd5997087b"
+ },
+ {
+  "id": "GDPR-14(5)",
+  "source": "GDPR",
+  "title": "Art. 14(5) Information to be provided where personal data have not been obtained from the data subject",
+  "text": "Paragraphs 1 to 4 shall not apply where and insofar as:\n (a)  the data subject already has the information;\n (b)  the provision of such information proves impossible or would involve a disproportionate effort, in particular for processing for archiving purposes in the public interest, scientific or historical research purposes or statistical purposes, subject to the conditions and safeguards referred to in Article 89(1) or in so far as the obligation referred to in paragraph 1 of this Article is likely to render impossible or seriously impair the achievement of the objectives of that processing. In such cases the controller shall take appropriate measures to protect the data subject's rights and freedoms and legitimate interests, including making the information publicly available;\n (c)  obtaining or disclosure is expressly laid down by Union or Member State law to which the controller is subject and which provides appropriate measures to protect the data subject's legitimate interests; or\n (d)  where the personal data must remain confidential subject to an obligation of professional secrecy regulated by Union or Member State law, including a statutory obligation of secrecy.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#art_14",
+  "celex": "32016R0679",
+  "hash": "bf2bd474e9a1"
+ },
+ {
   "id": "GDPR-15(1)",
   "source": "GDPR",
   "title": "Art. 15(1) Right of access by the data subject",
@@ -747,6 +792,87 @@
   "hash": "b1c37da73b23"
  },
  {
+  "id": "GDPR-45(1)",
+  "source": "GDPR",
+  "title": "Art. 45(1) Transfers on the basis of an adequacy decision",
+  "text": "A transfer of personal data to a third country or an international organisation may take place where the Commission has decided that the third country, a territory or one or more specified sectors within that third country, or the international organisation in question ensures an adequate level of protection. Such a transfer shall not require any specific authorisation.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#art_45",
+  "celex": "32016R0679",
+  "hash": "7c67036a9557"
+ },
+ {
+  "id": "GDPR-45(2)",
+  "source": "GDPR",
+  "title": "Art. 45(2) Transfers on the basis of an adequacy decision",
+  "text": "When assessing the adequacy of the level of protection, the Commission shall, in particular, take account of the following elements:\n (a)  the rule of law, respect for human rights and fundamental freedoms, relevant legislation, both general and sectoral, including concerning public security, defence, national security and criminal law and the access of public authorities to personal data, as well as the implementation of such legislation, data protection rules, professional rules and security measures, including rules for the onward transfer of personal data to another third country or international organisation which are complied with in that country or international organisation, case-law, as well as effective and enforceable data subject rights and effective administrative and judicial redress for the data subjects whose personal data are being transferred;\n (b)  the existence and effective functioning of one or more independent supervisory authorities in the third country or to which an international organisation is subject, with responsibility for ensuring and enforcing compliance with the data protection rules, including adequate enforcement powers, for assisting and advising the data subjects in exercising their rights and for cooperation with the supervisory authorities of the Member States; and\n (c)  the international commitments the third country or international organisation concerned has entered into, or other obligations arising from legally binding conventions or instruments as well as from its participation in multilateral or regional systems, in particular in relation to the protection of personal data.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#art_45",
+  "celex": "32016R0679",
+  "hash": "17ca37b66728"
+ },
+ {
+  "id": "GDPR-45(3)",
+  "source": "GDPR",
+  "title": "Art. 45(3) Transfers on the basis of an adequacy decision",
+  "text": "The Commission, after assessing the adequacy of the level of protection, may decide, by means of implementing act, that a third country, a territory or one or more specified sectors within a third country, or an international organisation ensures an adequate level of protection within the meaning of paragraph 2 of this Article. The implementing act shall provide for a mechanism for a periodic review, at least every four years, which shall take into account all relevant developments in the third country or international organisation. The implementing act shall specify its territorial and sectoral application and, where applicable, identify the supervisory authority or authorities referred to in point (b) of paragraph 2 of this Article. The implementing act shall be adopted in accordance with the examination procedure referred to in Article 93(2).",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#art_45",
+  "celex": "32016R0679",
+  "hash": "0553439e907d"
+ },
+ {
+  "id": "GDPR-45(4)",
+  "source": "GDPR",
+  "title": "Art. 45(4) Transfers on the basis of an adequacy decision",
+  "text": "The Commission shall, on an ongoing basis, monitor developments in third countries and international organisations that could affect the functioning of decisions adopted pursuant to paragraph 3 of this Article and decisions adopted on the basis of Article 25(6) of Directive 95/46/EC.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#art_45",
+  "celex": "32016R0679",
+  "hash": "bfbf685ae83f"
+ },
+ {
+  "id": "GDPR-45(5)",
+  "source": "GDPR",
+  "title": "Art. 45(5) Transfers on the basis of an adequacy decision",
+  "text": "The Commission shall, where available information reveals, in particular following the review referred to in paragraph 3 of this Article, that a third country, a territory or one or more specified sectors within a third country, or an international organisation no longer ensures an adequate level of protection within the meaning of paragraph 2 of this Article, to the extent necessary, repeal, amend or suspend the decision referred to in paragraph 3 of this Article by means of implementing acts without retro-active effect. Those implementing acts shall be adopted in accordance with the examination procedure referred to in Article 93(2).\n On duly justified imperative grounds of urgency, the Commission shall adopt immediately applicable implementing acts in accordance with the procedure referred to in Article 93(3).",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#art_45",
+  "celex": "32016R0679",
+  "hash": "e4b3363e6e7e"
+ },
+ {
+  "id": "GDPR-45(6)",
+  "source": "GDPR",
+  "title": "Art. 45(6) Transfers on the basis of an adequacy decision",
+  "text": "The Commission shall enter into consultations with the third country or international organisation with a view to remedying the situation giving rise to the decision made pursuant to paragraph 5.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#art_45",
+  "celex": "32016R0679",
+  "hash": "6c74fde7c792"
+ },
+ {
+  "id": "GDPR-45(7)",
+  "source": "GDPR",
+  "title": "Art. 45(7) Transfers on the basis of an adequacy decision",
+  "text": "A decision pursuant to paragraph 5 of this Article is without prejudice to transfers of personal data to the third country, a territory or one or more specified sectors within that third country, or the international organisation in question pursuant to Articles 46 to 49.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#art_45",
+  "celex": "32016R0679",
+  "hash": "1d3c7b308141"
+ },
+ {
+  "id": "GDPR-45(8)",
+  "source": "GDPR",
+  "title": "Art. 45(8) Transfers on the basis of an adequacy decision",
+  "text": "The Commission shall publish in the Official Journal of the European Union and on its website a list of the third countries, territories and specified sectors within a third country and international organisations for which it has decided that an adequate level of protection is or is no longer ensured.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#art_45",
+  "celex": "32016R0679",
+  "hash": "4a36636f0db6"
+ },
+ {
+  "id": "GDPR-45(9)",
+  "source": "GDPR",
+  "title": "Art. 45(9) Transfers on the basis of an adequacy decision",
+  "text": "Decisions adopted by the Commission on the basis of Article 25(6) of Directive 95/46/EC shall remain in force until amended, replaced or repealed by a Commission Decision adopted in accordance with paragraph 3 or 5 of this Article.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#art_45",
+  "celex": "32016R0679",
+  "hash": "f1cf9430ad3a"
+ },
+ {
   "id": "GDPR-46(1)",
   "source": "GDPR",
   "title": "Art. 46(1) Transfers subject to appropriate safeguards",
@@ -801,6 +927,15 @@
   "hash": "4f24e7256383"
  },
  {
+  "id": "GDPR-R14",
+  "source": "GDPR",
+  "title": "Recital 14",
+  "text": "The protection afforded by this Regulation should apply to natural persons, whatever their nationality or place of residence, in relation to the processing of their personal data. This Regulation does not cover the processing of personal data which concerns legal persons and in particular undertakings established as legal persons, including the name and the form of the legal person and the contact details of the legal person.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#rct_14",
+  "celex": "32016R0679",
+  "hash": "a81742a998f3"
+ },
+ {
   "id": "GDPR-R26",
   "source": "GDPR",
   "title": "Recital 26",
@@ -835,6 +970,15 @@
   "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#rct_51",
   "celex": "32016R0679",
   "hash": "70d2f9f4ed1a"
+ },
+ {
+  "id": "GDPR-R52",
+  "source": "GDPR",
+  "title": "Recital 52",
+  "text": "Derogating from the prohibition on processing special categories of personal data should also be allowed when provided for in Union or Member State law and subject to suitable safeguards, so as to protect personal data and other fundamental rights, where it is in the public interest to do so, in particular processing personal data in the field of employment law, social protection law including pensions and for health security, monitoring and alert purposes, the prevention or control of communicable diseases and other serious threats to health. Such a derogation may be made for health purposes, including public health and the management of health-care services, especially in order to ensure the quality and cost-effectiveness of the procedures used for settling claims for benefits and services in the health insurance system, or for archiving purposes in the public interest, scientific or historical research purposes or statistical purposes. A derogation should also allow the processing of such personal data where necessary for the establishment, exercise or defence of legal claims, whether in court proceedings or in an administrative or out-of-court procedure.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32016R0679#rct_52",
+  "celex": "32016R0679",
+  "hash": "be39f9cad2f6"
  },
  {
   "id": "GDPR-R71",
@@ -1251,6 +1395,33 @@
   "hash": "5faa4e5ee929"
  },
  {
+  "id": "AIA-Art86(1)",
+  "source": "EU AI Act",
+  "title": "Art. 86(1) Right to explanation of individual decision-making",
+  "text": "Any affected person subject to a decision which is taken by the deployer on the basis of the output from a high-risk AI system listed in Annex III, with the exception of systems listed under point 2 thereof, and which produces legal effects or similarly significantly affects that person in a way that they consider to have an adverse impact on their health, safety or fundamental rights shall have the right to obtain from the deployer clear and meaningful explanations of the role of the AI system in the decision-making procedure and the main elements of the decision taken.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32024R1689#art_86",
+  "celex": "32024R1689",
+  "hash": "6de82ab2ae4d"
+ },
+ {
+  "id": "AIA-Art86(2)",
+  "source": "EU AI Act",
+  "title": "Art. 86(2) Right to explanation of individual decision-making",
+  "text": "Paragraph 1 shall not apply to the use of AI systems for which exceptions from, or restrictions to, the obligation under that paragraph follow from Union or national law in compliance with Union law.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32024R1689#art_86",
+  "celex": "32024R1689",
+  "hash": "941bf48cf3fa"
+ },
+ {
+  "id": "AIA-Art86(3)",
+  "source": "EU AI Act",
+  "title": "Art. 86(3) Right to explanation of individual decision-making",
+  "text": "This Article shall apply only to the extent that the right referred to in paragraph 1 is not otherwise provided for under Union law.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32024R1689#art_86",
+  "celex": "32024R1689",
+  "hash": "c82882887f8d"
+ },
+ {
   "id": "AIA-Annex3(1)",
   "source": "EU AI Act",
   "title": "Annex III point 1",
@@ -1518,57 +1689,65 @@
   "id": "CJEU-C-634/21",
   "source": "Case law",
   "title": "SCHUFA Holding (Scoring), 7 December 2023",
-  "text": "Summary: an automatically produced score is an automated individual decision under Article 22(1) GDPR where a third party's decision depends decisively on it. Article 22(1) is a prohibition in principle. Consequence for claims: a recommendation must remain advice that a claims handler can depart from.",
-  "url": "https://curia.europa.eu/site/upload/docs/application/pdf/2023-12/cp230186en.pdf",
-  "hash": "7b91f055c2c5"
+  "text": "Operative part: Article 22(1) GDPR 'must be interpreted as meaning that the automated establishment, by a credit information agency, of a probability value based on personal data relating to a person and concerning his or her ability to meet payment commitments in the future constitutes \"automated individual decision-making\" within the meaning of that provision, where a third party, to which that probability value is transmitted, draws strongly on that probability value to establish, implement or terminate a contractual relationship with that person.' Para. 52: Article 22(1) 'lays down a prohibition in principle'. Consequence for claims: a recommendation must remain advice that a claims handler weighs and can depart from; if handlers in practice draw strongly on it, the recommendation itself risks being the decision.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:62021CJ0634",
+  "hash": "a59dfebae039"
  },
  {
   "id": "CJEU-C-413/23P",
   "source": "Case law",
   "title": "EDPS v SRB, 4 September 2025",
-  "text": "Summary: pseudonymised data is not personal data in all cases and for every person; for a recipient without means reasonably likely to re-identify, it may not be. It remains personal data for the controller, and identifiability is assessed from the controller's side at collection. Consequence: placeholders lower the risk of a cloud transfer, but the insurer still treats the data as personal and records the transfer.",
-  "url": "https://www.aoshearman.com/en/insights/ao-shearman-on-data/cjeu-clarifies-concept-of-personal-data-for-a-transfer-of-pseudonymised-data-to-third-parties",
-  "hash": "d58fe4799c25"
+  "text": "Judgment on Regulation 2018/1725 (EU institutions), whose definitions match the GDPR. Operative part: sets aside the General Court's judgment in T-557/20 and refers the case back. Para. 86: pseudonymised data 'must not be regarded as constituting, in all cases and for every person, personal data', in so far as pseudonymisation may 'effectively prevent persons other than the controller from identifying the data subject'. Para. 77: that presupposes that the recipient cannot lift the measures and that the measures prevent attribution 'including by recourse to other means of identification such as cross-checking with other factors'. Paras. 111 and 112: for the duty to inform about recipients, identifiability is assessed 'at the time of collection of the data and from the point of view of the controller', irrespective of whether the data are personal for the recipient. Consequence: placeholders lower the risk of a cloud transfer, but the insurer still treats the data as personal, names the recipients in its privacy notice and records the transfer.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:62023CJ0413",
+  "hash": "f70ed73c25a2"
  },
  {
   "id": "CJEU-C-184/20",
   "source": "Case law",
   "title": "OT v Vyriausioji tarnybinės etikos komisija, 1 August 2022",
-  "text": "Summary: data that indirectly reveal a special category of data fall under Article 9(1) GDPR. Consequence: an invoice line, medication or hospital name that implies a health condition is health data.",
-  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX%3A62020CJ0184_RES",
-  "hash": "dcb8c1580e08"
+  "text": "Operative part, point 2: Article 9(1) GDPR covers the publication of 'personal data that are liable to disclose indirectly the sexual orientation of a natural person'. Para. 127: the special-category regime is not excluded for 'personal data that are liable indirectly to reveal sensitive information'. Para. 120 frames the test as data revealing a special category 'by means of an intellectual operation involving comparison or deduction'. Consequence: an invoice line, medication or hospital name from which a health condition can be deduced is health data.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:62020CJ0184",
+  "hash": "3b414e86a9df"
  },
  {
   "id": "CJEU-C-236/09",
   "source": "Case law",
   "title": "Test-Achats, 1 March 2011",
-  "text": "Summary: using sex as a factor in insurance premiums and benefits that leads to differences for individuals is incompatible with equal treatment. Consequence: insurance decisions may not differ by protected traits or their proxies.",
-  "url": "https://curia.europa.eu/juris/liste.jsf?num=C-236/09",
-  "hash": "ce1a31fc9c5a"
+  "text": "Operative part: 'Article 5(2) of Council Directive 2004/113/EC ... is invalid with effect from 21 December 2012.' That provision let Member States keep sex-based differences in insurance premiums and benefits; para. 32 finds it 'incompatible with Articles 21 and 23 of the Charter'. The case is about sex, not ethnicity; for ethnic origin the controlling rule is Directive 2000/43/EC, Art. 2 and Art. 3(1)(h) (access to goods and services). Consequence: insurance premiums and benefits may not differ by sex, and selecting claims by ethnic origin or a proxy for it is discrimination.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:62009CJ0236",
+  "hash": "ab5f0940c012"
+ },
+ {
+  "id": "CJEU-C-582/14",
+  "source": "Case law",
+  "title": "Breyer, 19 October 2016",
+  "text": "Operative part, point 1: a dynamic IP address is personal data for a website operator 'where the latter has the legal means which enable it to identify the data subject with additional data which the internet service provider has about that person'. Para. 46: a means is not reasonably likely to be used where identification is 'prohibited by law or practically impossible', so that 'the risk of identification appears in reality to be insignificant'. Consequence: identifiability counts the means a party can lawfully obtain through someone else, so a recipient that can link a placeholder back through another party still holds personal data.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:62014CJ0582",
+  "hash": "5068ae1501c8"
  },
  {
   "id": "EDPB-01/2025",
   "source": "Guidance",
-  "title": "EDPB Guidelines 01/2025 on pseudonymisation",
-  "text": "Summary: pseudonymisation reduces risk but pseudonymised data remain personal data for anyone who can attribute them; the additional information (the key) must be kept separately and protected by technical and organisational measures.",
-  "url": "https://www.edpb.europa.eu/our-work-tools/documents/public-consultations/2025/guidelines-012025-pseudonymisation_en",
-  "hash": "3f44b8fd733b"
+  "title": "EDPB Guidelines 01/2025 on pseudonymisation (adopted 16 January 2025, version for public consultation)",
+  "text": "Executive summary: 'Pseudonymised data, which could be attributed to a natural person by the use of additional information, is to be considered information on an identifiable natural person, and is therefore personal. This statement also holds true if pseudonymised data and additional information are not in the hands of the same person.' Pseudonymisation may 'help guarantee an essentially equivalent level of protection for data they intend to export', but 'pseudonymisation alone will normally not be a sufficient measure'. The controller defines a pseudonymisation domain and keeps the additional information (the key) outside it.",
+  "url": "https://www.edpb.europa.eu/system/files/2025-01/edpb_guidelines_202501_pseudonymisation_en.pdf",
+  "hash": "2d5728ecb3bb"
  },
  {
   "id": "WP251",
   "source": "Guidance",
   "title": "Guidelines on automated decision-making and profiling (WP251rev.01)",
-  "text": "Summary: human involvement must be meaningful: carried out by someone with the authority and competence to change the decision, who considers all relevant data, not a token gesture.",
+  "text": "Page 21: 'The controller cannot avoid the Article 22 provisions by fabricating human involvement.' Human oversight must be 'meaningful, rather than just a token gesture. It should be carried out by someone who has the authority and competence to change the decision. As part of the analysis, they should consider all the relevant data.' Page 23: a controller relying on the contract exception in Art. 22(2)(a) 'must be able to show that this type of processing is necessary, taking into account whether a less privacy-intrusive method could be adopted.'",
   "url": "https://ec.europa.eu/newsroom/article29/items/612053",
-  "hash": "6f7b7d008cab"
+  "hash": "85962d2f7712"
  },
  {
   "id": "EIOPA-AI-2025",
   "source": "Guidance",
-  "title": "EIOPA Opinion on AI governance and risk management, 6 August 2025",
-  "text": "Summary: AI used for risk assessment and pricing in life and health insurance is high-risk under the AI Act. Other AI in insurance, including claims management, should follow proportionate governance: data quality, record keeping, transparency, human oversight, accuracy and security.",
+  "title": "EIOPA Opinion on AI governance and risk management, EIOPA-BoS-25-360, 6 August 2025",
+  "text": "Para. 2.4: the AI Act identifies as high-risk 'the use of AI systems for risk assessment and pricing in relation to natural persons in the case of life and health insurance'. Paras. 2.5 and 2.6: the Opinion covers insurance AI systems that are not prohibited or high-risk; para. 2.1 names claims management as one such use. Para. 3.7: undertakings should develop risk-based and proportionate governance covering fairness and ethics, data governance, documentation and record keeping, transparency and explainability, human oversight, and accuracy, robustness and cybersecurity. Para. 3.28: customers should be informed that they are interacting with an AI system and, on request, told the influence of the AI system on a decision with a material impact on them.",
   "url": "https://www.eiopa.europa.eu/publications/opinion-artificial-intelligence-governance-and-risk-management_en",
-  "hash": "024978385905"
+  "hash": "a27a67da439f"
  },
  {
   "id": "OWASP-LLM01",
@@ -1577,6 +1756,118 @@
   "text": "Summary: instructions embedded in user input or documents can alter an LLM's behaviour. Mitigations include constraining model behaviour, segregating untrusted content, requiring human approval for privileged actions, and enforcing decisions outside the model.",
   "url": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/",
   "hash": "c83e301d1d21"
+ },
+ {
+  "id": "UAVG-30(3)(b)",
+  "source": "National law",
+  "title": "NL UAVG Art. 30(3)(b) Health data: insurers (version in force from 1 September 2026)",
+  "text": "'Gelet op artikel 9, tweede lid, onderdeel g en h, van de verordening, is het verbod om gegevens over gezondheid te verwerken niet van toepassing indien de verwerking geschiedt door: ... b. verzekeraars als bedoeld in artikel 1:1 van de Wet op het financieel toezicht ..., voor zover de verwerking noodzakelijk is voor: 1°. de beoordeling van het door de verzekeraar te verzekeren risico en de betrokkene geen bezwaar heeft gemaakt; of 2°. de uitvoering van de overeenkomst van verzekering dan wel het assisteren bij het beheer en de uitvoering van de verzekering.' Our translation: on the basis of GDPR Art. 9(2)(g) and (h), the ban on processing health data does not apply to insurers as far as necessary to assess the risk to be insured (if the data subject has not objected) or to perform the insurance contract.",
+  "url": "https://wetten.overheid.nl/BWBR0040940/#Hoofdstuk3_Paragraaf3.1_Artikel30",
+  "hash": "2df4757aa6ba"
+ },
+ {
+  "id": "UAVG-30(4)",
+  "source": "National law",
+  "title": "NL UAVG Art. 30(4) Secrecy for health data",
+  "text": "'Indien toepassing wordt gegeven aan het eerste, tweede of derde lid, worden de gegevens alleen verwerkt door personen die uit hoofde van ambt, beroep of wettelijk voorschrift dan wel krachtens een overeenkomst tot geheimhouding zijn verplicht.' Our translation: where paragraphs 1 to 3 apply, the data are processed only by persons bound to secrecy by office, profession, statutory rule or a confidentiality agreement.",
+  "url": "https://wetten.overheid.nl/BWBR0040940/#Hoofdstuk3_Paragraaf3.1_Artikel30",
+  "hash": "bfa256d46ada"
+ },
+ {
+  "id": "UAVG-40",
+  "source": "National law",
+  "title": "NL UAVG Art. 40 Exceptions to the ban on automated decisions",
+  "text": "'Artikel 22, eerste lid, van de verordening geldt niet indien de in die bepaling bedoelde geautomatiseerde individuele besluitvorming, anders dan op basis van profilering, noodzakelijk is om te voldoen aan een wettelijke verplichting die op de verwerkingsverantwoordelijke rust of noodzakelijk is voor de vervulling van een taak van algemeen belang.' Our translation: Art. 22(1) does not apply where automated decision-making, other than on the basis of profiling, is necessary to comply with a legal obligation of the controller or to perform a task in the public interest. A private insurer's claims decision is neither, so this Art. 22(2)(b) law does not cover it.",
+  "url": "https://wetten.overheid.nl/BWBR0040940/#Hoofdstuk4_Artikel40",
+  "hash": "ff385eefc934"
+ },
+ {
+  "id": "UAVG-46",
+  "source": "National law",
+  "title": "NL UAVG Art. 46 National identification number",
+  "text": "'Een nummer dat ter identificatie van een persoon bij wet is voorgeschreven, wordt bij de verwerking van persoonsgegevens slechts gebruikt ter uitvoering van de desbetreffende wet dan wel voor doeleinden bij de wet bepaald.' Our translation: a number prescribed by law to identify a person (such as the BSN) is used only to carry out that law or for purposes set by law. This is the Dutch use of GDPR Art. 87.",
+  "url": "https://wetten.overheid.nl/BWBR0040940/#Hoofdstuk4_Artikel46",
+  "hash": "0043c22f1011"
+ },
+ {
+  "id": "ZVW-86",
+  "source": "National law",
+  "title": "NL Zorgverzekeringswet Art. 86 BSN in health insurance (version in force from 1 January 2026)",
+  "text": "Art. 86(1): 'neemt de zorgverzekeraar met het oog op de uitvoering van de zorgverzekering en van deze wet het burgerservicenummer van zijn verzekerde ... in zijn administratie op.' Art. 86(3): 'De zorgverzekeraar gebruikt het burgerservicenummer van de verzekerde met het doel te waarborgen dat de in het kader van de verzekering van zorg te verwerken persoonsgegevens op die verzekerde betrekking hebben.' Our translation: the health insurer records the insured's BSN and uses it to make sure that personal data processed for the insurance relate to that insured person. Art. 13 of the Wet aanvullende bepalingen verwerking persoonsgegevens in de zorg (BWBR0023864) applies the same rule to supplementary health insurers.",
+  "url": "https://wetten.overheid.nl/BWBR0018450/#Hoofdstuk7_Artikel86",
+  "hash": "b50f4752c72d"
+ },
+ {
+  "id": "ZVW-87",
+  "source": "National law",
+  "title": "NL Zorgverzekeringswet Art. 87(1) and (5) Health data from care providers; secrecy",
+  "text": "Art. 87(1): a care provider that bills the insurer directly gives it the insured's personal data, 'waaronder gegevens over gezondheid ..., die noodzakelijk zijn voor de uitvoering van de zorgverzekering'. Art. 87(5): staff of the health insurer not already bound by professional secrecy 'zijn verplicht tot geheimhouding van de gegevens'. Our translation: care providers send the health data needed to perform the insurance, and insurer staff are bound to secrecy about them.",
+  "url": "https://wetten.overheid.nl/BWBR0018450/#Hoofdstuk7_Artikel87",
+  "hash": "d7daed2cf9e8"
+ },
+ {
+  "id": "GVPV-5.1.1",
+  "source": "Code of conduct",
+  "title": "Gedragscode Verwerking Persoonsgegevens Verzekeraars 2024, art. 5.1.1",
+  "text": "'De Verzekeraar verwerkt alleen Gezondheidsgegevens als: (a) de Betrokkene uitdrukkelijke toestemming heeft verleend; of (b) dit noodzakelijk is voor de beoordeling en acceptatie van een Betrokkene en het uitvoeren van een verzekering. ... De Verzekeraar mag Gezondheidsgegevens die de Betrokkene aan de medisch adviseur heeft verstrekt in verband met een verzekering niet gebruiken voor een andere verzekering, tenzij de Betrokkene hiervoor uitdrukkelijke toestemming verleent' (points (c) to (h) list further grounds). Our translation: the insurer processes health data only with explicit consent or where necessary to assess, accept and perform an insurance; health data given to the medical adviser for one insurance is not used for another without explicit consent.",
+  "url": "https://www.verzekeraars.nl/media/3lpdl0lx/opgemaakte-definitieve-versie-gvpv-2024.pdf",
+  "hash": "7e569e4b66b7"
+ },
+ {
+  "id": "GVPV-5.1.3",
+  "source": "Code of conduct",
+  "title": "Gedragscode Verwerking Persoonsgegevens Verzekeraars 2024, art. 5.1.3",
+  "text": "'Alleen de Medisch Adviseur mag Gezondheidsgegevens verwerken voor het opstellen van een medisch advies.' The medical adviser is not responsible for health data processed by 'de (i) Technisch Acceptant en claimbehandelaar; (ii) personen binnen de Verzekeraar die rechtstreeks van de Betrokkene Gezondheidsgegevens hebben verkregen, al dan niet gelijktijdig met het melden van een claim of schade, als deze Gezondheidsgegevens noodzakelijk zijn voor verdere beoordeling daarvan'. The explanatory notes separate the medical adviser's advice from the claims handler's decision. Our translation: only the medical adviser may process health data to write a medical opinion; claims handlers may process health data received with a claim when needed to assess it.",
+  "url": "https://www.verzekeraars.nl/media/3lpdl0lx/opgemaakte-definitieve-versie-gvpv-2024.pdf",
+  "hash": "e7cad9da6b78"
+ },
+ {
+  "id": "GVPV-4.2.2",
+  "source": "Code of conduct",
+  "title": "Gedragscode Verwerking Persoonsgegevens Verzekeraars 2024, art. 4.2.2 Automated decisions",
+  "text": "Insurers may take fully automated decisions on entering into or performing an insurance only if the decision '(a) noodzakelijk is voor het aangaan of uitvoeren van de verzekering; of (b) berust op uitdrukkelijke toestemming van de Betrokkene; of (c) uitvoering geeft aan een publiekrechtelijke taak of wettelijke verplichting', with the right to give one's view, contest the decision and have a human reconsider it, and a DPIA beforehand. Our translation and note: the Dutch code accepts the Art. 22(2)(a) contract exception for insurance decisions; keeping a human decision-maker is our choice, not a legal minimum.",
+  "url": "https://www.verzekeraars.nl/media/3lpdl0lx/opgemaakte-definitieve-versie-gvpv-2024.pdf",
+  "hash": "0d842d4536a6"
+ },
+ {
+  "id": "AP-DPIA-7",
+  "source": "National law",
+  "title": "Dutch DPA list of processing that needs a DPIA (Staatscourant 2019, 64418), item 7",
+  "text": "'Gezondheidsgegevens. Grootschalige verwerkingen van gegevens over gezondheid (bijvoorbeeld door instellingen of voorzieningen voor gezondheidszorg ..., verzekeraars, en onderzoeksinstituten)'. Our translation: large-scale processing of health data, for example by insurers, requires a DPIA (GDPR Art. 35(4)).",
+  "url": "https://zoek.officielebekendmakingen.nl/stcrt-2019-64418.html",
+  "hash": "7221566054b4"
+ },
+ {
+  "id": "BDSG-22",
+  "source": "National law",
+  "title": "DE BDSG § 22(1) and (2) Special categories",
+  "text": "§ 22(1) no. 1(b) allows special-category processing for health care, treatment or the management of health systems 'oder aufgrund eines Vertrags der betroffenen Person mit einem Angehörigen eines Gesundheitsberufs', by medical staff or others bound to secrecy. § 22(2) lists safeguards, including pseudonymisation, encryption, logging of who entered or changed data, and restricted access. Note: § 22 has no insurer ground; German insurers rely on consent (Art. 9(2)(a) with VVG § 213) and on Art. 9(2)(f).",
+  "url": "https://www.gesetze-im-internet.de/bdsg_2018/__22.html",
+  "hash": "6b81ef29a028"
+ },
+ {
+  "id": "BDSG-37",
+  "source": "National law",
+  "title": "DE BDSG § 37 Automated decisions in insurance",
+  "text": "§ 37(1): beyond Art. 22(2)(a) and (c), the right not to be subject to an automated decision does not apply where the decision is made in providing benefits under an insurance contract and '1. dem Begehren der betroffenen Person stattgegeben wurde oder 2. die Entscheidung auf der Anwendung verbindlicher Entgeltregelungen für Heilbehandlungen beruht', with the right to human intervention, to state one's view and to contest. § 37(2): such decisions may be based on health data. Our translation: Germany allows automated claims decisions that grant the claim in full, or that apply binding medical fee schedules.",
+  "url": "https://www.gesetze-im-internet.de/bdsg_2018/__37.html",
+  "hash": "299b1b583c69"
+ },
+ {
+  "id": "VVG-213",
+  "source": "National law",
+  "title": "DE VVG § 213 Collecting health data from third parties",
+  "text": "§ 213(1): an insurer may collect health data only from doctors, hospitals, care homes, other personal insurers, statutory health funds and authorities, and only 'soweit die Kenntnis der Daten für die Beurteilung des zu versichernden Risikos oder der Leistungspflicht erforderlich ist und die betroffene Person eine Einwilligung erteilt hat.' Our translation: only where needed to assess the risk or the duty to pay, and with the data subject's consent; the person is informed beforehand and may object (§ 213(2)).",
+  "url": "https://www.gesetze-im-internet.de/vvg_2008/__213.html",
+  "hash": "9675d82a45b6"
+ },
+ {
+  "id": "RED-2000/43-2",
+  "source": "EU law",
+  "title": "Racial Equality Directive 2000/43/EC, Art. 2 and Art. 3(1)(h)",
+  "text": "Art. 2(1): 'the principle of equal treatment shall mean that there shall be no direct or indirect discrimination based on racial or ethnic origin.' Art. 2(2)(b): indirect discrimination occurs 'where an apparently neutral provision, criterion or practice would put persons of a racial or ethnic origin at a particular disadvantage'. Art. 3(1)(h): the Directive applies to 'access to and supply of goods and services which are available to the public'. Consequence: selecting claims by surname or country of birth is at least indirect discrimination on ethnic origin.",
+  "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32000L0043",
+  "hash": "27e999550398"
  },
  {
   "id": "METHOD-PRIVACY-TRIAGE",

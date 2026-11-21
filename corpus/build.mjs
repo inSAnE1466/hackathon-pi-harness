@@ -13,14 +13,14 @@ const SOURCES = [
     key: "GDPR",
     source: "GDPR",
     celex: "32016R0679",
-    articles: [4, 5, 6, 9, 10, 13, 15, 22, 25, 28, 30, 32, 35, 44, 46, 87],
-    recitals: [26, 35, 38, 51, 71],
+    articles: [4, 5, 6, 9, 10, 13, 14, 15, 22, 25, 28, 30, 32, 35, 44, 45, 46, 87],
+    recitals: [14, 26, 35, 38, 51, 52, 71],
   },
   {
     key: "AIA",
     source: "EU AI Act",
     celex: "32024R1689",
-    articles: [6, 12, 13, 14, 19, 26, 27, 50],
+    articles: [6, 12, 13, 14, 19, 26, 27, 50, 86],
     annexes: ["III"],
   },
 ];
@@ -107,11 +107,13 @@ for (const s of SOURCES) {
   console.log(`${s.key}: official text ${s.celex}`);
 }
 
-// The insurer's own material (synthetic) and summaries of case law and guidance, with their sources.
+// The insurer's own material (synthetic), summaries of case law and guidance, and quotes from national law and the
+// Dutch insurers' code of conduct (original wording plus our translation), each with its source.
 for (const file of [
   "corpus/policy-terms.jsonl",
   "corpus/medical-criteria.jsonl",
   "corpus/guidance.jsonl",
+  "corpus/national.jsonl",
   "corpus/methods.jsonl",
 ]) {
   if (!existsSync(file)) continue;

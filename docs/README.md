@@ -6,7 +6,8 @@
 | What did the team say on the call?                                  | [transcript](../notes/2026-11-20-team-call-transcript.md) |
 | What have we decided, and why?                                      | [decisions.md](decisions.md)                              |
 | Which sources back each decision?                                   | [sources.md](sources.md)                                  |
-| What does the law allow for this use case? (draft)                  | [research.md](research.md)                                |
+| What does the law allow for this use case?                          | [research.md](research.md)                                |
+| Which official wording backs each legal claim, and is it right?     | [legal-verification.md](legal-verification.md)            |
 | How do we set secrets, run, test and deploy?                        | [run.md](run.md)                                          |
 | What do we check and run on demo day?                               | [runbook.md](runbook.md)                                  |
 | What BRANE's API and policy can do, and what we observed            | [brane.md](brane.md)                                      |
