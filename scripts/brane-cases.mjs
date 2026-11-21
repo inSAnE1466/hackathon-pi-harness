@@ -22,9 +22,20 @@ const live = process.argv.includes("--live");
 // BRANE's detectors vary run to run, so each case runs N times and passes only if every run passes (worst of N).
 // The row records the first failing run if there is one, else the last run.
 const runs = Number(process.argv[process.argv.indexOf("--runs") + 1]) || 5;
-const version = JSON.parse(readFileSync("policy/brane.json", "utf8")).version;
+const policyFile = JSON.parse(readFileSync("policy/brane.json", "utf8"));
+const version = policyFile.version;
+// The agent's default instructions, read from src/chat.ts, so the live answer comes from what the app sends.
+const system = /const DEFAULT_INSTRUCTIONS = `([\s\S]*?)`;/.exec(
+  readFileSync("src/chat.ts", "utf8"),
+)[1];
 
-const cloudSafe = (d) => d.route === "local" || d.route === "refused" || d.redacted === "true";
+// Protected: kept local, refused, placeholdered by BRANE, or sent to the cloud only after the harness pre-mask changed
+// the text and no protected value is left in the payload.
+const cloudSafe = (d) =>
+  d.route === "local" ||
+  d.route === "refused" ||
+  d.redacted === "true" ||
+  (d.route === "cloud" && d.payloadClean && d.premasked);
 const notCloud = (d) => d.route === "local" || d.route === "refused";
 
 const cases = [
@@ -117,15 +128,13 @@ const protectedValues = (prompt, listed) => [
 ];
 
 async function run([id, scenario, expected, prompt, pass, listed]) {
+  const sent = mask(prompt, findIdentifiers(prompt));
   const res = await fetch(`${base}/policy/test`, {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    // This is what the harness sends. The pre-mask (src/primitives/detect.ts) masks BSN, passport, policy, claim and
-    // plate numbers in every request body before BRANE sees it.
-    body: JSON.stringify({
-      prompt: mask(prompt, findIdentifiers(prompt)),
-      executeCompletion: live,
-    }),
+    // What the harness sends: the pre-mask (src/primitives/detect.ts) replaces names, street addresses, contact
+    // details and identifiers in every request body before BRANE sees it.
+    body: JSON.stringify({ prompt: sent }),
   });
   const j = await res.json();
   const h = j.simulatedHeaders ?? {};
@@ -137,10 +146,39 @@ async function run([id, scenario, expected, prompt, pass, listed]) {
     status: j.decision?.httpStatus,
     redacted: h["X-Brane-Redacted"],
     payloadClean: leaked.length === 0,
+    premasked: sent !== prompt,
   };
-  // A cloud answer with no detection on a prompt that holds protected values is a blank BRANE answer and fails.
-  const blank = d.route === "cloud" && checked.length > 0 && !h["X-Brane-Pii-Types"];
-  const ok = pass(d) && d.payloadClean && !blank;
+  // --live: one chat call as the app makes it (agent instructions as the system prompt, pre-masked text, the policy's
+  // cloud model). Its own X-Brane headers must agree with the dry run's route, or the case fails.
+  let answerText = "";
+  let model = "";
+  if (live) {
+    const chat = await fetch(`${base}/chat/completions`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: policyFile.models.cloud,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: sent },
+        ],
+      }),
+    });
+    const routed = chat.headers.get("x-brane-routed-to") ?? (chat.status === 422 ? "refused" : "");
+    model = chat.headers.get("x-brane-model-resolved") ?? "";
+    const body = await chat.json().catch(() => ({}));
+    answerText =
+      chat.status === 422
+        ? "Refused by BRANE before any model ran (HTTP 422)"
+        : String(body.choices?.[0]?.message?.content ?? "")
+            .replace(/\s+/g, " ")
+            .slice(0, 200);
+    if (routed !== d.route) d.chatRouteMismatch = routed || `HTTP_${chat.status}`;
+  }
+  // A cloud answer with no detection on a prompt that holds protected values is a blank BRANE answer: a failure.
+  const blank =
+    d.route === "cloud" && checked.length > 0 && !h["X-Brane-Pii-Types"] && !d.premasked;
+  const ok = pass(d) && d.payloadClean && !blank && !d.chatRouteMismatch;
   const detail = [
     h["X-Brane-Pii-Types"],
     h["X-Brane-Semantic-Matches"],
@@ -150,27 +188,23 @@ async function run([id, scenario, expected, prompt, pass, listed]) {
   ]
     .filter(Boolean)
     .join(" | ");
-  const model = /\(([^)]*)\)/.exec(String(j.liveCompletion?.status ?? ""))?.[1] ?? "";
   const impact =
     {
       cloud:
         d.redacted === "true"
           ? "Protected: identifiers replaced by placeholders before the cloud call and restored in the answer"
-          : "Sent as typed: no personal data in the request",
+          : d.premasked
+            ? "Protected: the harness replaced personal data with placeholders before BRANE; the cloud model saw only placeholders"
+            : "Sent as typed: no personal data in the request",
       local:
         "Kept local: the whole request stayed on BRANE's local model; nothing went to the cloud",
       refused:
         "Refused (HTTP 422) before any model ran; in the app the step goes to an authorised person",
     }[d.route] ?? "";
-  const answerText =
-    live && j.liveCompletion
-      ? String(j.liveCompletion.preview ?? "")
-          .replace(/\s+/g, " ")
-          .slice(0, 200)
-      : "";
   const output = [
     impact,
     answerText && `Answer${model ? ` (${model})` : ""}: ${answerText}`,
+    d.chatRouteMismatch ? `Chat call routed ${d.chatRouteMismatch}, dry run ${d.route}` : "",
     d.route === "cloud" && checked.length
       ? leaked.length || blank
         ? `${blank ? "BRANE detected nothing. " : ""}${leaked.length ? `LEAKED ${leaked.join(", ")}` : ""}`
