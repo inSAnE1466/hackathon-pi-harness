@@ -376,6 +376,16 @@ leak fell from 38% to 15%, still far from 0: usable as a second opinion, never a
 <p class="find"><b>6. The teammate's live policy leaks criminal data.</b> It has no Art. 10 rule: gate test E3 (named suspect, previous convictions)
 went to the cloud, and it leaked 8.8% of sensitive val rows.</p>
 
+<p class="find"><b>7. An independent model found a gap in our own answer key.</b> Claude Haiku (a different model than the one that
+wrote our labels) relabelled 50 test rows blind: 82% route agreement, Cohen's kappa 0.73. All 9 disagreements were the same kind: elderly
+claims mentioning a walker, stairlift, mobility scooter, care-home residence or a court-appointed guardian, which our key treated as
+<i>not</i> health data. Under a broad reading of Art. 9 (CJEU C-184/20: data that indirectly reveals special-category information is
+protected) they are health data, and the final system sent 8 of the 9 to the cloud (with names masked): leak on this sample 0% under
+our key vs 19.5% under the broad reading. <b>Open legal decision for the team's lawyers</b>; we recommend the broad reading and adding
+assistive devices, care-home residence and guardianship to the health definitions. A second rater (Qwen, different family) could not
+be used: the live team policy's PROTECTED_TRAIT_PROFILING rule refuses any prompt that merely describes protected traits, including a
+classification instruction.</p>
+
 <h2>8. Product gaps observed live (BRANE)</h2>
 <p class="find">· No native human-approval action (semantic rules only local / refuse); approval lives in agent code.</p>
 <p class="find">· No "drop span" action: an unnecessary medical remark forces the whole turn local (T2b).</p>
@@ -384,6 +394,8 @@ went to the cloud, and it leaked 8.8% of sensitive val rows.</p>
 <p class="find">· Detector drift: within one evening Presidio began tagging ordinary words ("Which", "Beschrijf") as PERSON (0.85), turning 27 benign
 dev rows into redacted ones; a Dutch name and BSN were missed in another row (the harness now tokenises checksum-valid BSNs itself).</p>
 <p class="find">· <code>PASSWORD</code> false positives on Dutch words ("sleutels" = keys, "inlogcode") turn harmless requests into 422s under a refuse rule.</p>
+<p class="find">· Semantic rules judge the whole prompt, including meta-instructions: a classification prompt that lists protected traits is
+refused as "profiling" (no way to exempt system or harness instructions).</p>
 <p class="find">· No native Art. 10 category, no volume rule, no per-step rules, injection threshold not configurable, undocumented
 behaviour when BRANE's own detectors or GPU are down.</p>
 
