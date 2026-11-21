@@ -128,6 +128,16 @@ on 422 the case is escalated with the reason (Art. 22 decision, injection, discr
 audit log stores claim hash, route, headers, policy fingerprint, reviewer, decision (no claim text).</div>
 </div>
 
+<h3>How one claim flows (exactly)</h3>
+<table class="small"><thead><tr><th>Step</th><th>What runs</th><th>Model involved</th></tr></thead><tbody>
+<tr><td>0. Prep</td><td><b>Our code</b>: regex replaces claim/policy/customer numbers and checksum-valid BSNs with tokens</td><td>none</td></tr>
+<tr><td>1. BRANE call #1 (pre-flight)</td><td><code>POST /policy/test</code> dry run with our policy: BRANE's detectors + semantic rules give their decision and the exact text they would send. Nothing reaches an answering model. Unreachable / error / no decision → <b>not sent</b> (fail-closed).</td><td>BRANE's internal judge</td></tr>
+<tr><td>2. BRANE call #2 (our classifier)</td><td><code>POST /policy/test</code> with a local-only draft: BRANE runs <b>our</b> labelling prompt (14 yes/no labels) on its internal model, so nothing leaves</td><td>DeepSeek (local, via BRANE)</td></tr>
+<tr><td>3. The gate</td><td><b>Our code, no model</b>: fixed rules combine #1 and #2. Stricter route wins; a name type the classifier found but BRANE did not mask → local; anything blocked → block. Labels come from models, routes come from code.</td><td>none</td></tr>
+<tr><td>4. BRANE call #3 (real request)</td><td><code>POST /chat/completions</code>: BRANE enforces again and forwards to the cloud model (with placeholders) or the local model (explicitly requested when the gate says local), or returns 422. X-Brane-* headers are verified; no headers → answer discarded.</td><td>BRANE's judge + the answering model</td></tr>
+<tr><td>5. Human</td><td>Handler approves, edits or rejects; the AI never decides or sends. Audit log stores hashes, route, headers, reviewer, decision.</td><td>none</td></tr>
+</tbody></table>
+
 <h2>3. Policy: from research to rules</h2>
 <p>Five tiers, strictest label wins: <span class="tag allow">0 cloud</span> no sensitive data ·
 <span class="tag ph">1 placeholder</span> identifiers · <span class="tag loc">2 local</span> health, third-party health, mental health,
@@ -267,7 +277,14 @@ true leak rate of up to ~9% (rule of three); val was therefore grown to 500 rows
 confirmed by the human label audit and in live use. Legal citations are to be verified by the team's lawyers before reliance.
 Results are dry runs (<code>/policy/test</code>); live <code>/chat/completions</code> header evidence follows once the team applies the selected policy.</p>
 
-<h2>10. Reproduce</h2>
+<h2>10. Open items (honest status at submission)</h2>
+<p class="find">· <b>Name masking:</b> harness-side masking of names the local model finds (so BRANE's partial masking cannot leak them) is designed, not built.</p>
+<p class="find">· <b>Enforce the gate in BRANE call #3:</b> today #3 is a second BRANE judgement; the gate's final route should be enforced (block = do not send, local = explicit local model, verify the reply is at least as strict).</p>
+<p class="find">· <b>Live policy:</b> the team department still runs a teammate's policy; applying <code>policy/policy_v1_nokw.json</code> and capturing live <code>/chat/completions</code> headers needs the team's agreement.</p>
+<p class="find">· <b>Legal review:</b> citations to be verified by the team's lawyers; the broad reading of indirect health (CJEU C-184/20) is our recommendation, not a settled decision.</p>
+<p class="find">· <b>Human label audit:</b> the 50-row sheet (<code>data/audit/</code>) is ready; no hand-written gold set was made.</p>
+
+<h2>11. Reproduce</h2>
 <p><code>python3 gezira_claims_agent.py --tests --repeat 3 --policy policy/policy_v1_nokw.json</code> ·
 <code>python3 eval/check_leakage.py</code> · <code>python3 eval/run_eval.py --data data/val.csv --backend brane --policy policy/policy_v1_nokw.json --tag x</code> ·
 <code>python3 docs/build_report.py</code>. Python 3.9 standard library only; key via <code>BRANE_API_KEY</code>, never committed.</p>
