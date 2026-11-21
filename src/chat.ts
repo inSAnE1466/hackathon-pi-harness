@@ -102,7 +102,12 @@ export function createChatHarnessOptions(
   return {
     models,
     registry,
-    settings: { extensions: [claimsExtension, gate] },
+    settings: {
+      extensions: [claimsExtension, gate],
+      // A failed model request fails the turn. Pi Durable would otherwise send the same request to BRANE up to
+      // three more times, with a growing wait, before the person sees the failure.
+      retry: { enabled: false },
+    },
     conversationCreated: (tx, conversation) =>
       conversation.owner === undefined && conversation.parent === undefined
         ? configure(tx, conversation.id, defaultAgent)

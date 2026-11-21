@@ -10,3 +10,4 @@ evals/climb-log.tsv
 evals/qc-latest.json
 evals/autoclimb-log.tsv
 exam-review.*
+evals/security-*-latest.json
