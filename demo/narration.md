@@ -6,22 +6,23 @@ pictures carry the detail. Spoken text is inside the quote blocks; everything el
 headings are fixed: the script turns each into the beat id the composition keys on (`cast`, `harness`, `claim`,
 `decide`, `attack`, `climb`, `close`). The seconds are the unvoiced plan; the voiced cut replaces them.
 
-Word count of the spoken text: 185.
+Word count of the spoken text: 188.
 
 ## Cast, 0 to 13 seconds (31 words)
 
 > Daan, the claimant, breaks his leg skiing in Austria. The agent prepares his claim. BRANE checks every model
 > request. The adviser judges health, the reviewer judges law, and the handler decides.
 
-## Harness, 13 to 28 seconds (40 words)
+## Harness, 13 to 28 seconds (46 words)
 
-> First, intake moves health detail to a local model. The gate masks numbers BRANE misses. BRANE is the only road to any
-> model. A lookup cites the policy, consult and approval hand work to people, and audit records every step.
+> The agent is a Pi harness in one Durable Object. Its intake keeps health detail local. The gate masks numbers
+> BRANE misses. BRANE is the only road to a model. A lookup cites the policy, consult and approval go to people, and
+> audit records each step.
 
-## Claim, 28 to 37 seconds (23 words)
+## Claim, 28 to 37 seconds (20 words)
 
-> The discharge note stays local. The frontier model sees placeholders, not Daan's name, checks the invoices against
-> the policy, and asks the adviser.
+> The discharge note stays local. The frontier model sees placeholders, checks the invoices against the policy, and
+> asks the adviser.
 
 ## Decide, 37 to 49 seconds (32 words)
 
@@ -34,8 +35,8 @@ Word count of the spoken text: 185.
 
 ## Climb, 56 to 69 seconds (29 words)
 
-> We change the harness, never the model: the policy, the gate, the prompts. Every change is a real run, scored on
-> each criterion, and kept only if nothing leaks.
+> We climb the harness, never the model. Each change is a real run, kept only if it scores better and nothing
+> leaks. Here is each criterion, iteration by iteration.
 
 ## Close, 69 to 74 seconds (10 words)
 
