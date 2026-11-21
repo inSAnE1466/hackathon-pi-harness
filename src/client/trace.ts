@@ -10,15 +10,21 @@ import {
 } from "./decision-log.ts";
 
 /**
- * A claim's path through the harness as five fixed steps, derived from its decision log (rows newest first). The
- * steps never move or appear; they only fill in, so the diagram does not shift while a turn runs.
+ * A claim's path through the harness, derived from its decision log (rows newest first): intake, the pre-mask, BRANE,
+ * tools, person. The steps never move; they only fill in, so the diagram does not shift while a turn runs. BRANE is
+ * the only gate. The pre-mask is pattern matching in our own code (`src/primitives/detect.ts`), drawn as a small
+ * step on the edge into BRANE. A local classifier step has a slot that shows only once its audit rows exist.
  */
-export type StepId = "intake" | "gate" | "brane" | "tools" | "person";
+export type StepId = "intake" | "classifier" | "premask" | "brane" | "tools" | "person";
+
+/** A full node for a step that decides or acts, a small mark on the line for a deterministic rule. */
+export type StepWeight = "node" | "rule";
 
 export type StepState = "idle" | "done" | "active" | "refused";
 
 export interface Step {
   readonly id: StepId;
+  readonly weight: StepWeight;
   readonly title: string;
   readonly state: StepState;
   /** One line on what happened, or what the step does while not reached. */
@@ -27,9 +33,17 @@ export interface Step {
 }
 
 const IDLE: Record<StepId, { readonly title: string; readonly summary: string }> = {
-  intake: { title: "Intake", summary: "Splits health facts from the claim" },
-  gate: { title: "Gate", summary: "Masks identifiers before BRANE" },
-  brane: { title: "BRANE", summary: "Decides the route for each request" },
+  intake: {
+    title: "Intake (local model, inside BRANE)",
+    summary: "Splits health facts from the claim",
+  },
+  classifier: { title: "Classifier (local model)", summary: "Labels the request before BRANE" },
+  premask: {
+    title: "Pre-mask (regex)",
+    summary:
+      "Pattern rules in our code: BSN checksum, policy, claim and passport numbers, plates. No model.",
+  },
+  brane: { title: "BRANE (the gate)", summary: "Decides the route for each request" },
   tools: { title: "Tools", summary: "Policy and law lookups, handoffs" },
   person: { title: "Person", summary: "An adviser or the claims handler" },
 };
@@ -48,6 +62,8 @@ export function traceOf(rows: readonly AuditRow[], running: boolean): Step[] {
   const of = (kind: AuditRow["kind"]) => oldest.filter((row) => row.kind === kind);
   const intake = of("intake");
   const masked = of("masked");
+  // The server writes no classifier rows yet; the step stays hidden until it does.
+  const classified = oldest.filter((row) => (row.kind as string) === "classifier");
   const brane = of("brane");
   const lookups = of("lookup");
   const handoffRows = of("handoff");
@@ -60,6 +76,7 @@ export function traceOf(rows: readonly AuditRow[], running: boolean): Step[] {
   const push = (id: StepId, reached: boolean, summary: string, chips: string[] = []): void => {
     steps.push({
       id,
+      weight: id === "premask" ? "rule" : "node",
       title: IDLE[id].title,
       state: reached ? "done" : "idle",
       summary: reached ? summary : IDLE[id].summary,
@@ -70,12 +87,20 @@ export function traceOf(rows: readonly AuditRow[], running: boolean): Step[] {
   const lastIntake = intake.at(-1);
   push("intake", lastIntake !== undefined, intakeSummary(lastIntake?.detail ?? ""));
 
-  const identifiers = unique(masked.flatMap((row) => list(row.detail)));
+  if (classified.length > 0) {
+    const labels = unique(classified.flatMap((row) => list(row.detail)));
+    push("classifier", true, `${classified.length} labelled`, labels);
+  }
+
+  // The findings are the pattern kinds that fired, e.g. BSN or POLICY_ID; the values never reach the log.
+  const fired = unique(masked.flatMap((row) => list(row.detail)));
   push(
-    "gate",
+    "premask",
     masked.length > 0 || brane.length > 0,
-    identifiers.length > 0 ? "Identifiers masked" : "No identifiers to mask",
-    identifiers,
+    fired.length > 0
+      ? `Masked before BRANE: ${fired.length} ${fired.length === 1 ? "pattern" : "patterns"} fired`
+      : "No pattern fired, nothing to mask",
+    fired,
   );
 
   const routes = { cloud: 0, local: 0 };
@@ -98,7 +123,8 @@ export function traceOf(rows: readonly AuditRow[], running: boolean): Step[] {
     `${brane.length} ${brane.length === 1 ? "request" : "requests"}: ${routeParts.join(", ")}`,
     refused.length > 0 ? unique(refused.map((row) => ruleName(row.refusedBy))) : categories,
   );
-  if (refused.length > 0) steps[2] = { ...steps[2], state: "refused" };
+  const braneIndex = steps.findIndex((step) => step.id === "brane");
+  if (refused.length > 0) steps[braneIndex] = { ...steps[braneIndex], state: "refused" };
 
   const cited = unique(lookups.flatMap((row) => list(row.detail)));
   const toolParts = [
@@ -127,7 +153,7 @@ export function traceOf(rows: readonly AuditRow[], running: boolean): Step[] {
   // The yellow step is where the claim is now: the furthest step reached while a turn runs, or a person it waits on.
   const reached = steps.map((step) => step.state !== "idle");
   const furthest = reached.lastIndexOf(true);
-  const activeIndex = running ? Math.max(furthest, 0) : open.length > 0 ? 4 : -1;
+  const activeIndex = running ? Math.max(furthest, 0) : open.length > 0 ? steps.length - 1 : -1;
   if (activeIndex >= 0 && steps[activeIndex].state !== "refused")
     steps[activeIndex] = { ...steps[activeIndex], state: "active" };
   return steps;

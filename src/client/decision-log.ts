@@ -26,7 +26,7 @@ export interface AuditRow {
   readonly refusedBy: string;
   readonly modelResolved: string;
   readonly detail: string;
-  /** Who acted: `brane`, `gate`, `agent`, or a person's display name. */
+  /** Who acted: `brane`, `gate` (our pre-mask and intake, see `actorLabel`), `agent`, or a person's display name. */
   readonly actor: string;
   readonly policyVersion: string;
   /** For a `human` row, the handoff it answers. */
@@ -112,13 +112,16 @@ export function decisionsByHandoff(rows: readonly AuditRow[]): ReadonlyMap<numbe
   return decisions;
 }
 
-/** Who acted, in words. */
+/**
+ * Who acted, in words. The server's actor `gate` is our own code: the pre-mask (regex, no model) for a `masked` row,
+ * and the intake step, which runs BRANE's local model, for an `intake` row. BRANE is the only gate.
+ */
 export function actorLabel(row: AuditRow): string {
   switch (row.actor) {
     case "brane":
       return "BRANE";
     case "gate":
-      return "Our gate";
+      return row.kind === "intake" ? "Intake (local model)" : "Pre-mask (regex)";
     case "agent":
       return "The assistant";
     case "":

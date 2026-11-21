@@ -20,6 +20,8 @@ export interface ThreadRow {
   readonly chips: readonly string[];
   /** A person's decision, drawn as a square node. */
   readonly human?: boolean;
+  /** A deterministic rule in our code (the pre-mask), drawn as a small hollow diamond. */
+  readonly rule?: boolean;
 }
 
 const intakeResult = (detail: string): string =>
@@ -30,7 +32,7 @@ const intakeResult = (detail: string): string =>
       : "Kept local as a whole";
 
 /**
- * The run as rows, oldest first. Consecutive BRANE rows with the same route merge into one, and the gate's masking
+ * The run as rows, oldest first. Consecutive BRANE rows with the same route merge into one, and the pre-mask
  * shows once per set of identifiers, so a turn of five model calls reads as a few lines.
  */
 export function threadOf(rows: readonly AuditRow[]): ThreadRow[] {
@@ -43,7 +45,7 @@ export function threadOf(rows: readonly AuditRow[]): ThreadRow[] {
       case "intake":
         thread.push({
           key,
-          label: "Intake checked the claim with BRANE",
+          label: "Intake (local model, inside BRANE) checked the claim",
           result: intakeResult(row.detail),
           chips: [],
         });
@@ -54,9 +56,10 @@ export function threadOf(rows: readonly AuditRow[]): ThreadRow[] {
         for (const id of ids) masked.add(id);
         thread.push({
           key,
-          label: "Gate masked identifiers before BRANE",
-          result: "Replaced with tokens",
+          label: "Pre-mask (regex) replaced identifiers with tokens before BRANE",
+          result: "Pattern rules in our code, no model",
           chips: ids,
+          rule: true,
         });
         break;
       }
@@ -154,7 +157,7 @@ const PENDING: Record<string, string> = {
 export function pendingStep(rows: readonly AuditRow[], tools: readonly ToolProgress[]): string {
   const tool = tools.find((candidate) => candidate.status !== "done");
   if (tool !== undefined) return PENDING[tool.name] ?? `Running ${tool.name}`;
-  if (rows.length === 0) return "Intake is checking the claim with BRANE";
+  if (rows.length === 0) return "Intake is checking the claim with BRANE's local model";
   return "Waiting for BRANE and the model";
 }
 
@@ -172,7 +175,10 @@ export function RunThread({ rows, tools, running }: RunThreadProps) {
     <section className="run" aria-label="What the harness did">
       <ol className="run-list" aria-live="polite">
         {thread.map((step) => (
-          <li key={step.key} className={`run-row${step.human === true ? " run-row--human" : ""}`}>
+          <li
+            key={step.key}
+            className={`run-row${step.human === true ? " run-row--human" : ""}${step.rule === true ? " run-row--rule" : ""}`}
+          >
             <span
               className={`run-mark${step.tone === "blocked" ? " run-mark--blocked" : ""}`}
               aria-hidden="true"

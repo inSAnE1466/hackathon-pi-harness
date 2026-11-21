@@ -1160,6 +1160,42 @@ body:has(.app) {
   flex: none;
 }
 
+/* The pre-mask: pattern rules in our code, no model. A small hollow diamond on the line into BRANE, lighter than
+   the round nodes of the steps that decide. */
+.trace-step--rule {
+  block-size: 92px;
+}
+
+.trace-step--rule .trace-node {
+  inline-size: 8px;
+  block-size: 8px;
+  margin: 6px auto 0;
+  border-width: 1.5px;
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+
+.trace-step--rule.trace-step--done .trace-node {
+  background: var(--color-page);
+}
+
+.trace-step--rule .trace-title strong {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+}
+
+.trace-tag {
+  padding: 0 var(--space-1);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  color: var(--color-secondary);
+  font-size: var(--text-xs);
+}
+
+.trace-step--idle .trace-tag {
+  color: var(--color-muted);
+}
+
 .chip--more {
   border-style: dashed;
   color: var(--color-secondary);
@@ -1948,6 +1984,20 @@ a.button-secondary[aria-disabled="true"] {
     border-inline-start: 0;
     border-block-start: 1px solid var(--color-hairline);
   }
+}
+
+.run-row--rule .run-mark {
+  inline-size: 7px;
+  block-size: 7px;
+  margin: 6px auto 0;
+  border: 1.5px solid var(--color-ink);
+  border-radius: 1px;
+  background: var(--color-page);
+  transform: rotate(45deg);
+}
+
+.run-row--rule .run-label {
+  font-weight: var(--weight-regular);
 }
 
 .run-row--human .run-mark {

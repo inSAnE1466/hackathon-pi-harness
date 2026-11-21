@@ -153,12 +153,13 @@ function Trace({
         {steps.map((step) => (
           <li
             key={step.id}
-            className={`trace-step trace-step--${step.state} trace-step--${step.id}`}
+            className={`trace-step trace-step--${step.weight} trace-step--${step.state} trace-step--${step.id}`}
           >
             <span className="trace-node" aria-hidden="true" />
             <div className="trace-text">
               <div className="trace-title">
                 <strong>{step.title}</strong>
+                {step.weight === "rule" ? <span className="trace-tag">No model</span> : null}
                 <span className="trace-state">{STEP_STATE[step.state]}</span>
               </div>
               <p>{step.summary}</p>
@@ -232,7 +233,9 @@ function AuditLog({
       {!loaded ? (
         <p className="quiet">Loading the audit log…</p>
       ) : rows.length === 0 ? (
-        <p className="quiet">No rows yet. Each model request and gate step adds one.</p>
+        <p className="quiet">
+          No rows yet. Each model request, pre-mask and person's decision adds one.
+        </p>
       ) : (
         <div className="audit-scroll">
           <table className="audit-table">
@@ -300,10 +303,10 @@ function EvalStrip() {
 
 const KIND_LABEL: Record<AuditRow["kind"], string> = {
   brane: "BRANE",
-  masked: "Gate",
+  masked: "Pre-mask (regex)",
   lookup: "Lookup",
   handoff: "Handoff",
-  intake: "Intake",
+  intake: "Intake (local model)",
   request: "Request",
   human: "Person",
   config: "Config",
@@ -359,7 +362,7 @@ function auditDetail(row: AuditRow): string {
         ? actionLabel(row)
         : `Kept local: ${localCauseLabel(row.localCause)}`;
     case "masked":
-      return "Identifiers masked before BRANE";
+      return "Pattern rules masked identifiers before BRANE. No model";
     case "lookup":
       return `Cited ${list(row.detail).join(", ")}`;
     case "handoff":
