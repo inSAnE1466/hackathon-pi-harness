@@ -18,7 +18,8 @@ export TEAM_BUILD="Gezira / policy-v1"
 
 python3 gezira_claims_agent.py --show-policy                      # live team policy vs policy/policy_v1.json
 python3 gezira_claims_agent.py --tests                            # T1-T5 + E1-E6, dry run -> submission/test_evidence_run.csv
-python3 gezira_claims_agent.py --tests --repeat 5                 # reliability: same suite 5x
+python3 gezira_claims_agent.py --tests --classifier --repeat 3    # final system (BRANE + harness classifier), 3x
+python3 eval/export_five_tests.py results/gate_repeat_policy_v1_nokw_classifier   # official Five-Tests CSV
 python3 gezira_claims_agent.py --tests --chat                     # + live /chat/completions headers (after --apply-policy)
 python3 gezira_claims_agent.py --demo --reviewer "Omar"           # claim -> BRANE -> draft -> Approve / Edit / Reject
 python3 gezira_claims_agent.py --check "any synthetic prompt"     # one dry run, shows the exact cloud payload
@@ -130,7 +131,7 @@ Key findings: (1) BRANE semantic **keywords act as hard triggers**; removing the
 test (unseen vocabulary, 65+ population) BRANE alone leaked 21.6% (all health-type); our classifier's errors were different
 (decisions, discrimination, injection), so **BRANE + harness classifier leaked 1.0%**: defence in depth. (3) One LLM call for all labels
 beats one call per label (same F1, 1/14 of the calls). Round 1 selection (val 80) was recorded in `results/selection.json` before any test run; round 2 (val 500, final) in `results/selection_round2.json`.
-Gate suite with the selected policy: **12/12 PASS in 3/3 repeated runs** (`results/gate_repeat_policy_v1_nokw/summary.json`).
+Gate suite with the **final system** (BRANE v1-nokw + harness classifier): **13/13 PASS in 3/3 repeated runs** (`results/gate_repeat_policy_v1_nokw_classifier/summary.json`); T5 covered both ways the official sources define it (T5a special category, T5b check unavailable). Official template: `submission/MAIN_Five_Tests_Gezira.csv`.
 
 ## 6. Jury criteria → where to look
 | Criterion | Weight | Evidence |

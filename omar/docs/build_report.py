@@ -79,11 +79,13 @@ def slice_rows(tags):
 def gate_rows():
     tests = {t["id"]: t for t in json.loads((ROOT / "tests" / "gate_tests.json").read_text())["tests"]}
     rep = None
-    for cand in [R / "gate_repeat_policy_v1_nokw" / "summary.json"]:
+    for cand in [R / "gate_repeat_policy_v1_nokw" / "summary.json", R / "gate_repeat_policy_v1_nokw_classifier" / "summary.json"]:
         if cand.exists():
             rep = json.loads(cand.read_text())
     dry = {}
-    p = R / "gate_repeat_policy_v1_nokw" / "run_1.csv"
+    p = R / "gate_repeat_policy_v1_nokw_classifier" / "run_1.csv"
+    if not p.exists():
+        p = R / "gate_repeat_policy_v1_nokw" / "run_1.csv"
     if not p.exists():
         p = R / "gate_dryrun_v1.csv"
     if p.exists():
@@ -247,8 +249,10 @@ BRANE setting, agent/human handling, product gap, test ID) is in <code>submissio
 <h2 class="pb">4. Security gate (official brief) and team edge cases</h2>
 <p>Dry runs on live BRANE (<code>POST /policy/test</code>) with the exact outgoing cloud payload checked for every protected value.
 T5 simulates BRANE being unavailable three ways (closed port, HTTP 503, 200 without a decision): the request is never sent and
-no model endpoint is reached. Stability column: the whole suite repeated with the selected policy, because BRANE's semantic judge is an LLM.</p>
-{table(["ID", "Test", "Expected", "Observed (selected policy)", "Result", "Stable over repeats"], gate, "small")}
+no model endpoint is reached. Final system = BRANE policy v1-nokw + harness classifier (stricter route wins). T5 is covered both ways the official sources
+define it: T5a special category (participant brief) and T5b check unavailable (five-tests template, track description).
+Stability column: the whole suite repeated three times, because BRANE's semantic judge and the classifier are LLMs.</p>
+{table(["ID", "Test", "Expected", "Observed (final system)", "Result", "Stable over repeats"], gate, "small")}
 
 <h2>5. Evaluation design: understanding, not keyword copying</h2>
 <div class="grid">
