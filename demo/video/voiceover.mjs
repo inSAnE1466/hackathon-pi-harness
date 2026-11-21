@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Voiceover for the 90-second video.
+// Voiceover for the pitch video.
 //
 //   node voiceover.mjs                 one ElevenLabs request per beat of ../narration.md whose text changed since
 //                                      the last run (or has no clip yet), then re-time index.html
@@ -48,7 +48,9 @@ const VOICE_SETTINGS = {
 const LEAD = 0.4; // first beat: picture before the first word
 const PRE = 0.25; // every later beat: scene enters before its voice
 const GAP = 0.3; // after each clip
-const TAIL = 2.2; // after the last clip: the closing line holds
+const TAIL = 3.5; // after the last clip: the closing line and the graphs hold
+// Extra silence after a beat's clip, so its picture can finish (the climb graphs draw after the voice ends).
+const HOLD = { climb: 4.5 };
 
 const flag = (name) => args.some((a) => a === `--${name}`);
 const only = args.find((a) => a.startsWith("--only="))?.slice(7);
@@ -183,7 +185,7 @@ function layoutVoiced(beats, clips) {
     const c = clips[b.id];
     const offset = i === 0 ? LEAD : PRE;
     const last = i === beats.length - 1;
-    const dur = round(offset + c.duration + (last ? TAIL : GAP));
+    const dur = round(offset + c.duration + (last ? TAIL : GAP) + (HOLD[b.id] ?? 0));
     const out = {
       id: b.id,
       title: b.title,

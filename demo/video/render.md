@@ -1,10 +1,20 @@
 # Render the video
 
-A HyperFrames 0.9.72 project, 1920x1080 at 30 fps, about 95 seconds. It is one node graph that grows from the people
-around a claim (claimant, AI assistant, medical adviser, claims handler) into the Pi harness in its Durable Object,
-then carries one claim through it. The beats follow [the video plan](../../docs/demo.md#the-video-95-seconds-backup-and-opener),
-the spoken text and captions follow [narration.md](../narration.md), and the styles are `assets/tokens.css`, which the
-deck shares. [REVIEW.md](REVIEW.md) records the last frame review.
+A HyperFrames 0.9.72 project, 1920x1080 at 30 fps, about 92 seconds. The beats are in
+[the video plan](../../docs/demo.md#the-video-92-seconds-pitch-and-backup), the spoken text in
+[narration.md](../narration.md), and the styles in `assets/tokens.css`, which the deck shares. Inter is bundled in
+`assets/fonts/`. [REVIEW.md](REVIEW.md) records the last frame review.
+
+## Inputs
+
+| File                            | What                                                                                                      | Made by                    |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `assets/vo-<beat>.mp3`          | the voice per beat, sped to 1.07                                                                          | `node voiceover.mjs`       |
+| `assets/timing.json`            | each beat's start and every word's time; inlined into `index.html` as `TIMING`                            | `node voiceover.mjs`       |
+| `evals/climb-history.json`      | the climb, one row per iteration; inlined as `CLIMB`                                                      | gz-climb; `node climb.mjs` |
+| `assets/climb-placeholder.json` | stand-in with the same shape, used only when the real file is missing; shows "placeholder data"           | by hand                    |
+| `assets/ui/*.png`               | crops of the real app: the claim, the decision card, the decision in the chat, the audit log, the refusal | headless Playwright runs   |
+| `assets/ui/*-audit.json`        | the audit rows of the ski and hidden-note runs that the graph's log rows follow                           | the same runs              |
 
 ## Tools
 
@@ -20,8 +30,7 @@ export PATH=/tmp/ffbin/bin:$PATH
 export HYPERFRAMES_BROWSER_PATH=~/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
 ```
 
-If `brew install ffmpeg` is available, the two exports are unnecessary. The composition loads GSAP 3.15.0 from
-jsDelivr, so the render needs network access.
+The composition loads GSAP 3.15.0 from jsDelivr, so the render needs network access.
 
 ## Voiceover
 
@@ -29,26 +38,20 @@ jsDelivr, so the render needs network access.
 cd demo/video
 node voiceover.mjs            # generate the beats whose text changed, then re-time index.html
 node voiceover.mjs --apply    # re-time index.html from assets/timing.json, no API call
-node voiceover.mjs --fixed    # no audio: the windows from the narration.md headings
 ```
 
 `voiceover.mjs` reads `ELEVENLABS_API_KEY` from the environment or from `.dev.vars` at the repository root and never
-prints it. Without a key it exits with code 2 and leaves `index.html` as it is, so the video still renders. It reads
-the quoted lines of `../narration.md`, one ElevenLabs request per beat (`/v1/text-to-speech/{voice}/with-timestamps`,
-model `eleven_multilingual_v2`, voice Daniel `onwK4e9ZLuTAKqWW03F9`, Brian as the fallback), and keeps each clip as
-returned in `assets/raw/vo-<beat>.mp3`. It writes `assets/vo-<beat>.mp3` at 1.07 times the speed (ffmpeg `atempo`,
-pitch kept; `--tempo=1` turns that off), measures each clip with ffprobe, and writes `assets/timing.json` with each
-beat's start, its clip and every word's time from the alignment. Then it rewrites the timing block, the `<audio>`
-tags and every `data-beat` window in `index.html`. Each animation is keyed to a spoken phrase, so a new voice re-times
-the whole video.
-
-A beat whose text is unchanged is not sent again; `--only=<beat>` or `--all` forces it. The free ElevenLabs tier
-allows 10,000 characters a month, and the full narration is about 1,200.
+prints it. It reads the `## Name, A to B seconds` headings and quoted lines of `../narration.md`, one ElevenLabs
+request per changed beat (`eleven_multilingual_v2`, voice Daniel), keeps the raw clip in `assets/raw/`, writes the
+clip at 1.07 times the speed, and rewrites the timing block, the `<audio>` tags and every `data-beat` window in
+`index.html`. The climb beat holds 4.5 s after its voice so the graphs finish (`HOLD` in the script). Every animation
+is keyed to a spoken word, so a new voice re-times the whole video.
 
 ## Render
 
 ```sh
 cd demo/video
-npx -y hyperframes@0.9.72 check                                # lint, runtime, layout, contrast
-npx -y hyperframes@0.9.72 render -o out.mp4 --quality standard # about 2 minutes
+node climb.mjs                                                 # inline evals/climb-history.json
+npx -y hyperframes@0.9.72 check                                # lint, layout, contrast, audio
+npx -y hyperframes@0.9.72 render -o out.mp4 --quality standard # about 2 minutes, about 8 MB
 ```

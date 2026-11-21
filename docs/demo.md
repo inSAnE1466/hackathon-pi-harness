@@ -88,31 +88,31 @@ decision wording, refusal parsing) in `src/client/decision-log.ts`, the trace in
 5. BRANE switched off: nothing sent, the claim waits (check failure).
 6. The eval board: our run against the baseline on the same cases.
 
-## The video (95 seconds, backup and opener)
+## The video (92 seconds, pitch and backup)
 
 <a id="the-video-90-seconds-backup-and-opener"></a>
+<a id="the-video-95-seconds-backup-and-opener"></a>
 
-Made with HyperFrames (Apache-2.0, HTML and CSS rendered to MP4), so it shares the slide deck's design tokens.
-Narration by ElevenLabs from [demo/narration.md](../demo/narration.md); captions come from the voice's word times.
+Made with HyperFrames (Apache-2.0, HTML and CSS rendered to MP4) in [demo/video/](../demo/video/). Narration by
+ElevenLabs from [demo/narration.md](../demo/narration.md); captions come from the voice's word times.
 
-The video is one node graph that grows. People are outlined pills, machines are grey tiles, BRANE is ink, and yellow
-marks what moves or matters. Each part appears when the voice names it, and a small label travels along each edge to
-show what flows.
+The video stands alone. It is one node graph that draws itself: each node's outline draws round it and then it fills,
+each edge draws along its path, and a yellow label travels an edge to show what flows. People are outlined pills,
+machines grey tiles, BRANE ink. No full-screen cards; the only screens are real crops of the app, laid over the graph.
 
-| Beat         | On screen                                                                                                                                                                                                                                            |
-| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Hook         | The people: a claimant sends a claim to the AI assistant; the medical adviser and claims handler join                                                                                                                                                |
-| Architecture | The assistant opens into its Durable Object: Pi Durable agent, lookup, consult, request_approval, the audit log; every model call goes through the gate and BRANE to the frontier or local model                                                     |
-| One claim    | Claim g01: injury and hospital go to intake on the local model and come back as a fact sheet; placeholders go to the frontier model; a citation, a consult to the adviser, a recommendation to the handler; each step drops a row into the audit log |
-| Attack       | Letter g26: its planted note reaches BRANE and stops (422, nothing sent); the model edges fade                                                                                                                                                       |
-| Audit        | The camera rests on the audit log: categories and ids, never claim text; AI Act Art. 12, GDPR Art. 5(2)                                                                                                                                              |
-| Evals        | One square per decision: BRANE with our policy and gate, 0 of 63 unsafe; an LLM asked what is sensitive, 6; then the QC loop and the held-out 20/20                                                                                                  |
-| Close        | The whole graph again; the claims handler lights up                                                                                                                                                                                                  |
+| Beat    | On screen                                                                                                                                                                  |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cast    | The ski claim as the app shows it; then the six actors: claimant, agent, BRANE, medical adviser, legal reviewer, claims handler                                            |
+| Harness | The agent opens into its Durable Object; intake, local model, gate, BRANE, frontier model, lookup, consult, request_approval and the audit log grow as each is named       |
+| Claim   | The discharge note goes to the local model, placeholders through the gate and BRANE to the frontier model, a citation, a consult to the adviser; each step drops a log row |
+| Decide  | The app's decision card; Approve; the decision travels back to the agent and appears in the chat; the human row (#17) and its request row (#18) land in the audit log      |
+| Attack  | A claim letter's planted order reaches BRANE and stops; the app's refusal card (`RULE_OVERRIDE_ATTEMPT`, nothing sent)                                                     |
+| Climb   | One small line graph per criterion from `evals/climb-history.json`, drawn iteration by iteration; reverted changes are hollow points; the current change is named below    |
+| Close   | The graphs stay; the closing line                                                                                                                                          |
 
-The benchmark compares PII handling only (who decides what may leave, and how protected), not answer quality.
-
-Motion rules: one graph for the whole film, a part appears when it is named, arrivals on long ease-outs, camera moves
-ease both ways, landed headlines stay still, nothing loops. One headline per beat; no paragraphs on screen.
+The decide beat uses the gz-web screenshots of the therapy-for-burnout claim, because that run ends in an approval;
+the ski claim's graph rows come from its own live run. Motion rules: a part appears when it is named, arrivals on long
+ease-outs, camera moves ease both ways, nothing loops.
 
 ## Assets
 
