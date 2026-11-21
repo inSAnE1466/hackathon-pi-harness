@@ -1291,43 +1291,16 @@
       }; /* timing:end */
       // Written by climb.mjs from evals/climb-summary.json; do not edit by hand.
       const CLIMB = /* climb:begin */ {
-        source: "placeholder",
+        source: "evals/climb-summary.json",
         metrics: [
           {
-            key: "leak_rate",
-            label: "Leak rate",
-            unit: "%",
-            better: "down",
-            start: 21.6,
-            end: 1,
+            key: "retrieval_recall_at_3",
+            label: "Legal lookup recall@3",
+            unit: "0-1",
+            better: "up",
+            start: 0.37,
+            end: 0.907,
             steps: 4,
-          },
-          {
-            key: "route_f1",
-            label: "Route F1",
-            unit: "",
-            better: "up",
-            start: 0.68,
-            end: 0.81,
-            steps: 2,
-          },
-          {
-            key: "over_block",
-            label: "Over-block",
-            unit: "%",
-            better: "down",
-            start: 30,
-            end: 8,
-            steps: 2,
-          },
-          {
-            key: "mandatory_tests",
-            label: "Mandatory tests passed",
-            unit: "of 5",
-            better: "up",
-            start: 3,
-            end: 5,
-            steps: 2,
           },
         ],
       }; /* climb:end */
@@ -1591,14 +1564,15 @@
       const fmt = (v, unit) =>
         unit === "%"
           ? `${+v.toFixed(1)}%`
-          : unit === ""
+          : unit === "" || unit === "0-1"
             ? Math.abs(v) < 10
               ? v.toFixed(2)
               : `${Math.round(v)}`
             : `${+v.toFixed(1)} ${unit}`;
       const ms = CLIMB.metrics;
       const W = 380,
-        GAP = (1728 - ms.length * W) / Math.max(1, ms.length - 1);
+        GAP = ms.length === 4 ? (1728 - 4 * W) / 3 : 96,
+        LEFT = (1920 - (ms.length * W + (ms.length - 1) * GAP)) / 2;
       const PH = 380;
       const host = document.getElementById("slope-host");
       const slot0 = start("evals") + 0.3;
@@ -1607,7 +1581,7 @@
       ms.forEach((m, i) => {
         const el = document.createElement("div");
         el.className = "slope";
-        el.style.left = `${96 + i * (W + GAP)}px`;
+        el.style.left = `${LEFT + i * (W + GAP)}px`;
         el.style.width = `${W}px`;
         const good = m.better === "down" ? m.end <= m.start : m.end >= m.start;
         el.innerHTML = `<div class="lb">${m.label}</div><div class="bt">${m.better === "down" ? "lower is better" : "higher is better"}</div>`;
@@ -1620,6 +1594,10 @@
         if (m.unit === "of 5") {
           lo = 0;
           hi = 5;
+        }
+        if (m.unit === "0-1") {
+          lo = 0;
+          hi = 1;
         }
         if (m.unit === "") {
           lo = Math.min(lo, 0.5);

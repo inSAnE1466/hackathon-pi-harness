@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Writes the climb slopes' data into index.html (between the climb:begin and climb:end markers).
 //
-//   node climb.mjs     reads ../../evals/climb-summary.json (written by evals/slopes.mjs), or
+//   node climb.mjs     reads ../../evals/climb-summary.json (written by gz-climb), or
 //                      assets/climb-placeholder.json, same shape, when it does not exist
 //
 // The data is inlined because a composition may not fetch at render time. A placeholder shows "placeholder data" on
@@ -16,8 +16,10 @@ const src = existsSync(real) ? real : join(here, "assets", "climb-placeholder.js
 const raw = JSON.parse(readFileSync(src, "utf8"));
 const want = ["leak_rate", "route_f1", "over_block", "mandatory_tests"];
 const all = Array.isArray(raw.metrics) ? raw.metrics : [];
-const metrics = want.map((k) => all.find((m) => m.key === k)).filter(Boolean);
-if (metrics.length === 0) throw new Error(`${src} has none of ${want.join(", ")}`);
+// The four headline metrics when present; until they land, whatever real metrics the file holds (at most four).
+const head = want.map((k) => all.find((m) => m.key === k)).filter(Boolean);
+const metrics = head.length > 0 ? head : all.slice(0, 4);
+if (metrics.length === 0) throw new Error(`${src} has no metrics`);
 for (const m of metrics)
   if (typeof m.start !== "number" || typeof m.end !== "number")
     throw new Error(`${m.key} needs numeric start and end`);
