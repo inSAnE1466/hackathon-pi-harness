@@ -105,6 +105,8 @@ python3 eval/metrics.py compare results/*_val.json
 ```
 
 ### Results (full tables and findings: `docs/Gezira_Report.pdf`)
+**Locked held-out test results, with proof it was run once and not tuned on: [`results/LOCKED_TEST_RESULTS.md`](results/LOCKED_TEST_RESULTS.md)** (CSV: `results/LOCKED_TEST_RESULTS.csv`).
+
 | Set | Predictor | Route F1 | Leak | Over-block |
 |---|---|---|---|---|
 | **val 500** | keyword baseline | 0.426 | 80.8% | 17.5% |
