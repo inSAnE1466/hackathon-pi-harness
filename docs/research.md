@@ -52,6 +52,7 @@ recommendation. It does not decide claims, give medical opinions or contact clai
 | National identifiers (BSN, passport) | No                            | Never leaves; masked by the harness before BRANE              | Art. 87 [GDPR-87]; UAVG Art. 46 [UAVG-46]; Zorgverzekeringswet Art. 86(3) [ZVW-86]                               |
 | Health detail                        | Only for medical steps        | Stays on the local model; a health-free fact sheet may go out | Art. 9(1) [GDPR-9(1)]; UAVG Art. 30(3)(b), 30(4) [UAVG-30(3)(b)], [UAVG-30(4)]; code of conduct 5.1 [GVPV-5.1.3] |
 | Other special categories             | Never                         | Stays local                                                   | Art. 9(1) [GDPR-9(1)]                                                                                            |
+| Criminal offence data (suspects)     | No                            | Stays local                                                   | Art. 10; UAVG Arts. 31, 33(2)(a)                                                                                 |
 | Policy terms and law                 | Yes                           | May go out as typed                                           | Not personal data (Art. 4(1))                                                                                    |
 
 Keeping health data on the local model goes beyond the legal minimum. A cloud processor whose staff are bound to

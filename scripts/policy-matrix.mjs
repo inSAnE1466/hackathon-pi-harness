@@ -230,7 +230,8 @@ const rows = [
     category:
       "Criminal offence data in a claim (police report naming a suspect, arrests, convictions)",
     why: "A suspect's identity and record are not needed to assess a burglary or theft claim; the claim needs only that a report exists",
-    source: "GDPR Art. 10; UAVG Arts. 31-33 (Netherlands)",
+    source:
+      "GDPR Art. 10 (criminal offence data only under official authority or Member State law with safeguards); NL UAVG Art. 31 and Art. 33(2)(a) (an insurer may process such data for its own purposes to assess a request for a performance, such as a claim); GDPR Art. 5(1)(c) (the suspect's identity is not needed, so it stays local)",
     semantic: "CRIMINAL_OFFENCE_DATA",
     code: "BRANE semantic category keeps the turn on the local model; rule contributed by Omar Shalaby (omar/policy/policy_v1.json), measured with his gate test E3",
     gap: "BRANE has no built-in criminal-data category; the same text otherwise leaves with only the name masked",
