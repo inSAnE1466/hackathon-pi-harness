@@ -1,23 +1,14 @@
-import {
-  type KeyboardEvent,
-  type SubmitEvent,
-  useEffect,
-  useEffectEvent,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import { MAX_PROMPT_CHARACTERS, ROOT_CONVERSATION_ID } from "../protocol.ts";
+import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
+import { ROOT_CONVERSATION_ID } from "../protocol.ts";
 import type { ConversationSnapshot } from "./session-state.ts";
 import { ActivityPanel } from "./ActivityPanel.tsx";
-import { useDecision } from "./claims.ts";
 import { DecisionCard } from "./DecisionCard.tsx";
 import { HarnessPanel } from "./HarnessPanel.tsx";
 import { Markdown } from "./Markdown.tsx";
-import { ClaimMessage } from "./ClaimMessage.tsx";
-import { claimText, type QueueClaim, TYPE_LABEL } from "./queue.ts";
+import { type ClaimDocument, claimText, type QueueClaim, TYPE_LABEL } from "./queue.ts";
 import { RunThread } from "./RunThread.tsx";
-import { refusalOf } from "./decision-log.ts";
+import { humanMessageOf, refusalOf } from "./decision-log.ts";
+import { Composer } from "./Composer.tsx";
 import { RefusalCard } from "./RefusalCard.tsx";
 import { MessageText, TranscriptList } from "./Transcript.tsx";
 import { useDecisionLog } from "./useDecisionLog.ts";
@@ -56,7 +47,9 @@ const conversationIdFromLocation = (): number | undefined => {
 export function ClaimSession({ claim, sessionId, username }: ClaimSessionProps) {
   const [initialConversationId] = useState(conversationIdFromLocation);
   const session = usePiSession(sessionId, username, initialConversationId);
-  const [draft, setDraft] = useState("");
+  // Opening a claim puts its request and attachments in the composer; the person edits and sends it.
+  const [draft, setDraft] = useState(claim.request);
+  const [attachments, setAttachments] = useState<readonly ClaimDocument[]>(claim.documents);
   const [submitting, setSubmitting] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
   const activityToggleRef = useRef<HTMLButtonElement | null>(null);
@@ -77,15 +70,21 @@ export function ClaimSession({ claim, sessionId, username }: ClaimSessionProps) 
   const activeConversation = session.activeConversation;
   const activityCount = Object.keys(session.activity?.tasks ?? {}).length;
   const isConnected = session.status === "connected";
-  const canSubmit =
-    isConnected && activeConversationId !== undefined && !submitting && draft.trim().length > 0;
   const running = activeConversation?.live?.active === true || submitting;
   const decisionLog = useDecisionLog(sessionId, running);
-  const decision = useDecision(sessionId);
   const failure = activeConversation?.failure;
   const refusal = failure === undefined ? undefined : refusalOf(failure.message, decisionLog.rows);
   // The refused assistant entry in the transcript already shows the card for the latest failure.
   const refusalShown = activeConversation?.entries.at(-1)?.text.includes("422: {") === true;
+  const started = (activeConversation?.entries.length ?? 0) > 0 || activeConversation?.live != null;
+  const handoffs = decisionLog.rows.filter((row) => row.kind === "handoff").toReversed();
+  // A decided handoff is shown by its decision message in the chat; its card stays only if that message is missing.
+  const answeredInChat = new Set(
+    (activeConversation?.entries ?? []).flatMap((entry) => {
+      const human = entry.role === "user" ? humanMessageOf(entry.text) : undefined;
+      return human === undefined ? [] : [human.handoffId];
+    }),
+  );
   const approvalReasons = activeConversation?.entries
     .flatMap((entry) => entry.toolCalls ?? [])
     .findLast((call) => call.name === "request_approval")?.args.reasons;
@@ -151,6 +150,17 @@ export function ClaimSession({ claim, sessionId, username }: ClaimSessionProps) 
 
   useEffect(() => () => stopTyping(), [activeConversationId, isConnected]);
 
+  // A claim already sent opens with an empty composer instead of its first message again.
+  const prefillSettled = useRef(false);
+  useEffect(() => {
+    if (prefillSettled.current || activeConversation === undefined) return;
+    prefillSettled.current = true;
+    if (started) {
+      setDraft((current) => (current === claim.request ? "" : current));
+      setAttachments((current) => (current === claim.documents ? [] : current));
+    }
+  }, [activeConversation, started, claim]);
+
   useLayoutEffect(() => {
     const transcript = transcriptRef.current;
     if (transcript === null) return;
@@ -207,10 +217,14 @@ export function ClaimSession({ claim, sessionId, username }: ClaimSessionProps) 
     }
   };
 
-  const submit = async (event: SubmitEvent<HTMLFormElement>): Promise<void> => {
-    event.preventDefault();
+  const submit = async (): Promise<void> => {
     const sent = draft;
-    if (await send(sent.trim())) setDraft((current) => (current === sent ? "" : current));
+    const sentAttachments = attachments;
+    const text = claimText({ request: sent.trim(), documents: sentAttachments });
+    if (await send(text)) {
+      setDraft((current) => (current === sent ? "" : current));
+      setAttachments((current) => (current === sentAttachments ? [] : current));
+    }
   };
 
   const trackTranscriptPosition = (): void => {
@@ -225,18 +239,6 @@ export function ClaimSession({ claim, sessionId, username }: ClaimSessionProps) 
     if (autoScrollingRef.current) stopAutoScroll();
   };
 
-  const submitWithKeyboardShortcut = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
-    if (
-      event.key !== "Enter" ||
-      (!event.metaKey && !event.ctrlKey) ||
-      event.nativeEvent.isComposing
-    ) {
-      return;
-    }
-    event.preventDefault();
-    event.currentTarget.form?.requestSubmit();
-  };
-
   const toggleActivity = (): void => {
     const opening = !activityOpen;
     setActivityOpen(opening);
@@ -248,7 +250,6 @@ export function ClaimSession({ claim, sessionId, username }: ClaimSessionProps) 
     requestAnimationFrame(() => activityToggleRef.current?.focus());
   };
 
-  const started = (activeConversation?.entries.length ?? 0) > 0 || activeConversation?.live != null;
   const runThread = (
     <RunThread rows={decisionLog.rows} tools={activeConversation?.tools ?? []} running={running} />
   );
@@ -309,18 +310,17 @@ export function ClaimSession({ claim, sessionId, username }: ClaimSessionProps) 
               <span />
             </div>
           ) : !started ? (
-            <div className="transcript-list">
-              <article className="transcript-message transcript-message--user">
-                <header>
-                  <div className="transcript-message-title">
-                    <strong>{claim.claimant}</strong>
-                    <span>New claim</span>
-                  </div>
-                </header>
-                <ClaimMessage request={claim.request} documents={claim.documents} />
-              </article>
-              {submitting ? runThread : null}
-            </div>
+            submitting ? (
+              <div className="transcript-list">{runThread}</div>
+            ) : (
+              <div className="transcript-empty">
+                <p className="transcript-empty-title">Nothing sent yet</p>
+                <p className="quiet">
+                  {claim.claimant}'s claim is in the message box. Edit it, then send. BRANE checks
+                  every model request, and you decide.
+                </p>
+              </div>
+            )
           ) : (
             <>
               {activeConversation.earlier ? (
@@ -401,54 +401,35 @@ export function ClaimSession({ claim, sessionId, username }: ClaimSessionProps) 
             </ol>
           )}
 
-          {running ? null : (
-            <DecisionCard
-              sessionId={sessionId}
-              rows={decisionLog.rows}
-              {...(typeof approvalReasons === "string" ? { reasons: approvalReasons } : {})}
-            />
-          )}
+          {running
+            ? null
+            : handoffs
+                .filter((handoff) => !answeredInChat.has(handoff.id))
+                .map((handoff) => (
+                  <DecisionCard
+                    key={handoff.id}
+                    sessionId={sessionId}
+                    handoff={handoff}
+                    rows={decisionLog.rows}
+                    onRecorded={decisionLog.reload}
+                    {...(typeof approvalReasons === "string" ? { reasons: approvalReasons } : {})}
+                  />
+                ))}
         </section>
 
-        {started ? (
-          <form className="composer" onSubmit={submit}>
-            <label className="visually-hidden" htmlFor="prompt">
-              Follow-up question
-            </label>
-            <textarea
-              id="prompt"
-              name="prompt"
-              rows={2}
-              maxLength={MAX_PROMPT_CHARACTERS}
-              value={draft}
-              placeholder="Ask a follow-up about this claim"
-              onChange={(event) => updateDraft(event.currentTarget.value)}
-              onKeyDown={submitWithKeyboardShortcut}
-              aria-keyshortcuts="Meta+Enter Control+Enter"
-              disabled={!isConnected || activeConversationId === undefined}
-            />
-            <button className="button-secondary button-send" type="submit" disabled={!canSubmit}>
-              {submitting ? "Sending…" : "Send"}
-            </button>
-            <p className="typing-indicator" aria-live="polite">
-              {typingLabel(activeConversation?.typing ?? [])}
-            </p>
-          </form>
-        ) : (
-          <div className="composer composer--start">
-            <p className="quiet">
-              The assistant prepares the claim. BRANE checks every model request, and you decide.
-            </p>
-            <button
-              className="button-primary"
-              type="button"
-              disabled={!isConnected || activeConversationId === undefined || submitting}
-              onClick={() => void send(claimText(claim))}
-            >
-              {submitting ? "Starting…" : "Start"}
-            </button>
-          </div>
-        )}
+        <Composer
+          draft={draft}
+          attachments={attachments}
+          placeholder={started ? "Ask a follow-up about this claim" : "Write the claim"}
+          disabled={!isConnected || activeConversationId === undefined}
+          submitting={submitting}
+          typing={typingLabel(activeConversation?.typing ?? [])}
+          onDraft={updateDraft}
+          onRemoveAttachment={(name) =>
+            setAttachments((current) => current.filter((document) => document.name !== name))
+          }
+          onSubmit={() => void submit()}
+        />
       </main>
 
       <HarnessPanel
@@ -456,7 +437,7 @@ export function ClaimSession({ claim, sessionId, username }: ClaimSessionProps) 
         rows={decisionLog.rows}
         loaded={decisionLog.loaded}
         running={running}
-        {...(decision === undefined ? {} : { decision: decision.kind })}
+        {...(decisionLog.chain === undefined ? {} : { chain: decisionLog.chain })}
         {...(decisionLog.error === undefined ? {} : { error: decisionLog.error })}
       />
 

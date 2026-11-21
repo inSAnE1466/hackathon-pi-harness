@@ -150,7 +150,7 @@ export const QUEUE: readonly QueueClaim[] = [
 ];
 
 /** The text the harness receives: the request and every attachment. */
-export function claimText(claim: QueueClaim): string {
+export function claimText(claim: Pick<QueueClaim, "request" | "documents">): string {
   return [
     claim.request,
     ...claim.documents.map((document) => `Attachment: ${document.name}\n${document.text}`),

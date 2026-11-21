@@ -32,7 +32,70 @@ export type ChainCheck =
   | { readonly ok: true; readonly rows: number }
   | { readonly ok: false; readonly rows: number; readonly brokenAt: number };
 
-export type HumanDecision = "approved" | "rejected" | "edited";
+/** A person's answer to a handoff: approved, rejected or edited for a recommendation, answered for a consult. */
+export type HumanDecision = "approved" | "rejected" | "edited" | "answered";
+
+/** Each decision's label and the state colour beside it. */
+export const DECISIONS: Record<HumanDecision, { readonly label: string; readonly tone: Tone }> = {
+  approved: { label: "Approved", tone: "passed" },
+  edited: { label: "Edited", tone: "passed" },
+  rejected: { label: "Rejected", tone: "blocked" },
+  answered: { label: "Answered", tone: "passed" },
+};
+
+export const decisionOf = (row: AuditRow): HumanDecision | undefined =>
+  row.action in DECISIONS ? (row.action as HumanDecision) : undefined;
+
+/**
+ * The follow-up the server puts into the conversation after a person decides. Its first two lines are fixed:
+ * `[<reviewer>]` and `Human decision on handoff #<id> (<tool>): <decision>`, then an optional `Note: <note>`.
+ */
+export interface HumanMessage {
+  readonly reviewer: string;
+  readonly handoffId: number;
+  readonly tool: string;
+  readonly decision: HumanDecision;
+  readonly note: string;
+}
+
+const HUMAN_MESSAGE =
+  /^\[([^\]]+)\]\nHuman decision on handoff #(\d+) \((\w+)\): (\w+)(?:\nNote: ([^\n]*))?/;
+
+export function humanMessageOf(text: string): HumanMessage | undefined {
+  const match = HUMAN_MESSAGE.exec(text);
+  if (match === null || !(match[4] in DECISIONS)) return undefined;
+  return {
+    reviewer: match[1],
+    handoffId: Number(match[2]),
+    tool: match[3],
+    decision: match[4] as HumanDecision,
+    note: match[5]?.trim() ?? "",
+  };
+}
+
+/** Posts a person's decision on a handoff to the audit trail. Resolves with the human row, or throws the reason. */
+export async function recordHuman(
+  sessionId: string,
+  input: {
+    readonly handoffId: number;
+    readonly decision: HumanDecision;
+    readonly note: string;
+    readonly reviewer: string;
+  },
+): Promise<AuditRow> {
+  const response = await fetch(`/api/sessions/${sessionId}/audit/human`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  const body = (await response.json().catch(() => ({}))) as {
+    readonly decision?: AuditRow;
+    readonly error?: string;
+  };
+  if (!response.ok || body.decision === undefined)
+    throw new Error(body.error ?? `Not recorded (${response.status})`);
+  return body.decision;
+}
 
 /** The decision a person recorded on each handoff, keyed by the handoff's row id. */
 export function decisionsByHandoff(rows: readonly AuditRow[]): ReadonlyMap<number, AuditRow> {
@@ -162,17 +225,33 @@ export function citedPassages(rows: readonly AuditRow[]): string[] {
   return [...new Set(lookups.flatMap((row) => list(row.detail)))];
 }
 
-export type ClaimStatus = "new" | "in-progress" | "waiting" | "prepared" | "refused";
+export type ClaimStatus =
+  | "new"
+  | "in-progress"
+  | "waiting"
+  | "prepared"
+  | "refused"
+  | "approved"
+  | "edited"
+  | "rejected";
 
 /**
  * Where a claim stands, from its session's decision log: nothing sent yet, a recommendation is with the claims
- * handler, a question is with an expert, BRANE refused a request, or the assistant is still working.
+ * handler or decided, a question is with an expert, BRANE refused a request, or the assistant is still working.
  */
 export function claimStatus(rows: readonly AuditRow[]): ClaimStatus {
   if (rows.length === 0) return "new";
-  const tools = rows.filter((row) => row.kind === "handoff").map((row) => handoffOf(row).tool);
-  if (tools.includes("request_approval")) return "prepared";
-  if (tools.includes("consult")) return "waiting";
+  const decided = decisionsByHandoff(rows);
+  // Newest first: the latest handoff and whether a person has answered it decide where the claim is.
+  const latest = rows.find((row) => row.kind === "handoff");
+  if (latest !== undefined) {
+    const tool = handoffOf(latest).tool;
+    const answer = decided.get(latest.id);
+    const decision = answer === undefined ? undefined : decisionOf(answer);
+    if (tool === "request_approval")
+      return decision === undefined || decision === "answered" ? "prepared" : decision;
+    if (answer === undefined) return "waiting";
+  }
   if (rows.some((row) => row.kind === "brane" && routeOf(row) === "refused")) return "refused";
   return "in-progress";
 }

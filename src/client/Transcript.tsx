@@ -8,7 +8,15 @@ import type {
   TranscriptToolCall,
   ToolProgress,
 } from "./session-state.ts";
-import { type AuditRow, handoffFor, passageIds, refusalOf } from "./decision-log.ts";
+import {
+  type AuditRow,
+  DECISIONS,
+  handoffFor,
+  humanMessageOf,
+  type HumanMessage,
+  passageIds,
+  refusalOf,
+} from "./decision-log.ts";
 import { Markdown } from "./Markdown.tsx";
 import { RefusalCard } from "./RefusalCard.tsx";
 
@@ -350,6 +358,8 @@ export function TranscriptMessage({
   readonly onFork?: () => void;
 }) {
   const timestamp = entry.timestamp === undefined ? undefined : new Date(entry.timestamp);
+  const human = entry.role === "user" ? humanMessageOf(entry.text) : undefined;
+  if (human !== undefined) return <HumanDecisionMessage message={human} timestamp={timestamp} />;
   const { label, text } = speakerOf(entry);
 
   return (
@@ -460,3 +470,41 @@ const formatAbsoluteTime = (timestamp: Date): string =>
 
 const capitalize = (value: string): string =>
   value.length === 0 ? value : value[0].toUpperCase() + value.slice(1);
+
+/** A person's decision on a handoff, as the server passed it back into the conversation. */
+function HumanDecisionMessage({
+  message,
+  timestamp,
+}: {
+  readonly message: HumanMessage;
+  readonly timestamp: Date | undefined;
+}) {
+  const { label, tone } = DECISIONS[message.decision];
+  return (
+    <article
+      className="transcript-message transcript-message--human"
+      data-handoff={message.handoffId}
+    >
+      <header>
+        <div className="transcript-message-title">
+          <strong>{message.reviewer}</strong>
+          <span>Decision on handoff #{message.handoffId}</span>
+          {timestamp === undefined ? null : (
+            <time dateTime={timestamp.toISOString()}>
+              {timestamp.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+            </time>
+          )}
+        </div>
+      </header>
+      <p className="human-decision">
+        <span className={`state state--${tone}`}>
+          <strong>{label}</strong>
+        </span>
+        {message.note === "" ? null : <span className="human-decision-note">{message.note}</span>}
+      </p>
+      <p className="human-decision-trail">
+        In the audit trail. Sent to the assistant through BRANE.
+      </p>
+    </article>
+  );
+}

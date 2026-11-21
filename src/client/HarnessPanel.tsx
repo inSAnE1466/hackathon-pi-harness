@@ -1,10 +1,13 @@
 import { type KeyboardEvent, useRef, useState } from "react";
 import { policy, at, results } from "../../evals/baseline.json";
 import { summary } from "../../evals/compare-latest.json";
-import type { DecisionKind } from "./claims.ts";
 import {
   type AuditRow,
+  type ChainCheck,
   actionLabel,
+  actorLabel,
+  DECISIONS,
+  decisionOf,
   handoffOf,
   list,
   localCauseLabel,
@@ -19,7 +22,8 @@ interface HarnessPanelProps {
   readonly rows: readonly AuditRow[];
   readonly loaded: boolean;
   readonly running: boolean;
-  readonly decision?: DecisionKind;
+  /** The server's check of the hash chain. */
+  readonly chain?: ChainCheck;
   readonly error?: string;
 }
 
@@ -36,7 +40,7 @@ export function HarnessPanel({
   rows,
   loaded,
   running,
-  decision,
+  chain,
   error,
 }: HarnessPanelProps) {
   const [tab, setTab] = useState<TabId>("trace");
@@ -103,13 +107,14 @@ export function HarnessPanel({
         tabIndex={0}
       >
         {tab === "trace" ? (
-          <Trace
-            steps={traceOf(rows, running, decision)}
-            loaded={loaded}
-            empty={rows.length === 0}
-          />
+          <Trace steps={traceOf(rows, running)} loaded={loaded} empty={rows.length === 0} />
         ) : (
-          <AuditLog sessionId={sessionId} rows={rows} loaded={loaded} />
+          <AuditLog
+            sessionId={sessionId}
+            rows={rows}
+            loaded={loaded}
+            {...(chain === undefined ? {} : { chain })}
+          />
         )}
       </div>
     </aside>
@@ -146,7 +151,10 @@ function Trace({
       </p>
       <ol className="trace" aria-label="Claim path">
         {steps.map((step) => (
-          <li key={step.id} className={`trace-step trace-step--${step.state}`}>
+          <li
+            key={step.id}
+            className={`trace-step trace-step--${step.state} trace-step--${step.id}`}
+          >
             <span className="trace-node" aria-hidden="true" />
             <div className="trace-text">
               <div className="trace-title">
@@ -176,39 +184,47 @@ function AuditLog({
   sessionId,
   rows,
   loaded,
+  chain,
 }: {
   readonly sessionId: string;
   readonly rows: readonly AuditRow[];
   readonly loaded: boolean;
+  readonly chain?: ChainCheck;
 }) {
-  const exportCsv = (): void => {
-    // The server's export: the whole trail with actors and the hash chain.
-    const link = document.createElement("a");
-    link.href = `/api/sessions/${sessionId}/audit?format=csv`;
-    link.download = `audit-trail-${sessionId.slice(0, 8)}.csv`;
-    link.click();
-  };
-
   return (
     <div className="audit">
-      <EvalStrip />
       <div className="audit-intro">
         <div>
           <h3>Audit log</h3>
           <p>
-            A record of every automated step for this claim, so each one can be traced. It stores
-            routes, categories and ids. It never stores prompt text.
+            Every step and every person's decision, hash-chained. Ids and routes, never prompt text.
           </p>
         </div>
-        <button
+        <a
           className="button-secondary"
-          type="button"
-          onClick={exportCsv}
-          disabled={rows.length === 0}
+          href={`/api/sessions/${sessionId}/audit?format=csv`}
+          download={`audit-trail-${sessionId.slice(0, 8)}.csv`}
+          aria-disabled={rows.length === 0}
         >
-          Export CSV
-        </button>
+          Download trail
+        </a>
       </div>
+      {chain === undefined ? null : (
+        <p className="audit-chain" role="status">
+          {chain.ok ? (
+            <span className="state state--passed">
+              <strong>Chain verified</strong>
+            </span>
+          ) : (
+            <span className="state state--blocked">
+              <strong>Chain broken at row #{chain.brokenAt}</strong>
+            </span>
+          )}
+          <span>
+            {chain.rows} {chain.rows === 1 ? "row" : "rows"}, SHA-256
+          </span>
+        </p>
+      )}
       <p className="audit-basis">
         Basis: EU AI Act Art. 12 (record-keeping), Art. 26(6) (deployers keep logs), GDPR Art. 5(2)
         (accountability).
@@ -223,6 +239,8 @@ function AuditLog({
             <thead>
               <tr>
                 <th scope="col">Time</th>
+                <th scope="col">#</th>
+                <th scope="col">Actor</th>
                 <th scope="col">Kind</th>
                 <th scope="col">Route</th>
                 <th scope="col">Categories</th>
@@ -239,6 +257,7 @@ function AuditLog({
           </table>
         </div>
       )}
+      <EvalStrip />
     </div>
   );
 }
@@ -307,7 +326,7 @@ function AuditLine({ row }: { readonly row: AuditRow }) {
       : [];
   const model = row.modelResolved.split("/").at(-1) ?? "";
   return (
-    <tr>
+    <tr className={row.kind === "human" ? "audit-row--human" : undefined}>
       <td className="audit-time">
         <time dateTime={row.at} title={time.toLocaleString()}>
           {time.toLocaleTimeString(undefined, {
@@ -317,6 +336,8 @@ function AuditLine({ row }: { readonly row: AuditRow }) {
           })}
         </time>
       </td>
+      <td className="mono">{row.id}</td>
+      <td className="audit-actor">{actorLabel(row)}</td>
       <td>{KIND_LABEL[row.kind] ?? row.kind}</td>
       <td>
         {route === undefined ? (
@@ -353,6 +374,13 @@ function auditDetail(row: AuditRow): string {
         : row.detail === "unchanged"
           ? "Unchanged"
           : row.detail;
+    case "human": {
+      const decision = decisionOf(row);
+      const label = decision === undefined ? row.action : DECISIONS[decision].label;
+      return `${label} handoff #${row.refId}${row.detail === "" ? "" : `: ${row.detail}`}`;
+    }
+    case "request":
+      return row.refId > 0 ? `Decision #${row.refId} sent to the assistant` : "Sent a message";
     default:
       return row.detail;
   }

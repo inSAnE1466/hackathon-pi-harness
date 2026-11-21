@@ -1,158 +1,264 @@
 import { useState } from "react";
-import { type Decision, recordDecision, useDecision } from "./claims.ts";
-import { type AuditRow, citedPassages, handoffOf, passageIds } from "./decision-log.ts";
+import {
+  type AuditRow,
+  citedPassages,
+  DECISIONS,
+  decisionOf,
+  decisionsByHandoff,
+  type HumanDecision,
+  handoffOf,
+  passageIds,
+  recordHuman,
+} from "./decision-log.ts";
 import { Markdown } from "./Markdown.tsx";
 import { RoutingDiagram } from "./RoutingDiagram.tsx";
 
-const DECIDED = {
-  approved: { label: "Approved", tone: "passed" },
-  edited: { label: "Edited", tone: "passed" },
-  rejected: { label: "Rejected", tone: "blocked" },
-} as const;
+/** The card's own state. Whether a decision exists is read from the audit rows, never kept here. */
+type Draft =
+  | { readonly step: "idle" }
+  | { readonly step: "writing"; readonly note: string }
+  | { readonly step: "sending"; readonly decision: HumanDecision; readonly note: string }
+  | { readonly step: "failed"; readonly error: string; readonly note: string };
 
 interface DecisionCardProps {
   readonly sessionId: string;
+  /** The handoff this card answers. */
+  readonly handoff: AuditRow;
   readonly rows: readonly AuditRow[];
   /** The reasons the assistant gave with its recommendation, if the transcript has them. */
   readonly reasons?: string;
+  /** Called once the server has the human row, so the log and the chat read it back. */
+  readonly onRecorded: () => void;
 }
 
 /**
- * The end of a prepared claim: the assistant's recommendation and the passages behind it, and the claims handler's
- * decision. The decision is kept in this browser only; nothing is sent to a model.
+ * A person's answer to one handoff. For a recommendation: the amounts, the cited passages, where the work went, and
+ * Approve, Edit or Reject. For a consult: the expert's answer. Either posts a human row to the audit trail, and the
+ * server passes the decision back into the conversation, through BRANE like every other model request.
  */
-export function DecisionCard({ sessionId, rows, reasons }: DecisionCardProps) {
-  const decision = useDecision(sessionId);
-  const [note, setNote] = useState<string>();
-  const approval = rows.find(
-    (row) => row.kind === "handoff" && handoffOf(row).tool === "request_approval",
-  );
-  if (approval === undefined) return null;
+export function DecisionCard({ sessionId, handoff, rows, reasons, onRecorded }: DecisionCardProps) {
+  const [draft, setDraft] = useState<Draft>({ step: "idle" });
+  const { tool, role, sentence } = handoffOf(handoff);
+  const consult = tool === "consult";
+  const recorded = decisionsByHandoff(rows).get(handoff.id);
 
-  const recommendation = handoffOf(approval).sentence.replace(/^.*: /, "");
+  const decide = async (decision: HumanDecision, note = ""): Promise<void> => {
+    setDraft({ step: "sending", decision, note });
+    try {
+      await recordHuman(sessionId, { handoffId: handoff.id, decision, note, reviewer: role });
+      setDraft({ step: "idle" });
+      onRecorded();
+    } catch (cause) {
+      setDraft({
+        step: "failed",
+        error: cause instanceof Error ? cause.message : "Not recorded",
+        note,
+      });
+    }
+  };
+
+  const heading = consult ? `Question for the ${role.toLowerCase()}` : "Claims handler's decision";
+  const id = `decision-${handoff.id}`;
+  const sending = draft.step === "sending";
+  const note = draft.step === "writing" || draft.step === "failed" ? draft.note : "";
+
+  return (
+    <article className="decision-card" aria-labelledby={`${id}-heading`} data-handoff={handoff.id}>
+      <header>
+        <p className="eyebrow">Handoff #{handoff.id}</p>
+        <h3 id={`${id}-heading`}>{heading}</h3>
+      </header>
+      {consult ? (
+        <p className="decision-card-question">{sentence}. The assistant waits for the answer.</p>
+      ) : (
+        <Recommendation
+          handoff={handoff}
+          rows={rows}
+          {...(reasons === undefined ? {} : { reasons })}
+        />
+      )}
+
+      {recorded !== undefined ? (
+        <Recorded row={recorded} />
+      ) : consult ||
+        draft.step === "writing" ||
+        draft.step === "failed" ||
+        (sending && draft.note !== "") ? (
+        <form
+          className="decision-card-edit"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (note.trim() === "") return;
+            void decide(consult ? "answered" : "edited", note.trim());
+          }}
+        >
+          <label htmlFor={`${id}-note`}>{consult ? "Your answer" : "Your change"}</label>
+          <textarea
+            id={`${id}-note`}
+            rows={2}
+            maxLength={500}
+            value={sending ? draft.note : note}
+            disabled={sending}
+            placeholder={
+              consult
+                ? "For example, the fracture is consistent with the fall"
+                : "For example, pay 6 of 9 sessions"
+            }
+            onChange={(event) => setDraft({ step: "writing", note: event.currentTarget.value })}
+          />
+          <div className="decision-card-actions">
+            <button
+              className="button-primary"
+              type="submit"
+              disabled={sending || note.trim() === ""}
+            >
+              {sending ? "Recording…" : consult ? "Send answer" : "Save change"}
+            </button>
+            {consult ? null : (
+              <button
+                className="button-secondary"
+                type="button"
+                disabled={sending}
+                onClick={() => setDraft({ step: "idle" })}
+              >
+                Cancel
+              </button>
+            )}
+          </div>
+        </form>
+      ) : (
+        <div className="decision-card-actions">
+          <button
+            className="button-primary"
+            type="button"
+            disabled={sending}
+            onClick={() => void decide("approved")}
+          >
+            {sending && draft.decision === "approved" ? "Recording…" : "Approve"}
+          </button>
+          <button
+            className="button-secondary"
+            type="button"
+            disabled={sending}
+            onClick={() => setDraft({ step: "writing", note: "" })}
+          >
+            Edit
+          </button>
+          <button
+            className="button-secondary"
+            type="button"
+            disabled={sending}
+            onClick={() => void decide("rejected")}
+          >
+            {sending && draft.decision === "rejected" ? "Recording…" : "Reject"}
+          </button>
+        </div>
+      )}
+      {draft.step === "failed" ? (
+        <p className="inline-error" role="alert">
+          Not recorded: {draft.error}. Nothing was sent to the assistant.
+        </p>
+      ) : null}
+    </article>
+  );
+}
+
+/** The decision as the audit trail holds it. */
+function Recorded({ row }: { readonly row: AuditRow }) {
+  const decision = decisionOf(row);
+  const label = decision === undefined ? row.action : DECISIONS[decision].label;
+  return (
+    <p className="decision-card-recorded" role="status">
+      <span
+        className={`state state--${decision === undefined ? "waiting" : DECISIONS[decision].tone}`}
+      >
+        <strong>{label}</strong>
+      </span>
+      <span>
+        by {row.actor},{" "}
+        {new Date(row.at).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+      </span>
+      <span className="decision-card-note">Audit row #{row.id}, sent back to the assistant</span>
+    </p>
+  );
+}
+
+function Recommendation({
+  handoff,
+  rows,
+  reasons,
+}: {
+  readonly handoff: AuditRow;
+  readonly rows: readonly AuditRow[];
+  readonly reasons?: string;
+}) {
+  const recommendation = handoffOf(handoff).sentence.replace(/^.*: /, "");
   // The ids the reasons cite, kept only where a lookup returned them, so a document number never reads as a passage.
   const looked = citedPassages(rows);
   const fromReasons =
     reasons === undefined ? [] : passageIds(reasons).filter((id) => looked.includes(id));
   const cited = fromReasons.length > 0 ? fromReasons : looked;
   const amounts = reasons === undefined ? [] : amountLines(reasons);
-  const decide = (kind: Decision["kind"], text = ""): void => {
-    setNote(undefined);
-    recordDecision(sessionId, kind, text);
-  };
-
   return (
-    <article className="decision-card" aria-labelledby="decision-card-heading">
-      <header>
-        <p className="eyebrow">Prepared for the claims handler</p>
-        <h3 id="decision-card-heading">Claims handler's decision</h3>
-      </header>
-      <dl className="decision-card-facts">
+    <dl className="decision-card-facts">
+      <div>
+        <dt>Recommendation</dt>
+        <dd className="decision-card-recommendation">{recommendation}</dd>
+      </div>
+      {amounts.length === 0 ? null : (
         <div>
-          <dt>Recommendation</dt>
-          <dd className="decision-card-recommendation">{recommendation}</dd>
-        </div>
-        <div>
-          <dt>Cited passages</dt>
+          <dt>Amounts</dt>
           <dd>
-            {cited.length === 0 ? (
-              "None"
-            ) : (
-              <ul className="chips">
-                {cited.map((id) => (
-                  <li key={id} className="chip">
-                    {id}
-                  </li>
+            <table className="decision-card-amounts">
+              <tbody>
+                {amounts.map((line) => (
+                  <tr
+                    key={line.label}
+                    className={/^(sub)?total/i.test(line.label) ? "is-total" : undefined}
+                  >
+                    <th scope="row">{line.label}</th>
+                    <td>{line.amount}</td>
+                  </tr>
                 ))}
-              </ul>
-            )}
+              </tbody>
+            </table>
           </dd>
-        </div>
-        {amounts.length === 0 ? null : (
-          <div>
-            <dt>Amounts</dt>
-            <dd>
-              <table className="decision-card-amounts">
-                <tbody>
-                  {amounts.map((line) => (
-                    <tr
-                      key={line.label}
-                      className={/^(sub)?total/i.test(line.label) ? "is-total" : undefined}
-                    >
-                      <th scope="row">{line.label}</th>
-                      <td>{line.amount}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </dd>
-          </div>
-        )}
-        {reasons === undefined || reasons.trim() === "" ? null : (
-          <div>
-            <dt>Reasons</dt>
-            <dd>
-              <details className="decision-card-reasons">
-                <summary>Show the assistant's reasons</summary>
-                <Markdown text={reasons} />
-              </details>
-            </dd>
-          </div>
-        )}
-        <div>
-          <dt>Where it went</dt>
-          <dd>
-            <RoutingDiagram rows={rows} />
-          </dd>
-        </div>
-      </dl>
-      {decision !== undefined ? (
-        <p className="decision-card-recorded" role="status">
-          <span className={`state state--${DECIDED[decision.kind].tone}`}>
-            <strong>{DECIDED[decision.kind].label}</strong>
-          </span>
-          {decision.kind === "edited" && decision.note !== "" ? <span>{decision.note}</span> : null}
-          <span className="decision-card-note">
-            Recorded in this browser. Nothing was sent to a model.
-          </span>
-        </p>
-      ) : note !== undefined ? (
-        <form
-          className="decision-card-edit"
-          onSubmit={(event) => {
-            event.preventDefault();
-            decide("edited", note.trim());
-          }}
-        >
-          <label htmlFor="decision-note">Your change</label>
-          <input
-            id="decision-note"
-            value={note}
-            placeholder="For example, pay 6 of 9 sessions"
-            autoFocus
-            onChange={(event) => setNote(event.currentTarget.value)}
-          />
-          <button className="button-primary" type="submit">
-            Save
-          </button>
-          <button className="button-secondary" type="button" onClick={() => setNote(undefined)}>
-            Cancel
-          </button>
-        </form>
-      ) : (
-        <div className="decision-card-actions">
-          <button className="button-primary" type="button" onClick={() => decide("approved")}>
-            Approve
-          </button>
-          <button className="button-secondary" type="button" onClick={() => setNote("")}>
-            Edit
-          </button>
-          <button className="button-secondary" type="button" onClick={() => decide("rejected")}>
-            Reject
-          </button>
         </div>
       )}
-    </article>
+      <div>
+        <dt>Cited</dt>
+        <dd>
+          {cited.length === 0 ? (
+            "None"
+          ) : (
+            <ul className="chips">
+              {cited.map((passage) => (
+                <li key={passage} className="chip">
+                  {passage}
+                </li>
+              ))}
+            </ul>
+          )}
+        </dd>
+      </div>
+      {reasons === undefined || reasons.trim() === "" ? null : (
+        <div>
+          <dt>Reasons</dt>
+          <dd>
+            <details className="decision-card-reasons">
+              <summary>Show the assistant's reasons</summary>
+              <Markdown text={reasons} />
+            </details>
+          </dd>
+        </div>
+      )}
+      <div>
+        <dt>Where it went</dt>
+        <dd>
+          <RoutingDiagram rows={rows} />
+        </dd>
+      </div>
+    </dl>
   );
 }
 

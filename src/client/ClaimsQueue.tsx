@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { type DecisionKind, loadDecision, useDecisionVersion } from "./claims.ts";
 import { type AuditRow, type ClaimStatus, claimStatus, type Tone } from "./decision-log.ts";
 import { type ClaimType, QUEUE, TYPE_LABEL } from "./queue.ts";
 
@@ -11,12 +10,9 @@ const STATUS: Record<ClaimStatus, { readonly label: string; readonly tone?: Tone
   waiting: { label: "Waiting on expert", tone: "waiting" },
   prepared: { label: "Prepared", tone: "waiting" },
   refused: { label: "Refused", tone: "blocked" },
-};
-
-const DECIDED: Record<DecisionKind, { readonly label: string; readonly tone: Tone }> = {
-  approved: { label: "Decided: approved", tone: "passed" },
-  edited: { label: "Decided: edited", tone: "passed" },
-  rejected: { label: "Decided: rejected", tone: "blocked" },
+  approved: { label: "Approved", tone: "passed" },
+  edited: { label: "Edited", tone: "passed" },
+  rejected: { label: "Rejected", tone: "blocked" },
 };
 
 interface ClaimsQueueProps {
@@ -31,7 +27,6 @@ interface ClaimsQueueProps {
 /** The fixed queue of synthetic claims, each with where it stands. Folds to a strip of type icons. */
 export function ClaimsQueue({ sessions, selectedId, open, onToggle, onSelect }: ClaimsQueueProps) {
   const statuses = useStatuses(sessions);
-  useDecisionVersion();
 
   return (
     <nav className="queue" aria-label="Claims queue">
@@ -59,14 +54,9 @@ export function ClaimsQueue({ sessions, selectedId, open, onToggle, onSelect }: 
       <ul id="queue-list" className="queue-list">
         {QUEUE.map((claim) => {
           const sessionId = sessions[claim.id];
-          const decision = sessionId === undefined ? undefined : loadDecision(sessionId);
           const status = sessionId === undefined ? "new" : statuses[sessionId];
           const state =
-            decision !== undefined
-              ? DECIDED[decision.kind]
-              : status === undefined
-                ? { label: "Checking", tone: undefined }
-                : STATUS[status];
+            status === undefined ? { label: "Checking", tone: undefined } : STATUS[status];
           const selected = claim.id === selectedId;
           return (
             <li key={claim.id}>

@@ -1,5 +1,12 @@
-import type { DecisionKind } from "./claims.ts";
-import { type AuditRow, handoffOf, list, routeOf, ruleName } from "./decision-log.ts";
+import {
+  type AuditRow,
+  DECISIONS,
+  decisionOf,
+  handoffOf,
+  list,
+  routeOf,
+  ruleName,
+} from "./decision-log.ts";
 
 /**
  * A claim's path through the harness as five fixed steps, derived from its decision log (rows newest first). The
@@ -35,18 +42,18 @@ function intakeSummary(detail: string): string {
   return detail;
 }
 
-export function traceOf(
-  rows: readonly AuditRow[],
-  running: boolean,
-  decision?: DecisionKind,
-): Step[] {
+export function traceOf(rows: readonly AuditRow[], running: boolean): Step[] {
   const oldest = [...rows].sort((a, b) => a.id - b.id);
   const of = (kind: AuditRow["kind"]) => oldest.filter((row) => row.kind === kind);
   const intake = of("intake");
   const masked = of("masked");
   const brane = of("brane");
   const lookups = of("lookup");
-  const handoffs = of("handoff").map(handoffOf);
+  const handoffRows = of("handoff");
+  const handoffs = handoffRows.map(handoffOf);
+  const humans = of("human");
+  const answered = new Set(humans.map((row) => row.refId));
+  const open = handoffRows.filter((row) => !answered.has(row.id)).map(handoffOf);
   const refused = brane.filter((row) => routeOf(row) === "refused");
 
   const steps: Step[] = [];
@@ -100,25 +107,27 @@ export function traceOf(
   ].filter(Boolean);
   push("tools", toolParts.length > 0, toolParts.join(", "), cited);
 
-  const roles = unique(handoffs.map((handoff) => handoff.role));
+  const lastHuman = humans.at(-1);
+  const lastDecision = lastHuman === undefined ? undefined : decisionOf(lastHuman);
   const personSummary =
-    decision !== undefined
-      ? `Claims handler decided: ${decision}`
-      : roles.length > 0
-        ? `With the ${roles.map((role) => role.toLowerCase()).join(" and the ")}`
+    open.length > 0
+      ? `With the ${unique(open.map((handoff) => handoff.role.toLowerCase())).join(" and the ")}`
+      : lastHuman !== undefined && lastDecision !== undefined
+        ? `${lastHuman.actor}: ${DECISIONS[lastDecision].label.toLowerCase()}`
         : refused.length > 0
           ? "Needs a person, nothing was sent"
           : "";
-  push("person", personSummary !== "", personSummary);
+  push(
+    "person",
+    personSummary !== "",
+    personSummary,
+    humans.map((row) => `#${row.id} ${row.actor}`),
+  );
 
   // The yellow step is where the claim is now: the furthest step reached while a turn runs, or a person it waits on.
   const reached = steps.map((step) => step.state !== "idle");
   const furthest = reached.lastIndexOf(true);
-  const activeIndex = running
-    ? Math.max(furthest, 0)
-    : reached[4] && decision === undefined
-      ? 4
-      : -1;
+  const activeIndex = running ? Math.max(furthest, 0) : open.length > 0 ? 4 : -1;
   if (activeIndex >= 0 && steps[activeIndex].state !== "refused")
     steps[activeIndex] = { ...steps[activeIndex], state: "active" };
   return steps;

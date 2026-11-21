@@ -734,7 +734,39 @@ body:has(.app) {
 
 .routing-lane--used path {
   stroke: var(--color-ink);
-  stroke-dasharray: none;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: draw-in 520ms var(--ease-out) both;
+  animation-delay: calc(var(--lane) * 90ms);
+}
+
+.routing-lane--used circle {
+  animation: node-in 200ms var(--ease-out) both;
+  animation-delay: calc(var(--lane) * 90ms + 420ms);
+}
+
+@keyframes draw-in {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+@keyframes node-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .routing-lane--used path,
+  .routing-lane--used circle,
+  .transcript-message--human {
+    animation: none;
+  }
+
+  .trace-step:not(:last-child)::after {
+    transition: none;
+  }
 }
 
 .routing-lane--used circle {
@@ -790,47 +822,136 @@ body:has(.app) {
   inline-size: 55%;
 }
 
-/* Composer */
+/* Composer: one box holding the text, the attachments and Send. */
 
 .composer {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: var(--space-3);
+  gap: var(--space-1);
   padding: var(--space-3) var(--space-6) var(--space-2);
-  border-block-start: 1px solid var(--color-hairline);
 }
 
-.composer--start {
-  align-items: center;
-  padding-block: var(--space-4);
+.composer-box {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-hairline);
+  border-radius: calc(var(--radius-tile) + var(--space-1));
+  background: var(--color-page);
+  transition: border-color 150ms var(--ease-out);
+}
+
+.composer-box:hover {
+  border-color: #d4d4d4;
+}
+
+.composer-box:focus-within {
+  border-color: var(--color-ink);
 }
 
 .composer textarea {
   inline-size: 100%;
-  block-size: 64px;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-tile);
-  background: var(--color-page);
+  min-block-size: 48px;
+  padding: 0 var(--space-1);
+  border: 0;
+  background: transparent;
+  line-height: var(--leading);
   resize: none;
+  text-wrap: pretty;
 }
 
-.composer textarea:hover:not(:disabled) {
-  border-color: #d4d4d4;
+.composer textarea:focus-visible {
+  outline: none;
+}
+
+.composer-footer {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.composer-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.composer-attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  max-inline-size: 260px;
+  min-block-size: 28px;
+  padding-inline: var(--space-2) 2px;
+  border-radius: var(--radius-chip);
+  background: var(--color-tile);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+}
+
+.composer-attachment > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.composer-attachment svg {
+  flex: none;
+  inline-size: 14px;
+  block-size: 14px;
+  fill: none;
+  stroke: var(--color-secondary);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.composer-attachment button {
+  display: grid;
+  place-items: center;
+  inline-size: 24px;
+  block-size: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+}
+
+.composer-attachment button:hover:not(:disabled) {
+  background: var(--color-hairline);
 }
 
 .button-send {
-  min-block-size: 40px;
-  padding-inline: var(--space-5);
+  flex: none;
+}
+
+.button-primary:disabled {
+  background: #bdbdbd;
+  cursor: not-allowed;
 }
 
 .typing-indicator {
-  grid-column: 1 / -1;
   min-block-size: 1em;
   margin: 0;
   color: var(--color-secondary);
   font-size: var(--text-xs);
+}
+
+.transcript-empty {
+  display: grid;
+  gap: var(--space-1);
+  max-inline-size: 440px;
+  margin: auto;
+  padding-block: var(--space-12);
+  text-align: center;
+}
+
+.transcript-empty-title {
+  font-weight: var(--weight-semibold);
 }
 
 /* How the harness decided */
@@ -932,9 +1053,27 @@ body:has(.app) {
   background: var(--color-hairline);
 }
 
-.trace-step--done:not(:last-child)::before,
-.trace-step--refused:not(:last-child)::before {
+/* The ink line draws down from a step once the claim has passed it. */
+.trace-step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  inset-block: calc(var(--node) + 4px) 4px;
+  inset-inline-start: calc(var(--node) / 2 - 0.5px);
+  inline-size: 1px;
   background: var(--color-ink);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 420ms var(--ease-out);
+}
+
+.trace-step--done:not(:last-child)::after,
+.trace-step--refused:not(:last-child)::after,
+.trace-step--active:not(:last-child):has(~ .trace-step:not(.trace-step--idle))::after {
+  transform: scaleY(1);
+}
+
+.trace-step--person:not(.trace-step--idle) .trace-node {
+  border-radius: 3px;
 }
 
 .trace-node {
@@ -1027,7 +1166,39 @@ body:has(.app) {
   font-family: var(--font-sans);
 }
 
-/* Audit log, with the latest QC run on top */
+/* Audit log: the trail first, the latest QC run under it. */
+
+.audit-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--color-secondary);
+  font-size: var(--text-xs);
+}
+
+.audit-row--human td {
+  background: var(--color-tile);
+}
+
+.audit-actor {
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+}
+
+a.button-secondary {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+a.button-secondary[aria-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.5;
+}
 
 .evals {
   display: grid;
@@ -1272,6 +1443,38 @@ body:has(.app) {
   background: var(--color-tile);
 }
 
+/* A person's decision on a handoff, as it came back into the conversation. */
+.transcript-message--human {
+  padding: var(--space-3) var(--space-4);
+  border-inline-start: 2px solid var(--color-ink);
+  border-radius: 0 var(--radius-tile) var(--radius-tile) 0;
+  background: var(--color-tile);
+  animation: human-in 240ms var(--ease-out);
+}
+
+.human-decision {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.human-decision .state {
+  font-size: var(--text-sm);
+}
+
+.transcript-message .human-decision-trail {
+  color: var(--color-secondary);
+  font-size: var(--text-xs);
+}
+
+@keyframes human-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
 .transcript-message--system {
   display: none;
 }
@@ -1511,13 +1714,22 @@ body:has(.app) {
   color: var(--color-secondary);
 }
 
-.decision-card-edit input {
-  flex: 1 1 240px;
-  min-block-size: 40px;
-  padding: var(--space-2) var(--space-4);
+.decision-card-edit {
+  display: grid;
+  justify-items: start;
+}
+
+.decision-card-edit textarea {
+  inline-size: 100%;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-tile);
   background: var(--color-page);
+  resize: vertical;
+}
+
+.decision-card-question {
+  margin: 0;
 }
 
 .decision-card-reasons summary {

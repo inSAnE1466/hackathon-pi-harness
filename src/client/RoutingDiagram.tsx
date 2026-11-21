@@ -1,4 +1,5 @@
-import { type AuditRow, handoffOf, routeOf } from "./decision-log.ts";
+import type { CSSProperties } from "react";
+import { type AuditRow, DECISIONS, decisionOf, handoffOf, routeOf } from "./decision-log.ts";
 
 interface Lane {
   readonly key: string;
@@ -20,6 +21,11 @@ export function lanesOf(rows: readonly AuditRow[]): Lane[] {
   const people = [
     ...new Set(rows.filter((row) => row.kind === "handoff").map((row) => handoffOf(row).role)),
   ];
+  const humans = rows.filter((row) => row.kind === "human").toReversed();
+  const decided = humans.map((row) => {
+    const decision = decisionOf(row);
+    return `${row.actor}: ${decision === undefined ? row.action : DECISIONS[decision].label.toLowerCase()}`;
+  });
   const lanes: Lane[] = [
     {
       key: "local",
@@ -38,7 +44,12 @@ export function lanesOf(rows: readonly AuditRow[]): Lane[] {
     {
       key: "person",
       label: "Person",
-      detail: people.length === 0 ? "No handoff" : people.join(", "),
+      detail:
+        decided.length > 0
+          ? decided.join(", ")
+          : people.length === 0
+            ? "No handoff"
+            : `Waiting: ${people.join(", ")}`,
       count: rows.filter((row) => row.kind === "handoff").length,
       tone: "ink",
     },
@@ -80,8 +91,12 @@ export function RoutingDiagram({ rows }: { readonly rows: readonly AuditRow[] })
             <g
               key={lane.key}
               className={`routing-lane${used ? " routing-lane--used" : ""} routing-lane--${lane.tone}`}
+              style={{ "--lane": index } as CSSProperties}
             >
-              <path d={`M ${origin.x + 5} ${origin.y} C 70 ${origin.y}, 70 ${y}, 120 ${y}`} />
+              <path
+                pathLength={1}
+                d={`M ${origin.x + 5} ${origin.y} C 70 ${origin.y}, 70 ${y}, 120 ${y}`}
+              />
               <circle cx="124" cy={y} r="4" />
               <text x="138" y={y - 3} className="routing-label">
                 {lane.label}
