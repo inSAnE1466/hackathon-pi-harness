@@ -55,7 +55,9 @@ shows which clause each recommendation rests on.
 ### consult and request_approval: people decide
 
 The agent prepares; a medical adviser judges medical questions and a claims handler decides every outcome. The tools
-return only an acknowledgement to the model, so a person's decision is never generated. BRANE's semantic category
+return only an acknowledgement to the model, so a person's decision is never generated. The person's decision or
+answer comes back into the conversation as a message, with its own audit rows
+([architecture](architecture.md#the-audit-log)). BRANE's semantic category
 `CLAIM_OUTCOME_DECISION` refuses any request to decide, and these tools are the path the agent takes instead.
 Source: GDPR Art. 22; CJEU C-634/21; AI Act Art. 14; insurers' code of conduct 5.1.3.
 

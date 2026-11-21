@@ -20,15 +20,16 @@ const refusal: BraneDecision = {
 };
 
 /** Writes rows into a session's own audit table, the way the session does, and returns their ids. */
-async function seed(sessionId: string): Promise<{ handoffId: number }> {
+async function seed(sessionId: string): Promise<{ handoffId: number; consultId: number }> {
   const stub = env.SESSIONS.getByName(sessionId);
   return runInDurableObject(stub, (_instance, state) => {
     const log = new AuditLog(state.storage.sql);
-    log.request("Alice", "1");
+    log.request("Alice", 1);
     log.brane(refusal);
-    log.gate({ kind: "handoff", tool: "request_approval", detail: "reject" });
-    const handoff = log.list().find((row) => row.kind === "handoff")!;
-    return { handoffId: handoff.id };
+    log.gate({ kind: "handoff", tool: "request_approval", detail: "reject", conversationId: 0 });
+    const handoffId = log.list()[0]!.id;
+    log.gate({ kind: "handoff", tool: "consult", detail: "medical", conversationId: 0 });
+    return { handoffId, consultId: log.list()[0]!.id };
   });
 }
 
@@ -67,7 +68,7 @@ describe("audit trail", () => {
       decisions: { kind: string; actor: string; action: string; detail: string; refId: number }[];
       chain: { ok: boolean };
     };
-    expect(body.decisions[0]).toMatchObject({
+    expect(body.decisions.find((row) => row.kind === "human")).toMatchObject({
       kind: "human",
       actor: "Lisa",
       action: "edited",
@@ -117,7 +118,7 @@ describe("audit trail", () => {
       const deleted = log.verify();
       return { intact, edited, restored, deleted };
     });
-    expect(checks.intact).toEqual({ ok: true, rows: 3 });
+    expect(checks.intact).toEqual({ ok: true, rows: 4 });
     expect(checks.edited).toMatchObject({ ok: false, brokenAt: 1 });
     expect(checks.restored.ok).toBe(true);
     expect(checks.deleted).toMatchObject({ ok: false, brokenAt: 3 });
@@ -156,8 +157,80 @@ describe("audit trail", () => {
     expect(lines[0]).toBe(CSV_COLUMNS.join(","));
     expect(lines[0]).toContain("actor");
     expect(lines[0]).toContain("hash");
-    expect(lines).toHaveLength(4);
+    expect(lines).toHaveLength(5);
     expect(lines[1]).toContain("request");
     expect(lines[1]).toContain("Alice");
+  });
+
+  it("passes a decision back into the conversation, linked to the human row, through the gate", async () => {
+    const { handoffId } = await seed("audit-return");
+    const socketResponse = await exports.default.fetch(`${base}/audit-return?username=Lisa`, {
+      headers: { Upgrade: "websocket" },
+    });
+    const socket = socketResponse.webSocket!;
+    const frames: string[] = [];
+    socket.addEventListener("message", (event) => frames.push(String(event.data)));
+    socket.accept();
+
+    const created = await postDecision("audit-return", {
+      handoffId,
+      decision: "approved",
+      note: "pay in full",
+      reviewer: "Claims handler",
+    });
+    expect(created.status).toBe(201);
+    const body = (await created.json()) as {
+      decision: { id: number; kind: string; refId: number };
+      message: { kind: string; actor: string; refId: number; conversationId: number };
+    };
+    expect(body.decision).toMatchObject({ kind: "human", refId: handoffId });
+    expect(body.message).toMatchObject({
+      kind: "request",
+      actor: "Claims handler",
+      refId: body.decision.id,
+    });
+    expect(body.message.conversationId).toBeGreaterThan(0);
+
+    // The agent's conversation receives the decision as a user message.
+    const text = `[Claims handler]\\nHuman decision on handoff #${handoffId} (request_approval): approved\\nNote: pay in full`;
+    await expect
+      .poll(() => frames.some((frame) => frame.includes(text)), { timeout: 10_000 })
+      .toBe(true);
+
+    // The model request it starts goes to BRANE only. BRANE is unreachable in tests, so it is withheld.
+    const rows = async () =>
+      (await (await exports.default.fetch(`${base}/audit-return/audit`)).json()) as {
+        decisions: { id: number; kind: string; routedTo: string }[];
+        chain: { ok: boolean };
+      };
+    await expect
+      .poll(
+        async () =>
+          (await rows()).decisions.some(
+            (row) =>
+              row.kind === "brane" && row.routedTo === "withheld" && row.id > body.decision.id,
+          ),
+        { timeout: 10_000 },
+      )
+      .toBe(true);
+    expect((await rows()).chain.ok).toBe(true);
+    socket.close(1000, "done");
+  });
+
+  it("takes an expert's answer on a consult, and only that", async () => {
+    const { handoffId, consultId } = await seed("audit-consult");
+    const post = (body: object) =>
+      postDecision("audit-consult", { reviewer: "Medical adviser", ...body });
+    expect((await post({ handoffId: consultId, decision: "approved" })).status).toBe(400);
+    expect((await post({ handoffId: consultId, decision: "answered" })).status).toBe(400);
+    expect((await post({ handoffId, decision: "answered", note: "x" })).status).toBe(400);
+    const answered = await post({
+      handoffId: consultId,
+      decision: "answered",
+      note: "Treatment was necessary.",
+    });
+    expect(answered.status).toBe(201);
+    const body = (await answered.json()) as { decision: { action: string; actor: string } };
+    expect(body.decision).toMatchObject({ action: "answered", actor: "Medical adviser" });
   });
 });

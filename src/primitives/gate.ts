@@ -4,7 +4,13 @@ import { findIdentifiers, mask } from "./detect.ts";
 /** One event for the decision log, written outside every conversation. */
 export type GateEvent =
   | { readonly kind: "masked"; readonly findings: string }
-  | { readonly kind: "handoff"; readonly tool: string; readonly detail: string }
+  | {
+      readonly kind: "handoff";
+      readonly tool: string;
+      readonly detail: string;
+      /** Where the person's decision is passed back to. */
+      readonly conversationId: number;
+    }
   | { readonly kind: "lookup"; readonly ids: string }
   | { readonly kind: "intake"; readonly result: string };
 
@@ -40,13 +46,14 @@ export function gateExtension(onEvent: (event: GateEvent) => void) {
         },
       }),
       hook(ToolTask, {
-        afterTool: (call, result) => {
+        afterTool: (call, result, api) => {
           const details = (result as { details?: Record<string, unknown> }).details ?? {};
           if (call.name === "consult" || call.name === "request_approval") {
             onEvent({
               kind: "handoff",
               tool: call.name,
               detail: String(details.expert ?? details.recommendation ?? ""),
+              conversationId: api.conversationId,
             });
           } else if (call.name === "web_read") {
             onEvent({ kind: "lookup", ids: `web:${String(details.url ?? "refused")}` });

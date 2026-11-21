@@ -33,13 +33,19 @@ export type AuditRow = {
   readonly actor: string;
   /** The policy version that decided an automated row; empty for a person's row. */
   readonly policyVersion: string;
-  /** For a `human` row, the id of the handoff row it answers. */
+  /**
+   * The row this one answers: for a `human` row the handoff, for the `request` row that carries a person's decision
+   * back into the conversation the `human` row.
+   */
   readonly refId: number;
+  /** The conversation a handoff was made in and its decision returns to; 0 when not recorded. */
+  readonly conversationId: number;
   readonly prevHash: string;
   readonly hash: string;
 };
 
-export type HumanDecision = "approved" | "rejected" | "edited";
+/** A claims handler approves, rejects or edits a recommendation; an expert answers a consult. */
+export type HumanDecision = "approved" | "rejected" | "edited" | "answered";
 
 export type ChainCheck =
   | { readonly ok: true; readonly rows: number }
@@ -51,7 +57,7 @@ export type RecordResult =
 
 const POLICY_VERSION = String(policy.version);
 const MAX_NOTE_CHARACTERS = 500;
-const DECISIONS: readonly HumanDecision[] = ["approved", "rejected", "edited"];
+const DECISIONS: readonly HumanDecision[] = ["approved", "rejected", "edited", "answered"];
 
 const FIELDS = [
   ["at", "TEXT NOT NULL", ""],
@@ -69,17 +75,28 @@ const FIELDS = [
   ["actor", "TEXT NOT NULL DEFAULT ''", ""],
   ["policy_version", "TEXT NOT NULL DEFAULT ''", ""],
   ["ref_id", "INTEGER NOT NULL DEFAULT 0", 0],
+  ["conversation_id", "INTEGER NOT NULL DEFAULT 0", 0],
 ] as const;
 type Field = (typeof FIELDS)[number][0];
 type Values = Readonly<Partial<Record<Field, string | number>>>;
 const NAMES = FIELDS.map(([name]) => name);
 
 /** Columns added after the first deploy; existing tables gain them with their defaults. */
-const ADDED = ["actor", "policy_version", "ref_id", "prev_hash", "hash"] as const;
+const ADDED = [
+  "actor",
+  "policy_version",
+  "ref_id",
+  "conversation_id",
+  "prev_hash",
+  "hash",
+] as const;
 
-/** The hash of a row: the previous hash, then every recorded field in a fixed order. */
+/**
+ * The hash of a row: the previous hash, then every recorded field in a fixed order. `conversation_id`, the last
+ * field, is hashed only when set, so rows sealed before it existed still verify.
+ */
 const rowHash = (prevHash: string, values: readonly (string | number)[]): string =>
-  sha256(`${prevHash}\n${JSON.stringify(values)}`);
+  sha256(`${prevHash}\n${JSON.stringify(values.at(-1) === 0 ? values.slice(0, -1) : values)}`);
 
 export class AuditLog {
   readonly #sql: SqlStorage;
@@ -109,7 +126,10 @@ export class AuditLog {
     );
     for (const column of ADDED) {
       if (present.has(column)) continue;
-      const type = column === "ref_id" ? "INTEGER NOT NULL DEFAULT 0" : "TEXT NOT NULL DEFAULT ''";
+      const type =
+        column === "ref_id" || column === "conversation_id"
+          ? "INTEGER NOT NULL DEFAULT 0"
+          : "TEXT NOT NULL DEFAULT ''";
       sql.exec(`ALTER TABLE audit_log ADD COLUMN ${column} ${type}`);
     }
     this.#sealUnhashed();
@@ -184,15 +204,33 @@ export class AuditLog {
             : e.ids;
     // The agent chose to hand off or to cite passages; the gate masked and the intake split on its own.
     const actor = e.kind === "handoff" || e.kind === "lookup" ? "agent" : "gate";
-    this.#insert({ kind: e.kind, detail, actor, policy_version: POLICY_VERSION });
+    this.#insert({
+      kind: e.kind,
+      detail,
+      actor,
+      policy_version: POLICY_VERSION,
+      ...(e.kind === "handoff" ? { conversation_id: e.conversationId } : {}),
+    });
   }
 
-  /** A person sent a request. Records who and in which conversation, never the text. */
-  request(username: string, conversationId: string): void {
-    this.#insert({ kind: "request", actor: username, detail: `conversation:${conversationId}` });
+  /**
+   * A person sent a request. Records who and in which conversation, never the text. `answers` is the `human` row
+   * when the request carries that person's decision back to the agent.
+   */
+  request(username: string, conversationId: number, answers = 0): AuditRow {
+    return this.#insert({
+      kind: "request",
+      actor: username,
+      detail: `conversation:${conversationId}`,
+      ref_id: answers,
+      conversation_id: conversationId,
+    });
   }
 
-  /** A person's decision on a handoff. One decision per handoff; the first one recorded is final. */
+  /**
+   * A person's decision on a handoff. One decision per handoff; the first one recorded is final. A recommendation
+   * (`request_approval`) is approved, rejected or edited; a consult is answered, and the note is the answer.
+   */
   human(input: {
     readonly handoffId: unknown;
     readonly decision: unknown;
@@ -205,7 +243,11 @@ export class AuditLog {
     if (!Number.isInteger(handoffId) || handoffId <= 0)
       return { ok: false, status: 400, error: "handoffId must be a row id" };
     if (!DECISIONS.includes(input.decision as HumanDecision))
-      return { ok: false, status: 400, error: "decision must be approved, rejected or edited" };
+      return {
+        ok: false,
+        status: 400,
+        error: "decision must be approved, rejected, edited or answered",
+      };
     if (reviewer === "") return { ok: false, status: 400, error: "reviewer name required" };
     if (note.length > MAX_NOTE_CHARACTERS)
       return {
@@ -216,6 +258,17 @@ export class AuditLog {
     const handoff = this.#get(handoffId);
     if (handoff === undefined || handoff.kind !== "handoff")
       return { ok: false, status: 404, error: "no handoff with that id" };
+    const consult = handoffTool(handoff) === "consult";
+    if (consult !== (input.decision === "answered"))
+      return {
+        ok: false,
+        status: 400,
+        error: consult
+          ? "a consult takes the decision answered"
+          : "a recommendation takes approved, rejected or edited",
+      };
+    if (consult && note === "")
+      return { ok: false, status: 400, error: "an answer needs a note: the note is the answer" };
     const existing = this.#sql
       .exec(`SELECT id FROM audit_log WHERE kind = 'human' AND ref_id = ? LIMIT 1`, handoffId)
       .toArray()[0];
@@ -227,6 +280,7 @@ export class AuditLog {
       detail: note,
       actor: reviewer,
       ref_id: handoffId,
+      conversation_id: handoff.conversationId,
     });
     return { ok: true, row };
   }
@@ -242,6 +296,10 @@ export class AuditLog {
       prevHash = String(row.hash);
     }
     return { ok: true, rows: rows.length };
+  }
+
+  get(id: number): AuditRow | undefined {
+    return this.#get(id);
   }
 
   #get(id: number): AuditRow | undefined {
@@ -266,6 +324,9 @@ export class AuditLog {
   }
 }
 
+/** Which tool made a handoff row: `consult` or `request_approval`. */
+export const handoffTool = (handoff: AuditRow): string => handoff.detail.split(":", 1)[0] ?? "";
+
 export const CSV_COLUMNS = [
   "id",
   "at",
@@ -273,6 +334,7 @@ export const CSV_COLUMNS = [
   "actor",
   "policyVersion",
   "refId",
+  "conversationId",
   "status",
   "routedTo",
   "action",
@@ -309,6 +371,7 @@ const toRow = (r: Record<string, SqlStorageValue>): AuditRow => ({
   actor: String(r.actor ?? ""),
   policyVersion: String(r.policy_version ?? ""),
   refId: Number(r.ref_id ?? 0),
+  conversationId: Number(r.conversation_id ?? 0),
   prevHash: String(r.prev_hash ?? ""),
   hash: String(r.hash ?? ""),
 });

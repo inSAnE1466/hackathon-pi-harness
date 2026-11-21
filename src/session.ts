@@ -16,7 +16,7 @@ import {
 import { openDurableObjectSqliteStorage } from "@earendil-works/pi-durable/storage/sqlite/cloudflare";
 import { normalizeUsername } from "./identity.ts";
 import { createChatHarnessOptions } from "./chat.ts";
-import { AuditLog } from "./audit.ts";
+import { AuditLog, handoffTool, type AuditRow } from "./audit.ts";
 import { intake } from "./primitives/intake.ts";
 import {
   InvalidClientCommand,
@@ -137,6 +137,21 @@ const reciprocateClose = (socket: WebSocket, code: number, reason: string): void
 };
 
 const attributedPrompt = (username: string, content: string): string => `[${username}]\n${content}`;
+
+/** A person's decision as the agent reads it. The first two lines are a fixed shape the client renders as a decision. */
+const decisionMessage = (handoff: AuditRow, decision: AuditRow): string => {
+  const tool = handoffTool(handoff);
+  const next =
+    tool === "consult"
+      ? "This is the expert's answer to your consult. Continue preparing the claim with it."
+      : "This is the claims handler's decision on your recommendation. Acknowledge it in one or two sentences and list what the handler still has to do. Do not change the decision.";
+  return [
+    `Human decision on handoff #${handoff.id} (${tool}): ${decision.action}`,
+    ...(decision.detail === "" ? [] : [`Note: ${decision.detail}`]),
+    "",
+    next,
+  ].join("\n");
+};
 
 const conversationSummary = (conversation: ConversationRecord): ConversationSummary => ({
   id: conversation.id,
@@ -282,7 +297,8 @@ export class Session extends DurableObject<Env> {
 
   /**
    * The audit API: `GET /audit` (rows and the chain check), `GET /audit?format=csv` (the whole trail),
-   * `GET /audit/verify` (the chain check alone) and `POST /audit/human` (a person's decision on a handoff).
+   * `GET /audit/verify` (the chain check alone) and `POST /audit/human` (a person's decision on a handoff, which
+   * is also passed back into the conversation).
    */
   async #auditRequest(request: Request, action: string | undefined): Promise<Response> {
     if (action === "human") {
@@ -301,9 +317,8 @@ export class Session extends DurableObject<Env> {
         note: body.note,
         reviewer: body.reviewer,
       });
-      return result.ok
-        ? json({ decision: result.row }, 201)
-        : json({ error: result.error }, result.status);
+      if (!result.ok) return json({ error: result.error }, result.status);
+      return json({ decision: result.row, message: await this.#returnDecision(result.row) }, 201);
     }
     if (request.method !== "GET")
       return json({ error: "Method not allowed" }, 405, { Allow: "GET" });
@@ -318,6 +333,35 @@ export class Session extends DurableObject<Env> {
       });
     }
     return json({ decisions: this.#audit.list(), chain: this.#audit.verify() }, 200);
+  }
+
+  /**
+   * Passes a recorded decision back into the conversation the handoff came from, as a message the agent continues
+   * from. It is an ordinary input: the model request it starts goes through BRANE like every other, and a refusal
+   * fails that turn. Returns the `request` row that links the message to the `human` row, or null when the
+   * conversation is gone. The human row stands either way.
+   */
+  async #returnDecision(decision: AuditRow): Promise<AuditRow | null> {
+    const handoff = this.#audit.get(decision.refId);
+    if (handoff === undefined) return null;
+    const root = await this.#harness.root(BACKGROUND_CONTEXT);
+    // Handoffs logged before the conversation was recorded came from the claim's root conversation.
+    const conversationId = (handoff.conversationId || root.id) as ConversationId;
+    const conversation = await this.#harness.conversation(conversationId, BACKGROUND_CONTEXT);
+    if (conversation === undefined) return null;
+    await this.#arm({ ...this.#harness.wake(), active: true });
+    const message = this.#audit.request(decision.actor, conversationId, decision.id);
+    await conversation.submit(
+      {
+        type: "input",
+        content: attributedPrompt(decision.actor, decisionMessage(handoff, decision)),
+        // One message per decision, also when the request is retried.
+        requestId: `human-decision-${decision.id}`,
+        whenBusy: "followUp",
+      },
+      BACKGROUND_CONTEXT,
+    );
+    return message;
   }
 
   async #processMessage(socket: WebSocket, message: WSMessage): Promise<void> {
@@ -527,10 +571,7 @@ export class Session extends DurableObject<Env> {
         // Arm before admitting work: `onWake` runs after the commit, so an instance that dies in between is
         // still woken. An early alarm is harmless; a missing one strands the turn.
         await this.#arm({ ...this.#harness.wake(), active: true });
-        this.#audit.request(
-          connectionState(socket)?.username ?? "Guest",
-          String(command.conversationId),
-        );
+        this.#audit.request(connectionState(socket)?.username ?? "Guest", command.conversationId);
         // Intake: when BRANE would keep the whole claim local for health reasons, the local model first reduces the
         // medical part to a health-free fact sheet, so the agent's turns can use the frontier model.
         const split = await intake(this.env, command.content);
