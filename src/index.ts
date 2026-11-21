@@ -5,6 +5,7 @@ const json = (body: unknown, status: number, headers?: HeadersInit): Response =>
 
 const sessionRoute = /^\/api\/sessions\/([^/]+)\/?$/;
 const switchesRoute = /^\/api\/sessions\/([^/]+)\/switches\/?$/;
+const tokensRoute = /^\/api\/sessions\/([^/]+)\/tokens\/?$/;
 const auditRoute = /^\/api\/sessions\/([^/]+)\/audit(?:\/(human|verify))?\/?$/;
 const COOKIE = "team_session";
 
@@ -82,6 +83,13 @@ export default {
       if (!set.ok) return set;
       const { switches } = await set.json<{ switches: unknown }>();
       return json({ sessionId, url: `/sessions/${sessionId}`, switches }, 201);
+    }
+
+    const tokens = tokensRoute.exec(url.pathname);
+    if (tokens !== null) {
+      if (request.method !== "GET")
+        return json({ error: "Method not allowed" }, 405, { Allow: "GET" });
+      return env.SESSIONS.getByName(tokens[1]!).fetch(request);
     }
 
     const switches = switchesRoute.exec(url.pathname);

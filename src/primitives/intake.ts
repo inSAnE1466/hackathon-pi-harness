@@ -5,7 +5,7 @@ import {
   type BraneDecision,
   type BraneEnv,
 } from "../brane.ts";
-import { findIdentifiers, mask } from "./detect.ts";
+import { findIdentifiers, mask, Tokens } from "./detect.ts";
 
 /**
  * intake: split a claim before the orchestrator sees it.
@@ -19,8 +19,8 @@ import { findIdentifiers, mask } from "./detect.ts";
  * It only runs when BRANE says the claim would go local for health reasons. Everything else passes through unchanged.
  *
  * Egress rules, because intake handles the claim before the agent's gate does:
- * - Identifiers (BSN, policy and claim numbers, passport, plate) are masked before either BRANE call, as the gate
- *   does for the agent's requests.
+ * - Names, addresses and identifiers are masked before either BRANE call, with the conversation's tokens, as the
+ *   gate does for the agent's requests.
  * - The extraction is pinned to a local model id (`vllm:*`). BRANE runs an explicitly requested local model on its
  *   local lane whatever its classifiers say for that request, so a classifier that varies between the dry run and
  *   the call cannot move the health text to the cloud. A model id that is not local is refused before any call.
@@ -71,10 +71,11 @@ export async function intake(
   rawClaim: string,
   localModel: string = BRANE_LOCAL_MODEL,
   onDecision: (decision: BraneDecision) => void = () => {},
+  tokens: Tokens = new Tokens(),
 ): Promise<IntakeResult> {
   if (!isLocalModel(localModel))
     return { kind: "failed", reason: `${localModel} is not a local model; nothing sent` };
-  const claim = mask(rawClaim, findIdentifiers(rawClaim));
+  const claim = mask(rawClaim, findIdentifiers(rawClaim), tokens);
   const gatedFetch = braneFetch(env, onDecision);
   try {
     // An unreachable BRANE fails here and the claim is passed on unchanged; the model request that follows is then

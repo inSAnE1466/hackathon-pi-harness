@@ -4,17 +4,17 @@ The harness is a Pi Durable agent in a Durable Object. Its claims-specific behav
 one file under `src/` with one job. Each primitive exists because a measured gap or a legal rule needs it; the case
 for each is below.
 
-| Primitive          | File                                  | Kind                  | What it does                                                                                      |
-| ------------------ | ------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------- |
-| `brane`            | `src/brane.ts`                        | model provider        | The only route to any model. OpenAI-compatible chat at BRANE; fails closed                        |
-| `intake`           | `src/primitives/intake.ts`            | runs before the agent | Splits health detail out of a claim on the local model so the agent can use the frontier model    |
-| `gate`             | `src/primitives/gate.ts`, `detect.ts` | Pi hooks              | Masks identifiers BRANE mislabels in every request body; logs handoffs and citations              |
-| `classify`         | `src/primitives/classify.ts`          | runs before the agent | A second classifier on BRANE's local model; the stricter of its route and BRANE's wins            |
-| `lookup`           | `src/primitives/lookup.ts`            | agent tool            | Searches the legal corpus and policy terms; returns citable passage ids                           |
-| `consult`          | `src/primitives/handoff.ts`           | agent tool            | Sends a minimised question to the medical adviser or legal reviewer                               |
-| `request_approval` | `src/primitives/handoff.ts`           | agent tool            | Hands a recommendation to the claims handler, who decides                                         |
-| `audit`            | `src/audit.ts`                        | storage               | One row per decision in the Durable Object's SQLite, served to the decision log, never to a model |
-| `isolate`          | `src/chat.ts`, `session.ts`           | configuration         | One claim per conversation; no shared memory across claims                                        |
+| Primitive          | File                                                               | Kind                  | What it does                                                                                                                      |
+| ------------------ | ------------------------------------------------------------------ | --------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `brane`            | `src/brane.ts`                                                     | model provider        | The only route to any model. OpenAI-compatible chat at BRANE; fails closed                                                        |
+| `intake`           | `src/primitives/intake.ts`                                         | runs before the agent | Splits health detail out of a claim on the local model so the agent can use the frontier model                                    |
+| `gate`             | `src/primitives/gate.ts`, `detect.ts`, `names.ts`, `src/tokens.ts` | Pi hooks              | Pre-masks names, addresses and identifiers in every request body with one token map per conversation; logs handoffs and citations |
+| `classify`         | `src/primitives/classify.ts`                                       | runs before the agent | A second classifier on BRANE's local model; the stricter of its route and BRANE's wins                                            |
+| `lookup`           | `src/primitives/lookup.ts`                                         | agent tool            | Searches the legal corpus and policy terms; returns citable passage ids                                                           |
+| `consult`          | `src/primitives/handoff.ts`                                        | agent tool            | Sends a minimised question to the medical adviser or legal reviewer                                                               |
+| `request_approval` | `src/primitives/handoff.ts`                                        | agent tool            | Hands a recommendation to the claims handler, who decides                                                                         |
+| `audit`            | `src/audit.ts`                                                     | storage               | One row per decision in the Durable Object's SQLite, served to the decision log, never to a model                                 |
+| `isolate`          | `src/chat.ts`, `session.ts`                                        | configuration         | One claim per conversation; no shared memory across claims                                                                        |
 
 ## The case for each
 
@@ -41,14 +41,31 @@ claim local, as before. Measured: a ski-fracture claim that went local on every 
 `claude-haiku-5.5` with policy citations and sends the medical question to the adviser. Source: GDPR Art. 5(1)(c),
 Art. 9; insurers' code of conduct 5.1.3.
 
-### gate: BRANE mislabels identifiers that matter in insurance
+### gate and pre-mask: nothing depends on what BRANE detects
 
 The golden set showed BRANE labeling a valid BSN and a passport number as `ACCOUNT_NUMBER` and a policy number as
-`PERSON`, partly masked (`PERSON_REF_2-88`). `detect.ts` holds deterministic checks (the BSN 11-proof, policy and claim
-number patterns, passport numbers), and the gate's `beforeProviderRequest` hook masks them in every request body,
-the harness's own housekeeping calls included, before BRANE sees it. Measured: the harness's unsafe decisions on the
-golden set go from 3/63 (BRANE alone) to 0/63 ([decision log](../evals/decision-log.md)). Source: GDPR Art. 87;
-national-ID rules (e.g. NL UAVG Art. 46).
+`PERSON`, partly masked (`PERSON_REF_2-88`). It also misses a person's name or a street address on some runs, and
+now and then returns a blank answer for a sensitive request ([decision log](../evals/decision-log.md), open gaps).
+So the pre-mask, `detect.ts`, replaces these itself, with code and no model, the same way every run:
+
+| Token                                          | What it replaces                                                                                                                                                                                    |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `<BSN_1>`, `<PASSPORT_1>`, `<PLATE_1>`         | a BSN by its 11-proof, a passport number, a Dutch licence plate                                                                                                                                     |
+| `<POLICY_ID_1>`, `<CLAIM_ID_1>`                | policy and claim numbers                                                                                                                                                                            |
+| `<NAME_1>`                                     | a given name from the bundled list (`names.ts`) with initials, particles and a surname; any capitalized name after a person cue (Mr, mevrouw, claimant, hit by); the surname alone once it is known |
+| `<STREET_1>`                                   | a street word (straat, weg, laan, plein, ...) with a house number, and its postcode and town                                                                                                        |
+| `<MAIL_1>`, `<TEL_1>`, `<BANK_1>`, `<BIRTH_1>` | an email address, a phone number, an IBAN, a date of birth                                                                                                                                          |
+
+The gate's `beforeProviderRequest` hook applies it to every request body, the harness's own housekeeping calls
+included, before BRANE sees it; intake and the classifier apply it to their own calls. Each conversation has one token
+map (`src/tokens.ts`, in the session's SQLite): the same value gets the same token in every message, tool result and
+request, "J. de Vries" and "Jan de Vries" share one, and the map survives a restart. The map holds the real values,
+is served only to the handler's screen (`GET /api/sessions/:id/tokens`) and is never part of a model request. The
+tokens are spelled differently from BRANE's own (`<PERSON_1>`, `<EMAIL_1>`), which BRANE fills back in on the way out.
+It is strict on purpose: masking a capitalized phrase too many costs a little quality; a leaked name fails the gate.
+Limits: a name that is not on the list, has no cue and no surname pattern is left to BRANE, and so is a foreign
+street format the patterns do not cover. Source: GDPR Art. 5(1)(c), Art. 32, Art. 87; national-ID rules (e.g. NL UAVG
+Art. 46).
 
 ### classify: a second opinion that can only tighten
 

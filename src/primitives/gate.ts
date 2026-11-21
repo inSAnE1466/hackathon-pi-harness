@@ -1,6 +1,6 @@
 import { defineExtension, GenerationTask, hook, ToolTask } from "@earendil-works/pi-durable";
 import { DEFAULT_SWITCHES, TOOL_NAMES, type Switches, type ToolName } from "../switches.ts";
-import { findIdentifiers, mask } from "./detect.ts";
+import { findIdentifiers, mask, Tokens } from "./detect.ts";
 
 /** One event for the decision log, written outside every conversation. */
 export type GateEvent =
@@ -19,8 +19,10 @@ export type GateEvent =
 
 /**
  * The gate: our deterministic layer around BRANE, as Pi hooks.
- * - beforeProviderRequest: every request body, the harness's own housekeeping calls included, has BSNs, policy and
- *   claim numbers and passport numbers replaced with tokens before it reaches BRANE (BRANE mislabels these).
+ * - beforeProviderRequest: every request body, the harness's own housekeeping calls included, has names, street
+ *   addresses, email addresses, phone numbers, IBANs, BSNs, policy and claim numbers, passport numbers and plates
+ *   replaced with the conversation's tokens before it reaches BRANE. BRANE mislabels some of these and misses
+ *   others on some runs, so nothing here depends on what BRANE detects.
  * - afterTool: handoffs (consult, request_approval) and lookups are logged with what they cite.
  * The same two hooks apply the session's switches: the model asked for, and the tools offered and callable.
  */
@@ -32,20 +34,21 @@ export function gateExtension(
   onEvent: (event: GateEvent) => void,
   switches: () => Switches = () => DEFAULT_SWITCHES,
   keptLocal: (conversationId: number) => boolean = () => false,
+  tokensFor: (conversationId: number) => Tokens = () => new Tokens(),
 ) {
   const switchedOff = (name: string): boolean =>
     TOOL_NAMES.includes(name as ToolName) && !switches().tools.includes(name as ToolName);
-  const maskString = (s: string): string => {
-    const findings = findIdentifiers(s);
-    if (findings.length === 0) return s;
-    onEvent({ kind: "masked", findings: findings.map((f) => f.kind).join(",") });
-    return mask(s, findings);
-  };
-  const maskDeep = (v: unknown): unknown => {
-    if (typeof v === "string") return maskString(v);
-    if (Array.isArray(v)) return v.map(maskDeep);
+  /** Masks every string of a request body with the conversation's tokens; returns the kinds it replaced. */
+  const maskDeep = (v: unknown, tokens: Tokens, kinds: Set<string>): unknown => {
+    if (typeof v === "string") {
+      const findings = findIdentifiers(v);
+      for (const f of findings) kinds.add(f.kind);
+      // Also with no finding: a surname the conversation already knows is replaced where it stands alone.
+      return mask(v, findings, tokens);
+    }
+    if (Array.isArray(v)) return v.map((x) => maskDeep(x, tokens, kinds));
     if (v && typeof v === "object")
-      return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, maskDeep(x)]));
+      return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, maskDeep(x, tokens, kinds)]));
     return v;
   };
 
@@ -60,13 +63,17 @@ export function gateExtension(
           };
           if (!Array.isArray(p.messages)) return undefined;
           const tools = p.tools?.filter((tool) => !switchedOff(tool.function?.name ?? ""));
+          const kinds = new Set<string>();
+          const messages = maskDeep(p.messages, tokensFor(api.conversationId), kinds);
+          // One row per request: which kinds of value the pre-mask replaced in it.
+          if (kinds.size > 0) onEvent({ kind: "masked", findings: [...kinds].join(",") });
           return {
             payload: {
               ...p,
               // A conversation the classifier kept local asks for the local model by name, which pins BRANE's
               // local lane.
               model: keptLocal(api.conversationId) ? switches().localModel : switches().cloudModel,
-              messages: maskDeep(p.messages),
+              messages,
               ...(tools === undefined ? {} : { tools }),
             },
           };

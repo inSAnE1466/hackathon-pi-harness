@@ -6,6 +6,7 @@ import {
   findIdentifiers,
   mask,
   readVerdict,
+  Tokens,
   type ClassifierSpec,
   type Outcome,
 } from "./detect.ts";
@@ -16,7 +17,7 @@ import {
  * route stricter: `local` keeps the conversation on the local model, `refuse` withholds the text.
  *
  * Egress rules:
- * - The text is pre-masked (BSN, policy and claim numbers, passport, plate) before it is sent.
+ * - The text is pre-masked (names, addresses, identifiers) with the conversation's tokens before it is sent.
  * - The call goes to BRANE's origin only: `POST /policy/test` with a local-only draft policy and
  *   `executeCompletion`. The chat endpoint cannot carry it: under the live policy BRANE refuses the classifier's own
  *   prompt, because the label definitions name the things the policy forbids.
@@ -51,8 +52,12 @@ const failed = (failure: string, ranOn = ""): Classification => ({
   version: SPEC.version,
 });
 
-export async function classify(env: BraneEnv, rawText: string): Promise<Classification> {
-  const text = mask(rawText, findIdentifiers(rawText));
+export async function classify(
+  env: BraneEnv,
+  rawText: string,
+  tokens: Tokens = new Tokens(),
+): Promise<Classification> {
+  const text = mask(rawText, findIdentifiers(rawText), tokens);
   try {
     const res = await fetch(`${env.BRANE_BASE_URL.replace(/\/+$/, "")}/policy/test`, {
       method: "POST",

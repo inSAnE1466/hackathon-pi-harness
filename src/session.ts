@@ -29,6 +29,7 @@ import {
 } from "./protocol.ts";
 import { KeyedSerialQueue } from "./serial.ts";
 import { SwitchStore, switchesForAudit } from "./switches.ts";
+import { TokenStore } from "./tokens.ts";
 
 const json = (body: unknown, status: number, headers?: HeadersInit): Response =>
   Response.json(body, { status, headers });
@@ -179,11 +180,13 @@ export class Session extends DurableObject<Env> {
   #alarmWrites: Promise<void> = Promise.resolve();
   readonly #audit: AuditLog;
   readonly #switches: SwitchStore;
+  readonly #tokens: TokenStore;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     this.#audit = new AuditLog(ctx.storage.sql);
     this.#switches = new SwitchStore(ctx.storage.sql);
+    this.#tokens = new TokenStore(ctx.storage.sql);
     void ctx.blockConcurrencyWhile(() => this.#initialize());
   }
 
@@ -202,6 +205,7 @@ export class Session extends DurableObject<Env> {
           (event) => this.#audit.gate(event),
           () => this.#switches.current,
           (conversationId) => this.#switches.isKeptLocal(conversationId),
+          (conversationId) => this.#tokens.for(conversationId),
         ),
         // `kind` says what happened, e.g. `task_faulted` or `task_interrupted`, with the task and extension.
         onReport: ({ error, ...report }) =>
@@ -257,6 +261,11 @@ export class Session extends DurableObject<Env> {
     const audit = /\/audit(?:\/(human|verify))?\/?$/.exec(new URL(request.url).pathname);
     if (audit !== null) return this.#auditRequest(request, audit[1]);
     if (/\/switches\/?$/.test(new URL(request.url).pathname)) return this.#switchesRequest(request);
+    // The handler's own view of what each placeholder stands for. Never part of a model request.
+    if (/\/tokens\/?$/.test(new URL(request.url).pathname))
+      return request.method === "GET"
+        ? json({ tokens: this.#tokens.list() }, 200)
+        : json({ error: "Method not allowed" }, 405, { Allow: "GET" });
     if (request.method !== "GET") {
       return json({ error: "Method not allowed" }, 405, { Allow: "GET" });
     }
@@ -382,7 +391,7 @@ export class Session extends DurableObject<Env> {
     const conversation = await this.#harness.conversation(conversationId, BACKGROUND_CONTEXT);
     if (conversation === undefined) return null;
     // The person's note is text a model will read, so it is classified like a prompt.
-    const verdict = await this.#verdict(decision.detail);
+    const verdict = await this.#verdict(decision.detail, conversationId);
     if (this.#applyVerdict(verdict, conversationId) !== undefined) return null;
     await this.#arm({ ...this.#harness.wake(), active: true });
     const message = this.#audit.request(decision.actor, conversationId, decision.id);
@@ -400,9 +409,12 @@ export class Session extends DurableObject<Env> {
   }
 
   /** The second classifier's verdict on a person's text, or undefined when it is switched off. */
-  async #verdict(text: string): Promise<Classification | undefined> {
+  async #verdict(
+    text: string,
+    conversationId: ConversationId,
+  ): Promise<Classification | undefined> {
     if (this.#switches.current.classifier !== "on" || text.trim() === "") return undefined;
-    return classify(this.env, text);
+    return classify(this.env, text, this.#tokens.for(conversationId));
   }
 
   /**
@@ -637,14 +649,18 @@ export class Session extends DurableObject<Env> {
         // intake replaces that text with a fact sheet, the sheet is classified instead.
         const [split, typed] = await Promise.all([
           switches.intake === "on" && switches.braneTiming === "preflight"
-            ? intake(this.env, command.content, switches.localModel, (decision) =>
-                this.#audit.brane(decision),
+            ? intake(
+                this.env,
+                command.content,
+                switches.localModel,
+                (decision) => this.#audit.brane(decision),
+                this.#tokens.for(conversation.id),
               )
             : ({ kind: "unchanged" } satisfies IntakeResult),
-          this.#verdict(command.content),
+          this.#verdict(command.content, conversation.id),
         ]);
         const refused = this.#applyVerdict(
-          split.kind === "split" ? await this.#verdict(split.content) : typed,
+          split.kind === "split" ? await this.#verdict(split.content, conversation.id) : typed,
           conversation.id,
         );
         this.#audit.gate({
