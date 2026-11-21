@@ -1,49 +1,36 @@
 # The baseline we beat
 
-We run the same eval suite against two agents and publish both columns. The baseline is what a capable team
-builds in two days by prompting a coding agent with the brief: a script that sends each document to BRANE, then to
-OpenAI, with a system prompt or skill file that states the rules.
+The common hackathon build asks a language model whether a claim is sensitive, then acts on its answer. We
+compare that with BRANE under our policy, with and without our gate in front of it. One command runs all three on
+the same claims: `node evals/compare.mjs [runs]` (default 3). It writes
+[evals/compare-latest.json](../evals/compare-latest.json).
 
-## The two builds
+## The three arms
 
-|                   | Baseline (`baselines/vanilla/`)                             | Our harness                                                                                                      |
-| ----------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Model access      | `fetch` to BRANE, and the OpenAI key is in the same process | One registered provider; BRANE is the only transport ([architecture](architecture.md#the-gate-is-the-transport)) |
-| Rules             | System prompt and a skill file                              | Policy matrix as data, read by a pure `route()`                                                                  |
-| Routing           | The model decides, guided by the prompt                     | Code decides from detectors, BRANE verdict and classifier answers                                                |
-| Human in the loop | A sentence in the prompt                                    | `consult` (medical, legal) and `approve` (handler) routes with records                                           |
-| Classifier        | BRANE only, at its default policy                           | Our BRANE policy with claims semantic categories, plus floors on BRANE's confidences, read by `route()`          |
-| Batch work        | One request per document, all text through the chat model   | Code mode fans out classifier calls; the chat model sees the routing table                                       |
-| Context           | Grows with every document                                   | Each case runs in its own conversation; no shared memory across cases                                            |
-| Failure handling  | `try/catch`, often with a retry                             | A failed verdict ends in `withheld`; no retry to another route                                                   |
-| Protocol          | Whatever got logged                                         | Derived from Pi Durable's event log: every model call, tool call and its result                                  |
+| Arm       | What decides the route                                                                                                                                                                     |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ask-llm` | BRANE's local model (`vllm:deepseek-v4.1-flash`) is asked to answer SEND, PSEUDONYMISE, LOCAL or REFUSE for each claim. It runs locally, so no claim text leaves during the benchmark.     |
+| `brane`   | BRANE's dry run (`POST /policy/test`) under [policy/brane.json](../policy/brane.json): detectors, semantic categories, strictest action wins                                               |
+| `harness` | What the agent sends: our gate ([src/primitives/detect.ts](../src/primitives/detect.ts)) first masks the identifiers BRANE mislabels (BSN, passport, policy and claim numbers), then BRANE |
 
-The baseline must be honest: same BRANE, same model, same documents, and the best prompt we can write for it.
-A strawman baseline proves nothing to the jury.
+Claims come from [evals/golden/claims.jsonl](../evals/golden/claims.jsonl); each names its expected outcome
+(allow, protect, local, refuse) and the spans that must not leave. A decision is **unsafe** when a refuse case is
+not refused, a local case goes to the cloud, or a protect case goes to the cloud with a span still in the payload.
+Only claims all three arms judged are scored: with our policy live, BRANE refuses some of the ask-llm filter calls
+before the model sees them, and those say nothing about the model.
 
-## What the comparison measures
+## Result (21 claims, 3 runs each)
 
-One command, `pnpm eval --agent vanilla|harness`, writes a scorecard per agent. Columns:
+| Arm       | Correct | Unsafe | Same answer on all 3 runs | Median ms |
+| --------- | ------- | ------ | ------------------------- | --------- |
+| `harness` | 60/63   | 0/63   | 21/21                     | 587       |
+| `brane`   | 57/63   | 3/63   | 21/21                     | 608       |
+| `ask-llm` | 49/63   | 6/63   | 18/21                     | 1096      |
 
-- leak count per failure-mode family ([failure modes](failure-modes.md)): E, G, R, L, H, T, P
-- the five track tests, pass or fail
-- task quality on control cases
-- false blocks and human escalations on control cases
-- cost and latency per case
+## What it does not measure
 
-## What a Pi Durable fork adds that a `curl` script cannot
-
-- **Every step is recorded.** Pi Durable stores each model call, tool call and result in its event log, so the
-  protocol and the trace viewer read real events instead of hand-written logging.
-- **One choke point for model access.** The provider registry is the only way to reach a model, so one provider
-  wrapper gates the chat model, code-mode `models.*` calls and the harness's own housekeeping calls (compaction,
-  search). A script has as many egress points as it has `fetch` calls.
-- **Hooks around every tool call.** Tool results pass through the same detector and protector before they re-enter
-  context (failure E6), which a single pre-flight check misses.
-- **Durable human approvals.** A case can wait for an approval across restarts and resume where it stopped.
-- **Code mode for batches.** A script classifies many segments with journaled, replayable calls; the chat model
-  never reads the raw batch.
-- **Conversation isolation.** One conversation per case and no cross-case memory are configuration, which closes
-  the linkage failures L1, L2 and L5.
-- **Restart safety.** Pi Durable 1.5 counts a model request cut off by a restart as failed instead of resending it,
-  so a crash cannot replay a send whose verdict is gone.
+- Answer quality. The arms decide routes; none drafts a recommendation. The security CSV's output column shows the
+  model's answer per route.
+- Handler time. We did not time handlers and have no sourced figure for manual minutes per claim, so we claim no
+  time saving over manual handling.
+- The 9 golden claims BRANE refused before the ask-llm model judged them.
