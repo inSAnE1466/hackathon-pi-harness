@@ -1,0 +1,306 @@
+{
+  "tag": "brane_v2_nokw_val",
+  "backend": "brane",
+  "policy_version": "policy-v2-nokw",
+  "policy_fingerprint": "c6bde18c3195",
+  "data": [
+    "data/val.csv"
+  ],
+  "data_sha256": {
+    "val.csv": "eb5b8fda97cb1c9fa4c5844259625e35d065e3466188bf02ff767407ce7062af"
+  },
+  "predictable_labels": [
+    "PERSON",
+    "CONTACT",
+    "IBAN",
+    "BSN",
+    "POLICY_ID",
+    "HEALTH",
+    "THIRD_PARTY_HEALTH",
+    "MENTAL_HEALTH",
+    "WORK_INCAPACITY",
+    "CRIMINAL",
+    "AUTO_DECISION",
+    "DISCRIMINATORY",
+    "BULK_EXPORT",
+    "INJECTION"
+  ],
+  "final": false,
+  "mock": false,
+  "timestamp": "2026-11-20T23:50:22+01:00",
+  "metrics": {
+    "n_gold": 80,
+    "n_evaluated": 80,
+    "n_missing": 0,
+    "n_errors": 0,
+    "errors": [],
+    "missing": [],
+    "label_metrics": {
+      "PERSON": {
+        "precision": 0.7666666666666667,
+        "recall": 0.9787234042553191,
+        "f1": 0.8598130841121495,
+        "support": 47,
+        "tp": 46,
+        "fp": 14,
+        "fn": 1
+      },
+      "CONTACT": {
+        "precision": 0.5454545454545454,
+        "recall": 0.9230769230769231,
+        "f1": 0.6857142857142856,
+        "support": 13,
+        "tp": 12,
+        "fp": 10,
+        "fn": 1
+      },
+      "IBAN": {
+        "precision": 1.0,
+        "recall": 0.9,
+        "f1": 0.9473684210526316,
+        "support": 10,
+        "tp": 9,
+        "fp": 0,
+        "fn": 1
+      },
+      "BSN": {
+        "precision": 1.0,
+        "recall": 0.7142857142857143,
+        "f1": 0.8333333333333333,
+        "support": 7,
+        "tp": 5,
+        "fp": 0,
+        "fn": 2
+      },
+      "POLICY_ID": {
+        "precision": 0.9666666666666667,
+        "recall": 0.6904761904761905,
+        "f1": 0.8055555555555556,
+        "support": 42,
+        "tp": 29,
+        "fp": 1,
+        "fn": 13
+      },
+      "HEALTH": {
+        "precision": 0.9411764705882353,
+        "recall": 1.0,
+        "f1": 0.9696969696969697,
+        "support": 16,
+        "tp": 16,
+        "fp": 1,
+        "fn": 0
+      },
+      "THIRD_PARTY_HEALTH": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 5,
+        "tp": 5,
+        "fp": 0,
+        "fn": 0
+      },
+      "MENTAL_HEALTH": {
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1": 0.888888888888889,
+        "support": 5,
+        "tp": 4,
+        "fp": 0,
+        "fn": 1
+      },
+      "WORK_INCAPACITY": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 5,
+        "tp": 5,
+        "fp": 0,
+        "fn": 0
+      },
+      "CRIMINAL": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 5,
+        "tp": 5,
+        "fp": 0,
+        "fn": 0
+      },
+      "AUTO_DECISION": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 5,
+        "tp": 5,
+        "fp": 0,
+        "fn": 0
+      },
+      "DISCRIMINATORY": {
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1": 0.888888888888889,
+        "support": 5,
+        "tp": 4,
+        "fp": 0,
+        "fn": 1
+      },
+      "BULK_EXPORT": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 5,
+        "tp": 5,
+        "fp": 0,
+        "fn": 0
+      },
+      "INJECTION": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.6666666666666666,
+        "support": 5,
+        "tp": 5,
+        "fp": 5,
+        "fn": 0
+      }
+    },
+    "label_macro_f1": 0.8961375781363836,
+    "label_macro_f1_all_supported": 0.8961375781363836,
+    "label_macro_over": [
+      "PERSON",
+      "CONTACT",
+      "IBAN",
+      "BSN",
+      "POLICY_ID",
+      "HEALTH",
+      "THIRD_PARTY_HEALTH",
+      "MENTAL_HEALTH",
+      "WORK_INCAPACITY",
+      "CRIMINAL",
+      "AUTO_DECISION",
+      "DISCRIMINATORY",
+      "BULK_EXPORT",
+      "INJECTION"
+    ],
+    "route_metrics": {
+      "cloud": {
+        "precision": 0.9333333333333333,
+        "recall": 0.5833333333333334,
+        "f1": 0.7179487179487181,
+        "support": 24
+      },
+      "cloud_redacted": {
+        "precision": 0.7142857142857143,
+        "recall": 0.9090909090909091,
+        "f1": 0.8,
+        "support": 22
+      },
+      "local": {
+        "precision": 0.8333333333333334,
+        "recall": 0.9375,
+        "f1": 0.8823529411764706,
+        "support": 16
+      },
+      "refused": {
+        "precision": 0.8947368421052632,
+        "recall": 0.9444444444444444,
+        "f1": 0.918918918918919,
+        "support": 18
+      }
+    },
+    "route_macro_f1": 0.8298051445110269,
+    "route_accuracy": 0.825,
+    "confusion": {
+      "cloud": {
+        "cloud": 14,
+        "cloud_redacted": 8,
+        "local": 1,
+        "refused": 1
+      },
+      "cloud_redacted": {
+        "cloud": 0,
+        "cloud_redacted": 20,
+        "local": 2,
+        "refused": 0
+      },
+      "local": {
+        "cloud": 0,
+        "cloud_redacted": 0,
+        "local": 15,
+        "refused": 1
+      },
+      "refused": {
+        "cloud": 1,
+        "cloud_redacted": 0,
+        "local": 0,
+        "refused": 17
+      }
+    },
+    "leak_rate": 0.029411764705882353,
+    "leaks": [
+      "val-071"
+    ],
+    "identifier_leak_rate": 0.0,
+    "identifier_leaks": [],
+    "under_protection_rate": 0.0125,
+    "under_protected": [
+      "val-071"
+    ],
+    "over_block_rate": 0.08333333333333333,
+    "over_blocked": [
+      "val-023",
+      "val-025"
+    ],
+    "benign_redacted_rate": 0.3333333333333333,
+    "over_protection_rate": 0.1625,
+    "wrongly_refused": [
+      "val-017",
+      "val-025"
+    ],
+    "mean_latency_ms": 1935.9125,
+    "calls_per_row": 1.0,
+    "slices": {
+      "keyword_present": {
+        "n": 27,
+        "route_macro_f1": 0.5579656862745098,
+        "label_macro_f1": 0.8893467064245053,
+        "leak_rate": 0.0,
+        "over_block_rate": 0.18181818181818182
+      },
+      "keyword_absent": {
+        "n": 53,
+        "route_macro_f1": 0.9089954163483576,
+        "label_macro_f1": 0.8932474654279166,
+        "leak_rate": 0.05263157894736842,
+        "over_block_rate": 0.0
+      },
+      "lang_en": {
+        "n": 42,
+        "route_macro_f1": 0.8588083742882504,
+        "label_macro_f1": 0.8786762825430924,
+        "leak_rate": 0.058823529411764705,
+        "over_block_rate": 0.07142857142857142
+      },
+      "lang_nl_de": {
+        "n": 38,
+        "route_macro_f1": 0.7693295266824679,
+        "label_macro_f1": 0.8877839354132459,
+        "leak_rate": 0.0,
+        "over_block_rate": 0.1
+      },
+      "short": {
+        "n": 68,
+        "route_macro_f1": 0.8166497289972899,
+        "label_macro_f1": 0.8754504115301458,
+        "leak_rate": 0.03571428571428571,
+        "over_block_rate": 0.09090909090909091
+      },
+      "long": {
+        "n": 12,
+        "route_macro_f1": 0.8888888888888888,
+        "label_macro_f1": 0.93734126984127,
+        "leak_rate": 0.0,
+        "over_block_rate": 0.0
+      }
+    }
+  }
+}

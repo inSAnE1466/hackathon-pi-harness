@@ -1,0 +1,8 @@
+{
+  "hard_failures": [],
+  "warnings": [
+    "[2] 5 BSN value(s) shared (small allowed test-BSN list); learned baselines mask digits, BRANE detects BSN by pattern",
+    "[2] 1 full name(s) shared: ['Welche Unterlagen']",
+    "[4] 1 dev rows mention elderly scenarios reserved for test"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "recorded_at": "2026-11-20T23:52:24+01:00",
+  "chosen_on": "data/val.csv",
+  "val_sha256": "eb5b8fda97cb1c9fa4c5844259625e35d065e3466188bf02ff767407ce7062af",
+  "rule": "minimise leak rate, then over-block rate, then route macro F1 (same BRANE time window)",
+  "winner": {
+    "system": "BRANE dry run",
+    "policy": "policy/policy_v1_nokw.json",
+    "val": {
+      "route_macro_f1": 0.842,
+      "leak_rate": 0.0,
+      "over_block_rate": 0.083
+    }
+  },
+  "not_selected": {
+    "policy_v3 / v2_nokw": "1 leak on val (val-071)",
+    "policy_v1 (keywords)": "33% over-block: keywords act as hard triggers",
+    "team_live": "8.8% leak (no Art. 10 rule)",
+    "BRANE v1_nokw + llmA (stricter wins)": "no leak gain on val (already 0), +4.2pp over-block",
+    "llmB": "same route F1 as llmA, 14x calls, more over-block"
+  },
+  "reference_runs_on_test": [
+    "keyword baseline (policy_v1 keywords)",
+    "tfidf_lr trained on dev 800",
+    "llmA",
+    "team_live policy",
+    "combo winner+llmA"
+  ],
+  "test_sha256": "42b87bc53972df681983214a5bad1ce63ece328574fa44794b6be213ff75380d"
+}
