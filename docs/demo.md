@@ -67,22 +67,31 @@ in `src/client/decision-log.ts`.
 5. BRANE switched off: nothing sent, the claim waits (check failure).
 6. The eval board: our run against the baseline on the same cases.
 
-## The video (90 seconds, backup and opener)
+## The video (95 seconds, backup and opener)
 
-Made with HyperFrames (Apache-2.0, HTML and CSS rendered to MP4), so its layouts share the slide deck's design
-tokens. Narration by ElevenLabs from a script in `video/script.md`; captions synced to the audio.
+<a id="the-video-90-seconds-backup-and-opener"></a>
 
-| Beat         | Seconds  | On screen                                                                                           |
-| ------------ | -------- | --------------------------------------------------------------------------------------------------- |
-| Hook         | 0 to 8   | A claim bundle; health data and identifiers highlight one by one                                    |
-| Architecture | 8 to 30  | The routing diagram draws itself: BRANE, decide, route, five routes                                 |
-| One claim    | 30 to 55 | Screen recording of the site: pipeline panel, sent versus original, a consult                       |
-| Attack       | 55 to 70 | The hidden instruction appears, the injection probability bar rises past its floor, route unchanged |
-| Evals        | 70 to 85 | The eval board fills case by case; baseline column beside ours                                      |
-| Close        | 85 to 90 | The one-line claim and the team                                                                     |
+Made with HyperFrames (Apache-2.0, HTML and CSS rendered to MP4), so it shares the slide deck's design tokens.
+Narration by ElevenLabs from [demo/narration.md](../demo/narration.md); captions come from the voice's word times.
 
-Motion rules: one idea per beat, animate only what the narration names, ease-out for entrances, no motion that does
-not carry information. The design system is the deck's: white, black, Inter, yellow highlight as the only colour.
+The video is one node graph that grows. People are outlined pills, machines are grey tiles, BRANE is ink, and yellow
+marks what moves or matters. Each part appears when the voice names it, and a small label travels along each edge to
+show what flows.
+
+| Beat         | On screen                                                                                                   |
+| ------------ | ----------------------------------------------------------------------------------------------------------- |
+| Hook         | The people: a claimant sends a claim to the AI assistant; the medical adviser and claims handler join       |
+| Architecture | The assistant opens into its Durable Object: Pi Durable agent, lookup, consult, request_approval, the audit log; every model call goes through the gate and BRANE to the frontier or local model |
+| One claim    | Claim g01: injury and hospital go to intake on the local model and come back as a fact sheet; placeholders go to the frontier model; a citation, a consult to the adviser, a recommendation to the handler; each step drops a row into the audit log |
+| Attack       | Letter g26: its planted note reaches BRANE and stops (422, nothing sent); the model edges fade             |
+| Audit        | The camera rests on the audit log: categories and ids, never claim text; AI Act Art. 12, GDPR Art. 5(2)    |
+| Evals        | One square per decision: BRANE with our policy and gate, 0 of 63 unsafe; an LLM asked what is sensitive, 6; then the QC loop and the held-out 20/20 |
+| Close        | The whole graph again; the claims handler lights up                                                         |
+
+The benchmark compares PII handling only (who decides what may leave, and how protected), not answer quality.
+
+Motion rules: one graph for the whole film, a part appears when it is named, arrivals on long ease-outs, camera moves
+ease both ways, landed headlines stay still, nothing loops. One headline per beat; no paragraphs on screen.
 
 ## Assets
 
@@ -92,11 +101,11 @@ Everything the jury sees besides the live app lives in `demo/`. Every number in 
 | Asset                  | File                                                                                     |
 | ---------------------- | ---------------------------------------------------------------------------------------- |
 | 3-minute live script   | [demo/script.md](../demo/script.md): prompts, clicks, decision log rows, lines, T1 to T5 |
-| Video narration        | [demo/narration.md](../demo/narration.md): 217 words in six timed beats, for ElevenLabs  |
-| Slide deck             | [demo/deck/index.html](../demo/deck/index.html), rendered to `demo/deck/deck.pdf`        |
+| Video narration        | [demo/narration.md](../demo/narration.md): 197 words in seven beats, voiced by ElevenLabs |
+| Slide deck             | [demo/deck/index.html](../demo/deck/index.html): 8 diagram slides, rendered to `demo/deck/deck.pdf` |
 | Video                  | [demo/video/](../demo/video/): HyperFrames composition, rendered to `demo/video/out.mp4` |
 | Live decision log rows | [demo/evidence/drive-2026-11-20.md](../demo/evidence/drive-2026-11-20.md)                |
 | QC gate run            | [demo/evidence/qc-2026-11-20.txt](../demo/evidence/qc-2026-11-20.txt)                    |
 
-The narration script is `demo/narration.md`. The video's audio is silence until the ElevenLabs voiceover replaces
-`demo/video/assets/narration-placeholder.m4a`; [demo/video/render.md](../demo/video/render.md) has the steps.
+The voiceover clips are `demo/video/assets/vo-<beat>.mp3`, made by `demo/video/voiceover.mjs`;
+[demo/video/render.md](../demo/video/render.md) has the commands.
