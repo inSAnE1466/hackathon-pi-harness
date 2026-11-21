@@ -3,8 +3,7 @@
 // Usage: node scripts/brane-cases.mjs [--live] [--runs N]   (--live also runs the model; default is a dry run)
 // Pass rules follow the organizers' starter kit, plus a payload check over every protected value in the prompt.
 // Each case runs 5 times in sequence (--runs N) and passes only if every run passes. T5 (check unavailable) cannot be
-// provoked on the live BRANE, so it
-// runs test/brane.test.ts, which drives the harness's BRANE fetch with BRANE unreachable, a 502 and a 200 without a
+// provoked on the live BRANE, so it runs test/brane.test.ts, which drives the harness's BRANE fetch with BRANE unreachable, a 502 and a 200 without a
 // routing decision, and a foreign origin. Writes submission/test_evidence_run.csv. Never prints the key.
 import { execFileSync } from "node:child_process";
 import { readFileSync, existsSync, writeFileSync } from "node:fs";
@@ -121,8 +120,8 @@ async function run([id, scenario, expected, prompt, pass, listed]) {
   const res = await fetch(`${base}/policy/test`, {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    // What the harness sends: the gate (src/primitives/detect.ts) masks BSN, passport, policy, claim and plate
-    // numbers in every request body before BRANE sees it.
+    // This is what the harness sends. The pre-mask (src/primitives/detect.ts) masks BSN, passport, policy, claim and
+    // plate numbers in every request body before BRANE sees it.
     body: JSON.stringify({
       prompt: mask(prompt, findIdentifiers(prompt)),
       executeCompletion: live,
@@ -139,7 +138,7 @@ async function run([id, scenario, expected, prompt, pass, listed]) {
     redacted: h["X-Brane-Redacted"],
     payloadClean: leaked.length === 0,
   };
-  // A cloud answer with no detection on a prompt that holds protected values is a blank BRANE answer: a failure.
+  // A cloud answer with no detection on a prompt that holds protected values is a blank BRANE answer and fails.
   const blank = d.route === "cloud" && checked.length > 0 && !h["X-Brane-Pii-Types"];
   const ok = pass(d) && d.payloadClean && !blank;
   const detail = [
@@ -197,7 +196,8 @@ async function run([id, scenario, expected, prompt, pass, listed]) {
   ];
 }
 
-// T5: the check is unavailable or unverifiable. Pass only if every fail-closed test in test/brane.test.ts passes.
+// T5 covers a check that is unavailable or unverifiable. It passes only if every fail-closed test in test/brane.test.ts
+// passes.
 function checkFailure() {
   const report = "/tmp/brane-cases-t5.json";
   try {

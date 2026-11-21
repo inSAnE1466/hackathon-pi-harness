@@ -34,7 +34,7 @@ const done = new Promise((resolve, reject) => {
   const timer = setTimeout(() => reject(new Error("No answer within 120 s")), 120_000);
   ws.addEventListener("message", (event) => {
     const msg = JSON.parse(String(event.data));
-    // The server sends a snapshot on connect and again when conversations change; act on the first only.
+    // The server sends a snapshot on connect and again when conversations change. Act on the first one only.
     if (msg.type === "session.snapshot" && conversationId === undefined && !submitted) {
       submitted = true;
       send({ type: "conversation.create", requestId: "c1" });

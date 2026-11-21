@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Autonomous QC loop: propose candidates from the latest failures, climb them on the live department, then run the
-# QC gate against evals/baseline.json. Runs in the background-friendly way: everything goes to a log in /tmp and the
-# script prints its path first. Exits non-zero if the gate finds a regression or the climb could not finish.
+# QC gate against evals/baseline.json. It can run in the background: all output goes to a log in /tmp, and the
+# script prints the log's path first. Exits non-zero if the gate finds a regression or the climb could not finish.
 #   scripts/qc-loop.sh                                         # foreground, log still written
 #   nohup scripts/qc-loop.sh > /dev/null 2>&1 &; tail -f /tmp/qc-loop-*.log
 set -uo pipefail
