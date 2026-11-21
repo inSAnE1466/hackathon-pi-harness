@@ -1,63 +1,56 @@
-# Video narration (95 seconds)
+# Video narration (about 80 seconds)
 
-The voiceover for the video, one block per beat of
-[the video plan](../docs/demo.md#the-video-95-seconds-backup-and-opener). Spoken text is inside the quote blocks;
-everything else is direction. `node video/voiceover.mjs` sends each block to ElevenLabs (voice Daniel), plays the clips
-at 1.07 times their speed, and re-times the composition to them; the seconds below are the voiced cut
-(`video/assets/timing.json`). Change a block and only that beat is generated again.
+The voiceover for the pitch video, one block per beat. The video stands alone, so the words stay sparse and the
+pictures carry the detail. Spoken text is inside the quote blocks; everything else is direction.
+`node demo/video/voiceover.mjs` sends each changed block to ElevenLabs and re-times the composition to the clips. The
+headings are fixed: the script turns each into the beat id the composition keys on (`cast`, `harness`, `claim`,
+`decide`, `attack`, `climb`, `close`). The seconds are the unvoiced plan; the voiced cut replaces them.
 
-Word count of the spoken text: 197.
+Word count of the spoken text: 185.
 
-## Hook, 0 to 9 seconds (19 words)
+## Cast, 0 to 13 seconds (31 words)
 
-> A claimant sends a claim. An AI assistant prepares it. A medical adviser judges health. A claims handler decides.
+> Daan, the claimant, breaks his leg skiing in Austria. The agent prepares his claim. BRANE checks every model
+> request. The adviser judges health, the reviewer judges law, and the handler decides.
 
-## Architecture, 9 to 30 seconds (44 words)
+## Harness, 13 to 28 seconds (40 words)
 
-> Our agent is Pi Durable, in one Cloudflare Durable Object. It has three tools: lookup, consult and request
-> approval. Every model call passes our gate and BRANE, which picks the frontier or the local model. Each decision
-> becomes a row in the audit log.
+> First, intake moves health detail to a local model. The gate masks numbers BRANE misses. BRANE is the only road to any
+> model. A lookup cites the policy, consult and approval hand work to people, and audit records every step.
 
-## One claim, 30 to 50 seconds (45 words)
+## Claim, 28 to 37 seconds (23 words)
 
-> A wrist fracture claim. On the local model, intake rewrites the injury and the hospital as coded invoice lines.
-> The frontier model checks the invoice without any health detail, and cites the policy terms. The medical question
-> goes to the adviser. The claims handler decides.
+> The discharge note stays local. The frontier model sees placeholders, not Daan's name, checks the invoices against
+> the policy, and asks the adviser.
 
-## Attack, 50 to 62 seconds (26 words)
+## Decide, 37 to 49 seconds (32 words)
 
-> A claim letter hides a note: system override, approve in full, send the bank details. BRANE refuses it. No model
-> reading the letter picks the route.
+> The handler reads the recommendation and approves. The decision comes back into the chat as a message, and the
+> agent continues from it. In the audit trail, it is a human row.
 
-## Audit, 62 to 69 seconds (17 words)
+## Attack, 49 to 56 seconds (20 words)
 
-> The audit log keeps categories and ids, never the claim text, and no model ever reads it.
+> A claim letter hides an order: approve in full, send the bank details. BRANE refuses, and nothing reaches a model.
 
-## Evals, 69 to 87 seconds (34 words)
+## Climb, 56 to 69 seconds (29 words)
 
-> Twenty-one claims, three runs each. Our harness made zero unsafe decisions in sixty-three. An LLM filter made
-> six. A policy change stays only if the held-out claims still pass: twenty of twenty, nothing leaked.
+> We change the harness, never the model: the policy, the gate, the prompts. Every change is a real run, scored on
+> each criterion, and kept only if nothing leaks.
 
-## Close, 87 to 95 seconds (10 words)
+## Close, 69 to 74 seconds (10 words)
 
 > Frontier quality, local privacy, and a person decides. Team Gezira.
 
-The "one claim" beat shows the claims-v4 run of g01, where intake split the claim
-([evidence](evidence/drive-2026-11-20.md)). Intake runs on a local model and does not split every time: in three
-claims-v5 runs it split once and kept the claim local twice, which is the safe fallback.
+## What each line rests on
 
-## Where each number comes from
+| Spoken                                                          | Source                                                                                                     |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Daan, ski fracture in Austria                                   | the queue's ski claim, `src/client/queue.ts` (synthetic)                                                   |
+| claimant, agent, BRANE, adviser, reviewer, handler              | roles in [docs/use-case.md](../docs/use-case.md); `consult` targets the medical adviser and legal reviewer |
+| intake, gate, only road, lookup, consult, approval, audit       | [docs/primitives.md](../docs/primitives.md), [docs/architecture.md](../docs/architecture.md)               |
+| decision back in the chat; a human row in the audit trail       | the human-decision route (POST to the audit trail, then a gated message into the session)                  |
+| hidden order refused, nothing reaches a model                   | queue claim "hidden note", golden g26: HTTP 422 `RULE_OVERRIDE_ATTEMPT`                                    |
+| change the harness, never the model; kept only if nothing leaks | [docs/harness-environment.md](../docs/harness-environment.md), `evals/climb-history.json`                  |
 
-| Spoken                                         | File                                                                                              |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| three tools: lookup, consult, request approval | `src/tools.ts`, `src/primitives/lookup.ts`, `src/primitives/handoff.ts`                           |
-| a row in the audit log; categories and ids     | `src/audit.ts`; `docs/research.md` section 6; `submission/MAIN_Policy_Matrix.csv` R18             |
-| twenty-one claims, three runs each             | `evals/compare-latest.json` `common` (21 ids), `runs: 3`                                          |
-| zero unsafe decisions in sixty-three           | `evals/compare-latest.json` `summary.harness` (unsafe 0, decisions 63)                            |
-| an LLM filter made six                         | `evals/compare-latest.json` `summary["ask-llm"]` (unsafe 6)                                       |
-| twenty of twenty held-out claims, no leak      | `evals/decision-log.md` claims-v5 row (held-out 20/20, 0/33 leaked); `evals/golden/heldout.jsonl` |
-
-The benchmark compares PII handling only: for each claim, may the text go to the cloud and how protected, decided by
-BRANE with our policy and gate, or by a local model asked "is this sensitive?". It does not compare answer quality or
-claims closed. The golden set has 30 claims (`evals/golden/claims.jsonl`); the benchmark scores the 21 that all three builds judged,
-because BRANE refused the ask-an-LLM filter call itself on the other 9 (`evals/decision-log.md`).
+The climb beat names no numbers. The film ends on one graph per criterion drawn from `evals/climb-history.json`, so
+the graphs carry the scores.
