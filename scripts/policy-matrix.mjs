@@ -76,7 +76,7 @@ const rows = [
     brane: ["HEALTH_DATA"],
     semantic: "CLAIM_HEALTH_CONTEXT",
     code: "BRANE local for HEALTH_DATA, plus semantic category CLAIM_HEALTH_CONTEXT (local) for indirect health detail; the step runs on vllm:deepseek-v4.1-flash inside the perimeter",
-    gap: "Built-in HEALTH_DATA missed 'burnout', 'sertraline', 'fractured her wrist' and a hospital name; a semantic category was needed. One request goes local as a whole, so the harness must split a claim into steps to keep the non-health part on the cloud",
+    gap: "Built-in HEALTH_DATA missed 'burnout', 'sertraline', 'fractured her wrist' and a hospital name; a semantic category was needed. One request goes local as a whole, so the harness must split a claim into steps to keep the non-health part on the cloud. BRANE has no request-level local-only flag: intake pins its extraction to the local model by asking for an explicit vllm: model id (X-Brane-Local-Cause: explicit_local_model) and checks routed-to=local and a vllm: resolved model before reading the answer",
     evidence:
       "X-Brane-Routed-To: local | X-Brane-Local-Cause: semantic_category_local | X-Brane-Model-Resolved: vllm:deepseek-v4.1-flash",
     tests: "E1 / E2",
@@ -107,11 +107,11 @@ const rows = [
     source:
       "GDPR Art. 22(1); Art. 22(4) (an automated decision may not rest on health data unless Art. 9(2)(a) or (g) applies with safeguards); CJEU C-634/21 SCHUFA (a recommendation the decision-maker draws strongly on can itself be the decision); WP251rev.01 p. 21 (meaningful human involvement). The contract exception, Art. 22(2)(a), could allow some automated decisions (NL GVPV 2024 art. 4.2.2; NL UAVG Art. 40 covers only legal duties and public tasks), so a human decision-maker is our design choice and the safe reading of Art. 22(4), not a bare legal minimum. EU AI Act Arts. 14 and 26(2) as a benchmark; they bind only high-risk systems",
     semantic: "CLAIM_OUTCOME_DECISION",
-    code: "BRANE semantic category refuses the request (HTTP 422); the agent's request_approval tool hands the recommendation to the claims handler, who decides",
+    code: "BRANE semantic category refuses the request (HTTP 422) and the harness writes a handoff row for it (refusal:<rule>); the agent's request_approval tool hands a recommendation to the claims handler. Either way the handler's Approve, Edit or Reject is a hash-chained human row (POST /audit/human); a decision on a recommendation returns to the conversation through BRANE, a decision on a refusal is never sent to a model",
     target: "HUMAN APPROVAL",
     gap: "BRANE can only refuse; a 'route to human' action would make the handoff part of the policy instead of the agent code",
     evidence:
-      "X-Brane-Refused-By: semantic:CLAIM_OUTCOME_DECISION->refuse; decision log kind=handoff",
+      "X-Brane-Refused-By: semantic:CLAIM_OUTCOME_DECISION->refuse; audit rows handoff then human (actor = the handler); submission/audit_trail_luggage_claim.csv rows 22 and 25; test/audit.test.ts",
     tests: "E3 / Demo",
   },
   {
