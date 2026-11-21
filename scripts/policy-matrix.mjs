@@ -221,6 +221,18 @@ const rows = [
     tests: "All (every test row cites its headers)",
   },
   {
+    id: "R19",
+    category:
+      "Criminal offence data in a claim (police report naming a suspect, arrests, convictions)",
+    why: "A suspect's identity and record are not needed to assess a burglary or theft claim; the claim needs only that a report exists",
+    source: "GDPR Art. 10; UAVG Arts. 31-33 (Netherlands)",
+    semantic: "CRIMINAL_OFFENCE_DATA",
+    code: "BRANE semantic category keeps the turn on the local model; rule contributed by Omar Shalaby (omar/policy/policy_v1.json), measured with his gate test E3",
+    gap: "BRANE has no built-in criminal-data category; the same text otherwise leaves with only the name masked",
+    evidence: "X-Brane-Semantic-Matches: CRIMINAL_OFFENCE_DATA | X-Brane-Routed-To: local",
+    tests: "omar-E3",
+  },
+  {
     id: "R14",
     category: "Public policy terms and law (no personal data)",
     why: "Needed for coverage reasoning; contains no personal data",

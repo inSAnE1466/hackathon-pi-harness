@@ -9,7 +9,7 @@
 // brane-policy.mjs applies), the prompt and the run index, so rerunning an unchanged policy on unchanged cases costs
 // nothing and the N runs stay N distinct samples. A changed policy never reads another policy's answers. It assumes
 // the live department matches policy/brane.json (check with brane-policy.mjs diff); errors are never cached.
-// Usage: node evals/golden.mjs [--set=claims|heldout|mutated] [--harness] [--runs N] [--cache] [--json]
+// Usage: node evals/golden.mjs [--set=claims|heldout|mutated|omar-gate|omar-test] [--harness] [--runs N] [--cache] [--policy file] [--json]
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { findIdentifiers, mask } from "../src/primitives/detect.ts";
@@ -44,9 +44,21 @@ const routeOk = {
   refuse: (r) => r === "refused",
 };
 
+// --policy <file> grades a candidate policy as a BRANE draft (draftPolicy on /policy/test) without touching the live
+// department, so candidates can be scored while teammates use it.
+const draftFile = arg("--policy");
+const draft = draftFile
+  ? (({ routingMode, piiSensitivity, categories, semanticCategories }) => ({
+      routingMode,
+      piiSensitivity,
+      categories,
+      semanticCategories,
+    }))(JSON.parse(readFileSync(draftFile, "utf8")))
+  : undefined;
+
 const cacheDir = process.argv.includes("--cache")
   ? (() => {
-      const p = JSON.parse(readFileSync("policy/brane.json", "utf8"));
+      const p = JSON.parse(readFileSync(draftFile ?? "policy/brane.json", "utf8"));
       const live = [p.routingMode, p.piiSensitivity, p.categories, p.semanticCategories];
       const dir = `/tmp/brane-dryrun-cache/${createHash("sha256").update(JSON.stringify(live)).digest("hex").slice(0, 16)}`;
       mkdirSync(dir, { recursive: true });
@@ -81,7 +93,11 @@ async function dryRun(prompt) {
           Authorization: `Bearer ${vars.BRANE_API_KEY}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ prompt, executeCompletion: false }),
+        body: JSON.stringify({
+          prompt,
+          executeCompletion: false,
+          ...(draft ? { draftPolicy: draft } : {}),
+        }),
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
       if (res.ok) return await res.json();

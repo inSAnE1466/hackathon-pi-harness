@@ -18,6 +18,21 @@ spans leaking.
 The held-out set (`evals/golden/heldout.jsonl`, 20 claims written after claims-v4 and never tuned on: dental, eye,
 fertility, oncology, cardiology, stroke rehabilitation, HIV, German and Dutch wording) caught two health leaks the
 tuning set did not. `node evals/golden.mjs --set=heldout` runs it.
+| claims-v6 | Adds `CRIMINAL_OFFENCE_DATA` (GDPR Art. 10), the rule from Omar Shalaby's harness (`omar/policy/policy_v1.json`) | 30/30 | 0/53 | 0/3 | 10/10 | yes: Omar's gate 11/11 (claims-v5: 10/11, E3 police report with convictions went to the cloud); held-out 20/20, 0/33; Omar's locked test 170/200 (claims-v5: 163/200) |
+| claims-v7 (rejected) | claims-v6 with every semantic keyword removed (Omar's finding that keywords act as hard triggers) | 29/30 | 0/53 | 0/3 | n/a | no: held-out fell to 19/20 with 2/33 spans leaked; Omar's locked test 169/200. On our sets keywords still earn their place |
+
+## Omar's suites
+
+`node evals/import-omar.mjs` converts Omar Shalaby's material (`omar/`, unchanged) into two suites our grader runs:
+`evals/golden/omar-gate.jsonl` (his 11 dry-run gate tests) and `evals/golden/omar-test.jsonl` (his locked held-out
+set of 200 rows with unseen vocabulary and a 65+ population; the import checks his recorded sha256 first). Graded with
+`node evals/golden.mjs --set=omar-test --harness --runs 2`, route only, worst of 2. Candidates are scored as BRANE
+drafts (`--policy <file>`), so the shared live department is not touched until a winner is applied.
+
+On claims-v6, 30 of his 200 locked rows still fail: 17 health rows the semantic judge sends to the cloud (care homes,
+unseen conditions and medicines) and 10 refuse rows (decisions, discrimination) that go to the cloud protected
+instead of being refused. The first QC run on claims-v6 flagged golden 28/30 with 2/53 leaked (g06 flaky); an immediate worst-of-3 rerun gave 29/30, 0/53, and six reruns of g02 and g06 passed under both claims-v5 and claims-v6, so the baseline was left unchanged rather than accepted on a noisy run. His report's answer is a second classifier whose route wins when stricter; that is the next
+improvement, not yet in our harness.
 
 ## Autonomous climb
 
