@@ -8,6 +8,7 @@
   --color-hairline: #e8e8e8;
   --color-ink: #171717;
   --color-secondary: #666666;
+  --color-muted: #767676;
   --color-primary: #171717;
   --color-on-primary: #ffffff;
 
@@ -17,6 +18,10 @@
   --color-waiting-tint: #fdf1e3;
   --color-blocked: #c62828;
   --color-blocked-tint: #fcebeb;
+
+  /* The deck's yellow: the trace step a claim is at now, nothing else. */
+  --color-active: #ffe14a;
+  --color-active-ink: #5c4a00;
 
   --font-sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
@@ -41,4 +46,11 @@
   --radius-tile: 10px;
   --radius-chip: 6px;
   --radius-pill: 999px;
+
+  --queue-width: 280px;
+  --queue-folded: 56px;
+  --panel-width: 420px;
+  --header-height: 56px;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }

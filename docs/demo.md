@@ -8,7 +8,7 @@ screen recordings for the video.
 
 What a tester does by hand:
 
-1. Open a claim from the seeded set, or paste one.
+1. Open a claim from the queue and start it.
 2. Watch the pipeline panel: BRANE's verdict per document, BRANE's detection confidences against our floors, the
    route per step, and what the model actually received beside the original.
 3. Answer a `consult` or `approve` request as the medical adviser or the handler.
@@ -37,25 +37,39 @@ Panels inside the Pi client, beside the transcript (`src/client/`):
 
 ## The claims workspace
 
-What `src/client/` renders today.
+What `src/client/` renders today: one screen after sign-in. Its design rules (tokens, regions, states) are in
+[src/client/DESIGN.md](../src/client/DESIGN.md).
 
-- **Landing page.** "Claims assistant" with three sample claims from `evals/golden/claims.jsonl`: a policy question
-  (g28), a health claim (g07) and a request to reject a claim (g19). A sample opens a new session with its text in
-  the composer. Prompts go in as "Claims handler", a role and not a name, so no personal name enters a request.
-- **Session view.** The transcript on the left, the **Decision log** on the right (below it on narrow screens). The
-  log reads `GET /api/sessions/:id/audit` on open, every 2 s while a turn runs, and once more after it ends. It
-  shows totals (requests, cloud protected, kept local, refused, handoffs) and each row newest first: for BRANE rows
-  the route, the detected categories, semantic matches, what happened to the payload, the rule and the model; for
-  gate rows the identifiers masked before BRANE, the passages a lookup cited and each handoff. **Export CSV**
-  downloads the same rows oldest first.
-- **Review queue.** Above the composer when the log has a handoff: one card per handoff with the role and Approve,
-  Edit or Reject. The choice is kept in the browser only; no model is called.
+- **Header.** "Claims assistant", one line of subtitle, the policy version read from `policy/brane.json` at build
+  time, and "All claims are synthetic".
+- **Queue (left).** Eight synthetic claims from `src/client/queue.ts`, each as it would arrive: the request in the
+  sender's words plus the attached documents as text (invoice lines, a discharge note, an airline report). They
+  follow golden cases g28, g14, g01, g09, g17, g26, g19 and g22. Each row shows a status from that claim's
+  `GET /api/sessions/:id/audit`: New, In progress, Waiting on expert (a `consult` handoff), Prepared (a
+  `request_approval` handoff), Refused (a refused BRANE row), or Decided: approved, edited or rejected. The queue
+  folds to icons, and starts folded at 1280 px and below.
+- **Chat (centre).** Each claim has one session, created the first time it opens; the claim-to-session map is in
+  localStorage, so the queue survives a reload. The request arrives as the first message with its attachments as
+  chips that open to their text. **Start** sends it as "Claims handler", a role and not a name. While the harness
+  works, a thread under the claim adds one line per step as audit rows arrive (intake, identifiers masked, the BRANE
+  route, passages found, a handoff). Assistant answers render Markdown with an in-repo renderer that builds React
+  elements and never injects HTML. A lookup shows as one line, "Cited: POL-3.2, POL-4.1", that opens to the
+  passages; `consult` and `request_approval` show as one line each.
+- **The claims handler's decision.** A claim with a `request_approval` handoff ends with a card: the recommendation,
+  the amount per item from the assistant's reasons, the cited passage ids, a small diagram of where the work went
+  (local model, frontier model, person) and Approve, Edit or Reject. The choice is kept in this browser only; no
+  model is called.
 - **Refusals.** A model call BRANE refused (HTTP 422) shows as a card: "This request needs a person. BRANE refused it
   under <rule>.", with the rule's description and legal basis from BRANE's response.
-- **Activity.** The harness's task graph, a drawer that stays closed until opened from the top bar.
+- **How the harness decided (right).** Two tabs. **Trace** is the claim's path as five fixed steps (Intake, Gate,
+  BRANE, Tools, Person) that fill in from the audit rows; the step the claim is at now is yellow. **Audit log** opens
+  with the latest QC numbers from `evals/baseline.json` and `evals/compare-latest.json`, then every audit row (time,
+  kind, route, categories, rule, model, detail) with **Export CSV**, and the basis: EU AI Act Art. 12 and 26(6),
+  GDPR Art. 5(2). Rows hold categories and ids, never prompt text.
+- **Activity.** The harness's task graph, a drawer that stays closed until opened from the chat header.
 
-Tokens live in `src/client/tokens.css`; the pure log logic (routes, totals, handoff wording, refusal parsing, CSV)
-in `src/client/decision-log.ts`.
+Tokens live in `src/client/tokens.css`; the pure log logic (routes, claim status, handoff wording, refusal parsing,
+CSV) in `src/client/decision-log.ts`, the trace in `src/client/trace.ts`.
 
 ## The live demo (about 4 minutes)
 

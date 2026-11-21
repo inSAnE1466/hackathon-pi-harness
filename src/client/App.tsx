@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { ChatSession } from "./ChatSession.tsx";
+import { useEffect, useState } from "react";
+import policy from "../../policy/brane.json";
+import { ClaimSession } from "./ClaimSession.tsx";
+import { loadSessions, saveSession } from "./claims.ts";
 import { loadUsername, saveUsername } from "./identity.ts";
-import { SAMPLE_CLAIMS, stashDraft } from "./samples.ts";
-
-const sessionRoute = /^\/sessions\/([^/]+)\/?$/;
+import { ClaimsQueue } from "./ClaimsQueue.tsx";
+import { QUEUE } from "./queue.ts";
 
 /**
  * Everyone in the workspace speaks as a role, not a name: the harness prefixes each prompt with the speaker, and a
@@ -13,100 +14,100 @@ const DEFAULT_SPEAKER = "Claims handler";
 
 const speaker = (): string => loadUsername() ?? saveUsername(DEFAULT_SPEAKER);
 
+/** At this width and below the queue starts folded to icons. */
+const FOLD_QUEUE_BELOW = 1281;
+
+const claimFromLocation = (): string =>
+  new URLSearchParams(window.location.search).get("claim") ?? QUEUE[0].id;
+
+/** The one screen: header, the claims queue, and the selected claim's chat and harness panel. */
 export function App() {
-  const pathname = window.location.pathname;
-  if (pathname === "/") return <LandingPage />;
-
-  const match = sessionRoute.exec(pathname);
-  if (match !== null && match[1].length > 0) {
-    // Keep the session ID as the opaque encoded path segment PartySocket will reuse.
-    return <ChatSession sessionId={match[1]} username={speaker()} />;
-  }
-
-  return (
-    <main className="landing">
-      <h1>Page not found</h1>
-      <p>
-        <a href="/">Back to the claims assistant</a>
-      </p>
-    </main>
-  );
-}
-
-function LandingPage() {
-  const [creating, setCreating] = useState<string>();
+  const [claimId, setClaimId] = useState(claimFromLocation);
+  const [sessions, setSessions] = useState(loadSessions);
   const [error, setError] = useState<string>();
+  const [attempt, setAttempt] = useState(0);
+  const [queueOpen, setQueueOpen] = useState(() => window.innerWidth >= FOLD_QUEUE_BELOW);
+  const claim = QUEUE.find((candidate) => candidate.id === claimId) ?? QUEUE[0];
+  const sessionId = sessions[claim.id];
 
-  const open = async (key: string, draft: string): Promise<void> => {
-    setCreating(key);
+  useEffect(() => {
+    const follow = (): void => setClaimId(claimFromLocation());
+    window.addEventListener("popstate", follow);
+    return () => window.removeEventListener("popstate", follow);
+  }, []);
+
+  // Each claim has one session, created the first time it is opened.
+  useEffect(() => {
+    if (sessionId !== undefined) return;
+    let cancelled = false;
     setError(undefined);
-    try {
-      speaker();
-      const response = await fetch("/api/sessions", { method: "POST" });
-      if (!response.ok) throw new Error(`Could not open a session (${response.status})`);
-      const result = (await response.json()) as {
-        readonly sessionId?: unknown;
-        readonly url?: unknown;
-      };
-      if (typeof result.url !== "string" || typeof result.sessionId !== "string")
-        throw new Error("The server returned an invalid session");
-      if (draft !== "") stashDraft(result.sessionId, draft);
-      window.location.assign(result.url);
-    } catch (error) {
-      setCreating(undefined);
-      setError(error instanceof Error ? error.message : "Could not open a session");
-    }
+    void (async () => {
+      try {
+        const response = await fetch("/api/sessions", { method: "POST" });
+        if (!response.ok) throw new Error(`Could not open the claim (${response.status})`);
+        const result = (await response.json()) as { readonly sessionId?: unknown };
+        if (typeof result.sessionId !== "string") throw new Error("The server sent no session");
+        if (!cancelled) setSessions(saveSession(claim.id, result.sessionId));
+      } catch (cause) {
+        if (!cancelled)
+          setError(cause instanceof Error ? cause.message : "Could not open the claim");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [claim.id, sessionId, attempt]);
+
+  const select = (id: string): void => {
+    if (id === claim.id) return;
+    window.history.pushState(null, "", `/?claim=${id}`);
+    setClaimId(id);
   };
 
   return (
-    <main className="landing">
-      <header className="landing-header">
-        <p className="eyebrow">Gezira · AI-Z Challenge</p>
-        <h1>Claims assistant</h1>
-        <p className="landing-lede">
-          The assistant prepares health and travel claims. BRANE decides what may leave for a model.
-          People decide the claims.
-        </p>
+    <div className={`app${queueOpen ? "" : " app--queue-folded"}`}>
+      <header className="app-header">
+        <div className="app-title">
+          <h1>Claims assistant</h1>
+          <p>Prepares health, travel and motor claims. BRANE checks every model request.</p>
+        </div>
+        <dl className="app-meta">
+          <div>
+            <dt>Policy</dt>
+            <dd>{policy.version}</dd>
+          </div>
+        </dl>
+        <p className="app-note">All claims are synthetic</p>
       </header>
 
-      <section aria-labelledby="samples-heading">
-        <h2 id="samples-heading">Try a sample claim</h2>
-        <ul className="sample-grid">
-          {SAMPLE_CLAIMS.map((sample) => (
-            <li key={sample.id}>
-              <button
-                className="sample-tile"
-                type="button"
-                disabled={creating !== undefined}
-                onClick={() => void open(sample.id, sample.text)}
-              >
-                <span className="sample-title">{sample.title}</span>
-                <span className="sample-text">{sample.text}</span>
-                <span className="sample-expected">
-                  {creating === sample.id ? "Opening…" : sample.expected}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <ClaimsQueue
+        sessions={sessions}
+        selectedId={claim.id}
+        open={queueOpen}
+        onToggle={() => setQueueOpen((current) => !current)}
+        onSelect={select}
+      />
 
-      <p>
-        <button
-          className="button-primary"
-          type="button"
-          disabled={creating !== undefined}
-          onClick={() => void open("blank", "")}
-        >
-          {creating === "blank" ? "Opening…" : "Start an empty session"}
-        </button>
-      </p>
-      {error === undefined ? null : (
-        <p className="form-error" role="alert">
-          {error}
-        </p>
+      {sessionId === undefined ? (
+        <main className="chat chat--placeholder" aria-busy={error === undefined}>
+          {error === undefined ? (
+            <p className="quiet">Opening {claim.title.toLowerCase()}…</p>
+          ) : (
+            <div className="inline-error" role="alert">
+              <p>{error}</p>
+              <button
+                className="button-secondary"
+                type="button"
+                onClick={() => setAttempt((current) => current + 1)}
+              >
+                Try again
+              </button>
+            </div>
+          )}
+        </main>
+      ) : (
+        <ClaimSession key={sessionId} claim={claim} sessionId={sessionId} username={speaker()} />
       )}
-      <p className="landing-note">All claims here are synthetic.</p>
-    </main>
+    </div>
   );
 }

@@ -1,12 +1,12 @@
 /**
  * The decision log as the client reads it from `GET /api/sessions/:id/audit`, and the pure functions the workspace
- * derives from it: the route of each BRANE row, the headline counts, handoff wording, refusal wording and CSV.
+ * derives from it: the route of each BRANE row, a claim's status, handoff wording, refusal wording and CSV.
  * Mirrors `AuditRow` in `src/audit.ts`; the server type is not imported because it pulls in Worker-only types.
  */
 export interface AuditRow {
   readonly id: number;
   readonly at: string;
-  readonly kind: "brane" | "masked" | "handoff" | "lookup";
+  readonly kind: "brane" | "masked" | "handoff" | "lookup" | "intake";
   readonly status: number;
   readonly routedTo: string;
   readonly action: string;
@@ -38,12 +38,15 @@ export function routeOf(row: AuditRow): Route {
   return "unknown";
 }
 
-/** Comma-separated header values as a list, without blanks. */
-export const list = (value: string): string[] =>
-  value
-    .split(",")
-    .map((part) => part.trim())
-    .filter(Boolean);
+/** Comma-separated header values as a list, without blanks or repeats. */
+export const list = (value: string): string[] => [
+  ...new Set(
+    value
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean),
+  ),
+];
 
 /** What BRANE did to the payload, in words. */
 export function actionLabel(row: AuditRow): string {
@@ -69,28 +72,6 @@ const LOCAL_CAUSES: Record<string, string> = {
 
 export const localCauseLabel = (cause: string): string => LOCAL_CAUSES[cause] ?? cause;
 
-export interface Headline {
-  readonly requests: number;
-  readonly cloud: number;
-  readonly local: number;
-  readonly refused: number;
-  readonly handoffs: number;
-}
-
-export function headline(rows: readonly AuditRow[]): Headline {
-  const counts = { requests: 0, cloud: 0, local: 0, refused: 0, handoffs: 0 };
-  for (const row of rows) {
-    if (row.kind === "handoff") counts.handoffs += 1;
-    if (row.kind !== "brane") continue;
-    counts.requests += 1;
-    const route = routeOf(row);
-    if (route === "cloud") counts.cloud += 1;
-    else if (route === "local") counts.local += 1;
-    else if (route === "refused") counts.refused += 1;
-  }
-  return counts;
-}
-
 export interface Handoff {
   readonly tool: string;
   readonly value: string;
@@ -112,6 +93,11 @@ export function handoffOf(row: AuditRow): Handoff {
   const split = row.detail.indexOf(":");
   const tool = split < 0 ? row.detail : row.detail.slice(0, split);
   const value = split < 0 ? "" : row.detail.slice(split + 1);
+  return handoffFor(tool, value);
+}
+
+/** The wording for a `consult` (value: the expert) or `request_approval` (value: the recommendation) handoff. */
+export function handoffFor(tool: string, value: string): Handoff {
   if (tool === "consult") {
     const role =
       value === "medical" ? "Medical adviser" : value === "legal" ? "Legal reviewer" : "Expert";
@@ -124,6 +110,33 @@ export function handoffOf(row: AuditRow): Handoff {
     role: "Claims handler",
     sentence: `Recommendation to the claims handler: ${recommendation}`,
   };
+}
+
+/** Passage ids as the corpus writes them, e.g. `POL-2.1` or `GDPR-22(1)`. */
+const PASSAGE_ID = /\b[A-Z][A-Z0-9]*-\d[\w.]*(?:\(\d+\))*/g;
+
+/** The distinct passage ids in a text, in order of first mention. */
+export const passageIds = (text: string): string[] => [...new Set(text.match(PASSAGE_ID) ?? [])];
+
+/** Every passage a lookup returned in this session, oldest first, without repeats. */
+export function citedPassages(rows: readonly AuditRow[]): string[] {
+  const lookups = rows.filter((row) => row.kind === "lookup").sort((a, b) => a.id - b.id);
+  return [...new Set(lookups.flatMap((row) => list(row.detail)))];
+}
+
+export type ClaimStatus = "new" | "in-progress" | "waiting" | "prepared" | "refused";
+
+/**
+ * Where a claim stands, from its session's decision log: nothing sent yet, a recommendation is with the claims
+ * handler, a question is with an expert, BRANE refused a request, or the assistant is still working.
+ */
+export function claimStatus(rows: readonly AuditRow[]): ClaimStatus {
+  if (rows.length === 0) return "new";
+  const tools = rows.filter((row) => row.kind === "handoff").map((row) => handoffOf(row).tool);
+  if (tools.includes("request_approval")) return "prepared";
+  if (tools.includes("consult")) return "waiting";
+  if (rows.some((row) => row.kind === "brane" && routeOf(row) === "refused")) return "refused";
+  return "in-progress";
 }
 
 /** `semantic:CLAIM_OUTCOME_DECISION->refuse` becomes `CLAIM_OUTCOME_DECISION`. */
