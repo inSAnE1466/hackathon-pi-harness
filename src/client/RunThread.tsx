@@ -1,6 +1,8 @@
 import type { ToolProgress } from "./session-state.ts";
 import {
   type AuditRow,
+  DECISIONS,
+  decisionOf,
   handoffOf,
   list,
   ROUTES,
@@ -16,6 +18,8 @@ export interface ThreadRow {
   readonly result: string;
   readonly tone?: Tone;
   readonly chips: readonly string[];
+  /** A person's decision, drawn as a square node. */
+  readonly human?: boolean;
 }
 
 const intakeResult = (detail: string): string =>
@@ -32,6 +36,7 @@ const intakeResult = (detail: string): string =>
 export function threadOf(rows: readonly AuditRow[]): ThreadRow[] {
   const thread: ThreadRow[] = [];
   const masked = new Set<string>();
+  const answered = new Set(rows.filter((row) => row.kind === "human").map((row) => row.refId));
   for (const row of [...rows].sort((a, b) => a.id - b.id)) {
     const key = `row-${row.id}`;
     switch (row.kind) {
@@ -113,10 +118,24 @@ export function threadOf(rows: readonly AuditRow[]): ThreadRow[] {
               : "Recommendation prepared",
           result:
             handoff.tool === "consult"
-              ? "Waiting on their answer"
+              ? answered.has(row.id)
+                ? "Answered below"
+                : "Waiting on their answer"
               : `For the claims handler: ${handoff.sentence.replace(/^.*: /, "")}`,
-          tone: "waiting",
+          tone: answered.has(row.id) ? "passed" : "waiting",
           chips: [],
+        });
+        break;
+      }
+      case "human": {
+        const decision = decisionOf(row);
+        thread.push({
+          key,
+          label: `${row.actor} decided on handoff #${row.refId}`,
+          result: decision === undefined ? row.action : DECISIONS[decision].label,
+          ...(decision === undefined ? {} : { tone: DECISIONS[decision].tone }),
+          chips: [`audit #${row.id}`],
+          human: true,
         });
         break;
       }
@@ -153,7 +172,7 @@ export function RunThread({ rows, tools, running }: RunThreadProps) {
     <section className="run" aria-label="What the harness did">
       <ol className="run-list" aria-live="polite">
         {thread.map((step) => (
-          <li key={step.key} className="run-row">
+          <li key={step.key} className={`run-row${step.human === true ? " run-row--human" : ""}`}>
             <span
               className={`run-mark${step.tone === "blocked" ? " run-mark--blocked" : ""}`}
               aria-hidden="true"

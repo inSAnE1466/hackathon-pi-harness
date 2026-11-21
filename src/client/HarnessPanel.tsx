@@ -238,15 +238,10 @@ function AuditLog({
           <table className="audit-table">
             <thead>
               <tr>
-                <th scope="col">Time</th>
                 <th scope="col">#</th>
-                <th scope="col">Actor</th>
-                <th scope="col">Kind</th>
+                <th scope="col">Who</th>
+                <th scope="col">What</th>
                 <th scope="col">Route</th>
-                <th scope="col">Categories</th>
-                <th scope="col">Rule</th>
-                <th scope="col">Model</th>
-                <th scope="col">Detail</th>
               </tr>
             </thead>
             <tbody>
@@ -311,10 +306,12 @@ const KIND_LABEL: Record<AuditRow["kind"], string> = {
   intake: "Intake",
   request: "Request",
   human: "Person",
+  config: "Config",
 };
 
 const EMPTY = <span className="audit-empty">None</span>;
 
+/** One row: who acted, what happened, and for a BRANE row the route, model, categories and rule. */
 function AuditLine({ row }: { readonly row: AuditRow }) {
   const time = new Date(row.at);
   const brane = row.kind === "brane";
@@ -324,34 +321,33 @@ function AuditLine({ row }: { readonly row: AuditRow }) {
     : row.kind === "masked"
       ? list(row.detail)
       : [];
-  const model = row.modelResolved.split("/").at(-1) ?? "";
+  const model = row.modelResolved.split(/[:/]/).at(-1) ?? "";
+  const rule = row.refusedBy === "" ? "" : ruleName(row.refusedBy);
   return (
     <tr className={row.kind === "human" ? "audit-row--human" : undefined}>
-      <td className="audit-time">
+      <td className="mono audit-id">
         <time dateTime={row.at} title={time.toLocaleString()}>
-          {time.toLocaleTimeString(undefined, {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-          })}
+          {row.id}
         </time>
       </td>
-      <td className="mono">{row.id}</td>
       <td className="audit-actor">{actorLabel(row)}</td>
-      <td>{KIND_LABEL[row.kind] ?? row.kind}</td>
+      <td>
+        <span className="audit-kind">{KIND_LABEL[row.kind] ?? row.kind}</span>
+        <span className="audit-detail">{auditDetail(row)}</span>
+        {categories.length === 0 ? null : <Chips values={categories} />}
+      </td>
       <td>
         {route === undefined ? (
           EMPTY
         ) : (
-          <span className={`state state--${route.tone}`}>{route.label}</span>
+          <>
+            <span className={`state state--${route.tone}`}>{route.label}</span>
+            <span className="audit-detail mono" title={row.modelResolved}>
+              {rule !== "" ? rule : model === "" ? "Not sent" : model}
+            </span>
+          </>
         )}
       </td>
-      <td>{categories.length === 0 ? EMPTY : <Chips values={categories} />}</td>
-      <td className="mono">{row.refusedBy === "" ? EMPTY : ruleName(row.refusedBy)}</td>
-      <td className="mono" title={row.modelResolved}>
-        {brane ? (model === "" ? "Not sent" : model) : EMPTY}
-      </td>
-      <td>{auditDetail(row)}</td>
     </tr>
   );
 }
@@ -361,7 +357,7 @@ function auditDetail(row: AuditRow): string {
     case "brane":
       return row.localCause === ""
         ? actionLabel(row)
-        : `${actionLabel(row)}, local because ${localCauseLabel(row.localCause)}`;
+        : `Kept local: ${localCauseLabel(row.localCause)}`;
     case "masked":
       return "Identifiers masked before BRANE";
     case "lookup":
@@ -379,6 +375,8 @@ function auditDetail(row: AuditRow): string {
       const label = decision === undefined ? row.action : DECISIONS[decision].label;
       return `${label} handoff #${row.refId}${row.detail === "" ? "" : `: ${row.detail}`}`;
     }
+    case "config":
+      return row.detail;
     case "request":
       return row.refId > 0 ? `Decision #${row.refId} sent to the assistant` : "Sent a message";
     default:

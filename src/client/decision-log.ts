@@ -7,7 +7,15 @@
 export interface AuditRow {
   readonly id: number;
   readonly at: string;
-  readonly kind: "brane" | "masked" | "handoff" | "lookup" | "intake" | "request" | "human";
+  readonly kind:
+    | "brane"
+    | "masked"
+    | "handoff"
+    | "lookup"
+    | "intake"
+    | "request"
+    | "human"
+    | "config";
   readonly status: number;
   readonly routedTo: string;
   readonly action: string;
