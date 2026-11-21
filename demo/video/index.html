@@ -6,14 +6,18 @@
     <!-- The pitch video, one speaker explaining one thing. Situation: a claims handler, a claim full of health data,
          and the line it may not cross. Harness: every model request passes three checks (regex pre-mask, a second
          classifier on BRANE's local model, BRANE as the gate) on the way to the frontier or the local model. Evals:
-         four slopes from start to end of the climb. Demo: the burnout claim in the real app, the handler's decision
-         back in the chat and in the audit trail. Close: the live address.
+         six slopes from start to end of the climb. Demo: the live recording of the burnout claim on the deployed app,
+         in five voiced beats (queue, trace, adviser, decision, audit), with short labels over the footage. Impact:
+         what the assistant takes off the handler's desk. Close: try it yourself, with
+         the address and the team password (read from .dev.vars at render time, see render.md).
          Spoken text: demo/narration.md. TIMING is written by voiceover.mjs, CLIMB by climb.mjs.
          Facts: src/primitives/detect.ts (pre-mask), classify.ts and src/switches.ts (classifier, default off),
          src/brane.ts (the only transport), src/session.ts and src/audit.ts (decision back, human row, hash chain).
-         Screens: assets/ui/, a burnout run on main 4479b9b, 2026-11-21. -->
+         Footage: assets/live/walkthrough.mp4, cut by live.mjs from live.mp4. Slopes: evals/climb-summary.json, the complete system. -->
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
     <link rel="stylesheet" href="assets/tokens.css" />
+    <!-- written at render time by team.mjs from .dev.vars (gitignored); sets window.TEAM_PASSWORD -->
+    <script src="assets/team.js"></script>
     <style>
       @font-face {
         font-family: "Inter";
@@ -144,7 +148,7 @@
         font-family: var(--mono);
         font-weight: 500;
       }
-      /* the large centered serif line the voice lands on */
+      /* the large centered line the voice lands on */
       .key {
         position: absolute;
         left: 160px;
@@ -155,16 +159,23 @@
         align-items: center;
         justify-content: center;
         text-align: center;
-        font-family: "EB Garamond", Georgia, serif;
-        font-size: 92px;
-        font-weight: 500;
-        line-height: 1.08;
-        letter-spacing: -0.015em;
+        font-family: var(--font);
+        font-size: 84px;
+        font-weight: 600;
+        line-height: 1.12;
+        letter-spacing: -0.02em;
+        text-wrap: balance;
         color: var(--ink);
         opacity: 0;
       }
       .key em {
-        font-style: italic;
+        font-style: normal;
+        background: linear-gradient(
+          transparent 62%,
+          var(--mark) 62%,
+          var(--mark) 92%,
+          transparent 92%
+        );
       }
       .ui {
         position: absolute;
@@ -193,6 +204,7 @@
         line-height: 1.5;
         color: #333;
         white-space: pre;
+        font-variant-ligatures: none;
         opacity: 0;
       }
       .code .f {
@@ -252,31 +264,55 @@
         left: 0;
         right: 0;
       }
-      /* slopes */
+      /* slopes: one card per metric, three per row */
       #slopes {
+        opacity: 0;
+      }
+      #slopes h2 {
+        position: absolute;
+        left: 96px;
+        top: 60px;
+        font-size: 44px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      #sec {
+        position: absolute;
+        right: 96px;
+        top: 74px;
+        text-align: right;
+        font-size: 28px;
+        font-weight: 600;
         opacity: 0;
       }
       .slope {
         position: absolute;
-        top: 250px;
-        height: 620px;
+        width: 552px;
+        height: 400px;
+        padding: 28px 32px;
+        border-radius: 20px;
+        background: var(--tile);
+        opacity: 0;
+      }
+      .slope.price {
+        background: var(--paper);
+        box-shadow: inset 0 0 0 2.5px var(--hair);
       }
       .slope .lb {
         font-size: 30px;
         font-weight: 600;
-        opacity: 0;
+        letter-spacing: -0.01em;
       }
       .slope .bt {
-        margin-top: 6px;
+        margin-top: 4px;
         font-size: 22px;
         font-weight: 500;
         color: #6e6e73;
-        opacity: 0;
       }
       .slope svg {
         position: absolute;
-        left: 0;
-        top: 120px;
+        left: 32px;
+        top: 130px;
         overflow: visible;
       }
       .slope .v {
@@ -293,12 +329,15 @@
         font-weight: 500;
         color: #6e6e73;
       }
-      .slope .st {
+      .slope .v.t {
+        font-size: 30px;
+      }
+      .slope .tg {
         position: absolute;
-        top: 560px;
-        font-size: 22px;
-        font-weight: 500;
+        font-size: 20px;
+        font-weight: 600;
         color: #6e6e73;
+        white-space: nowrap;
         opacity: 0;
       }
       .ln {
@@ -307,21 +346,13 @@
         stroke-width: 4;
         stroke-linecap: round;
       }
-      .tick {
-        stroke: var(--hair);
-        stroke-width: 2;
+      .ln.b {
+        stroke: #8a8a90;
+        stroke-dasharray: 2 9;
       }
-      #ph {
-        position: absolute;
-        right: 96px;
-        top: 80px;
-        padding: 4px 14px;
-        border-radius: 999px;
-        background: #fcebeb;
-        color: #c62828;
-        font-size: 22px;
-        font-weight: 600;
-        display: none;
+      .tick {
+        stroke: #d4d4d8;
+        stroke-width: 2;
       }
       #url {
         position: absolute;
@@ -343,14 +374,114 @@
         box-shadow: inset 0 0 0 3px var(--ink);
       }
       #url .t {
-        font-family: "EB Garamond", Georgia, serif;
-        font-size: 64px;
+        font-size: 72px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      #url .pw {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        font-size: 34px;
         font-weight: 500;
+        color: var(--ink-2);
+      }
+      #url .pw code {
+        font-family: var(--mono);
+        font-size: 44px;
+        font-weight: 600;
+        color: var(--ink);
+        padding: 10px 28px;
+        border-radius: 14px;
+        background: var(--tile);
       }
       #url .m {
+        margin-top: 18px;
         font-size: 26px;
         font-weight: 500;
         color: #6e6e73;
+      }
+      /* the live recording and the labels over it */
+      #live {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1920px;
+        height: 1080px;
+        opacity: 0;
+      }
+      .lbl {
+        position: absolute;
+        max-width: 560px;
+        padding: 14px 22px;
+        border-radius: 14px;
+        background: var(--ink);
+        color: var(--paper);
+        font-size: 30px;
+        font-weight: 600;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+        opacity: 0;
+      }
+      .lbl small {
+        display: block;
+        margin-top: 4px;
+        font-size: 22px;
+        font-weight: 400;
+        color: #d4d4d8;
+      }
+      .hl {
+        position: absolute;
+        border-radius: 14px;
+        box-shadow:
+          0 0 0 4px var(--mark),
+          0 0 0 9999px rgba(17, 17, 17, 0.28);
+        opacity: 0;
+      }
+      /* impact */
+      #impact {
+        opacity: 0;
+      }
+      #impact h2 {
+        position: absolute;
+        left: 560px;
+        top: 130px;
+        font-size: 56px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      .desk {
+        position: absolute;
+        left: 560px;
+        top: 260px;
+        width: 800px;
+      }
+      .desk .row {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        height: 96px;
+        padding: 0 28px;
+        margin-bottom: 18px;
+        border-radius: 18px;
+        background: var(--tile);
+        font-size: 34px;
+        font-weight: 600;
+        opacity: 0;
+      }
+      .desk .row b {
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--ink-3);
+        width: 150px;
+        flex: none;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .desk .row.you {
+        background: var(--paper);
+        box-shadow: inset 0 0 0 3px var(--ink);
       }
       .cg {
         position: absolute;
@@ -376,7 +507,7 @@
       id="root"
       data-composition-id="main"
       data-start="0"
-      data-duration="148.281"
+      data-duration="187.599"
       data-width="1920"
       data-height="1080"
     >
@@ -393,14 +524,14 @@
         id="vo-harness"
         src="assets/vo-harness.mp3"
         data-start="22.971"
-        data-duration="32.679"
+        data-duration="30.563"
         data-track-index="9"
         data-volume="1"
       ></audio>
       <audio
         id="vo-loop"
         src="assets/vo-loop.mp3"
-        data-start="56.2"
+        data-start="54.084"
         data-duration="20.976"
         data-track-index="9"
         data-volume="1"
@@ -408,24 +539,64 @@
       <audio
         id="vo-evals"
         src="assets/vo-evals.mp3"
-        data-start="78.726"
-        data-duration="16.771"
+        data-start="76.61"
+        data-duration="14.158"
         data-track-index="9"
         data-volume="1"
       ></audio>
       <audio
-        id="vo-demo"
-        src="assets/vo-demo.mp3"
-        data-start="99.547"
-        data-duration="37.068"
+        id="vo-demo-queue"
+        src="assets/vo-demo-queue.mp3"
+        data-start="94.818"
+        data-duration="11.912"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="vo-demo-trace"
+        src="assets/vo-demo-trace.mp3"
+        data-start="107.28"
+        data-duration="13.976"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="vo-demo-adviser"
+        src="assets/vo-demo-adviser.mp3"
+        data-start="121.806"
+        data-duration="9.77"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="vo-demo-decision"
+        src="assets/vo-demo-decision.mp3"
+        data-start="134.926"
+        data-duration="13.296"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="vo-demo-audit"
+        src="assets/vo-demo-audit.mp3"
+        data-start="148.772"
+        data-duration="9.509"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="vo-impact"
+        src="assets/vo-impact.mp3"
+        data-start="158.831"
+        data-duration="12.669"
         data-track-index="9"
         data-volume="1"
       ></audio>
       <audio
         id="vo-close"
         src="assets/vo-close.mp3"
-        data-start="137.165"
-        data-duration="5.616"
+        data-start="173.55"
+        data-duration="7.549"
         data-track-index="9"
         data-volume="1"
       ></audio>
@@ -436,7 +607,7 @@
         class="clip"
         data-span="total"
         data-start="0"
-        data-duration="148.281"
+        data-duration="187.599"
         data-track-index="0"
         data-layout-allow-overflow
         data-layout-allow-overlap
@@ -444,9 +615,9 @@
         <div id="world" data-layout-allow-overlap>
           <svg class="layer" width="1920" height="1080" viewBox="0 0 1920 1080">
             <!-- situation -->
-            <path id="e-hc" class="edge" d="M380 540 L700 540" />
-            <path id="e-cf" class="edge" d="M1060 540 C1260 540 1300 300 1500 300" />
-            <path id="e-cl" class="edge" d="M1060 540 C1260 540 1300 780 1500 780" />
+            <path id="e-hc" class="edge" d="M380 540 L680 540" />
+            <path id="e-cf" class="edge" d="M1100 540 C1280 540 1310 300 1500 300" />
+            <path id="e-cl" class="edge" d="M1100 540 C1280 540 1310 780 1500 780" />
             <!-- harness: the chain of checks -->
             <path id="e-ap" class="edge" d="M380 540 L470 540" />
             <path id="e-pc" class="edge" d="M730 540 L830 540" />
@@ -470,9 +641,10 @@
             class="node"
             id="n-claim"
             style="
-              left: 700px;
+              left: 680px;
               top: 470px;
-              width: 360px;
+              width: 420px;
+              padding: 0 24px;
               height: 140px;
               flex-direction: column;
               gap: 6px;
@@ -532,11 +704,11 @@
             Pre-mask<small>regex, no model</small>
           </div>
           <div
-            class="node check off"
+            class="node check"
             id="n-cls"
             style="left: 830px; top: 470px; width: 280px; height: 140px"
           >
-            Classifier<small>local model, per run</small>
+            Classifier<small>local model</small>
           </div>
           <div
             class="node check ink"
@@ -581,20 +753,8 @@
             no other path to a model
           </div>
 
-          <div class="code" id="code-mask" style="left: 100px; top: 640px">
-            <span class="f">src/primitives/detect.ts</span>for (const m of
-            text.matchAll(<b>/\bPOL-\d{4}-\d{2}\b/g</b>)) found.push({ kind: <b>"POLICY_ID"</b>,
-            text: m[0] });
-            <i>// the same value gets the same token everywhere</i>
-            out = out.split(f.text).join(seen.get(f.text));
-          </div>
-          <div class="code" id="code-brane" style="left: 100px; top: 700px">
-            <span class="f">src/brane.ts · braneFetch</span>if (url.origin !== base.origin) throw
-            new Error(<b>"only BRANE is allowed"</b>); if (decision.routedTo === "" &amp;&amp;
-            response.status !== 422) throw new Error(<b
-              >"BRANE returned no routing decision; nothing is sent"</b
-            >);
-          </div>
+          <div class="code" id="code-mask" style="left: 100px; top: 660px"></div>
+          <div class="code" id="code-brane" style="left: 100px; top: 700px"></div>
           <div class="token mono" id="k-req">POL-4410-17</div>
           <div class="token mono" id="k-tok">[POLICY_ID]</div>
         </div>
@@ -606,7 +766,7 @@
         class="clip"
         data-span="total"
         data-start="0"
-        data-duration="148.281"
+        data-duration="187.599"
         data-track-index="7"
         data-layout-allow-overlap
       >
@@ -635,86 +795,142 @@
           <span class="a">the agent</span><span class="b" style="opacity: 0">the harness</span>
         </div>
         <div class="token" id="k-loop">claim</div>
-        <div class="code" id="code-climb" style="left: 1280px; top: 120px">
-          <span class="f">evals/climb-latest.md · one kept change</span>CLAIM_HEALTH_CONTEXT
-          keywords: ent specialist, hearing aids <b>kept</b> mutated leaked 6 → 3
-        </div>
       </div>
 
-      <!-- the evals: four slopes, start to end; built by script from CLIMB -->
+      <!-- the evals: up to six slopes, start to end; built by script from CLIMB -->
       <div
         id="slopes"
         class="clip"
         data-span="total"
         data-start="0"
-        data-duration="148.281"
+        data-duration="187.599"
         data-track-index="2"
         data-layout-allow-overlap
       >
+        <h2>Start of the climb, and the complete system</h2>
         <div id="slope-host" data-layout-ignore></div>
-        <div id="ph">placeholder data</div>
       </div>
 
-      <!-- the demo, in the real app -->
+      <!-- the demo: the live recording, cut to the voice by live.mjs -->
+      <video
+        id="live"
+        src="assets/live/walkthrough.mp4"
+        data-span="demo-queue:demo-audit"
+        data-start="94.568"
+        data-duration="64.013"
+        data-track-index="8"
+        muted
+        playsinline
+      ></video>
       <div
         id="demo"
         class="clip"
         data-span="total"
         data-start="0"
-        data-duration="148.281"
+        data-duration="187.599"
         data-track-index="4"
         data-layout-allow-overlap
       >
-        <img
-          id="ui-composer"
-          class="ui"
-          src="assets/ui/composer.png"
-          alt="The burnout claim in the message box"
-          style="left: 160px; top: 380px; width: 1600px"
-        />
-        <img
-          id="ui-trace"
-          class="ui"
-          src="assets/ui/trace.png"
-          alt="The trace: pre-mask, intake, BRANE, tools, person"
-          style="left: 1180px; top: 70px; width: 560px"
-        />
-        <img
-          id="ui-card"
-          class="ui"
-          src="assets/ui/decision-card.png"
-          alt="The claims handler's decision card"
-          style="left: 120px; top: 120px; width: 960px"
-        />
         <div
-          class="ring"
-          id="ring-brane"
-          style="left: 1170px; top: 360px; width: 580px; height: 110px"
+          class="hl"
+          id="hl-queue"
+          style="left: 4px; top: 60px; width: 272px; height: 624px"
         ></div>
+        <div class="lbl" id="lb-queue" style="left: 300px; top: 300px">
+          The queue<small>one claim per row, all synthetic</small>
+        </div>
         <div
-          class="ring"
-          id="ring-approve"
-          style="left: 140px; top: 572px; width: 140px; height: 64px; border-radius: 999px"
+          class="hl"
+          id="hl-box"
+          style="left: 300px; top: 928px; width: 1180px; height: 132px"
         ></div>
-        <img
-          id="ui-msg"
-          class="ui"
-          src="assets/ui/decision-message.png"
-          alt="The decision as a message in the chat"
-          style="left: 120px; top: 720px; width: 960px"
-        />
-        <img
-          id="ui-audit"
-          class="ui"
-          src="assets/ui/audit-human.png"
-          alt="The audit log with the human row"
-          style="left: 1140px; top: 300px; width: 680px"
-        />
+        <div class="lbl" id="lb-box" style="left: 300px; top: 790px">
+          The message box<small>her question, the GP letter and the invoice</small>
+        </div>
         <div
-          class="ring"
-          id="ring-row"
-          style="left: 1132px; top: 616px; width: 696px; height: 82px"
+          class="hl"
+          id="hl-trace"
+          style="left: 1506px; top: 196px; width: 408px; height: 520px"
         ></div>
+        <div class="lbl" id="lb-trace" style="right: 440px; top: 220px">
+          The trace<small>pre-mask, intake, BRANE, tools, person</small>
+        </div>
+        <div
+          class="hl"
+          id="hl-brane"
+          style="left: 1512px; top: 404px; width: 396px; height: 100px"
+        ></div>
+        <div class="lbl" id="lb-brane" style="right: 440px; top: 420px">
+          BRANE routes each request<small>local, or frontier with placeholders</small>
+        </div>
+        <div
+          class="hl"
+          id="hl-adv"
+          style="left: 304px; top: 204px; width: 720px; height: 268px"
+        ></div>
+        <div class="lbl" id="lb-adv" style="left: 1060px; top: 240px">
+          Question for the medical adviser<small>the agent waits for a person</small>
+        </div>
+        <div
+          class="hl"
+          id="hl-card"
+          style="left: 304px; top: 496px; width: 720px; height: 408px"
+        ></div>
+        <div class="lbl" id="lb-card" style="left: 1060px; top: 520px">
+          The decision card<small>recommendation, cited terms, where it went</small>
+        </div>
+        <div
+          class="hl"
+          id="hl-chat"
+          style="left: 304px; top: 748px; width: 720px; height: 92px"
+        ></div>
+        <div class="lbl" id="lb-chat" style="left: 1060px; top: 760px">
+          The decision, back in the chat<small>the agent continues from it</small>
+        </div>
+        <div
+          class="hl"
+          id="hl-chain"
+          style="left: 1512px; top: 160px; width: 400px; height: 120px"
+        ></div>
+        <div class="lbl" id="lb-chain" style="right: 440px; top: 170px">
+          The audit log<small>every step, hash-chained</small>
+        </div>
+        <div
+          class="hl"
+          id="hl-chain2"
+          style="left: 1512px; top: 160px; width: 400px; height: 120px"
+        ></div>
+        <div class="lbl" id="lb-chain2" style="right: 430px; top: 170px">
+          Chain verified<small>SHA-256 hash chain</small>
+        </div>
+        <div
+          class="hl"
+          id="hl-row"
+          style="left: 1514px; top: 552px; width: 400px; height: 52px"
+        ></div>
+        <div class="lbl" id="lb-row" style="right: 440px; top: 520px">
+          A human row<small>the claims handler approved the handoff</small>
+        </div>
+      </div>
+
+      <!-- impact: what the assistant takes off the desk, and against asking a model alone -->
+      <div
+        id="impact"
+        class="clip"
+        data-span="total"
+        data-start="0"
+        data-duration="187.599"
+        data-track-index="10"
+        data-layout-allow-overlap
+      >
+        <h2>Off the handler's desk</h2>
+        <div class="desk">
+          <div class="row" id="d1"><b>Assistant</b>reads the claim file</div>
+          <div class="row" id="d2"><b>Assistant</b>looks up the policy and the law</div>
+          <div class="row" id="d3"><b>Assistant</b>asks the medical adviser</div>
+          <div class="row" id="d4"><b>Assistant</b>drafts the recommendation</div>
+          <div class="row you" id="d5"><b>Handler</b>reads it and decides</div>
+        </div>
       </div>
 
       <!-- key lines -->
@@ -723,7 +939,7 @@
         class="clip"
         data-span="total"
         data-start="0"
-        data-duration="148.281"
+        data-duration="187.599"
         data-track-index="5"
         data-layout-allow-overlap
       >
@@ -737,7 +953,6 @@
         <div class="key" id="key-4">
           <span>The same loop<br />improves the harness.</span>
         </div>
-        <div class="key" id="key-5"><span>A person decides.</span></div>
       </div>
 
       <div
@@ -745,12 +960,13 @@
         class="clip"
         data-span="total"
         data-start="0"
-        data-duration="148.281"
+        data-duration="187.599"
         data-track-index="6"
       >
         <div id="url">
-          <div class="t">Run the claim yourself</div>
+          <div class="t">Try it yourself</div>
           <div class="u">claims-harness.fred-755.workers.dev</div>
+          <div class="pw">Team password <code id="pw">/* password */</code></div>
           <div class="m">
             Team Gezira · AI-Z Challenge Track · MAIN Summit 2026 · synthetic claims only
           </div>
@@ -771,14 +987,14 @@
         id="beat-harness"
         data-beat="harness"
         data-start="22.721"
-        data-duration="33.229"
+        data-duration="31.113"
         data-track-index="1"
       ></div>
       <div
         class="clip"
         id="beat-loop"
         data-beat="loop"
-        data-start="55.95"
+        data-start="53.834"
         data-duration="22.526"
         data-track-index="1"
       ></div>
@@ -786,24 +1002,64 @@
         class="clip"
         id="beat-evals"
         data-beat="evals"
-        data-start="78.476"
-        data-duration="20.821"
+        data-start="76.36"
+        data-duration="18.208"
         data-track-index="1"
       ></div>
       <div
         class="clip"
-        id="beat-demo"
-        data-beat="demo"
-        data-start="99.297"
-        data-duration="37.618"
+        id="beat-demo-queue"
+        data-beat="demo-queue"
+        data-start="94.568"
+        data-duration="12.462"
+        data-track-index="1"
+      ></div>
+      <div
+        class="clip"
+        id="beat-demo-trace"
+        data-beat="demo-trace"
+        data-start="107.03"
+        data-duration="14.526"
+        data-track-index="1"
+      ></div>
+      <div
+        class="clip"
+        id="beat-demo-adviser"
+        data-beat="demo-adviser"
+        data-start="121.556"
+        data-duration="13.12"
+        data-track-index="1"
+      ></div>
+      <div
+        class="clip"
+        id="beat-demo-decision"
+        data-beat="demo-decision"
+        data-start="134.676"
+        data-duration="13.846"
+        data-track-index="1"
+      ></div>
+      <div
+        class="clip"
+        id="beat-demo-audit"
+        data-beat="demo-audit"
+        data-start="148.522"
+        data-duration="10.059"
+        data-track-index="1"
+      ></div>
+      <div
+        class="clip"
+        id="beat-impact"
+        data-beat="impact"
+        data-start="158.581"
+        data-duration="14.719"
         data-track-index="1"
       ></div>
       <div
         class="clip"
         id="beat-close"
         data-beat="close"
-        data-start="136.915"
-        data-duration="11.366"
+        data-start="173.3"
+        data-duration="14.299"
         data-track-index="1"
       ></div>
 
@@ -812,7 +1068,7 @@
         class="clip"
         data-span="total"
         data-start="0"
-        data-duration="148.281"
+        data-duration="187.599"
         data-track-index="3"
         data-layout-allow-overlap
       ></div>
@@ -822,7 +1078,7 @@
       // Written by voiceover.mjs; do not edit by hand.
       const TIMING = /* timing:begin */ {
         source: "elevenlabs",
-        total: 148.281,
+        total: 187.599,
         beats: [
           {
             id: "situation",
@@ -901,7 +1157,7 @@
           {
             id: "harness",
             start: 22.721,
-            duration: 33.229,
+            duration: 31.113,
             words: [
               { w: "The", s: 0.25, e: 0.394 },
               { w: "assistant", s: 0.449, e: 0.902 },
@@ -952,60 +1208,54 @@
               { w: "BRANE's", s: 15.929, e: 16.217 },
               { w: "local", s: 16.261, e: 16.482 },
               { w: "model,", s: 16.526, e: 16.98 },
-              { w: "which", s: 17.245, e: 17.433 },
-              { w: "we", s: 17.478, e: 17.555 },
-              { w: "switch", s: 17.61, e: 17.909 },
-              { w: "on", s: 17.986, e: 18.219 },
-              { w: "per", s: 18.296, e: 18.45 },
-              { w: "run,", s: 18.517, e: 19.003 },
-              { w: "labels", s: 19.368, e: 19.766 },
-              { w: "the", s: 19.8, e: 19.865 },
-              { w: "request", s: 19.932, e: 20.363 },
-              { w: "and", s: 20.419, e: 20.496 },
-              { w: "can", s: 20.54, e: 20.661 },
-              { w: "only", s: 20.75, e: 21.027 },
-              { w: "make", s: 21.082, e: 21.237 },
-              { w: "the", s: 21.27, e: 21.337 },
-              { w: "route", s: 21.38, e: 21.58 },
-              { w: "stricter.", s: 21.613, e: 22.143 },
-              { w: "BRANE", s: 22.807, e: 23.227 },
-              { w: "is", s: 23.26, e: 23.326 },
-              { w: "the", s: 23.381, e: 23.448 },
-              { w: "gate.", s: 23.493, e: 23.901 },
-              { w: "It", s: 24.266, e: 24.4 },
-              { w: "sends", s: 24.477, e: 24.786 },
-              { w: "the", s: 24.841, e: 24.908 },
-              { w: "request", s: 24.985, e: 25.361 },
-              { w: "to", s: 25.394, e: 25.45 },
-              { w: "the", s: 25.505, e: 25.571 },
-              { w: "frontier", s: 25.616, e: 26.058 },
-              { w: "model", s: 26.135, e: 26.422 },
-              { w: "with", s: 26.478, e: 26.611 },
-              { w: "placeholders,", s: 26.655, e: 27.451 },
-              { w: "keeps", s: 27.871, e: 28.125 },
-              { w: "it", s: 28.17, e: 28.237 },
-              { w: "on", s: 28.269, e: 28.324 },
-              { w: "the", s: 28.358, e: 28.424 },
-              { w: "local", s: 28.458, e: 28.679 },
-              { w: "model,", s: 28.734, e: 29.065 },
-              { w: "or", s: 29.099, e: 29.254 },
-              { w: "refuses", s: 29.331, e: 29.828 },
-              { w: "it,", s: 29.883, e: 30.06 },
-              { w: "and", s: 30.37, e: 30.514 },
-              { w: "the", s: 30.559, e: 30.624 },
-              { w: "harness", s: 30.68, e: 30.989 },
-              { w: "has", s: 31.034, e: 31.2 },
-              { w: "no", s: 31.31, e: 31.465 },
-              { w: "other", s: 31.531, e: 31.697 },
-              { w: "path", s: 31.741, e: 31.984 },
-              { w: "to", s: 32.029, e: 32.095 },
-              { w: "a", s: 32.173, e: 32.195 },
-              { w: "model.", s: 32.25, e: 32.891 },
+              { w: "labels", s: 17.237, e: 17.635 },
+              { w: "the", s: 17.668, e: 17.734 },
+              { w: "request", s: 17.8, e: 18.232 },
+              { w: "and", s: 18.287, e: 18.364 },
+              { w: "can", s: 18.409, e: 18.53 },
+              { w: "only", s: 18.619, e: 18.896 },
+              { w: "make", s: 18.951, e: 19.105 },
+              { w: "the", s: 19.139, e: 19.205 },
+              { w: "route", s: 19.249, e: 19.448 },
+              { w: "stricter.", s: 19.481, e: 20.012 },
+              { w: "BRANE", s: 20.676, e: 21.096 },
+              { w: "is", s: 21.129, e: 21.195 },
+              { w: "the", s: 21.25, e: 21.317 },
+              { w: "gate.", s: 21.361, e: 21.77 },
+              { w: "It", s: 22.135, e: 22.268 },
+              { w: "sends", s: 22.345, e: 22.655 },
+              { w: "the", s: 22.71, e: 22.777 },
+              { w: "request", s: 22.854, e: 23.23 },
+              { w: "to", s: 23.262, e: 23.319 },
+              { w: "the", s: 23.374, e: 23.44 },
+              { w: "frontier", s: 23.484, e: 23.926 },
+              { w: "model", s: 24.003, e: 24.291 },
+              { w: "with", s: 24.346, e: 24.48 },
+              { w: "placeholders,", s: 24.523, e: 25.32 },
+              { w: "keeps", s: 25.74, e: 25.994 },
+              { w: "it", s: 26.039, e: 26.105 },
+              { w: "on", s: 26.138, e: 26.193 },
+              { w: "the", s: 26.226, e: 26.293 },
+              { w: "local", s: 26.326, e: 26.547 },
+              { w: "model,", s: 26.602, e: 26.934 },
+              { w: "or", s: 26.967, e: 27.122 },
+              { w: "refuses", s: 27.2, e: 27.697 },
+              { w: "it,", s: 27.752, e: 27.929 },
+              { w: "and", s: 28.239, e: 28.382 },
+              { w: "the", s: 28.427, e: 28.493 },
+              { w: "harness", s: 28.548, e: 28.858 },
+              { w: "has", s: 28.902, e: 29.068 },
+              { w: "no", s: 29.179, e: 29.334 },
+              { w: "other", s: 29.4, e: 29.565 },
+              { w: "path", s: 29.61, e: 29.853 },
+              { w: "to", s: 29.898, e: 29.963 },
+              { w: "a", s: 30.041, e: 30.063 },
+              { w: "model.", s: 30.119, e: 30.76 },
             ],
           },
           {
             id: "loop",
-            start: 55.95,
+            start: 53.834,
             duration: 22.526,
             words: [
               { w: "The", s: 0.25, e: 0.405 },
@@ -1083,208 +1333,346 @@
           },
           {
             id: "evals",
-            start: 78.476,
-            duration: 20.821,
+            start: 76.36,
+            duration: 18.208,
             words: [
-              { w: "Each", s: 0.25, e: 0.504 },
-              { w: "check", s: 0.548, e: 0.725 },
-              { w: "is", s: 0.77, e: 0.825 },
-              { w: "scored", s: 0.847, e: 1.09 },
-              { w: "on", s: 1.113, e: 1.168 },
-              { w: "its", s: 1.2, e: 1.3 },
-              { w: "own.", s: 1.344, e: 1.654 },
-              { w: "On", s: 2.075, e: 2.219 },
-              { w: "Omar", s: 2.284, e: 2.56 },
-              { w: "Shalaby's", s: 2.639, e: 3.047 },
-              { w: "split", s: 3.07, e: 3.346 },
-              { w: "we", s: 3.39, e: 3.479 },
-              { w: "tuned", s: 3.523, e: 3.744 },
-              { w: "on", s: 3.778, e: 3.855 },
-              { w: "eight", s: 3.965, e: 4.164 },
-              { w: "hundred", s: 4.208, e: 4.44 },
-              { w: "labelled", s: 4.496, e: 4.772 },
-              { w: "requests,", s: 4.817, e: 5.436 },
-              { w: "chose", s: 5.668, e: 5.944 },
-              { w: "between", s: 5.989, e: 6.254 },
-              { w: "versions", s: 6.309, e: 6.652 },
-              { w: "on", s: 6.697, e: 6.774 },
-              { w: "five", s: 6.829, e: 7.04 },
-              { w: "hundred,", s: 7.072, e: 7.448 },
-              { w: "and", s: 7.714, e: 7.858 },
-              { w: "ran", s: 7.923, e: 8.089 },
-              { w: "a", s: 8.134, e: 8.156 },
-              { w: "hash-locked", s: 8.233, e: 8.741 },
-              { w: "set", s: 8.764, e: 8.897 },
-              { w: "of", s: 8.93, e: 8.974 },
-              { w: "two", s: 9.019, e: 9.129 },
-              { w: "hundred", s: 9.173, e: 9.383 },
-              { w: "once,", s: 9.449, e: 9.837 },
-              { w: "at", s: 10.146, e: 10.3 },
-              { w: "the", s: 10.345, e: 10.422 },
-              { w: "end.", s: 10.489, e: 10.832 },
-              { w: "BRANE's", s: 11.495, e: 11.86 },
-              { w: "answers", s: 11.893, e: 12.202 },
-              { w: "vary,", s: 12.258, e: 12.756 },
-              { w: "so", s: 12.9, e: 13.043 },
-              { w: "each", s: 13.154, e: 13.341 },
-              { w: "case", s: 13.397, e: 13.651 },
-              { w: "counts", s: 13.696, e: 14.005 },
-              { w: "at", s: 14.049, e: 14.127 },
-              { w: "its", s: 14.16, e: 14.26 },
-              { w: "worst", s: 14.303, e: 14.547 },
-              { w: "run,", s: 14.613, e: 15.044 },
-              { w: "and", s: 15.354, e: 15.509 },
-              { w: "no", s: 15.598, e: 15.719 },
-              { w: "kept", s: 15.797, e: 15.996 },
-              { w: "change", s: 16.028, e: 16.316 },
-              { w: "leaked.", s: 16.371, e: 16.968 },
+              { w: "Each", s: 0.25, e: 0.516 },
+              { w: "check", s: 0.593, e: 0.88 },
+              { w: "is", s: 0.936, e: 1.013 },
+              { w: "scored", s: 1.046, e: 1.378 },
+              { w: "on", s: 1.411, e: 1.478 },
+              { w: "its", s: 1.533, e: 1.643 },
+              { w: "own,", s: 1.699, e: 2.085 },
+              { w: "on", s: 2.229, e: 2.384 },
+              { w: "Omar", s: 2.461, e: 2.76 },
+              { w: "Shalaby's", s: 2.826, e: 3.313 },
+              { w: "labelled", s: 3.368, e: 3.678 },
+              { w: "requests.", s: 3.744, e: 4.43 },
+              { w: "We", s: 5.004, e: 5.126 },
+              { w: "tune", s: 5.17, e: 5.359 },
+              { w: "on", s: 5.392, e: 5.491 },
+              { w: "one", s: 5.568, e: 5.745 },
+              { w: "split", s: 5.79, e: 6.11 },
+              { w: "and", s: 6.165, e: 6.243 },
+              { w: "choose", s: 6.276, e: 6.498 },
+              { w: "between", s: 6.53, e: 6.784 },
+              { w: "versions", s: 6.829, e: 7.16 },
+              { w: "on", s: 7.205, e: 7.282 },
+              { w: "another.", s: 7.338, e: 7.791 },
+              { w: "BRANE's", s: 8.1, e: 8.465 },
+              { w: "answers", s: 8.51, e: 8.853 },
+              { w: "vary,", s: 8.919, e: 9.261 },
+              { w: "so", s: 9.295, e: 9.394 },
+              { w: "each", s: 9.46, e: 9.616 },
+              { w: "case", s: 9.66, e: 9.88 },
+              { w: "counts", s: 9.925, e: 10.213 },
+              { w: "at", s: 10.245, e: 10.312 },
+              { w: "its", s: 10.357, e: 10.456 },
+              { w: "worst", s: 10.511, e: 10.754 },
+              { w: "run.", s: 10.82, e: 11.219 },
+              { w: "Here", s: 11.639, e: 11.838 },
+              { w: "is", s: 11.882, e: 11.948 },
+              { w: "where", s: 11.981, e: 12.159 },
+              { w: "each", s: 12.214, e: 12.401 },
+              { w: "score", s: 12.48, e: 12.789 },
+              { w: "started", s: 12.844, e: 13.242 },
+              { w: "and", s: 13.353, e: 13.497 },
+              { w: "where", s: 13.53, e: 13.674 },
+              { w: "it", s: 13.706, e: 13.761 },
+              { w: "ended.", s: 13.806, e: 14.359 },
             ],
           },
           {
-            id: "demo",
-            start: 99.297,
-            duration: 37.618,
+            id: "demo-queue",
+            start: 94.568,
+            duration: 12.462,
             words: [
               { w: "Here", s: 0.25, e: 0.46 },
               { w: "is", s: 0.493, e: 0.56 },
-              { w: "one", s: 0.626, e: 0.792 },
-              { w: "claim", s: 0.825, e: 1.035 },
-              { w: "from", s: 1.08, e: 1.19 },
-              { w: "the", s: 1.234, e: 1.3 },
-              { w: "queue.", s: 1.334, e: 1.732 },
-              { w: "Sanne", s: 2.152, e: 2.517 },
-              { w: "Bakker", s: 2.572, e: 2.893 },
-              { w: "asks", s: 2.97, e: 3.423 },
-              { w: "whether", s: 3.534, e: 3.8 },
-              { w: "her", s: 3.865, e: 3.943 },
-              { w: "weekly", s: 4.009, e: 4.319 },
-              { w: "therapy", s: 4.375, e: 4.695 },
-              { w: "for", s: 4.74, e: 4.839 },
-              { w: "burnout", s: 4.894, e: 5.193 },
-              { w: "is", s: 5.237, e: 5.314 },
-              { w: "covered,", s: 5.369, e: 5.79 },
-              { w: "and", s: 6.1, e: 6.243 },
-              { w: "her", s: 6.299, e: 6.364 },
-              { w: "GP's", s: 6.431, e: 6.896 },
-              { w: "letter", s: 6.961, e: 7.205 },
-              { w: "names", s: 7.26, e: 7.46 },
-              { w: "the", s: 7.481, e: 7.548 },
-              { w: "diagnosis", s: 7.592, e: 8.178 },
-              { w: "and", s: 8.222, e: 8.288 },
-              { w: "the", s: 8.311, e: 8.377 },
-              { w: "medication.", s: 8.4, e: 9.029 },
-              { w: "BRANE", s: 9.693, e: 10.002 },
-              { w: "keeps", s: 10.046, e: 10.268 },
-              { w: "the", s: 10.3, e: 10.379 },
-              { w: "seven", s: 10.467, e: 10.754 },
-              { w: "requests", s: 10.82, e: 11.263 },
-              { w: "that", s: 11.296, e: 11.418 },
-              { w: "carry", s: 11.462, e: 11.683 },
-              { w: "those", s: 11.739, e: 11.904 },
-              { w: "details", s: 11.938, e: 12.369 },
-              { w: "on", s: 12.413, e: 12.48 },
-              { w: "the", s: 12.512, e: 12.579 },
-              { w: "local", s: 12.612, e: 12.844 },
-              { w: "model,", s: 12.889, e: 13.286 },
-              { w: "and", s: 13.597, e: 13.74 },
-              { w: "the", s: 13.784, e: 13.851 },
-              { w: "one", s: 13.928, e: 14.105 },
-              { w: "request", s: 14.16, e: 14.658 },
-              { w: "that", s: 14.735, e: 14.901 },
-              { w: "goes", s: 14.945, e: 15.144 },
-              { w: "to", s: 15.178, e: 15.233 },
-              { w: "the", s: 15.288, e: 15.355 },
-              { w: "frontier", s: 15.399, e: 15.819 },
-              { w: "model", s: 15.885, e: 16.14 },
-              { w: "has", s: 16.195, e: 16.327 },
-              { w: "her", s: 16.382, e: 16.471 },
-              { w: "name", s: 16.516, e: 16.67 },
-              { w: "replaced.", s: 16.703, e: 17.267 },
-              { w: "The", s: 17.632, e: 17.754 },
-              { w: "agent", s: 17.831, e: 18.14 },
-              { w: "cites", s: 18.196, e: 18.473 },
-              { w: "the", s: 18.505, e: 18.572 },
-              { w: "policy", s: 18.627, e: 19.037 },
-              { w: "terms,", s: 19.092, e: 19.567 },
-              { w: "asks", s: 19.833, e: 20.142 },
-              { w: "the", s: 20.208, e: 20.275 },
-              { w: "medical", s: 20.319, e: 20.584 },
-              { w: "adviser", s: 20.628, e: 21.026 },
-              { w: "whether", s: 21.082, e: 21.303 },
-              { w: "the", s: 21.369, e: 21.436 },
-              { w: "therapy", s: 21.48, e: 21.812 },
-              { w: "is", s: 21.845, e: 21.911 },
-              { w: "necessary,", s: 21.966, e: 22.641 },
-              { w: "and", s: 22.807, e: 22.951 },
-              { w: "recommends", s: 23.028, e: 23.481 },
-              { w: "paying", s: 23.548, e: 23.858 },
-              { w: "once", s: 23.935, e: 24.089 },
-              { w: "the", s: 24.122, e: 24.189 },
-              { w: "adviser", s: 24.233, e: 24.587 },
-              { w: "answers.", s: 24.654, e: 25.14 },
-              { w: "The", s: 25.505, e: 25.616 },
-              { w: "claims", s: 25.671, e: 25.992 },
-              { w: "handler", s: 26.047, e: 26.379 },
-              { w: "approves.", s: 26.434, e: 27.009 },
-              { w: "The", s: 27.374, e: 27.496 },
-              { w: "decision", s: 27.551, e: 27.971 },
-              { w: "comes", s: 28.026, e: 28.225 },
-              { w: "back", s: 28.28, e: 28.468 },
-              { w: "into", s: 28.513, e: 28.645 },
-              { w: "the", s: 28.7, e: 28.767 },
-              { w: "chat", s: 28.8, e: 29.065 },
-              { w: "as", s: 29.12, e: 29.22 },
-              { w: "a", s: 29.264, e: 29.298 },
-              { w: "message", s: 29.375, e: 29.707 },
-              { w: "the", s: 29.751, e: 29.828 },
-              { w: "agent", s: 29.883, e: 30.149 },
-              { w: "continues", s: 30.182, e: 30.658 },
-              { w: "from,", s: 30.702, e: 31.1 },
-              { w: "and", s: 31.41, e: 31.553 },
-              { w: "the", s: 31.598, e: 31.664 },
-              { w: "audit", s: 31.72, e: 31.996 },
-              { w: "trail", s: 32.029, e: 32.317 },
-              { w: "stores", s: 32.394, e: 32.703 },
-              { w: "it", s: 32.747, e: 32.825 },
-              { w: "as", s: 32.88, e: 32.991 },
-              { w: "a", s: 33.035, e: 33.057 },
-              { w: "human", s: 33.112, e: 33.356 },
-              { w: "row,", s: 33.411, e: 33.831 },
-              { w: "linked", s: 34.14, e: 34.384 },
-              { w: "to", s: 34.406, e: 34.461 },
-              { w: "the", s: 34.505, e: 34.572 },
-              { w: "handoff", s: 34.627, e: 35.037 },
-              { w: "it", s: 35.08, e: 35.147 },
-              { w: "answers,", s: 35.191, e: 35.678 },
-              { w: "in", s: 35.755, e: 35.888 },
-              { w: "a", s: 35.932, e: 35.965 },
-              { w: "hash-chained", s: 36.032, e: 36.562 },
-              { w: "log.", s: 36.596, e: 37.27 },
+              { w: "the", s: 0.593, e: 0.66 },
+              { w: "web", s: 0.703, e: 0.869 },
+              { w: "app.", s: 0.946, e: 1.2 },
+              { w: "The", s: 1.566, e: 1.687 },
+              { w: "queue", s: 1.754, e: 1.931 },
+              { w: "on", s: 1.953, e: 2.02 },
+              { w: "the", s: 2.052, e: 2.119 },
+              { w: "left", s: 2.163, e: 2.362 },
+              { w: "holds", s: 2.406, e: 2.617 },
+              { w: "the", s: 2.639, e: 2.704 },
+              { w: "claims.", s: 2.738, e: 3.269 },
+              { w: "In", s: 3.689, e: 3.821 },
+              { w: "this", s: 3.865, e: 3.999 },
+              { w: "claim,", s: 4.064, e: 4.397 },
+              { w: "Sanne", s: 4.44, e: 4.706 },
+              { w: "Bakker", s: 4.75, e: 4.994 },
+              { w: "asks", s: 5.06, e: 5.292 },
+              { w: "whether", s: 5.325, e: 5.536 },
+              { w: "her", s: 5.591, e: 5.668 },
+              { w: "therapy", s: 5.735, e: 6.088 },
+              { w: "for", s: 6.133, e: 6.232 },
+              { w: "burnout", s: 6.276, e: 6.586 },
+              { w: "is", s: 6.63, e: 6.697 },
+              { w: "covered.", s: 6.752, e: 7.194 },
+              { w: "Her", s: 7.614, e: 7.758 },
+              { w: "message", s: 7.824, e: 8.145 },
+              { w: "and", s: 8.167, e: 8.244 },
+              { w: "her", s: 8.3, e: 8.377 },
+              { w: "files", s: 8.443, e: 8.808 },
+              { w: "fill", s: 8.863, e: 9.019 },
+              { w: "the", s: 9.074, e: 9.14 },
+              { w: "message", s: 9.173, e: 9.472 },
+              { w: "box,", s: 9.505, e: 9.925 },
+              { w: "and", s: 10.19, e: 10.323 },
+              { w: "the", s: 10.357, e: 10.422 },
+              { w: "handler", s: 10.478, e: 10.787 },
+              { w: "presses", s: 10.842, e: 11.23 },
+              { w: "Send.", s: 11.396, e: 12.103 },
+            ],
+          },
+          {
+            id: "demo-trace",
+            start: 107.03,
+            duration: 14.526,
+            words: [
+              { w: "On", s: 0.25, e: 0.394 },
+              { w: "the", s: 0.427, e: 0.493 },
+              { w: "right,", s: 0.548, e: 0.759 },
+              { w: "the", s: 0.78, e: 0.847 },
+              { w: "trace", s: 0.891, e: 1.168 },
+              { w: "fills", s: 1.212, e: 1.478 },
+              { w: "in", s: 1.543, e: 1.665 },
+              { w: "while", s: 1.72, e: 1.864 },
+              { w: "the", s: 1.886, e: 1.953 },
+              { w: "agent", s: 1.986, e: 2.219 },
+              { w: "works:", s: 2.251, e: 2.694 },
+              { w: "pre-mask,", s: 3.003, e: 3.755 },
+              { w: "intake,", s: 3.843, e: 4.44 },
+              { w: "BRANE,", s: 4.75, e: 5.359 },
+              { w: "tools,", s: 5.469, e: 6.021 },
+              { w: "and", s: 6.055, e: 6.21 },
+              { w: "the", s: 6.254, e: 6.32 },
+              { w: "person.", s: 6.364, e: 6.829 },
+              { w: "By", s: 7.404, e: 7.57 },
+              { w: "the", s: 7.625, e: 7.692 },
+              { w: "end,", s: 7.769, e: 7.957 },
+              { w: "BRANE", s: 8.001, e: 8.321 },
+              { w: "has", s: 8.366, e: 8.477 },
+              { w: "kept", s: 8.542, e: 8.731 },
+              { w: "the", s: 8.764, e: 8.83 },
+              { w: "requests", s: 8.885, e: 9.273 },
+              { w: "with", s: 9.317, e: 9.46 },
+              { w: "health", s: 9.516, e: 9.737 },
+              { w: "details", s: 9.792, e: 10.213 },
+              { w: "on", s: 10.257, e: 10.323 },
+              { w: "the", s: 10.357, e: 10.422 },
+              { w: "local", s: 10.456, e: 10.688 },
+              { w: "model,", s: 10.732, e: 11.152 },
+              { w: "and", s: 11.462, e: 11.605 },
+              { w: "the", s: 11.65, e: 11.717 },
+              { w: "request", s: 11.782, e: 12.18 },
+              { w: "to", s: 12.225, e: 12.28 },
+              { w: "the", s: 12.336, e: 12.401 },
+              { w: "frontier", s: 12.446, e: 12.878 },
+              { w: "model", s: 12.955, e: 13.209 },
+              { w: "is", s: 13.286, e: 13.375 },
+              { w: "protected.", s: 13.43, e: 14.182 },
+            ],
+          },
+          {
+            id: "demo-adviser",
+            start: 121.556,
+            duration: 13.12,
+            words: [
+              { w: "The", s: 0.25, e: 0.416 },
+              { w: "agent", s: 0.482, e: 0.747 },
+              { w: "looks", s: 0.78, e: 0.969 },
+              { w: "up", s: 1.013, e: 1.09 },
+              { w: "the", s: 1.135, e: 1.2 },
+              { w: "policy", s: 1.245, e: 1.599 },
+              { w: "terms", s: 1.654, e: 1.92 },
+              { w: "and", s: 1.953, e: 2.03 },
+              { w: "asks", s: 2.085, e: 2.274 },
+              { w: "the", s: 2.306, e: 2.373 },
+              { w: "medical", s: 2.418, e: 2.672 },
+              { w: "adviser", s: 2.694, e: 3.047 },
+              { w: "a", s: 3.102, e: 3.125 },
+              { w: "question.", s: 3.18, e: 3.689 },
+              { w: "The", s: 4.109, e: 4.241 },
+              { w: "adviser", s: 4.297, e: 4.795 },
+              { w: "answers", s: 4.872, e: 5.193 },
+              { w: "in", s: 5.237, e: 5.292 },
+              { w: "this", s: 5.314, e: 5.436 },
+              { w: "card,", s: 5.502, e: 5.911 },
+              { w: "and", s: 5.956, e: 6.121 },
+              { w: "the", s: 6.155, e: 6.22 },
+              { w: "answer", s: 6.265, e: 6.508 },
+              { w: "goes", s: 6.563, e: 6.74 },
+              { w: "back", s: 6.796, e: 6.961 },
+              { w: "to", s: 7.006, e: 7.061 },
+              { w: "the", s: 7.105, e: 7.172 },
+              { w: "agent", s: 7.227, e: 7.493 },
+              { w: "through", s: 7.515, e: 7.702 },
+              { w: "BRANE,", s: 7.736, e: 8.211 },
+              { w: "like", s: 8.576, e: 8.764 },
+              { w: "every", s: 8.798, e: 8.974 },
+              { w: "other", s: 9.019, e: 9.162 },
+              { w: "request.", s: 9.218, e: 9.98 },
+            ],
+          },
+          {
+            id: "demo-decision",
+            start: 134.676,
+            duration: 13.846,
+            words: [
+              { w: "Now", s: 0.25, e: 0.471 },
+              { w: "the", s: 0.526, e: 0.593 },
+              { w: "claims", s: 0.637, e: 0.914 },
+              { w: "handler", s: 0.958, e: 1.322 },
+              { w: "decides.", s: 1.4, e: 2.075 },
+              { w: "The", s: 2.384, e: 2.495 },
+              { w: "decision", s: 2.55, e: 2.981 },
+              { w: "card", s: 3.047, e: 3.313 },
+              { w: "shows", s: 3.368, e: 3.611 },
+              { w: "the", s: 3.634, e: 3.7 },
+              { w: "recommendation,", s: 3.755, e: 4.574 },
+              { w: "the", s: 4.805, e: 4.905 },
+              { w: "cited", s: 4.949, e: 5.248 },
+              { w: "terms,", s: 5.281, e: 5.779 },
+              { w: "and", s: 6.088, e: 6.243 },
+              { w: "where", s: 6.287, e: 6.464 },
+              { w: "each", s: 6.53, e: 6.719 },
+              { w: "request", s: 6.796, e: 7.16 },
+              { w: "went.", s: 7.227, e: 7.58 },
+              { w: "The", s: 8.001, e: 8.112 },
+              { w: "handler", s: 8.178, e: 8.51 },
+              { w: "approves,", s: 8.554, e: 9.14 },
+              { w: "and", s: 9.173, e: 9.306 },
+              { w: "the", s: 9.35, e: 9.417 },
+              { w: "decision", s: 9.46, e: 9.903 },
+              { w: "comes", s: 9.969, e: 10.19 },
+              { w: "back", s: 10.257, e: 10.444 },
+              { w: "into", s: 10.489, e: 10.643 },
+              { w: "the", s: 10.71, e: 10.777 },
+              { w: "chat", s: 10.81, e: 11.141 },
+              { w: "as", s: 11.252, e: 11.451 },
+              { w: "a", s: 11.506, e: 11.54 },
+              { w: "message", s: 11.628, e: 11.981 },
+              { w: "the", s: 12.026, e: 12.092 },
+              { w: "agent", s: 12.159, e: 12.424 },
+              { w: "continues", s: 12.48, e: 12.943 },
+              { w: "from.", s: 12.988, e: 13.519 },
+            ],
+          },
+          {
+            id: "demo-audit",
+            start: 148.522,
+            duration: 10.059,
+            words: [
+              { w: "The", s: 0.25, e: 0.405 },
+              { w: "audit", s: 0.46, e: 0.681 },
+              { w: "log", s: 0.725, e: 0.924 },
+              { w: "tab", s: 0.98, e: 1.223 },
+              { w: "lists", s: 1.289, e: 1.488 },
+              { w: "every", s: 1.599, e: 1.876 },
+              { w: "step", s: 1.931, e: 2.185 },
+              { w: "and", s: 2.229, e: 2.306 },
+              { w: "every", s: 2.351, e: 2.495 },
+              { w: "decision", s: 2.539, e: 2.903 },
+              { w: "a", s: 2.948, e: 2.97 },
+              { w: "person", s: 3.025, e: 3.291 },
+              { w: "made.", s: 3.335, e: 3.689 },
+              { w: "The", s: 4.109, e: 4.231 },
+              { w: "approval", s: 4.275, e: 4.695 },
+              { w: "is", s: 4.761, e: 4.85 },
+              { w: "a", s: 4.905, e: 4.927 },
+              { w: "human", s: 5.004, e: 5.303 },
+              { w: "row,", s: 5.369, e: 5.845 },
+              { w: "linked", s: 6.11, e: 6.364 },
+              { w: "to", s: 6.387, e: 6.442 },
+              { w: "the", s: 6.498, e: 6.563 },
+              { w: "handoff", s: 6.619, e: 7.04 },
+              { w: "it", s: 7.083, e: 7.15 },
+              { w: "answers,", s: 7.205, e: 7.747 },
+              { w: "and", s: 7.946, e: 8.1 },
+              { w: "the", s: 8.134, e: 8.2 },
+              { w: "hash", s: 8.256, e: 8.487 },
+              { w: "chain", s: 8.532, e: 8.741 },
+              { w: "is", s: 8.786, e: 8.853 },
+              { w: "verified.", s: 8.897, e: 9.715 },
+            ],
+          },
+          {
+            id: "impact",
+            start: 158.581,
+            duration: 14.719,
+            words: [
+              { w: "What", s: 0.25, e: 0.46 },
+              { w: "does", s: 0.504, e: 0.67 },
+              { w: "this", s: 0.703, e: 0.836 },
+              { w: "take", s: 0.891, e: 1.113 },
+              { w: "off", s: 1.157, e: 1.289 },
+              { w: "the", s: 1.322, e: 1.389 },
+              { w: "handler's", s: 1.433, e: 1.754 },
+              { w: "desk?", s: 1.798, e: 2.24 },
+              { w: "The", s: 2.66, e: 2.771 },
+              { w: "assistant", s: 2.826, e: 3.269 },
+              { w: "reads", s: 3.313, e: 3.49 },
+              { w: "the", s: 3.523, e: 3.589 },
+              { w: "file,", s: 3.634, e: 4.087 },
+              { w: "looks", s: 4.507, e: 4.75 },
+              { w: "up", s: 4.783, e: 4.872 },
+              { w: "the", s: 4.916, e: 4.982 },
+              { w: "policy", s: 5.016, e: 5.369 },
+              { w: "terms", s: 5.424, e: 5.767 },
+              { w: "and", s: 5.812, e: 6.033 },
+              { w: "the", s: 6.088, e: 6.155 },
+              { w: "law,", s: 6.22, e: 6.719 },
+              { w: "asks", s: 6.951, e: 7.227 },
+              { w: "the", s: 7.271, e: 7.349 },
+              { w: "adviser,", s: 7.393, e: 8.034 },
+              { w: "and", s: 8.178, e: 8.333 },
+              { w: "drafts", s: 8.377, e: 8.698 },
+              { w: "a", s: 8.731, e: 8.753 },
+              { w: "recommendation", s: 8.83, e: 9.472 },
+              { w: "with", s: 9.505, e: 9.638 },
+              { w: "its", s: 9.681, e: 9.76 },
+              { w: "sources.", s: 9.792, e: 10.357 },
+              { w: "The", s: 10.777, e: 10.887 },
+              { w: "handler", s: 10.942, e: 11.23 },
+              { w: "reads", s: 11.296, e: 11.506 },
+              { w: "it", s: 11.55, e: 11.65 },
+              { w: "and", s: 11.705, e: 11.838 },
+              { w: "decides.", s: 11.882, e: 12.523 },
             ],
           },
           {
             id: "close",
-            start: 136.915,
-            duration: 11.366,
+            start: 173.3,
+            duration: 14.299,
             words: [
-              { w: "The", s: 0.25, e: 0.405 },
-              { w: "app", s: 0.493, e: 0.692 },
-              { w: "is", s: 0.737, e: 0.814 },
-              { w: "live", s: 0.902, e: 1.157 },
-              { w: "with", s: 1.19, e: 1.3 },
-              { w: "synthetic", s: 1.334, e: 1.798 },
-              { w: "claims,", s: 1.842, e: 2.318 },
-              { w: "so", s: 2.384, e: 2.505 },
-              { w: "you", s: 2.583, e: 2.672 },
-              { w: "can", s: 2.716, e: 2.826 },
-              { w: "run", s: 2.893, e: 3.047 },
-              { w: "this", s: 3.08, e: 3.202 },
-              { w: "claim", s: 3.246, e: 3.445 },
-              { w: "yourself.", s: 3.5, e: 4.032 },
-              { w: "We", s: 4.452, e: 4.574 },
-              { w: "are", s: 4.618, e: 4.717 },
-              { w: "Team", s: 4.772, e: 4.971 },
-              { w: "Gezira.", s: 5.038, e: 5.822 },
+              { w: "Try", s: 0.25, e: 0.504 },
+              { w: "it", s: 0.548, e: 0.615 },
+              { w: "yourself.", s: 0.648, e: 1.157 },
+              { w: "The", s: 1.577, e: 1.687 },
+              { w: "app", s: 1.742, e: 1.886 },
+              { w: "is", s: 1.941, e: 2.008 },
+              { w: "live", s: 2.097, e: 2.362 },
+              { w: "with", s: 2.384, e: 2.483 },
+              { w: "synthetic", s: 2.517, e: 2.881 },
+              { w: "claims,", s: 2.915, e: 3.38 },
+              { w: "and", s: 3.423, e: 3.567 },
+              { w: "the", s: 3.611, e: 3.678 },
+              { w: "address", s: 3.744, e: 4.186 },
+              { w: "and", s: 4.241, e: 4.385 },
+              { w: "the", s: 4.44, e: 4.507 },
+              { w: "password", s: 4.54, e: 4.982 },
+              { w: "are", s: 5.016, e: 5.126 },
+              { w: "on", s: 5.16, e: 5.237 },
+              { w: "screen.", s: 5.292, e: 5.767 },
+              { w: "We", s: 6.254, e: 6.376 },
+              { w: "are", s: 6.42, e: 6.52 },
+              { w: "Team", s: 6.586, e: 6.884 },
+              { w: "Gezira.", s: 6.961, e: 7.769 },
             ],
           },
         ],
@@ -1294,6 +1682,46 @@
         source: "evals/climb-summary.json",
         metrics: [
           {
+            key: "leak_rate",
+            label: "Leak rate",
+            unit: "%",
+            better: "down",
+            start: 83,
+            end: 1,
+            steps: 4,
+            note: "omar-val · complete system",
+          },
+          {
+            key: "names_as_typed",
+            label: "Names sent as typed",
+            unit: "%",
+            better: "down",
+            start: 85.7,
+            end: 0.8,
+            steps: 4,
+            note: "omar-val · complete system",
+          },
+          {
+            key: "route_f1",
+            label: "Route F1",
+            unit: "0-1",
+            better: "up",
+            start: 0.115,
+            end: 0.949,
+            steps: 4,
+            note: "omar-val",
+          },
+          {
+            key: "mandatory_tests",
+            label: "Mandatory tests passed",
+            unit: "of 5",
+            better: "up",
+            start: 2,
+            end: 5,
+            steps: 4,
+            note: "BRANE dry runs",
+          },
+          {
             key: "retrieval_recall_at_3",
             label: "Legal lookup recall@3",
             unit: "0-1",
@@ -1301,8 +1729,22 @@
             start: 0.37,
             end: 0.907,
             steps: 4,
+            note: "tuning questions",
+            second: { label: "unseen", start: 0.528, end: 0.639 },
+          },
+          {
+            key: "over_block",
+            label: "Over-block",
+            unit: "%",
+            better: "down",
+            start: 0,
+            end: 6,
+            steps: 4,
+            note: "the price of the protection",
+            price: true,
           },
         ],
+        security: { value: 10, of: 10 },
       }; /* climb:end */
 
       const beat = Object.fromEntries(TIMING.beats.map((b) => [b.id, b]));
@@ -1444,6 +1886,38 @@
         );
       }
 
+      // Real code, typeset short. Set here so no formatter reflows the lines.
+      const CODE = {
+        "code-mask": [
+          "src/primitives/detect.ts",
+          ["for (const m of text.matchAll(", ["/\\bPOL-\\d{4}-\\d{2}\\b/g"], "))"],
+          ["  found.push({ kind: ", ['"POLICY_ID"'], ", text: m[0] });"],
+          [{ i: "// the same value gets the same token everywhere" }],
+          ["out = out.split(f.text).join(seen.get(f.text));"],
+        ],
+        "code-brane": [
+          "src/brane.ts · braneFetch",
+          ["if (url.origin !== base.origin)"],
+          ["  throw new Error(", ['"only BRANE is allowed"'], ");"],
+          ['if (decision.routedTo === "" && response.status !== 422)'],
+          ["  throw new Error(", ['"BRANE returned no routing decision; nothing is sent"'], ");"],
+        ],
+      };
+      for (const [id, [file, ...lines]] of Object.entries(CODE)) {
+        const el = document.getElementById(id);
+        el.appendChild(document.createElement("span")).className = "f";
+        el.firstChild.textContent = file;
+        lines.forEach((parts, n) => {
+          for (const part of parts) {
+            if (typeof part === "string") el.append(part);
+            else if (Array.isArray(part))
+              el.appendChild(document.createElement("b")).textContent = part[0];
+            else el.appendChild(document.createElement("i")).textContent = part.i;
+          }
+          if (n < lines.length - 1) el.append("\n");
+        });
+      }
+
       // 1 Situation: the handler, the claim, and the line it may not cross.
       const S = (p) => at("situation", p);
       grow("#n-hand", S("claims handlers"), 0.6);
@@ -1493,11 +1967,6 @@
       draw("e-pc", H("a second") - 0.3, 0.4);
       grow("#n-cls", H("a second"));
       tl.to("#e-cbl", { opacity: 1, duration: 0.5 }, H("local model"));
-      tl.to(
-        "#n-cls",
-        { backgroundColor: "#f3f3f4", boxShadow: "inset 0 0 0 2.5px #f3f3f4", duration: 0.4 },
-        H("switch on"),
-      );
       draw("e-cb", H("brane is") - 0.3, 0.4);
       grow("#n-brane", H("brane is"));
       key("key-3", H("the gate") + 0.4, 1.6, "#world");
@@ -1554,160 +2023,211 @@
         end("loop") - 0.6 - Lp("change one"),
         "none",
       );
-      rise("#code-climb", Lp("keep the"));
       tl.to("#loop", { opacity: 0, duration: 0.4 }, end("loop") - 0.4);
 
-      // 4 Evals: four slopes draw one after another, start to end, as the outcome of that loop.
-      const E = (p) => at("evals", p);
+      // 4 Evals: up to six slopes, start to end, real runs only (CLIMB from evals/climb-summary.json).
       tl.to("#slopes", { opacity: 1, duration: 0.3 }, start("evals"));
-      if (CLIMB.source === "placeholder") document.getElementById("ph").style.display = "block";
       const fmt = (v, unit) =>
         unit === "%"
           ? `${+v.toFixed(1)}%`
-          : unit === "" || unit === "0-1"
-            ? Math.abs(v) < 10
-              ? v.toFixed(2)
-              : `${Math.round(v)}`
-            : `${+v.toFixed(1)} ${unit}`;
+          : unit === "0-1"
+            ? v.toFixed(2)
+            : unit === "of 5"
+              ? `${v}/5`
+              : `${+v.toFixed(1)}`;
       const ms = CLIMB.metrics;
-      const W = 380,
-        GAP = ms.length === 4 ? (1728 - 4 * W) / 3 : 96,
-        LEFT = (1920 - (ms.length * W + (ms.length - 1) * GAP)) / 2;
-      const PH = 380;
+      const CW = 552,
+        CH = 400,
+        CG = 36,
+        cols = Math.min(3, ms.length),
+        rows = Math.ceil(ms.length / 3);
+      const LEFT = (1920 - (cols * CW + (cols - 1) * CG)) / 2;
+      const TOP = rows === 1 ? 330 : 150;
+      const PW = CW - 64,
+        PH = 170;
       const host = document.getElementById("slope-host");
       const slot0 = start("evals") + 0.3;
       const slotEnd = end("evals") - 3.0;
       const per = (slotEnd - slot0) / ms.length;
+      const range = (m) => {
+        if (m.unit === "%") return [0, 100];
+        if (m.unit === "of 5") return [0, 5];
+        if (m.unit === "0-1") return [0, 1];
+        const lo = Math.min(m.start, m.end),
+          hi = Math.max(m.start, m.end);
+        return [lo, hi === lo ? lo + 1 : hi];
+      };
       ms.forEach((m, i) => {
         const el = document.createElement("div");
-        el.className = "slope";
-        el.style.left = `${LEFT + i * (W + GAP)}px`;
-        el.style.width = `${W}px`;
+        el.className = m.price ? "slope price" : "slope";
+        el.style.left = `${LEFT + (i % 3) * (CW + CG)}px`;
+        el.style.top = `${TOP + Math.floor(i / 3) * (CH + CG)}px`;
         const good = m.better === "down" ? m.end <= m.start : m.end >= m.start;
-        el.innerHTML = `<div class="lb">${m.label}</div><div class="bt">${m.better === "down" ? "lower is better" : "higher is better"}</div>`;
-        let lo = Math.min(m.start, m.end),
-          hi = Math.max(m.start, m.end);
-        if (m.unit === "%") {
-          lo = 0;
-          hi = Math.max(hi, 1);
-        }
-        if (m.unit === "of 5") {
-          lo = 0;
-          hi = 5;
-        }
-        if (m.unit === "0-1") {
-          lo = 0;
-          hi = 1;
-        }
-        if (m.unit === "") {
-          lo = Math.min(lo, 0.5);
-          hi = Math.max(hi, 1);
-        }
-        if (hi === lo) hi = lo + 1;
+        el.innerHTML = `<div class="lb">${m.label}</div><div class="bt">${m.note ?? ""}${m.second ? ` (solid) · ${m.second.label} (dotted)` : ""}</div>`;
+        const [lo, hi] = range(m);
         const Y = (v) => PH - ((v - lo) / (hi - lo)) * PH;
-        const x0 = 100,
-          x1 = W - 120,
-          y0 = Y(m.start),
-          y1 = Y(m.end);
+        const x0 = 112,
+          x1 = PW - 150;
+        const lines = [{ start: m.start, end: m.end, cls: "ln", main: true }];
+        if (m.second) lines.push({ ...m.second, cls: "ln b", main: false });
         const svg = document.createElementNS(NS, "svg");
-        svg.setAttribute("width", W);
+        svg.setAttribute("width", PW);
         svg.setAttribute("height", PH);
         svg.innerHTML =
-          `<line class="tick" x1="${x0}" y1="-10" x2="${x0}" y2="${PH + 10}"/>` +
-          `<line class="tick" x1="${x1}" y1="-10" x2="${x1}" y2="${PH + 10}"/>` +
-          `<path class="ln" d="M${x0} ${y0} L${x1} ${y1}"/>` +
-          `<circle cx="${x0}" cy="${y0}" r="8" fill="#111"/>` +
-          `<circle cx="${x1}" cy="${y1}" r="11" fill="${good ? "#ffe14a" : "#fff"}" stroke="#111" stroke-width="3"/>`;
+          `<line class="tick" x1="${x0}" y1="-8" x2="${x0}" y2="${PH + 8}"/>` +
+          `<line class="tick" x1="${x1}" y1="-8" x2="${x1}" y2="${PH + 8}"/>` +
+          lines
+            .map(
+              (l) =>
+                `<path class="${l.cls}" d="M${x0} ${Y(l.start)} L${x1} ${Y(l.end)}"/>` +
+                `<circle cx="${x0}" cy="${Y(l.start)}" r="${l.main ? 8 : 6}" fill="${l.main ? "#111" : "#8a8a90"}"/>` +
+                `<circle cx="${x1}" cy="${Y(l.end)}" r="${l.main ? 11 : 8}" fill="${l.main && good ? "#ffe14a" : "#fff"}" stroke="${l.main ? "#111" : "#8a8a90"}" stroke-width="3"/>`,
+            )
+            .join("");
         el.appendChild(svg);
-        const vs = document.createElement("div");
-        vs.className = "v s";
-        vs.textContent = fmt(m.start, m.unit);
-        vs.style.left = `0px`;
-        vs.style.width = `${x0 - 16}px`;
-        vs.style.textAlign = "right";
-        vs.style.top = `${120 + y0 - 20}px`;
-        const ve = document.createElement("div");
-        ve.className = "v";
-        ve.textContent = fmt(m.end, m.unit);
-        ve.style.left = `${x1 + 20}px`;
-        ve.style.top = `${120 + y1 - 28}px`;
+        const SY = 130;
+        const labels = [];
+        lines.forEach((l, k) => {
+          const vs = document.createElement("div");
+          vs.className = l.main ? "v s" : "v s t";
+          vs.textContent = fmt(l.start, m.unit);
+          vs.style.left = `32px`;
+          vs.style.width = `${x0 - 14}px`;
+          vs.style.textAlign = "right";
+          // a second start label sits clear of the first: at least 38 px away, on its own side
+          let sy = SY + Y(l.start) - (l.main ? 20 : 18);
+          if (k) {
+            const y0 = SY + Y(lines[0].start) - 20;
+            if (Math.abs(sy - y0) < 38) sy = sy <= y0 ? y0 - 38 : y0 + 38;
+          }
+          vs.style.top = `${sy}px`;
+          const ve = document.createElement("div");
+          ve.className = l.main ? "v" : "v t";
+          ve.textContent = fmt(l.end, m.unit);
+          ve.style.left = `${32 + x1 + 20}px`;
+          ve.style.top = `${SY + Y(l.end) - (l.main ? 28 : 18)}px`;
+          if (!l.main) ve.style.color = "#6e6e73";
+          el.append(vs, ve);
+          labels.push([vs, ve]);
+        });
         const st = document.createElement("div");
-        st.className = "st";
-        st.textContent = `start → end · ${m.steps} kept change${m.steps === 1 ? "" : "s"}`;
-        el.append(vs, ve, st);
+        st.className = "tg";
+        st.textContent =
+          `${m.better === "down" ? "lower is better" : "higher is better"} · ` +
+          `${m.steps} kept change${m.steps === 1 ? "" : "s"}`;
+        st.style.right = "32px";
+        st.style.top = `${CH - 52}px`;
+        el.appendChild(st);
         host.appendChild(el);
         const t = slot0 + i * per;
-        const path = svg.querySelector(".ln");
-        const L = Math.hypot(x1 - x0, y1 - y0);
-        gsap.set(path, { strokeDasharray: L, strokeDashoffset: L });
-        const [c0, c1] = svg.querySelectorAll("circle");
-        gsap.set([c0, c1], { opacity: 0 });
-        gsap.set(svg, { opacity: 0 });
-        tl.to(svg, { opacity: 1, duration: 0.2 }, t + 0.2);
-        tl.fromTo(el.querySelector(".lb"), { opacity: 0 }, { opacity: 1, duration: 0.3 }, t);
-        tl.fromTo(el.querySelector(".bt"), { opacity: 0 }, { opacity: 1, duration: 0.3 }, t + 0.1);
-        tl.to(c0, { opacity: 1, duration: 0.2 }, t + 0.2);
-        tl.fromTo(vs, { opacity: 0 }, { opacity: 1, duration: 0.3 }, t + 0.2);
-        tl.to(
-          path,
-          { strokeDashoffset: 0, duration: Math.min(1.4, per * 0.6), ease: "power2.inOut" },
-          t + 0.35,
-        );
+        const draw = Math.min(1.2, per * 0.5);
         tl.fromTo(
-          c1,
-          { opacity: 0, scale: 0, transformOrigin: "50% 50%" },
-          { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" },
-          t + 0.35 + Math.min(1.4, per * 0.6),
+          el,
+          { opacity: 0, y: 12 },
+          { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" },
+          t,
         );
-        tl.fromTo(
-          ve,
-          { opacity: 0, y: 8 },
-          { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" },
-          t + 0.45 + Math.min(1.4, per * 0.6),
-        );
-        tl.fromTo(
-          st,
-          { opacity: 0 },
-          { opacity: 1, duration: 0.3 },
-          t + 0.6 + Math.min(1.4, per * 0.6),
+        const paths = svg.querySelectorAll("path");
+        const dots = svg.querySelectorAll("circle");
+        paths.forEach((path, k) => {
+          const L = path.getTotalLength();
+          gsap.set(path, {
+            strokeDasharray: k ? "2 9" : L,
+            strokeDashoffset: k ? 0 : L,
+            opacity: k ? 0 : 1,
+          });
+        });
+        gsap.set(dots, { opacity: 0 });
+        lines.forEach((l, k) => {
+          const t0 = t + 0.3 + k * (draw + 0.3);
+          tl.to(dots[2 * k], { opacity: 1, duration: 0.2 }, t0);
+          tl.fromTo(labels[k][0], { opacity: 0 }, { opacity: 1, duration: 0.3 }, t0);
+          if (k === 0)
+            tl.to(
+              paths[0],
+              { strokeDashoffset: 0, duration: draw, ease: "power2.inOut" },
+              t0 + 0.1,
+            );
+          else tl.to(paths[k], { opacity: 1, duration: draw }, t0 + 0.1);
+          tl.fromTo(
+            dots[2 * k + 1],
+            { opacity: 0, scale: 0, transformOrigin: "50% 50%" },
+            { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" },
+            t0 + 0.1 + draw,
+          );
+          tl.fromTo(
+            labels[k][1],
+            { opacity: 0, y: 8 },
+            { opacity: 1, y: 0, duration: 0.35, ease: "expo.out" },
+            t0 + 0.2 + draw,
+          );
+        });
+        el.querySelectorAll(".tg").forEach((g) =>
+          tl.fromTo(g, { opacity: 0 }, { opacity: 1, duration: 0.3 }, t + 0.5 + draw),
         );
       });
+      if (CLIMB.security) {
+        const sec = document.createElement("div");
+        sec.id = "sec";
+        sec.textContent = `Security cases: ${CLIMB.security.value} of ${CLIMB.security.of} pass`;
+        document.getElementById("slopes").appendChild(sec);
+        tl.fromTo(sec, { opacity: 0 }, { opacity: 1, duration: 0.4 }, slotEnd);
+      }
       tl.to("#slopes", { opacity: 0, duration: 0.4 }, end("evals") - 0.4);
 
-      // 5 Demo: the burnout claim in the real app.
-      const D = (p) => at("demo", p);
-      rise("#ui-composer", D("here is"));
-      tl.to("#ui-composer", { opacity: 0, y: -16, duration: 0.4 }, D("brane keeps") - 0.6);
-      rise("#ui-trace", D("brane keeps") - 0.4);
-      tl.fromTo(
-        "#ring-brane",
-        { opacity: 0, scale: 1.04 },
-        { opacity: 1, scale: 1, duration: 0.4, ease: "expo.out" },
-        D("seven requests"),
-      );
-      tl.to("#ring-brane", { opacity: 0, duration: 0.3 }, D("the agent cites"));
-      rise("#ui-card", D("the agent cites"));
-      tl.to("#ui-trace", { opacity: 0, duration: 0.4 }, D("the claims handler") - 0.4);
-      key("key-5", D("the claims handler"), 1.4, ["#ui-card"]);
-      tl.fromTo(
-        "#ring-approve",
-        { opacity: 0, scale: 1.3 },
-        { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" },
-        D("approves") + 1.2,
-      );
-      tl.to("#ring-approve", { opacity: 0, duration: 0.3 }, D("the decision") + 0.4);
-      tl.to("#ui-card", { opacity: 0.25, duration: 0.4 }, D("comes back"));
-      rise("#ui-msg", D("chat"));
-      rise("#ui-audit", D("audit trail"));
-      tl.fromTo(
-        "#ring-row",
-        { opacity: 0, scale: 1.04 },
-        { opacity: 1, scale: 1, duration: 0.4, ease: "expo.out" },
-        D("human row"),
-      );
-      fadeOut(["#ui-card", "#ui-msg", "#ui-audit", "#ring-row"], end("demo") - 0.4, 0.35);
+      // 5 Demo: the live recording, with a highlight and a short label on each part of the screen as it is named.
+      const Q = (p) => at("demo-queue", p),
+        T = (p) => at("demo-trace", p),
+        A = (p) => at("demo-adviser", p),
+        DD = (p) => at("demo-decision", p),
+        U = (p) => at("demo-audit", p);
+      tl.fromTo("#live", { opacity: 0 }, { opacity: 1, duration: 0.4 }, start("demo-queue"));
+      tl.to("#live", { opacity: 0, duration: 0.4 }, end("demo-audit") - 0.4);
+      const show = (name, t0, t1) => {
+        tl.fromTo(
+          `#hl-${name}`,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.3, ease: "power2.out" },
+          t0,
+        );
+        tl.fromTo(
+          `#lb-${name}`,
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" },
+          t0 + 0.1,
+        );
+        tl.to(
+          [`#hl-${name}`, `#lb-${name}`],
+          { opacity: 0, duration: 0.25, ease: "power2.in" },
+          t1 - 0.25,
+        );
+      };
+      show("queue", Q("the queue"), Q("in this"));
+      show("box", Q("her message"), end("demo-queue") - 0.6);
+      show("trace", T("on the right"), T("by the end"));
+      show("brane", T("by the end"), end("demo-trace") - 0.2);
+      show("adv", A("asks the"), A("like every"));
+      show("card", DD("the decision card"), DD("the handler approves"));
+      show("chat", DD("as a"), end("demo-decision") - 0.2);
+      show("chain", U("the audit"), U("the approval"));
+      show("row", U("human row"), U("and the hash"));
+      show("chain2", U("and the hash"), end("demo-audit") - 0.4);
 
-      // 6 Close: the address.
+      // 6 Impact: what the assistant takes off the handler's desk.
+      const I = (p) => at("impact", p);
+      tl.fromTo("#impact", { opacity: 0 }, { opacity: 1, duration: 0.4 }, start("impact"));
+      rise("#impact h2", I("what does"), 0.6);
+      rise("#d1", I("reads the"), 0.5);
+      rise("#d2", I("looks up"), 0.5);
+      rise("#d3", I("asks the"), 0.5);
+      rise("#d4", I("drafts"), 0.5);
+      rise("#d5", I("the handler reads"), 0.5);
+      tl.to("#impact", { opacity: 0, duration: 0.4 }, end("impact") - 0.4);
+
+      // 7 Close: try it yourself, the address and the team password (assets/team.js, written at render time).
+      const pw = window.TEAM_PASSWORD;
+      if (pw) document.getElementById("pw").textContent = pw;
+      else document.querySelector("#url .pw").style.display = "none";
       tl.fromTo(
         "#url",
         { opacity: 0, y: 16 },
@@ -1719,7 +2239,13 @@
         u,
         { boxShadow: "inset 0 0 0 3px #111" },
         { boxShadow: "inset 0 0 0 3px #111, 0 0 0 8px #ffe14a", duration: 0.5 },
-        at("close", "run this"),
+        at("close", "the address"),
+      );
+      tl.fromTo(
+        "#url .pw code",
+        { backgroundColor: "#f3f3f4" },
+        { backgroundColor: "#ffe14a", duration: 0.4 },
+        at("close", "password"),
       );
 
       // Captions: groups of up to 8 words, split at sentence ends and pauses of 0.3 s or more.

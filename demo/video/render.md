@@ -1,19 +1,21 @@
 # Render the video
 
-A HyperFrames 0.9.72 project, 1920x1080 at 30 fps, about 2 minutes 28 seconds. The beats are in
-[the video plan](../../docs/demo.md#the-video-92-seconds-pitch-and-backup), the spoken text in
-[narration.md](../narration.md), and the styles in `assets/tokens.css`, which the deck shares. Inter is bundled in
+A HyperFrames 0.9.72 project, 1920x1080 at 30 fps, about 3 minutes 20 seconds. The beats and the
+spoken text are in [narration.md](../narration.md): situation, harness, loop, evals, the live recording in five beats,
+impact, and the close with the address and the team password. The styles are in `assets/tokens.css`. Inter is bundled in
 `assets/fonts/`. [REVIEW.md](REVIEW.md) records the last frame review.
 
 ## Inputs
 
-| File                            | What                                                                                            | Made by                    |
-| ------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------- |
-| `assets/vo-<beat>.mp3`          | the voice per beat, sped to 1.05                                                                | `node voiceover.mjs`       |
-| `assets/timing.json`            | each beat's start and every word's time; inlined into `index.html` as `TIMING`                  | `node voiceover.mjs`       |
-| `evals/climb-summary.json`      | start and end of leak rate, route F1, over-block, mandatory tests; inlined as `CLIMB`           | gz-climb; `node climb.mjs` |
-| `assets/climb-placeholder.json` | stand-in with the same shape, used only when the real file is missing; shows "placeholder data" | by hand                    |
-| `assets/ui/*.png`               | crops of a burnout run: message box, trace, decision card, decision in the chat, audit log      | headless Playwright runs   |
+| File                          | What                                                                                  | Made by                    |
+| ----------------------------- | ------------------------------------------------------------------------------------- | -------------------------- |
+| `assets/vo-<beat>.mp3`        | the voice per beat, sped to 1.05                                                      | `node voiceover.mjs`       |
+| `assets/timing.json`          | each beat's start and every word's time; inlined into `index.html` as `TIMING`        | `node voiceover.mjs`       |
+| `evals/climb-summary.json`    | start and end of each climbed metric; inlined as `CLIMB`; a missing metric is dropped | gz-climb; `node climb.mjs` |
+| `assets/live/live.mp4`        | the live recording of the burnout claim on the deployed app (below)                   | `node record-live.mjs`     |
+| `assets/live/cuts.json`       | which stretches of `live.mp4` each demo beat plays, and which frame holds             | by hand                    |
+| `assets/live/walkthrough.mp4` | `live.mp4` cut to the five voiced demo beats                                          | `node live.mjs`            |
+| `assets/team.js`              | the team password for the closing card; gitignored, never committed                   | `node team.mjs`            |
 
 ## Tools
 
@@ -43,14 +45,17 @@ node voiceover.mjs --apply    # re-time index.html from assets/timing.json, no A
 prints it. It reads the `## Name, A to B seconds` headings and quoted lines of `../narration.md`, one ElevenLabs
 request per changed beat (`eleven_multilingual_v2`, voice Brian), keeps the raw clip in `assets/raw/`, writes the
 clip at 1.05 times the speed, and rewrites the timing block, the `<audio>` tags and every `data-beat` window in
-`index.html`. The evals beat holds 3.5 s after its voice so the slopes finish (`HOLD` in the script). Every animation
-is keyed to a spoken word, so a new voice re-times the whole video.
+`index.html`. The evals beat holds 3.5 s after its voice so the slopes finish (`HOLD` in the script). A demo beat lasts
+at least as long as its stretch of the recording (`cuts.json`). Every animation is keyed to a spoken word, so a new
+voice re-times the whole video; run `node live.mjs` after it so the footage matches the new beat lengths.
 
 ## Render
 
 ```sh
 cd demo/video
 node climb.mjs                                                 # inline evals/climb-summary.json
+node live.mjs                                                  # cut the recording to the demo beats
+node team.mjs                                                  # password for the closing card, from .dev.vars
 npx -y hyperframes@0.9.72 check                                # lint, layout, contrast, audio
 npx -y hyperframes@0.9.72 render -o out.mp4 --quality standard # about 2 minutes, about 9 MB
 ```
@@ -61,7 +66,8 @@ npx -y hyperframes@0.9.72 render -o out.mp4 --quality standard # about 2 minutes
 camera, opens the burnout claim, sends it, answers the medical adviser, approves on the decision card, and ends on the
 Audit log tab with "Chain verified". A dot shows the cursor. `--edit` plays only the two waits for the agent at 8x,
 tagged "sped up 8x", and writes `assets/live/live.mp4` (51.7 s, 1920x1080) and `assets/live/edit.json` (raw to
-edited times). Recorded 21 Nov 04:30 CET against https://claims-harness.fred-755.workers.dev; the raw 108 s webm is
+edited times). The video plays it through `walkthrough.mp4`, five beats long, with a highlight and a short label on
+each part of the screen as the voice names it. Recorded 21 Nov 04:30 CET against https://claims-harness.fred-755.workers.dev; the raw 108 s webm is
 kept out of git.
 
 | Edited time (s) | What happens                                                                           |

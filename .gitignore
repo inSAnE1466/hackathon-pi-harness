@@ -11,3 +11,6 @@ evals/qc-latest.json
 evals/autoclimb-log.tsv
 exam-review.*
 evals/security-*-latest.json
+
+# Team password for the video closing card, written by demo/video/team.mjs
+demo/video/assets/team.js

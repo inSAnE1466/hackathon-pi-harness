@@ -1,39 +1,80 @@
 #!/usr/bin/env node
 // Writes the climb slopes' data into index.html (between the climb:begin and climb:end markers).
 //
-//   node climb.mjs     reads ../../evals/climb-summary.json (written by gz-climb), or
-//                      assets/climb-placeholder.json, same shape, when it does not exist
+//   node climb.mjs     reads ../../evals/climb-summary.json: .metrics and .headline.values
 //
-// The data is inlined because a composition may not fetch at render time. A placeholder shows "placeholder data" on
-// screen, so it cannot ship unnoticed.
+// Six slopes, each start (baseline) to end (the complete system, classifier on), real data only: a metric that is
+// missing is dropped, never filled in. Over-block goes up:
+// it is shown as the price of the protection, not as a win. Legal recall shows the tuning questions and the unseen
+// ones. The data is inlined because a composition may not fetch at render time.
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const real = join(here, "..", "..", "evals", "climb-summary.json");
-const src = existsSync(real) ? real : join(here, "assets", "climb-placeholder.json");
-const raw = JSON.parse(readFileSync(src, "utf8"));
-const want = ["leak_rate", "route_f1", "over_block", "mandatory_tests"];
-const all = Array.isArray(raw.metrics) ? raw.metrics : [];
-// The four headline metrics when present; until they land, whatever real metrics the file holds (at most four).
-const head = want.map((k) => all.find((m) => m.key === k)).filter(Boolean);
-const metrics = head.length > 0 ? head : all.slice(0, 4);
-if (metrics.length === 0) throw new Error(`${src} has no metrics`);
-for (const m of metrics)
-  if (typeof m.start !== "number" || typeof m.end !== "number")
-    throw new Error(`${m.key} needs numeric start and end`);
+const evals = join(here, "..", "..", "evals");
+const summaryPath = join(evals, "climb-summary.json");
+if (!existsSync(summaryPath))
+  throw new Error("evals/climb-summary.json is missing; cut the slopes");
+const summary = JSON.parse(readFileSync(summaryPath, "utf8"));
+const metric = (k) =>
+  (summary.metrics ?? []).find((m) => m.key === k && typeof m.start === "number");
+const kept = (n) => (Array.isArray(n) ? n.length : Number(n ?? 0));
+
+// The complete system's headline (classifier on): evals/climb-summary.json .headline.values.<key>.
+const hv = summary.headline?.values ?? {};
+const head = (k) => (typeof hv[k]?.value === "number" ? hv[k] : null);
+const names =
+  head("names_as_typed") && typeof hv.names_as_typed.start === "number"
+    ? {
+        key: "names_as_typed",
+        label: "Names sent as typed",
+        unit: "%",
+        better: "down",
+        start: hv.names_as_typed.start,
+        end: hv.names_as_typed.value,
+        steps: metric("leak_rate")?.steps ?? 0,
+      }
+    : null;
+const security = head("security_cases");
+
+const out = [];
+const add = (m, extra) =>
+  m &&
+  out.push({
+    key: m.key,
+    label: m.label,
+    unit: m.unit ?? "",
+    better: m.better ?? "up",
+    start: m.start,
+    end: m.end,
+    steps: kept(m.steps),
+    ...extra,
+  });
+add(metric("leak_rate"), { note: "omar-val · complete system" });
+add(names, { note: "omar-val · complete system" });
+add(metric("route_f1"), { label: "Route F1", note: "omar-val" });
+add(metric("mandatory_tests"), { note: "BRANE dry runs" });
+const rec = metric("retrieval_recall_at_3");
+add(rec, {
+  label: "Legal lookup recall@3",
+  note: "tuning questions",
+  second:
+    rec?.heldout && typeof rec.heldout.start === "number"
+      ? { label: "unseen", start: rec.heldout.start, end: rec.heldout.end }
+      : null,
+});
+add(metric("over_block"), {
+  label: "Over-block",
+  note: "the price of the protection",
+  price: true,
+});
+if (out.length === 0) throw new Error("evals/climb-summary.json has no metrics");
+
 const data = {
-  source: src === real ? "evals/climb-summary.json" : "placeholder",
-  metrics: metrics.map(({ key, label, unit, better, start, end, steps }) => ({
-    key,
-    label,
-    unit: unit ?? "",
-    better: better ?? "up",
-    start,
-    end,
-    steps: Array.isArray(steps) ? steps.length : Number(steps ?? 0),
-  })),
+  source: "evals/climb-summary.json",
+  metrics: out,
+  security: security ? { value: security.value, of: security.of } : null,
 };
 const html = join(here, "index.html");
 const s = readFileSync(html, "utf8");
@@ -43,4 +84,7 @@ const i = s.indexOf(a);
 const j = s.indexOf(b, i);
 if (i < 0 || j < 0) throw new Error("index.html is missing the climb markers");
 writeFileSync(html, s.slice(0, i + a.length) + " " + JSON.stringify(data) + " " + s.slice(j));
-console.log(`${data.metrics.length} metrics from ${data.source}`);
+for (const m of out)
+  console.log(
+    `${m.label.padEnd(24)} ${m.start} -> ${m.end}${m.second ? ` (unseen ${m.second.start} -> ${m.second.end})` : ""}`,
+  );

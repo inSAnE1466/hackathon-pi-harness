@@ -50,7 +50,15 @@ const PRE = 0.25; // every later beat: scene enters before its voice
 const GAP = 0.3; // after each clip
 const TAIL = 3.5; // after the last clip: the closing line and the graphs hold
 // Extra silence after a beat's clip, so its picture can finish (the climb graphs draw after the voice ends).
-const HOLD = { loop: 1, evals: 3.5, close: 2 };
+const HOLD = { loop: 1, evals: 3.5, impact: 1.5, close: 3 };
+// Shortest length of a beat, in seconds: each demo beat plays one stretch of the live recording (assets/live/cuts.json),
+// so it lasts at least as long as that stretch; live.mjs freezes the last frame when the voice runs longer.
+const MIN = Object.fromEntries(
+  JSON.parse(readFileSync(join(assets, "live", "cuts.json"), "utf8")).cuts.map((c) => [
+    c.beat,
+    c.pieces.reduce((a, p) => a + p.to - p.from, 0) + 0.3,
+  ]),
+);
 
 const flag = (name) => args.some((a) => a === `--${name}`);
 const only = args.find((a) => a.startsWith("--only="))?.slice(7);
@@ -185,7 +193,9 @@ function layoutVoiced(beats, clips) {
     const c = clips[b.id];
     const offset = i === 0 ? LEAD : PRE;
     const last = i === beats.length - 1;
-    const dur = round(offset + c.duration + (last ? TAIL : GAP) + (HOLD[b.id] ?? 0));
+    const dur = round(
+      Math.max(offset + c.duration + (last ? TAIL : GAP) + (HOLD[b.id] ?? 0), MIN[b.id] ?? 0),
+    );
     const out = {
       id: b.id,
       title: b.title,
@@ -262,6 +272,13 @@ function apply(timing) {
     html = html.replace(m[1], setWindow(m[1], b.start, b.duration));
   }
   html = html.replace(/(<[^>]*data-span="total"[^>]*>)/g, (tag) => setWindow(tag, 0, timing.total));
+  // data-span="first:last" runs from the start of beat first to the end of beat last (the live footage).
+  html = html.replace(/(<[^>]*data-span="([a-z-]+):([a-z-]+)"[^>]*>)/g, (tag, _t, from, to) => {
+    const a = timing.beats.find((b) => b.id === from);
+    const z = timing.beats.find((b) => b.id === to);
+    if (!a || !z) throw new Error(`data-span="${from}:${to}" names a beat that does not exist`);
+    return setWindow(tag, a.start, z.start + z.duration - a.start);
+  });
   html = html.replace(/(<div[^>]*data-composition-id="main"[^>]*>)/, (tag) =>
     setWindow(tag, 0, timing.total),
   );

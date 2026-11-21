@@ -1,0 +1,67 @@
+{
+  "about": "Which stretches of live.mp4 (edited seconds, see edit.json) each demo beat plays, in order. The piece marked hold freezes on its last frame until the beat is full, so each click lands near the word that names it.",
+  "cuts": [
+    {
+      "beat": "demo-queue",
+      "pieces": [
+        {
+          "from": 0,
+          "to": 7.3,
+          "hold": true
+        },
+        {
+          "from": 7.3,
+          "to": 9.07
+        }
+      ]
+    },
+    {
+      "beat": "demo-trace",
+      "pieces": [
+        {
+          "from": 9.07,
+          "to": 15.61,
+          "hold": true
+        }
+      ]
+    },
+    {
+      "beat": "demo-adviser",
+      "pieces": [
+        {
+          "from": 15.61,
+          "to": 28.43,
+          "hold": true
+        }
+      ]
+    },
+    {
+      "beat": "demo-decision",
+      "pieces": [
+        {
+          "from": 28.43,
+          "to": 33.0,
+          "hold": true
+        },
+        {
+          "from": 33.0,
+          "to": 39.5
+        }
+      ]
+    },
+    {
+      "beat": "demo-audit",
+      "pieces": [
+        {
+          "from": 40.5,
+          "to": 43.5
+        },
+        {
+          "from": 48.8,
+          "to": 51.73,
+          "hold": true
+        }
+      ]
+    }
+  ]
+}
