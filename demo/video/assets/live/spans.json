@@ -1,0 +1,74 @@
+{
+  "base": "https://claims-harness.fred-755.workers.dev",
+  "speed": 8,
+  "spans": [
+    {
+      "s": 8.47,
+      "e": 62.02,
+      "what": "the agent works the claim"
+    },
+    {
+      "s": 72.12,
+      "e": 85.46,
+      "what": "the agent continues"
+    }
+  ],
+  "steps": [
+    {
+      "t": 1.73,
+      "m": "queue"
+    },
+    {
+      "t": 3.56,
+      "m": "click burnout claim"
+    },
+    {
+      "t": 7.96,
+      "m": "click Send"
+    },
+    {
+      "t": 62.02,
+      "m": "waited 53.6 s: the agent works the claim"
+    },
+    {
+      "t": 63.87,
+      "m": "card: Question for the medical adviser"
+    },
+    {
+      "t": 65.83,
+      "m": "click answer box"
+    },
+    {
+      "t": 70.42,
+      "m": "click send answer"
+    },
+    {
+      "t": 85.46,
+      "m": "waited 13.3 s: the agent continues"
+    },
+    {
+      "t": 87.3,
+      "m": "card: Claims handler's decision"
+    },
+    {
+      "t": 90.23,
+      "m": "click Approve"
+    },
+    {
+      "t": 90.74,
+      "m": "waited 0.0 s: the decision returns to the chat"
+    },
+    {
+      "t": 93.25,
+      "m": "decision in chat"
+    },
+    {
+      "t": 97.14,
+      "m": "click Audit log tab"
+    },
+    {
+      "t": 108.32,
+      "m": "audit log, chain verified"
+    }
+  ]
+}

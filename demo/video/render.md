@@ -54,3 +54,21 @@ node climb.mjs                                                 # inline evals/cl
 npx -y hyperframes@0.9.72 check                                # lint, layout, contrast, audio
 npx -y hyperframes@0.9.72 render -o out.mp4 --quality standard # about 2 minutes, about 9 MB
 ```
+
+## The live recording
+
+`record-live.mjs` records one real session on the deployed app with Playwright's headless shell: it signs in off
+camera, opens the burnout claim, sends it, answers the medical adviser, approves on the decision card, and ends on the
+Audit log tab with "Chain verified". A dot shows the cursor. `--edit` plays only the two waits for the agent at 8x,
+tagged "sped up 8x", and writes `assets/live/live.mp4` (51.7 s, 1920x1080) and `assets/live/edit.json` (raw to
+edited times). Recorded 21 Nov 04:30 CET against https://claims-harness.fred-755.workers.dev; the raw 108 s webm is
+kept out of git.
+
+| Edited time (s) | What happens                                                                           |
+| --------------- | -------------------------------------------------------------------------------------- |
+| 0 to 9          | Queue; click "Therapy for burnout"; the request and two attachments fill the box; Send |
+| 9 to 16         | Sped up: intake, BRANE routing, lookups; the trace fills Pre-mask to Person            |
+| 16 to 27        | Question for the medical adviser; the answer is typed and sent                         |
+| 27 to 28        | Sped up: the agent continues to the recommendation                                     |
+| 28 to 40        | Claims handler's decision card; Approve; "Approved" appears in the chat                |
+| 40 to 52        | Audit log tab: human row #21, "Chain verified, 23 rows, SHA-256"                       |
