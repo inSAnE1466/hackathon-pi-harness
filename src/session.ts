@@ -424,13 +424,16 @@ export class Session extends DurableObject<Env> {
   #applyVerdict(
     verdict: Classification | undefined,
     conversationId: ConversationId,
-  ): string | undefined {
+  ): { readonly message: string; readonly auditId: number } | undefined {
     if (verdict === undefined) return undefined;
     this.#audit.classify(verdict, conversationId);
     if (verdict.route === "local") this.#switches.keepLocal(conversationId);
     if (verdict.route !== "refuse") return undefined;
     this.#audit.gate({ kind: "handoff", tool: "refusal", detail: "", conversationId });
-    return `Withheld: the classifier refused this request (${verdict.labels.join(", ")}). It needs a person.`;
+    return {
+      message: `Withheld: the classifier refused this request (${verdict.labels.join(", ")}). It needs a person.`,
+      auditId: this.#audit.list(1)[0]!.id,
+    };
   }
 
   async #processMessage(socket: WebSocket, message: WSMessage): Promise<void> {
@@ -674,7 +677,25 @@ export class Session extends DurableObject<Env> {
                   ? "skipped: inline"
                   : split.kind,
         });
-        if (refused !== undefined) throw new Error(refused);
+        if (refused !== undefined) {
+          // An expected outcome, not a failure: answered as a refusal and logged at info level.
+          console.log(
+            JSON.stringify({
+              message: "Request refused by the classifier",
+              auditId: refused.auditId,
+            }),
+          );
+          this.#send(socket, {
+            type: "command.result",
+            command: command.type,
+            requestId: command.requestId,
+            ok: false,
+            error: { code: "refused", message: refused.message },
+            reason: "refused",
+            auditId: refused.auditId,
+          });
+          return;
+        }
         const submission = await conversation.submit(
           {
             type: "input",

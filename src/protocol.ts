@@ -153,6 +153,10 @@ export type CommandResult =
         readonly code: string;
         readonly message: string;
       };
+      /** `refused`: the harness withheld the request on purpose; a person takes it from here. Absent for a failure. */
+      readonly reason?: "refused";
+      /** For a refusal, the audit row of the handoff that a person's decision closes. */
+      readonly auditId?: number;
     };
 
 export type ServerEvent =
@@ -544,6 +548,8 @@ export function parseServerEventEnvelope(message: string): ServerEvent {
           requestId,
           ok: false,
           error: requireError(value.error),
+          ...(value.reason === "refused" ? { reason: "refused" as const } : {}),
+          ...(typeof value.auditId === "number" ? { auditId: value.auditId } : {}),
         };
       }
       throw new Error("Command result payload is invalid");
