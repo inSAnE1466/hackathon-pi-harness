@@ -89,6 +89,13 @@ with the full resolved set, and `GET /audit` returns the current set as `switche
 No switch opens a path around BRANE. The provider is still the only transport, and BRANE checks every request
 whatever the timing.
 
+## Where the time goes
+
+Measured on 21 Nov against the live BRANE: every BRANE call takes 5 to 6 s, a dry run and a one-word chat alike, so a
+turn costs about 6 s per model request. A luggage claim (one dry run, four model requests, six lookups) ends in about
+35 s; intake's split adds about 17 s to a health claim (two dry runs and one local extraction) and the classifier about
+6 s per prompt. Lookups and the pre-mask run in the Worker in milliseconds.
+
 ## The gate is the transport
 
 The one rule that wins the security tests: **the agent has no model transport except the BRANE one.**
