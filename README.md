@@ -1,13 +1,14 @@
 # Gezira: an insurance claims assistant behind BRANE
 
 **Live app:** https://claims-harness.fred-755.workers.dev (password in the submission form)
+**Repository:** https://github.com/inSAnE1466/hackathon-pi-harness
 
 Team Gezira's entry to the AI-Z Challenge Track, MAIN Summit 2026. A Pi Durable agent on Cloudflare prepares EU health
 and travel insurance claims up to a human decision. Every model request goes through BRANE; health data stays on the
 local model. A claims handler decides every outcome; the decision goes back into the chat, where the agent continues
 from it, and into a hash-chained audit trail.
 
-- **Submission and how it meets the brief:** [SUBMISSION.md](SUBMISSION.md)
+- **Submission and how it meets the brief:** [submission/README.md](submission/README.md)
 - **Docs:** [docs/README.md](docs/README.md)
 - **Run it:** [docs/run.md](docs/run.md)
 

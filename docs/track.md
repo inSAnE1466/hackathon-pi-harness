@@ -4,12 +4,12 @@ The organizers handed out two briefs and a starter kit. This page lists every re
 in them, with the file or command that proves we meet it, or the gap. If a brief and this page disagree, the
 brief wins; fix this page.
 
-| Source                | File                                                                                                                                                                    |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Kit brief, 2 pages    | [starter-kit/MAIN_Summit_AI-Z_Challenge_Brief.pdf](../starter-kit/MAIN_Summit_AI-Z_Challenge_Brief.pdf)                                                                 |
-| Track brief, 11 pages | handed to teams on Friday (not in the repository); same content, longer, with the recruiting example                                                                    |
-| Starter kit           | [starter-kit/README.md](../starter-kit/README.md), [brane_agent_starter.py](../starter-kit/brane_agent_starter.py)                                                      |
-| CSV templates         | [submission/MAIN_Five_Tests_Template.csv](../submission/MAIN_Five_Tests_Template.csv), [MAIN_Policy_Matrix_Template.csv](../submission/MAIN_Policy_Matrix_Template.csv) |
+| Source                | File                                                                                                                                                                                                             |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Kit brief, 2 pages    | [starter-kit/MAIN_Summit_AI-Z_Challenge_Brief.pdf](../starter-kit/MAIN_Summit_AI-Z_Challenge_Brief.pdf)                                                                                                          |
+| Track brief, 11 pages | handed to teams on Friday (not in the repository); same content, longer, with the recruiting example                                                                                                             |
+| Starter kit           | [starter-kit/README.md](../starter-kit/README.md), [brane_agent_starter.py](../starter-kit/brane_agent_starter.py)                                                                                               |
+| CSV templates         | `MAIN_Five_Tests_Template.csv` and `MAIN_Policy_Matrix_Template.csv` in the organizers' starter kit (not in the repository); our filled files in [submission/](../submission/README.md) keep their exact columns |
 
 Deadline: Saturday 21 November, 10:30 CET. Finals 15:00.
 
