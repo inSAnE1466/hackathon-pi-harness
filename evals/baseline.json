@@ -1,6 +1,6 @@
 {
   "policy": "claims-v5",
-  "at": "2026-11-20T21:50:43.709Z",
+  "at": "2026-11-20T23:47:06.214Z",
   "results": {
     "golden": {
       "passed": [29, 30],
@@ -11,6 +11,11 @@
       "passed": [20, 20],
       "leaked": [0, 33],
       "overBlocked": [0, 2]
+    },
+    "mutated": {
+      "passed": [144, 150],
+      "leaked": [6, 265],
+      "overBlocked": [2, 12]
     },
     "organizers": {
       "passed": [10, 10]

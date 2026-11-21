@@ -1,17 +1,14 @@
 [
   {
-    "name": "health keywords: cast, stitches, scan",
+    "name": "CLAIM_HEALTH_CONTEXT keywords: ent specialist, hearing aids",
     "category": "CLAIM_HEALTH_CONTEXT",
-    "keywords": ["cast", "stitches", "scan"]
+    "keywords": ["ent specialist", "hearing aids"],
+    "from": ["g08-polite"]
   },
   {
-    "name": "health keyword: ward (overly broad, expected to over-block)",
+    "name": "CLAIM_HEALTH_CONTEXT description: Mentions such as ent specialist, hearing aids count, also when the request is wrapped in polite phrasing.",
     "category": "CLAIM_HEALTH_CONTEXT",
-    "description": "Any mention of a building, room or department counts."
-  },
-  {
-    "name": "profiling keywords: first name, accent",
-    "category": "PROTECTED_TRAIT_PROFILING",
-    "keywords": ["first names", "accent"]
+    "description": "Mentions such as ent specialist, hearing aids count, also when the request is wrapped in polite phrasing.",
+    "from": ["g08-polite"]
   }
 ]
