@@ -1,0 +1,99 @@
+{
+  "policy": "policy-v1-nokw",
+  "fingerprint": "f8897e2bc737",
+  "runs": 3,
+  "tests": {
+    "T1": {
+      "pass": 3,
+      "runs": 3,
+      "routes_seen": [
+        "cloud"
+      ]
+    },
+    "T2a": {
+      "pass": 3,
+      "runs": 3,
+      "routes_seen": [
+        "cloud_redacted"
+      ]
+    },
+    "T2b": {
+      "pass": 3,
+      "runs": 3,
+      "routes_seen": [
+        "local"
+      ]
+    },
+    "T3": {
+      "pass": 3,
+      "runs": 3,
+      "routes_seen": [
+        "cloud_redacted"
+      ]
+    },
+    "T4": {
+      "pass": 3,
+      "runs": 3,
+      "routes_seen": [
+        "refused"
+      ]
+    },
+    "T5a": {
+      "pass": 3,
+      "runs": 3,
+      "routes_seen": [
+        "local"
+      ]
+    },
+    "T5b": {
+      "pass": 3,
+      "runs": 3,
+      "routes_seen": [
+        "not_sent"
+      ]
+    },
+    "E1": {
+      "pass": 3,
+      "runs": 3,
+      "routes_seen": [
+        "local"
+      ]
+    },
+    "E2": {
+      "pass": 3,
+      "runs": 3,
+      "routes_seen": [
+        "local"
+      ]
+    },
+    "E3": {
+      "pass": 3,
+      "runs": 3,
+      "routes_seen": [
+        "local"
+      ]
+    },
+    "E4": {
+      "pass": 3,
+      "runs": 3,
+      "routes_seen": [
+        "cloud_redacted"
+      ]
+    },
+    "E5": {
+      "pass": 3,
+      "runs": 3,
+      "routes_seen": [
+        "refused"
+      ]
+    },
+    "E6": {
+      "pass": 3,
+      "runs": 3,
+      "routes_seen": [
+        "refused"
+      ]
+    }
+  },
+  "all_pass_every_run": true
+}

@@ -240,6 +240,33 @@ def combine(preds: list) -> dict:
     return out
 
 
+def pairs(gold: dict, pred: dict) -> dict:
+    """Minimal pairs (ids mp-NNa / mp-NNb): a pair passes only if BOTH halves get the right route."""
+    groups = defaultdict(dict)
+    for i in gold:
+        mm = re.match(r"(mp-\d+)([ab])$", i)
+        if mm:
+            groups[mm.group(1)][mm.group(2)] = i
+    res, by_label = [], defaultdict(lambda: [0, 0])
+    for pid, h in sorted(groups.items()):
+        if set(h) != {"a", "b"} or h["a"] not in pred or h["b"] not in pred:
+            continue
+        ga, gb = gold[h["a"]], gold[h["b"]]
+        ok_a = pred[h["a"]]["route"] == ga["route"]
+        ok_b = pred[h["b"]]["route"] == gb["route"]
+        diff = sorted((ga["labels"] ^ gb["labels"]) - {"HEALTH"}) or sorted(ga["labels"] ^ gb["labels"]) or ["identifier"]
+        for l in diff:
+            by_label[l][0] += ok_a and ok_b
+            by_label[l][1] += 1
+        res.append({"pair": pid, "ok": ok_a and ok_b, "ok_a": ok_a, "ok_b": ok_b, "flipped": pred[h["a"]]["route"] != pred[h["b"]]["route"],
+                    "changed": diff, "gold": (ga["route"], gb["route"]), "pred": (pred[h["a"]]["route"], pred[h["b"]]["route"])})
+    n = len(res)
+    return {"pairs": n, "pair_accuracy": sum(r["ok"] for r in res) / n if n else 0.0,
+            "flip_rate": sum(r["flipped"] for r in res) / n if n else 0.0,
+            "by_label": {k: f"{v[0]}/{v[1]}" for k, v in sorted(by_label.items())},
+            "failures": [r for r in res if not r["ok"]]}
+
+
 def cohen_kappa(a: list, b: list) -> float:
     n = len(a)
     if not n:
@@ -341,6 +368,7 @@ def main(argv=None):
     cb = sub.add_parser("combine"); cb.add_argument("preds", nargs="+"); cb.add_argument("-o", "--out", required=True)
     cs = sub.add_parser("consistency"); cs.add_argument("rephrase_csv"); cs.add_argument("base_pred"); cs.add_argument("variant_pred")
     k = sub.add_parser("kappa"); k.add_argument("a"); k.add_argument("b")
+    pp = sub.add_parser("pairs"); pp.add_argument("gold"); pp.add_argument("pred"); pp.add_argument("--json")
     a = ap.parse_args(argv)
 
     if a.cmd == "validate":
@@ -372,6 +400,14 @@ def main(argv=None):
         for base, routes in res["routes"].items():
             if len(set(routes)) > 1:
                 print(f"  inconsistent {base}: {routes}")
+    if a.cmd == "pairs":
+        res = pairs(read_gold(a.gold), read_pred(a.pred))
+        print(f"{a.pred}: pair accuracy {res['pair_accuracy']:.0%} ({res['pairs']} pairs), flip rate {res['flip_rate']:.0%}")
+        print("  by changed label:", res["by_label"])
+        for f in res["failures"]:
+            print(f"  FAIL {f['pair']} changed={f['changed']} gold={f['gold']} pred={f['pred']}")
+        if a.json:
+            Path(a.json).write_text(json.dumps(res, indent=2), encoding="utf-8")
     if a.cmd == "kappa":
         ga, gb = read_gold(a.a), read_gold(a.b)
         ids = [i for i in ga if i in gb]

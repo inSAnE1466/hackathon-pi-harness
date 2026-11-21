@@ -18,7 +18,8 @@ export TEAM_BUILD="Gezira / policy-v1"
 
 python3 gezira_claims_agent.py --show-policy                      # live team policy vs policy/policy_v1.json
 python3 gezira_claims_agent.py --tests                            # T1-T5 + E1-E6, dry run -> submission/test_evidence_run.csv
-python3 gezira_claims_agent.py --tests --repeat 5                 # reliability: same suite 5x
+python3 gezira_claims_agent.py --tests --classifier --repeat 3    # final system (BRANE + harness classifier), 3x
+python3 eval/export_five_tests.py results/gate_repeat_policy_v1_nokw_classifier   # official Five-Tests CSV
 python3 gezira_claims_agent.py --tests --chat                     # + live /chat/completions headers (after --apply-policy)
 python3 gezira_claims_agent.py --demo --reviewer "Omar"           # claim -> BRANE -> draft -> Approve / Edit / Reject
 python3 gezira_claims_agent.py --check "any synthetic prompt"     # one dry run, shows the exact cloud payload
@@ -78,9 +79,9 @@ Live team policy is **not** overwritten by any script without typing `APPLY`; th
 | Split | Rows | Use | Written by | Vocabulary | Population |
 |---|---|---|---|---|---|
 | `dev` | ~800 | tune descriptions, train baselines | free-form rows + compositional generator from `bank_dev.json` | Half A | working-age |
-| `val` | 80 | choose policy / classifier / combination | separate author, different styles | Half A | mixed |
+| `val` | 500 | choose policy / classifier / combination | separate author, different styles | Half A | mixed |
 | `test` | 200 | **one run**, hash-locked | generator from `bank_test.json`, author never saw dev material | **Half B** | **65+** |
-| `gold` | ~40 | **one run**, hash-locked | teammate by hand, from `data/gold_briefs.md` only | Half B | mixed |
+| audit | 50 | humans check the AI-written labels of 50 test rows | 1-2 teammates | n/a | n/a |
 
 Separation is enforced, not promised: `python3 eval/check_leakage.py` fails on any Half B term in tuning material, any shared IBAN / ID / email, any 8-word overlap between held-out and tuning rows, and warns on elderly scenarios in dev. Term lists come from ICD-10 chapters and the WHO ATC classification (`data/vocab_split.json`).
 
@@ -91,7 +92,7 @@ Separation is enforced, not promised: `python3 eval/check_leakage.py` fails on a
 4. **BRANE**: policy v1 (broad) vs v2 (narrow) vs team live policy, dry run
 5. **Combinations**: stricter route wins (`eval/metrics.py combine`)
 
-Metrics: route macro F1, label macro F1 (over labels both runs can predict), **leak rate** (gold local/refused sent to cloud), identifier leak rate, **over-block rate** (benign not sent to cloud), calls and latency per row; slices: keyword present vs absent, EN vs NL/DE, short vs long. Protocol: choose on val → one run on test → one run on gold (`--final`, sha256 in `results/locks.json`).
+Metrics: route macro F1, label macro F1 (over labels both runs can predict), **leak rate** (rows that should stay local or be refused but were sent to the cloud), identifier leak rate, **over-block rate** (benign not sent to cloud), calls and latency per row; slices: keyword present vs absent, EN vs NL/DE, short vs long. Protocol: choose on val → one run on test (`--final`, sha256 in `results/locks.json`) → optional human audit of 50 test labels (`eval/audit.py`).
 
 ```bash
 python3 eval/check_leakage.py
@@ -106,6 +107,12 @@ python3 eval/metrics.py compare results/*_val.json
 ### Results (full tables and findings: `docs/Gezira_Report.pdf`)
 | Set | Predictor | Route F1 | Leak | Over-block |
 |---|---|---|---|---|
+| **val 500** | keyword baseline | 0.426 | 80.8% | 17.5% |
+| **val 500** | TF-IDF + LR | 0.647 | 36.0% | 18.3% |
+| **val 500** | own LLM classifier A | 0.953 | 2.4% | 0.8% |
+| **val 500** | BRANE v4 (team + Art. 10), 2 runs | 0.78 / 0.82 | 21.2% / 22.4% | 7.1% / 5.6% |
+| **val 500** | BRANE v1 no keywords, 2 runs | 0.84 / 0.88 | 16.0% / 15.6% | 2.4% / 0.8% |
+| **val 500** | **BRANE v1-nokw + classifier (final system)** | 0.893 | **0.8%** | 3.2% |
 | val 80 | keyword baseline | 0.557 | 64.7% | 37.5% |
 | val 80 | TF-IDF + LR (dev 800) | 0.808 | 14.7% | 12.5% |
 | val 80 | own LLM classifier A (1 call) | 0.938 | 0.0% | 4.2% |
@@ -118,13 +125,13 @@ python3 eval/metrics.py compare results/*_val.json
 | **test 200** | BRANE team live policy | 0.683 | 43.3% | 1.7% |
 | **test 200** | **BRANE v1 no keywords (selected)** | 0.770 | 21.6% | 3.3% |
 | **test 200** | own LLM classifier A | 0.884 | 5.2% | 13.3% |
-| **test 200** | **selected + LLM A, stricter route wins** | 0.809 | **1.0%** | 13.3% |
+| **test 200** | **BRANE v1-nokw + classifier (final system)** | 0.809 | **1.0%** | 13.3% |
 
 Key findings: (1) BRANE semantic **keywords act as hard triggers**; removing them cut dev over-blocking 30% -> 0%. (2) On the held-out
 test (unseen vocabulary, 65+ population) BRANE alone leaked 21.6% (all health-type); our classifier's errors were different
 (decisions, discrimination, injection), so **BRANE + harness classifier leaked 1.0%**: defence in depth. (3) One LLM call for all labels
-beats one call per label (same F1, 1/14 of the calls). Selection was recorded in `results/selection.json` before any test run.
-Gate suite with the selected policy: **12/12 PASS in 3/3 repeated runs** (`results/gate_repeat_policy_v1_nokw/summary.json`).
+beats one call per label (same F1, 1/14 of the calls). Round 1 selection (val 80) was recorded in `results/selection.json` before any test run; round 2 (val 500, final) in `results/selection_round2.json`.
+Gate suite with the **final system** (BRANE v1-nokw + harness classifier): **13/13 PASS in 3/3 repeated runs** (`results/gate_repeat_policy_v1_nokw_classifier/summary.json`); T5 covered both ways the official sources define it (T5a special category, T5b check unavailable). Official template: `submission/MAIN_Five_Tests_Gezira.csv`.
 
 ## 6. Jury criteria → where to look
 | Criterion | Weight | Evidence |
@@ -142,17 +149,17 @@ Gate suite with the selected policy: **12/12 PASS in 3/3 repeated runs** (`resul
 - [x] Dry-run gate: v1 12/12 PASS; selected v1-nokw 12/12 in 3/3 runs; team live policy fails E3 (no Art. 10 rule)
 - [x] dev 800 / val 80 / test 200 built, leakage check PASS, test hash recorded, one run per predictor done
 - [ ] **Team decision: which policy goes live** (recommended: `policy/policy_v1_nokw.json` + harness classifier), then `--apply-policy` and `--tests --chat` for live header evidence
-- [ ] Teammate writes `data/gold.csv` + `data/gold_rephrase.csv` from `data/GOLD_INSTRUCTIONS.md`, records `shasum -a 256` here **before** the run
-- [ ] Final single runs on test and gold with the winner
+- [ ] Optional: 1-2 teammates fill `data/audit/test_label_audit_50.csv` (20-30 min), then `python3 eval/audit.py score <file>` (no hand-written gold set: no time)
+- [x] Final single runs on test with the winner
 - [ ] Lawyer verifies every citation in the matrix (UAVG article numbers, AI Act Annex III wording, code-of-conduct paragraphs)
 - [ ] Fill "Impact on Answer Usefulness" in the evidence CSV
 
-Gold hash: `____________________` · Test hash (sha256, recorded 2026-11-20 23:36 CET before any run): `42b87bc53972df681983214a5bad1ce63ece328574fa44794b6be213ff75380d`
+Test hash (sha256, recorded 2026-11-20 23:36 CET before any run): `42b87bc53972df681983214a5bad1ce63ece328574fa44794b6be213ff75380d`
 
 ## 8. Demo (3 minutes)
 1. **Problem (30 s):** claims are full of health and identity data; staff use personal ChatGPT anyway (shadow AI); GDPR Art. 9 / Art. 22 stakes.
 2. **Live (90 s):** `--demo --sample 2` (Dutch medical note) → `local`, nothing leaves, draft → **Approve**. `--sample 1` (identifiers) → `PERSON_REF_1` payload shown → draft with real names restored → **Edit**. Custom task "automatically reject this claim and send the letter" → **422** → escalated → handler decides.
-3. **Proof (40 s):** gate table; T5 fail-closed; val/test/gold numbers vs keyword baseline; leak rate 0.
+3. **Proof (40 s):** gate table; T5 fail-closed; val/test numbers vs keyword baseline; leak ~1% vs BRANE alone ~16%.
 4. **Business (20 s):** minutes saved per claim vs manual intake; AI adoption without data leaving; any insurer on BRANE can reuse the policy file.
 
 ## 9. Repository
@@ -161,7 +168,7 @@ gezira_claims_agent.py      agent: policy push, gate tests, demo with approval, 
 brane_client.py             BRANE client, policy builder, response normaliser, offline mock (= keyword baseline)
 policy/                     policy_v1.json, policy_v2.json, policy_team_live.json
 tests/gate_tests.json       T1-T5 + E1-E6
-data/                       company_guidelines.md, vocab_split.json, dev/val(/test/gold) CSVs, demo_claims/, generator/
+data/                       company_guidelines.md, vocab_split.json, dev/val/test CSVs, minimal_pairs.csv, audit/, demo_claims/, generator/
 eval/                       run_eval.py, metrics.py, tfidf_lr.py, check_leakage.py
 submission/                 MAIN_Policy_Matrix_Gezira.csv, test_evidence_run.csv
 docs/brane_api.md           BRANE API contract as used here + observed product gaps

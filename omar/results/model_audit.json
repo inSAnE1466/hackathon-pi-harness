@@ -1,0 +1,918 @@
+{
+  "report": {
+    "rows": 50,
+    "raters": {
+      "qwen": {
+        "rated": 0,
+        "route_agreement": null,
+        "kappa": 0.0,
+        "blocked": 50
+      },
+      "haiku": {
+        "rated": 50,
+        "route_agreement": 0.82,
+        "kappa": 0.7295673076923077,
+        "blocked": 0
+      }
+    },
+    "panel": {
+      "both_answered": 0,
+      "raters_agree": 0,
+      "key_matches_panel": 0,
+      "disputed": []
+    }
+  },
+  "rows": [
+    {
+      "id": "test-138",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "AUTO_DECISION",
+          "CONTACT",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "refused",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-103",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "CRIMINAL",
+          "HEALTH",
+          "IBAN",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-174",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "CONTACT",
+          "HEALTH",
+          "IBAN",
+          "INJECTION",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "refused",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-177",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "CRIMINAL",
+          "HEALTH",
+          "IBAN",
+          "PERSON",
+          "POLICY_ID",
+          "THIRD_PARTY_HEALTH"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-196",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "CONTACT",
+          "HEALTH",
+          "IBAN",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-067",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "CONTACT",
+          "CRIMINAL",
+          "HEALTH",
+          "IBAN",
+          "MENTAL_HEALTH",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-124",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [],
+        "route": "cloud",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-172",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "BSN",
+          "CONTACT",
+          "HEALTH",
+          "IBAN",
+          "PERSON"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-109",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "CONTACT",
+          "HEALTH",
+          "IBAN",
+          "PERSON",
+          "POLICY_ID",
+          "THIRD_PARTY_HEALTH"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-018",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "HEALTH",
+          "WORK_INCAPACITY"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-147",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "BULK_EXPORT"
+        ],
+        "route": "refused",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-197",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "HEALTH",
+          "IBAN",
+          "MENTAL_HEALTH",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-136",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "HEALTH",
+          "IBAN",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-160",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "CONTACT",
+          "HEALTH",
+          "IBAN",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-053",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "BSN",
+          "CONTACT",
+          "HEALTH",
+          "PERSON",
+          "POLICY_ID",
+          "THIRD_PARTY_HEALTH"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-137",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "AUTO_DECISION",
+          "HEALTH",
+          "INJECTION",
+          "MENTAL_HEALTH",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "refused",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-112",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "HEALTH",
+          "WORK_INCAPACITY"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-125",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "HEALTH",
+          "IBAN",
+          "MENTAL_HEALTH",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-068",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "BSN",
+          "CONTACT",
+          "HEALTH",
+          "MENTAL_HEALTH",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-159",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "IBAN",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "cloud_redacted",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-015",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "PERSON"
+        ],
+        "route": "cloud_redacted",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-056",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "BULK_EXPORT"
+        ],
+        "route": "refused",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-020",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [],
+        "route": "cloud",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-008",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "cloud_redacted",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-128",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "AUTO_DECISION",
+          "CONTACT",
+          "IBAN",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "refused",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-025",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "HEALTH",
+          "MENTAL_HEALTH",
+          "PERSON"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-113",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "IBAN",
+          "INJECTION",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "refused",
+        "note": " [HTTP 200 (local \u00b7 vllm:deepseek-v4.1-flash)]"
+      }
+    },
+    {
+      "id": "test-064",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "HEALTH"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-133",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "CONTACT",
+          "HEALTH",
+          "IBAN",
+          "MENTAL_HEALTH",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-180",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "BSN",
+          "CONTACT",
+          "HEALTH",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-192",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "HEALTH",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-141",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "HEALTH",
+          "IBAN",
+          "PERSON",
+          "POLICY_ID",
+          "WORK_INCAPACITY"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-115",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "DISCRIMINATORY"
+        ],
+        "route": "refused",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-154",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "CONTACT",
+          "HEALTH",
+          "IBAN",
+          "MENTAL_HEALTH",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-193",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "AUTO_DECISION",
+          "CONTACT",
+          "HEALTH",
+          "IBAN",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "refused",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-121",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "cloud_redacted",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-169",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "HEALTH",
+          "MENTAL_HEALTH",
+          "PERSON"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-030",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "HEALTH",
+          "MENTAL_HEALTH",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-190",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [],
+        "route": "cloud",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-173",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "HEALTH",
+          "IBAN",
+          "MENTAL_HEALTH",
+          "PERSON",
+          "POLICY_ID",
+          "WORK_INCAPACITY"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-066",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [],
+        "route": "cloud",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-007",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "AUTO_DECISION",
+          "BSN",
+          "CONTACT",
+          "HEALTH",
+          "IBAN",
+          "INJECTION",
+          "PERSON",
+          "WORK_INCAPACITY"
+        ],
+        "route": "refused",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-122",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "CRIMINAL",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-162",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "HEALTH",
+          "POLICY_ID"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-151",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "BSN",
+          "CONTACT",
+          "CRIMINAL",
+          "IBAN",
+          "PERSON"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-093",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "HEALTH"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-200",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "BSN",
+          "CONTACT",
+          "HEALTH",
+          "PERSON",
+          "POLICY_ID",
+          "THIRD_PARTY_HEALTH"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-140",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "CONTACT",
+          "HEALTH",
+          "IBAN",
+          "MENTAL_HEALTH",
+          "PERSON",
+          "POLICY_ID",
+          "THIRD_PARTY_HEALTH"
+        ],
+        "route": "local",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-166",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "AUTO_DECISION",
+          "BSN",
+          "CONTACT",
+          "DISCRIMINATORY",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "refused",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    },
+    {
+      "id": "test-187",
+      "qwen": {
+        "labels": null,
+        "route": null,
+        "note": "blocked by live policy"
+      },
+      "haiku": {
+        "labels": [
+          "BSN",
+          "CONTACT",
+          "PERSON",
+          "POLICY_ID"
+        ],
+        "route": "cloud_redacted",
+        "note": " [HTTP 200 (cloud \u00b7 openrouter:anthropic/claude-haiku-5.5)]"
+      }
+    }
+  ]
+}
