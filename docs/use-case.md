@@ -43,5 +43,5 @@ decides every outcome.
 | `third_party`      | the other driver, a family member       | protect: remove                 | None                                                                         |
 | `outcome`          | pay, reduce, deny                       | `approve`                       | The handler's decision                                                       |
 
-The legal team replaces "draft" with a cited decision per row, starting from [sources](sources.md) ([plan](plan.md) step 3). These rows become
-`policy/claims.json`.
+The cited decision for each row is in the policy matrix ([submission/MAIN_Policy_Matrix.csv](../submission/MAIN_Policy_Matrix.csv)), and the rows are
+configured in [policy/brane.json](../policy/brane.json).

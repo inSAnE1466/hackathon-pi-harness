@@ -79,7 +79,7 @@ appears in the payload BRANE would send to the cloud.
 Edge cases E1 to E5: Art. 9 health (local), indirect health without a diagnosis (local), a request to reject a
 claim (422, goes to the handler), profiling by surname (422), a third party in a motor claim (placeholders).
 
-## Judging (100 points)
+## Judging
 
 ### Technology and execution (40 points)
 
