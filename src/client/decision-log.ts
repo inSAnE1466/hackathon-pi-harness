@@ -241,19 +241,50 @@ export type ClaimStatus =
  */
 export function claimStatus(rows: readonly AuditRow[]): ClaimStatus {
   if (rows.length === 0) return "new";
-  const decided = decisionsByHandoff(rows);
-  // Newest first: the latest handoff and whether a person has answered it decide where the claim is.
-  const latest = rows.find((row) => row.kind === "handoff");
-  if (latest !== undefined) {
-    const tool = handoffOf(latest).tool;
-    const answer = decided.get(latest.id);
-    const decision = answer === undefined ? undefined : decisionOf(answer);
-    if (tool === "request_approval")
-      return decision === undefined || decision === "answered" ? "prepared" : decision;
-    if (answer === undefined) return "waiting";
-  }
+  const open = openHandoffs(rows);
+  if (open.some((row) => handoffOf(row).tool === "consult")) return "waiting";
+  if (open.length > 0) return "prepared";
+  const settled = latestApprovalDecision(rows);
+  const decision = settled === undefined ? undefined : decisionOf(settled);
+  if (decision !== undefined && decision !== "answered") return decision;
   if (rows.some((row) => row.kind === "brane" && routeOf(row) === "refused")) return "refused";
   return "in-progress";
+}
+
+const isApproval = (row: AuditRow): boolean =>
+  row.kind === "handoff" && handoffOf(row).tool === "request_approval";
+
+/** The newest human row that answers a recommendation. */
+function latestApprovalDecision(rows: readonly AuditRow[]): AuditRow | undefined {
+  const approvals = new Set(rows.filter(isApproval).map((row) => row.id));
+  return rows
+    .filter((row) => row.kind === "human" && approvals.has(row.refId))
+    .reduce<AuditRow | undefined>(
+      (latest, row) => (latest === undefined || row.id > latest.id ? row : latest),
+      undefined,
+    );
+}
+
+/**
+ * The handoffs that wait on a person, oldest first: every consult without an answer, and the newest recommendation
+ * unless a person has decided on a recommendation since it was made. The agent may restate its recommendation; one
+ * decision settles every earlier one.
+ */
+export function openHandoffs(rows: readonly AuditRow[]): AuditRow[] {
+  const answered = new Set(rows.filter((row) => row.kind === "human").map((row) => row.refId));
+  const consults = rows.filter(
+    (row) => row.kind === "handoff" && !isApproval(row) && !answered.has(row.id),
+  );
+  const newest = rows
+    .filter(isApproval)
+    .reduce<AuditRow | undefined>(
+      (latest, row) => (latest === undefined || row.id > latest.id ? row : latest),
+      undefined,
+    );
+  const settledAt = latestApprovalDecision(rows)?.id ?? 0;
+  const approval =
+    newest !== undefined && newest.id > settledAt && !answered.has(newest.id) ? [newest] : [];
+  return [...consults, ...approval].sort((a, b) => a.id - b.id);
 }
 
 /** `semantic:CLAIM_OUTCOME_DECISION->refuse` becomes `CLAIM_OUTCOME_DECISION`. */

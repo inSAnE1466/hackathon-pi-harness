@@ -7,7 +7,7 @@ import { HarnessPanel } from "./HarnessPanel.tsx";
 import { Markdown } from "./Markdown.tsx";
 import { type ClaimDocument, claimText, type QueueClaim, TYPE_LABEL } from "./queue.ts";
 import { RunThread } from "./RunThread.tsx";
-import { humanMessageOf, refusalOf } from "./decision-log.ts";
+import { openHandoffs, refusalOf } from "./decision-log.ts";
 import { Composer } from "./Composer.tsx";
 import { RefusalCard } from "./RefusalCard.tsx";
 import { MessageText, TranscriptList } from "./Transcript.tsx";
@@ -77,14 +77,7 @@ export function ClaimSession({ claim, sessionId, username }: ClaimSessionProps) 
   // The refused assistant entry in the transcript already shows the card for the latest failure.
   const refusalShown = activeConversation?.entries.at(-1)?.text.includes("422: {") === true;
   const started = (activeConversation?.entries.length ?? 0) > 0 || activeConversation?.live != null;
-  const handoffs = decisionLog.rows.filter((row) => row.kind === "handoff").toReversed();
-  // A decided handoff is shown by its decision message in the chat; its card stays only if that message is missing.
-  const answeredInChat = new Set(
-    (activeConversation?.entries ?? []).flatMap((entry) => {
-      const human = entry.role === "user" ? humanMessageOf(entry.text) : undefined;
-      return human === undefined ? [] : [human.handoffId];
-    }),
-  );
+  const handoffs = openHandoffs(decisionLog.rows);
   const approvalReasons = activeConversation?.entries
     .flatMap((entry) => entry.toolCalls ?? [])
     .findLast((call) => call.name === "request_approval")?.args.reasons;
@@ -403,18 +396,16 @@ export function ClaimSession({ claim, sessionId, username }: ClaimSessionProps) 
 
           {running
             ? null
-            : handoffs
-                .filter((handoff) => !answeredInChat.has(handoff.id))
-                .map((handoff) => (
-                  <DecisionCard
-                    key={handoff.id}
-                    sessionId={sessionId}
-                    handoff={handoff}
-                    rows={decisionLog.rows}
-                    onRecorded={decisionLog.reload}
-                    {...(typeof approvalReasons === "string" ? { reasons: approvalReasons } : {})}
-                  />
-                ))}
+            : handoffs.map((handoff) => (
+                <DecisionCard
+                  key={handoff.id}
+                  sessionId={sessionId}
+                  handoff={handoff}
+                  rows={decisionLog.rows}
+                  onRecorded={decisionLog.reload}
+                  {...(typeof approvalReasons === "string" ? { reasons: approvalReasons } : {})}
+                />
+              ))}
         </section>
 
         <Composer

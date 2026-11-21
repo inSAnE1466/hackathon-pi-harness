@@ -83,6 +83,18 @@ export function threadOf(rows: readonly AuditRow[]): ThreadRow[] {
       }
       case "lookup": {
         const ids = list(row.detail);
+        const last = thread.at(-1);
+        if (last !== undefined && last.label.startsWith("Searched the policy")) {
+          const count = Number(/(\d+) times$/.exec(last.label)?.[1] ?? "1") + 1;
+          const chips = [...new Set([...last.chips, ...ids])];
+          thread[thread.length - 1] = {
+            ...last,
+            label: `Searched the policy and the law ${count} times`,
+            result: `Found ${chips.length}`,
+            chips,
+          };
+          break;
+        }
         thread.push({
           key,
           label: "Searched the policy and the law",

@@ -4,6 +4,7 @@ import {
   decisionOf,
   handoffOf,
   list,
+  openHandoffs,
   routeOf,
   ruleName,
 } from "./decision-log.ts";
@@ -52,8 +53,7 @@ export function traceOf(rows: readonly AuditRow[], running: boolean): Step[] {
   const handoffRows = of("handoff");
   const handoffs = handoffRows.map(handoffOf);
   const humans = of("human");
-  const answered = new Set(humans.map((row) => row.refId));
-  const open = handoffRows.filter((row) => !answered.has(row.id)).map(handoffOf);
+  const open = openHandoffs(rows).map(handoffOf);
   const refused = brane.filter((row) => routeOf(row) === "refused");
 
   const steps: Step[] = [];

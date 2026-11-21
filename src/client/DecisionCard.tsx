@@ -4,7 +4,6 @@ import {
   citedPassages,
   DECISIONS,
   decisionOf,
-  decisionsByHandoff,
   type HumanDecision,
   handoffOf,
   passageIds,
@@ -18,7 +17,8 @@ type Draft =
   | { readonly step: "idle" }
   | { readonly step: "writing"; readonly note: string }
   | { readonly step: "sending"; readonly decision: HumanDecision; readonly note: string }
-  | { readonly step: "failed"; readonly error: string; readonly note: string };
+  | { readonly step: "failed"; readonly error: string; readonly note: string }
+  | { readonly step: "recorded"; readonly row: AuditRow };
 
 interface DecisionCardProps {
   readonly sessionId: string;
@@ -40,13 +40,17 @@ export function DecisionCard({ sessionId, handoff, rows, reasons, onRecorded }: 
   const [draft, setDraft] = useState<Draft>({ step: "idle" });
   const { tool, role, sentence } = handoffOf(handoff);
   const consult = tool === "consult";
-  const recorded = decisionsByHandoff(rows).get(handoff.id);
 
   const decide = async (decision: HumanDecision, note = ""): Promise<void> => {
     setDraft({ step: "sending", decision, note });
     try {
-      await recordHuman(sessionId, { handoffId: handoff.id, decision, note, reviewer: role });
-      setDraft({ step: "idle" });
+      const row = await recordHuman(sessionId, {
+        handoffId: handoff.id,
+        decision,
+        note,
+        reviewer: role,
+      });
+      setDraft({ step: "recorded", row });
       onRecorded();
     } catch (cause) {
       setDraft({
@@ -78,8 +82,8 @@ export function DecisionCard({ sessionId, handoff, rows, reasons, onRecorded }: 
         />
       )}
 
-      {recorded !== undefined ? (
-        <Recorded row={recorded} />
+      {draft.step === "recorded" ? (
+        <Recorded row={draft.row} />
       ) : consult ||
         draft.step === "writing" ||
         draft.step === "failed" ||
@@ -178,7 +182,7 @@ function Recorded({ row }: { readonly row: AuditRow }) {
         by {row.actor},{" "}
         {new Date(row.at).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
       </span>
-      <span className="decision-card-note">Audit row #{row.id}, sent back to the assistant</span>
+      <span className="decision-card-note">Audit row #{row.id}. Sending it to the assistant…</span>
     </p>
   );
 }
