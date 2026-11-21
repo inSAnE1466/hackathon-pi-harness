@@ -40,7 +40,7 @@ sys.path.insert(0, str(ROOT / "eval"))
 import brane_client as bc  # noqa: E402
 import metrics as M  # noqa: E402
 
-LOCKED = {"test.csv", "gold.csv", "gold_rephrase.csv"}
+LOCKED = {"test.csv", "test_ar.csv", "test_farm.csv", "gold.csv", "gold_rephrase.csv"}
 
 LABEL_DEFS, CLASSIFIER_DRAFT, FENCE = bc.LABEL_DEFS, bc.CLASSIFIER_DRAFT, bc.FENCE
 GROUPS = {  # variant C (one call per group)
@@ -284,7 +284,10 @@ def main(argv=None):
     if data_hash:
         locks[a.tag] = {"data_sha256": data_hash, "final": True, "timestamp": res["timestamp"], "backend": be.name,
                         "policy_version": res["policy_version"]}
-        (ROOT / "results" / "locks.json").write_text(json.dumps(locks, indent=2), encoding="utf-8")
+        lp = ROOT / "results" / "locks.json"
+        latest = json.loads(lp.read_text(encoding="utf-8")) if lp.exists() else {}   # merge: parallel runs must not overwrite each other
+        latest.update({k: v for k, v in locks.items() if k not in latest or k == a.tag})
+        lp.write_text(json.dumps(latest, indent=2), encoding="utf-8")
     M.print_report(m, f"{a.tag}  ({be.name}, {res['policy_version']})" + ("  [MOCK]" if a.mock else ""))
     print(f"\n-> {pred_path.relative_to(ROOT)}  {out.relative_to(ROOT)}")
 

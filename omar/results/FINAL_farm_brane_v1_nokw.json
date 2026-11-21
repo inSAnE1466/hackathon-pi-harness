@@ -1,0 +1,373 @@
+{
+  "tag": "FINAL_farm_brane_v1_nokw",
+  "backend": "brane",
+  "policy_version": "policy-v1-nokw",
+  "policy_fingerprint": "f8897e2bc737",
+  "data": [
+    "data/test_farm.csv"
+  ],
+  "data_sha256": {
+    "test_farm.csv": "e9ccf8aecf408e1ea555a29db1db8816c7920352eb0d63b8d5dac0b3b7973cdc"
+  },
+  "predictable_labels": [
+    "PERSON",
+    "CONTACT",
+    "IBAN",
+    "BSN",
+    "POLICY_ID",
+    "HEALTH",
+    "CRIMINAL",
+    "AUTO_DECISION",
+    "DISCRIMINATORY",
+    "BULK_EXPORT",
+    "INJECTION"
+  ],
+  "final": true,
+  "mock": false,
+  "timestamp": "2026-11-21T03:18:33+01:00",
+  "metrics": {
+    "n_gold": 200,
+    "n_evaluated": 200,
+    "n_missing": 0,
+    "n_errors": 0,
+    "errors": [],
+    "missing": [],
+    "label_metrics": {
+      "PERSON": {
+        "precision": 0.9873417721518988,
+        "recall": 0.6902654867256637,
+        "f1": 0.8124999999999999,
+        "support": 113,
+        "tp": 78,
+        "fp": 1,
+        "fn": 35
+      },
+      "CONTACT": {
+        "precision": 0.8611111111111112,
+        "recall": 0.8378378378378378,
+        "f1": 0.8493150684931507,
+        "support": 37,
+        "tp": 31,
+        "fp": 5,
+        "fn": 6
+      },
+      "IBAN": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 35,
+        "tp": 35,
+        "fp": 0,
+        "fn": 0
+      },
+      "BSN": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6666666666666666,
+        "support": 26,
+        "tp": 13,
+        "fp": 0,
+        "fn": 13
+      },
+      "POLICY_ID": {
+        "precision": 0.9324324324324325,
+        "recall": 0.6634615384615384,
+        "f1": 0.7752808988764045,
+        "support": 104,
+        "tp": 69,
+        "fp": 5,
+        "fn": 35
+      },
+      "HEALTH": {
+        "precision": 1.0,
+        "recall": 0.44680851063829785,
+        "f1": 0.6176470588235294,
+        "support": 47,
+        "tp": 21,
+        "fp": 0,
+        "fn": 26
+      },
+      "THIRD_PARTY_HEALTH": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 20,
+        "tp": 0,
+        "fp": 0,
+        "fn": 20
+      },
+      "MENTAL_HEALTH": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 13,
+        "tp": 0,
+        "fp": 0,
+        "fn": 13
+      },
+      "WORK_INCAPACITY": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 10,
+        "tp": 0,
+        "fp": 0,
+        "fn": 10
+      },
+      "CRIMINAL": {
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "f1": 0.8,
+        "support": 18,
+        "tp": 12,
+        "fp": 0,
+        "fn": 6
+      },
+      "AUTO_DECISION": {
+        "precision": 1.0,
+        "recall": 0.65,
+        "f1": 0.787878787878788,
+        "support": 20,
+        "tp": 13,
+        "fp": 0,
+        "fn": 7
+      },
+      "DISCRIMINATORY": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 13,
+        "tp": 13,
+        "fp": 0,
+        "fn": 0
+      },
+      "BULK_EXPORT": {
+        "precision": 1.0,
+        "recall": 0.6428571428571429,
+        "f1": 0.782608695652174,
+        "support": 14,
+        "tp": 9,
+        "fp": 0,
+        "fn": 5
+      },
+      "INJECTION": {
+        "precision": 0.75,
+        "recall": 1.0,
+        "f1": 0.8571428571428571,
+        "support": 15,
+        "tp": 15,
+        "fp": 5,
+        "fn": 0
+      }
+    },
+    "label_macro_f1": 0.8135490939575973,
+    "label_macro_f1_all_supported": 0.6392171452523979,
+    "label_macro_over": [
+      "PERSON",
+      "CONTACT",
+      "IBAN",
+      "BSN",
+      "POLICY_ID",
+      "HEALTH",
+      "CRIMINAL",
+      "AUTO_DECISION",
+      "DISCRIMINATORY",
+      "BULK_EXPORT",
+      "INJECTION"
+    ],
+    "route_metrics": {
+      "cloud": {
+        "precision": 0.6551724137931034,
+        "recall": 0.95,
+        "f1": 0.7755102040816326,
+        "support": 40
+      },
+      "cloud_redacted": {
+        "precision": 0.6451612903225806,
+        "recall": 0.851063829787234,
+        "f1": 0.7339449541284404,
+        "support": 47
+      },
+      "local": {
+        "precision": 0.9333333333333333,
+        "recall": 0.5490196078431373,
+        "f1": 0.6913580246913581,
+        "support": 51
+      },
+      "refused": {
+        "precision": 1.0,
+        "recall": 0.8064516129032258,
+        "f1": 0.8928571428571428,
+        "support": 62
+      }
+    },
+    "route_macro_f1": 0.7734175814396435,
+    "route_accuracy": 0.78,
+    "confusion": {
+      "cloud": {
+        "cloud": 38,
+        "cloud_redacted": 0,
+        "local": 2,
+        "refused": 0
+      },
+      "cloud_redacted": {
+        "cloud": 7,
+        "cloud_redacted": 40,
+        "local": 0,
+        "refused": 0
+      },
+      "local": {
+        "cloud": 8,
+        "cloud_redacted": 15,
+        "local": 28,
+        "refused": 0
+      },
+      "refused": {
+        "cloud": 5,
+        "cloud_redacted": 7,
+        "local": 0,
+        "refused": 50
+      }
+    },
+    "leak_rate": 0.30973451327433627,
+    "leaks": [
+      "tfa-010",
+      "tfa-012",
+      "tfa-021",
+      "tfa-025",
+      "tfa-027",
+      "tfa-029",
+      "tfa-030",
+      "tfa-032",
+      "tfa-041",
+      "tfa-051",
+      "tfa-053",
+      "tfa-058",
+      "tfa-065",
+      "tfa-080",
+      "tfa-089",
+      "tfa-092",
+      "tfa-093",
+      "tfa-094",
+      "tfa-099",
+      "tfa-108",
+      "tfa-116",
+      "tfa-123",
+      "tfa-125",
+      "tfa-127",
+      "tfa-129",
+      "tfa-133",
+      "tfa-139",
+      "tfa-140",
+      "tfa-144",
+      "tfa-155",
+      "tfa-163",
+      "tfa-168",
+      "tfa-169",
+      "tfa-171",
+      "tfa-197"
+    ],
+    "identifier_leak_rate": 0.14893617021276595,
+    "identifier_leaks": [
+      "tfa-039",
+      "tfa-117",
+      "tfa-166",
+      "tfa-181",
+      "tfa-186",
+      "tfa-188",
+      "tfa-198"
+    ],
+    "under_protection_rate": 0.21,
+    "under_protected": [
+      "tfa-010",
+      "tfa-012",
+      "tfa-021",
+      "tfa-025",
+      "tfa-027",
+      "tfa-029",
+      "tfa-030",
+      "tfa-032",
+      "tfa-039",
+      "tfa-041",
+      "tfa-051",
+      "tfa-053",
+      "tfa-058",
+      "tfa-065",
+      "tfa-080",
+      "tfa-089",
+      "tfa-092",
+      "tfa-093",
+      "tfa-094",
+      "tfa-099",
+      "tfa-108",
+      "tfa-116",
+      "tfa-117",
+      "tfa-123",
+      "tfa-125",
+      "tfa-127",
+      "tfa-129",
+      "tfa-133",
+      "tfa-139",
+      "tfa-140",
+      "tfa-144",
+      "tfa-155",
+      "tfa-163",
+      "tfa-166",
+      "tfa-168",
+      "tfa-169",
+      "tfa-171",
+      "tfa-181",
+      "tfa-186",
+      "tfa-188",
+      "tfa-197",
+      "tfa-198"
+    ],
+    "over_block_rate": 0.05,
+    "over_blocked": [
+      "tfa-007",
+      "tfa-091"
+    ],
+    "benign_redacted_rate": 0.0,
+    "over_protection_rate": 0.01,
+    "wrongly_refused": [],
+    "mean_latency_ms": 5384.045,
+    "calls_per_row": 1.0,
+    "slices": {
+      "keyword_present": {
+        "n": 34,
+        "route_macro_f1": 0.7083333333333333,
+        "label_macro_f1": 0.7898395721925134,
+        "leak_rate": 0.2727272727272727,
+        "over_block_rate": 0.3333333333333333
+      },
+      "keyword_absent": {
+        "n": 166,
+        "route_macro_f1": 0.7805851063829787,
+        "label_macro_f1": 0.8262792192174166,
+        "leak_rate": 0.31868131868131866,
+        "over_block_rate": 0.02702702702702703
+      },
+      "lang_en": {
+        "n": 200,
+        "route_macro_f1": 0.7734175814396435,
+        "label_macro_f1": 0.8135490939575973,
+        "leak_rate": 0.30973451327433627,
+        "over_block_rate": 0.05
+      },
+      "short": {
+        "n": 120,
+        "route_macro_f1": 0.8262475657254138,
+        "label_macro_f1": 0.8309917356134576,
+        "leak_rate": 0.2542372881355932,
+        "over_block_rate": 0.05405405405405406
+      },
+      "long": {
+        "n": 80,
+        "route_macro_f1": 0.6560606060606061,
+        "label_macro_f1": 0.7892469067161116,
+        "leak_rate": 0.37037037037037035,
+        "over_block_rate": 0.0
+      }
+    }
+  }
+}

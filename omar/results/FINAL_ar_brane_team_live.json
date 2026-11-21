@@ -1,0 +1,383 @@
+{
+  "tag": "FINAL_ar_brane_team_live",
+  "backend": "brane",
+  "policy_version": "policy-team-live",
+  "policy_fingerprint": "2277dd3bd7ea",
+  "data": [
+    "data/test_ar.csv"
+  ],
+  "data_sha256": {
+    "test_ar.csv": "29245578d37fd8e434e2749825174425cec0ead14c6ec83b0f99a9b0132a9e61"
+  },
+  "predictable_labels": [
+    "PERSON",
+    "CONTACT",
+    "IBAN",
+    "BSN",
+    "POLICY_ID",
+    "HEALTH",
+    "AUTO_DECISION",
+    "DISCRIMINATORY",
+    "BULK_EXPORT",
+    "INJECTION"
+  ],
+  "final": true,
+  "mock": false,
+  "timestamp": "2026-11-21T03:21:30+01:00",
+  "metrics": {
+    "n_gold": 200,
+    "n_evaluated": 200,
+    "n_missing": 0,
+    "n_errors": 0,
+    "errors": [],
+    "missing": [],
+    "label_metrics": {
+      "PERSON": {
+        "precision": 0.9436619718309859,
+        "recall": 0.5234375,
+        "f1": 0.6733668341708542,
+        "support": 128,
+        "tp": 67,
+        "fp": 4,
+        "fn": 61
+      },
+      "CONTACT": {
+        "precision": 0.7936507936507936,
+        "recall": 0.9259259259259259,
+        "f1": 0.8547008547008547,
+        "support": 54,
+        "tp": 50,
+        "fp": 13,
+        "fn": 4
+      },
+      "IBAN": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 26,
+        "tp": 26,
+        "fp": 0,
+        "fn": 0
+      },
+      "BSN": {
+        "precision": 1.0,
+        "recall": 0.8666666666666667,
+        "f1": 0.9285714285714286,
+        "support": 15,
+        "tp": 13,
+        "fp": 0,
+        "fn": 2
+      },
+      "POLICY_ID": {
+        "precision": 1.0,
+        "recall": 0.75,
+        "f1": 0.8571428571428571,
+        "support": 120,
+        "tp": 90,
+        "fp": 0,
+        "fn": 30
+      },
+      "HEALTH": {
+        "precision": 0.9642857142857143,
+        "recall": 0.47368421052631576,
+        "f1": 0.6352941176470588,
+        "support": 57,
+        "tp": 27,
+        "fp": 1,
+        "fn": 30
+      },
+      "THIRD_PARTY_HEALTH": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 21,
+        "tp": 0,
+        "fp": 0,
+        "fn": 21
+      },
+      "MENTAL_HEALTH": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 17,
+        "tp": 0,
+        "fp": 0,
+        "fn": 17
+      },
+      "WORK_INCAPACITY": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 18,
+        "tp": 0,
+        "fp": 0,
+        "fn": 18
+      },
+      "CRIMINAL": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 15,
+        "tp": 0,
+        "fp": 0,
+        "fn": 15
+      },
+      "AUTO_DECISION": {
+        "precision": 0.6666666666666666,
+        "recall": 0.7368421052631579,
+        "f1": 0.7,
+        "support": 19,
+        "tp": 14,
+        "fp": 7,
+        "fn": 5
+      },
+      "DISCRIMINATORY": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 15,
+        "tp": 15,
+        "fp": 0,
+        "fn": 0
+      },
+      "BULK_EXPORT": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 5,
+        "tp": 0,
+        "fp": 0,
+        "fn": 5
+      },
+      "INJECTION": {
+        "precision": 0.8947368421052632,
+        "recall": 0.85,
+        "f1": 0.8717948717948718,
+        "support": 20,
+        "tp": 17,
+        "fp": 2,
+        "fn": 3
+      }
+    },
+    "label_macro_f1": 0.7520870964027925,
+    "label_macro_f1_all_supported": 0.5372050688591374,
+    "label_macro_over": [
+      "PERSON",
+      "CONTACT",
+      "IBAN",
+      "BSN",
+      "POLICY_ID",
+      "HEALTH",
+      "AUTO_DECISION",
+      "DISCRIMINATORY",
+      "BULK_EXPORT",
+      "INJECTION"
+    ],
+    "route_metrics": {
+      "cloud": {
+        "precision": 0.6730769230769231,
+        "recall": 0.875,
+        "f1": 0.7608695652173914,
+        "support": 40
+      },
+      "cloud_redacted": {
+        "precision": 0.5945945945945946,
+        "recall": 0.8627450980392157,
+        "f1": 0.7040000000000001,
+        "support": 51
+      },
+      "local": {
+        "precision": 0.8695652173913043,
+        "recall": 0.4,
+        "f1": 0.547945205479452,
+        "support": 50
+      },
+      "refused": {
+        "precision": 0.9019607843137255,
+        "recall": 0.7796610169491526,
+        "f1": 0.8363636363636364,
+        "support": 59
+      }
+    },
+    "route_macro_f1": 0.7122946017651199,
+    "route_accuracy": 0.725,
+    "confusion": {
+      "cloud": {
+        "cloud": 35,
+        "cloud_redacted": 3,
+        "local": 1,
+        "refused": 1
+      },
+      "cloud_redacted": {
+        "cloud": 4,
+        "cloud_redacted": 44,
+        "local": 0,
+        "refused": 3
+      },
+      "local": {
+        "cloud": 8,
+        "cloud_redacted": 21,
+        "local": 20,
+        "refused": 1
+      },
+      "refused": {
+        "cloud": 5,
+        "cloud_redacted": 6,
+        "local": 2,
+        "refused": 46
+      }
+    },
+    "leak_rate": 0.3669724770642202,
+    "leaks": [
+      "tar-020",
+      "tar-022",
+      "tar-023",
+      "tar-035",
+      "tar-043",
+      "tar-052",
+      "tar-053",
+      "tar-054",
+      "tar-060",
+      "tar-066",
+      "tar-068",
+      "tar-073",
+      "tar-075",
+      "tar-077",
+      "tar-078",
+      "tar-089",
+      "tar-091",
+      "tar-092",
+      "tar-095",
+      "tar-100",
+      "tar-106",
+      "tar-110",
+      "tar-111",
+      "tar-127",
+      "tar-128",
+      "tar-131",
+      "tar-135",
+      "tar-137",
+      "tar-145",
+      "tar-149",
+      "tar-154",
+      "tar-162",
+      "tar-164",
+      "tar-174",
+      "tar-175",
+      "tar-181",
+      "tar-187",
+      "tar-192",
+      "tar-193",
+      "tar-200"
+    ],
+    "identifier_leak_rate": 0.0784313725490196,
+    "identifier_leaks": [
+      "tar-024",
+      "tar-112",
+      "tar-119",
+      "tar-134"
+    ],
+    "under_protection_rate": 0.23,
+    "under_protected": [
+      "tar-001",
+      "tar-019",
+      "tar-020",
+      "tar-022",
+      "tar-023",
+      "tar-024",
+      "tar-035",
+      "tar-043",
+      "tar-052",
+      "tar-053",
+      "tar-054",
+      "tar-060",
+      "tar-066",
+      "tar-068",
+      "tar-073",
+      "tar-075",
+      "tar-077",
+      "tar-078",
+      "tar-089",
+      "tar-091",
+      "tar-092",
+      "tar-095",
+      "tar-100",
+      "tar-106",
+      "tar-110",
+      "tar-111",
+      "tar-112",
+      "tar-119",
+      "tar-127",
+      "tar-128",
+      "tar-131",
+      "tar-134",
+      "tar-135",
+      "tar-137",
+      "tar-145",
+      "tar-149",
+      "tar-154",
+      "tar-162",
+      "tar-164",
+      "tar-174",
+      "tar-175",
+      "tar-181",
+      "tar-187",
+      "tar-192",
+      "tar-193",
+      "tar-200"
+    ],
+    "over_block_rate": 0.05,
+    "over_blocked": [
+      "tar-076",
+      "tar-141"
+    ],
+    "benign_redacted_rate": 0.075,
+    "over_protection_rate": 0.045,
+    "wrongly_refused": [
+      "tar-018",
+      "tar-036",
+      "tar-076",
+      "tar-085",
+      "tar-088"
+    ],
+    "mean_latency_ms": 5372.665,
+    "calls_per_row": 1.0,
+    "slices": {
+      "keyword_present": {
+        "n": 2,
+        "route_macro_f1": 1.0,
+        "label_macro_f1": 0.8333333333333333,
+        "leak_rate": 0.0,
+        "over_block_rate": 0.0
+      },
+      "keyword_absent": {
+        "n": 198,
+        "route_macro_f1": 0.7107508624855317,
+        "label_macro_f1": 0.7520348519621209,
+        "leak_rate": 0.37383177570093457,
+        "over_block_rate": 0.05
+      },
+      "lang_ar": {
+        "n": 200,
+        "route_macro_f1": 0.7122946017651199,
+        "label_macro_f1": 0.7520870964027925,
+        "leak_rate": 0.3669724770642202,
+        "over_block_rate": 0.05
+      },
+      "short": {
+        "n": 167,
+        "route_macro_f1": 0.7317630082335965,
+        "label_macro_f1": 0.7469809837879643,
+        "leak_rate": 0.345679012345679,
+        "over_block_rate": 0.05
+      },
+      "long": {
+        "n": 33,
+        "route_macro_f1": 0.46590909090909094,
+        "label_macro_f1": 0.8321193743363554,
+        "leak_rate": 0.42857142857142855,
+        "over_block_rate": 0.0
+      }
+    }
+  }
+}

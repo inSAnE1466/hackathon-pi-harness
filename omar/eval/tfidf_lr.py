@@ -150,7 +150,10 @@ def main(argv=None):
     (ROOT / "results" / f"{a.tag}.json").write_text(json.dumps(res, indent=2, default=list), encoding="utf-8")
     if data_hash:
         locks[a.tag] = {"data_sha256": data_hash, "final": True, "timestamp": res["timestamp"], "backend": "tfidf_lr"}
-        (ROOT / "results" / "locks.json").write_text(json.dumps(locks, indent=2), encoding="utf-8")
+        lp = ROOT / "results" / "locks.json"
+        latest = json.loads(lp.read_text(encoding="utf-8")) if lp.exists() else {}   # merge: parallel runs must not overwrite each other
+        latest.update({k: v for k, v in locks.items() if k not in latest or k == a.tag})
+        lp.write_text(json.dumps(latest, indent=2), encoding="utf-8")
     M.print_report(m, f"{a.tag} (tfidf_lr)")
 
 

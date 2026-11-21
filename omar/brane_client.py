@@ -694,7 +694,10 @@ LABEL_DEFS = {
     "IBAN": "an IBAN or bank account number",
     "BSN": "a Dutch citizen service number (BSN) or another national ID / passport number",
     "POLICY_ID": "an insurance policy number, claim number or customer number",
-    "HEALTH": "any information about the physical or mental health of a specific person, also indirect",
+    # v3 (selected in round 3): broad Art. 9 reading, CJEU C-184/20; "age or retirement alone is NOT health" is the bias guard
+    "HEALTH": ("any information about the physical or mental health of a specific person, also indirect, including assistive "
+               "devices (walker, wheelchair, stairlift, hearing aid), living in a care home, or a guardian appointed because of "
+               "incapacity; age or retirement on its own is NOT health"),
     "THIRD_PARTY_HEALTH": "health information about someone other than the policyholder (family member, passenger, other party)",
     "MENTAL_HEALTH": "information about the mental health of a specific person",
     "WORK_INCAPACITY": "a specific person being on sick leave, unable to work, or in reintegration",

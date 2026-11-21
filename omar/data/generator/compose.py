@@ -104,14 +104,50 @@ POOLS = {
         "domains": ["example.org", "example.nl"],
         "claim": (50000, 59999), "policy": (10000, 19999), "customer": (500000, 599999),
     },
+    "ar": {
+        "first": {"ar": ["يوسف", "مريم", "أحمد", "سلمى", "خالد", "ليلى", "عمر", "نور", "حمزة", "ياسمين", "كريم", "هدى", "طارق", "رانيا"],
+                  "nl": ["Youssef", "Meryem", "Ahmed", "Salma", "Khalid", "Laila", "Omar", "Nour", "Hamza", "Yasmina"],
+                  "en": ["Karim", "Huda", "Tariq", "Rania", "Samir", "Dalia"],
+                  "de": ["Bilal", "Amira", "Rami", "Leila"]},
+        "last": {"ar": ["الحسني", "بنعلي", "الإدريسي", "المنصوري", "حداد", "العلوي", "الشامي", "يوسفي", "البكري", "التازي"],
+                 "nl": ["El Hassani", "Benali", "El Idrissi", "Mansouri", "Haddad", "Alaoui", "Chami", "Youssfi", "Bakri", "Tazi"],
+                 "en": ["Haddad", "Khoury", "Saleh", "Nasser"],
+                 "de": ["Aziz", "Rahman", "Hamdan", "Jaber"]},
+        "city": {"ar": ["روتردام", "لاهاي", "أمستردام", "أوتريخت", "ألميري", "ليدن"], "nl": ["Rotterdam", "Den Haag", "Amsterdam", "Almere", "Leiden"],
+                 "en": ["Rotterdam", "Den Haag"], "de": ["Düsseldorf", "Köln"]},
+        "street": {"nl": ["Mathenesserlaan", "Zuidwal", "Javastraat", "Kanaalstraat", "Erasmusweg", "Beijerlandselaan"], "de": ["Kölner Straße", "Mintropstraße"]},
+        "postcode": ("30", "25", "10", "13"), "de_plz": ("402", "510"),
+        "banks": ["HAND", "DEUT", "ISBK"], "de_banks": ["30020900", "37010050"],
+        "bsn": ["723568017", "800111229", "876654431", "953197645", "123456782"],
+        "domains": ["example.com", "example.net"],
+        "claim": (70000, 79999), "policy": (20000, 29999), "customer": (1000000, 1099999),
+    },
+    "farm": {
+        "first": {"en": ["Gerben", "Hiske", "Sjoerd", "Wietske", "Hendrik", "Aaltje", "Dirk-Jan", "Trijntje", "Klaas", "Geertje", "Marten", "Jitske"],
+                  "nl": ["Gerrit-Jan", "Hilde", "Wiebe", "Tjitske", "Harm", "Jannie", "Bert", "Aukje"],
+                  "de": ["Henning", "Wiebke", "Jörg", "Silke"]},
+        "last": {"en": ["Hoekstra", "de Haan", "Bosma", "Zijlstra", "Wijnja", "Veenstra", "Kuipers", "Hiemstra", "Brouwer", "ter Horst"],
+                 "nl": ["Oosterhof", "Lubbers", "Wolters", "Nijboer", "Pruim", "Mulder-Bakker"],
+                 "de": ["Meyerhoff", "Brinkmann", "Hölscher", "Tiemann"]},
+        "city": {"en": ["Emmeloord", "Dronten", "Sneek", "Drachten", "Winterswijk", "Middelburg", "Goes", "Meppel"],
+                 "nl": ["Emmeloord", "Dronten", "Sneek"], "de": ["Vechta", "Cloppenburg"]},
+        "street": {"nl": ["Polderweg", "Dijkweg", "Oude Rijksweg", "Kanaaldijk", "Hoofdvaart", "Zeeweg"], "de": ["Hofweg", "Feldmark"]},
+        "postcode": ("83", "82", "86", "92", "71", "43"), "de_plz": ("493", "496"),
+        "banks": ["BNGH", "FRBK", "AEGO"], "de_banks": ["28050100", "28069956"],
+        "bsn": ["111222333", "187765546", "417395176", "493938382", "570481594", "647024809"],
+        "domains": ["example.org", "example.net"],
+        "claim": (80000, 89999), "policy": (30000, 39999), "customer": (1100000, 1199999),
+    },
 }
 GATE_IDS = {"CLM-2026-5120", "CLM-2026-6034", "CLM-2026-7001", "CLM-2026-7312", "CLM-2026-7401", "CLM-2026-7402",
             "CLM-2026-7403", "CLM-2026-7404", "CLM-2026-7405", "CLM-2026-8120", "CLM-2026-8304"}
-ANON = {"en": {"first": "the customer", "other_name": "another person", "claim": "the claim"},
+ANON = {"ar": {"first": "العميل", "other_name": "شخص آخر", "claim": "المطالبة"},
+        "en": {"first": "the customer", "other_name": "another person", "claim": "the claim"},
         "nl": {"first": "de klant", "other_name": "een ander", "claim": "de claim"},
         "de": {"first": "der Kunde", "other_name": "eine andere Person", "claim": "der Schaden"}}
 SEPARATORS = ["\n\n", "\n---\n", "\n\n=== DOCUMENT ===\n", "\n\n>>> pasted:\n", "\n"]
-MONTHS = {"en": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November"],
+MONTHS = {"ar": ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر"],
+          "en": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November"],
           "nl": ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november"],
           "de": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November"]}
 
@@ -163,7 +199,15 @@ class Entities:
                               f"06 {r.randint(10, 99)} {r.randint(10, 99)} {r.randint(10, 99)} {r.randint(10, 99)}"])
         if r.random() < .3:
             ib = " ".join(ib[i:i + 4] for i in range(0, len(ib), 4))
-        email = (re.sub(r"[^a-z.]", "", f"{first}.{last}".lower().replace(" ", "")) + "@" + r.choice(p["domains"]))
+        local = re.sub(r"[^a-z.]", "", f"{first}.{last}".lower().replace(" ", ""))
+        if not local.replace(".", ""):
+            # non-Latin name (e.g. Arabic script): use the parallel transliteration from the pool, as real email addresses do
+            def tr(lst_key, name):
+                src = p[lst_key].get("ar", [])
+                lat = p[lst_key].get("nl", []) + p[lst_key].get("en", [])
+                return lat[src.index(name)] if name in src and src.index(name) < len(lat) else f"user{r.randint(100, 999)}"
+            local = re.sub(r"[^a-z.]", "", f"{tr('first', first)}.{tr('last', last)}".lower().replace(" ", ""))
+        email = local + "@" + r.choice(p["domains"])
         return {
             "name": f"{first} {last}", "first": first, "other_name": f"{ofirst} {olast}",
             "email": email, "phone": phone, "address": addr, "iban": ib, "bsn": r.choice(p["bsn"]),

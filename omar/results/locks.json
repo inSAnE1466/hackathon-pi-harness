@@ -32,5 +32,78 @@
     "timestamp": "2026-11-21T00:00:28+01:00",
     "backend": "llmA",
     "policy_version": "own-classifier"
+  },
+  "FINAL_ar_brane_team_live": {
+    "data_sha256": "29245578d37fd8e434e2749825174425cec0ead14c6ec83b0f99a9b0132a9e61",
+    "final": true,
+    "timestamp": "2026-11-21T03:21:30+01:00",
+    "backend": "brane",
+    "policy_version": "policy-team-live"
+  },
+  "FINAL_ar_kw": {
+    "data_sha256": "29245578d37fd8e434e2749825174425cec0ead14c6ec83b0f99a9b0132a9e61",
+    "final": true,
+    "timestamp": "2026-11-21T03:21:31+01:00",
+    "backend": "keyword",
+    "policy_version": "policy-v1"
+  },
+  "FINAL_ar_lr800": {
+    "data_sha256": "29245578d37fd8e434e2749825174425cec0ead14c6ec83b0f99a9b0132a9e61",
+    "final": true,
+    "timestamp": "2026-11-21T03:21:44+01:00",
+    "backend": "tfidf_lr"
+  },
+  "FINAL_farm_kw": {
+    "data_sha256": "e9ccf8aecf408e1ea555a29db1db8816c7920352eb0d63b8d5dac0b3b7973cdc",
+    "final": true,
+    "timestamp": "2026-11-21T03:21:46+01:00",
+    "backend": "keyword",
+    "policy_version": "policy-v1"
+  },
+  "FINAL_farm_lr800": {
+    "data_sha256": "e9ccf8aecf408e1ea555a29db1db8816c7920352eb0d63b8d5dac0b3b7973cdc",
+    "final": true,
+    "timestamp": "2026-11-21T03:21:59+01:00",
+    "backend": "tfidf_lr"
+  },
+  "FINAL_ar_brane_v1_nokw": {
+    "data_sha256": "29245578d37fd8e434e2749825174425cec0ead14c6ec83b0f99a9b0132a9e61",
+    "final": true,
+    "timestamp": "2026-11-21T03:18:33+01:00",
+    "backend": "brane",
+    "policy_version": "policy-v1-nokw",
+    "restored_from": "FINAL_ar_brane_v1_nokw.json"
+  },
+  "FINAL_ar_llmA_d3": {
+    "data_sha256": "29245578d37fd8e434e2749825174425cec0ead14c6ec83b0f99a9b0132a9e61",
+    "final": true,
+    "timestamp": "2026-11-21T03:17:49+01:00",
+    "backend": "llmA",
+    "policy_version": "own-classifier",
+    "restored_from": "FINAL_ar_llmA_d3.json"
+  },
+  "FINAL_farm_brane_team_live": {
+    "data_sha256": "e9ccf8aecf408e1ea555a29db1db8816c7920352eb0d63b8d5dac0b3b7973cdc",
+    "final": true,
+    "timestamp": "2026-11-21T03:21:30+01:00",
+    "backend": "brane",
+    "policy_version": "policy-team-live",
+    "restored_from": "FINAL_farm_brane_team_live.json"
+  },
+  "FINAL_farm_brane_v1_nokw": {
+    "data_sha256": "e9ccf8aecf408e1ea555a29db1db8816c7920352eb0d63b8d5dac0b3b7973cdc",
+    "final": true,
+    "timestamp": "2026-11-21T03:18:33+01:00",
+    "backend": "brane",
+    "policy_version": "policy-v1-nokw",
+    "restored_from": "FINAL_farm_brane_v1_nokw.json"
+  },
+  "FINAL_farm_llmA_d3": {
+    "data_sha256": "e9ccf8aecf408e1ea555a29db1db8816c7920352eb0d63b8d5dac0b3b7973cdc",
+    "final": true,
+    "timestamp": "2026-11-21T03:17:53+01:00",
+    "backend": "llmA",
+    "policy_version": "own-classifier",
+    "restored_from": "FINAL_farm_llmA_d3.json"
   }
 }

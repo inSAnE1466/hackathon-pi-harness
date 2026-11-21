@@ -1,0 +1,271 @@
+{
+  "tag": "mp_r0x_combo.predictions",
+  "metrics": {
+    "n_gold": 80,
+    "n_evaluated": 80,
+    "n_missing": 0,
+    "n_errors": 0,
+    "errors": [],
+    "missing": [],
+    "label_metrics": {
+      "PERSON": {
+        "precision": 0.9649122807017544,
+        "recall": 1.0,
+        "f1": 0.9821428571428572,
+        "support": 55,
+        "tp": 55,
+        "fp": 2,
+        "fn": 0
+      },
+      "CONTACT": {
+        "precision": 0.3333333333333333,
+        "recall": 1.0,
+        "f1": 0.5,
+        "support": 1,
+        "tp": 1,
+        "fp": 2,
+        "fn": 0
+      },
+      "IBAN": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1,
+        "tp": 1,
+        "fp": 0,
+        "fn": 0
+      },
+      "BSN": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0
+      },
+      "POLICY_ID": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 54,
+        "tp": 54,
+        "fp": 0,
+        "fn": 0
+      },
+      "HEALTH": {
+        "precision": 0.8260869565217391,
+        "recall": 1.0,
+        "f1": 0.9047619047619047,
+        "support": 19,
+        "tp": 19,
+        "fp": 4,
+        "fn": 0
+      },
+      "THIRD_PARTY_HEALTH": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 5,
+        "tp": 5,
+        "fp": 0,
+        "fn": 0
+      },
+      "MENTAL_HEALTH": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 5,
+        "tp": 5,
+        "fp": 0,
+        "fn": 0
+      },
+      "WORK_INCAPACITY": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.6666666666666666,
+        "support": 4,
+        "tp": 4,
+        "fp": 4,
+        "fn": 0
+      },
+      "CRIMINAL": {
+        "precision": 0.3333333333333333,
+        "recall": 1.0,
+        "f1": 0.5,
+        "support": 4,
+        "tp": 4,
+        "fp": 8,
+        "fn": 0
+      },
+      "AUTO_DECISION": {
+        "precision": 1.0,
+        "recall": 0.75,
+        "f1": 0.8571428571428571,
+        "support": 4,
+        "tp": 3,
+        "fp": 0,
+        "fn": 1
+      },
+      "DISCRIMINATORY": {
+        "precision": 0.8,
+        "recall": 1.0,
+        "f1": 0.888888888888889,
+        "support": 4,
+        "tp": 4,
+        "fp": 1,
+        "fn": 0
+      },
+      "BULK_EXPORT": {
+        "precision": 0.6,
+        "recall": 1.0,
+        "f1": 0.7499999999999999,
+        "support": 3,
+        "tp": 3,
+        "fp": 2,
+        "fn": 0
+      },
+      "INJECTION": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.6666666666666666,
+        "support": 3,
+        "tp": 3,
+        "fp": 3,
+        "fn": 0
+      }
+    },
+    "label_macro_f1": 0.8243284493284494,
+    "label_macro_f1_all_supported": 0.8243284493284494,
+    "label_macro_over": [
+      "PERSON",
+      "CONTACT",
+      "IBAN",
+      "POLICY_ID",
+      "HEALTH",
+      "THIRD_PARTY_HEALTH",
+      "MENTAL_HEALTH",
+      "WORK_INCAPACITY",
+      "CRIMINAL",
+      "AUTO_DECISION",
+      "DISCRIMINATORY",
+      "BULK_EXPORT",
+      "INJECTION"
+    ],
+    "route_metrics": {
+      "cloud": {
+        "precision": 1.0,
+        "recall": 0.5384615384615384,
+        "f1": 0.7000000000000001,
+        "support": 13
+      },
+      "cloud_redacted": {
+        "precision": 0.9473684210526315,
+        "recall": 0.6,
+        "f1": 0.7346938775510204,
+        "support": 30
+      },
+      "local": {
+        "precision": 0.6571428571428571,
+        "recall": 1.0,
+        "f1": 0.7931034482758621,
+        "support": 23
+      },
+      "refused": {
+        "precision": 0.6842105263157895,
+        "recall": 0.9285714285714286,
+        "f1": 0.7878787878787878,
+        "support": 14
+      }
+    },
+    "route_macro_f1": 0.7539190284264177,
+    "route_accuracy": 0.7625,
+    "confusion": {
+      "cloud": {
+        "cloud": 7,
+        "cloud_redacted": 0,
+        "local": 0,
+        "refused": 6
+      },
+      "cloud_redacted": {
+        "cloud": 0,
+        "cloud_redacted": 18,
+        "local": 12,
+        "refused": 0
+      },
+      "local": {
+        "cloud": 0,
+        "cloud_redacted": 0,
+        "local": 23,
+        "refused": 0
+      },
+      "refused": {
+        "cloud": 0,
+        "cloud_redacted": 1,
+        "local": 0,
+        "refused": 13
+      }
+    },
+    "leak_rate": 0.02702702702702703,
+    "leaks": [
+      "mp-24a"
+    ],
+    "identifier_leak_rate": 0.0,
+    "identifier_leaks": [],
+    "under_protection_rate": 0.0125,
+    "under_protected": [
+      "mp-24a"
+    ],
+    "over_block_rate": 0.46153846153846156,
+    "over_blocked": [
+      "mp-26b",
+      "mp-29b",
+      "mp-30b",
+      "mp-32b",
+      "mp-33b",
+      "mp-34b"
+    ],
+    "benign_redacted_rate": 0.0,
+    "over_protection_rate": 0.225,
+    "wrongly_refused": [
+      "mp-26b",
+      "mp-29b",
+      "mp-30b",
+      "mp-32b",
+      "mp-33b",
+      "mp-34b"
+    ],
+    "mean_latency_ms": 6294.9875,
+    "calls_per_row": 2.0,
+    "slices": {
+      "keyword_absent": {
+        "n": 80,
+        "route_macro_f1": 0.7539190284264177,
+        "label_macro_f1": 0.8243284493284494,
+        "leak_rate": 0.02702702702702703,
+        "over_block_rate": 0.46153846153846156
+      },
+      "lang_en": {
+        "n": 48,
+        "route_macro_f1": 0.7964405964405965,
+        "label_macro_f1": 0.861574074074074,
+        "leak_rate": 0.0,
+        "over_block_rate": 0.3333333333333333
+      },
+      "lang_nl_de": {
+        "n": 32,
+        "route_macro_f1": 0.6484848484848486,
+        "label_macro_f1": 0.8057067271352985,
+        "leak_rate": 0.06666666666666667,
+        "over_block_rate": 0.75
+      },
+      "short": {
+        "n": 80,
+        "route_macro_f1": 0.7539190284264177,
+        "label_macro_f1": 0.8243284493284494,
+        "leak_rate": 0.02702702702702703,
+        "over_block_rate": 0.46153846153846156
+      }
+    }
+  }
+}

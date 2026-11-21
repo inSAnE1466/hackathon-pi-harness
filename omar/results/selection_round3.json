@@ -1,0 +1,40 @@
+{
+  "recorded_at": "2026-11-21T03:12:31+01:00",
+  "round": 3,
+  "chosen_on": [
+    "data/val_elderly.csv (retired test, broad Art. 9 relabel)",
+    "data/val.csv (500)",
+    "data/minimal_pairs.csv"
+  ],
+  "rule": "minimise leak; reject if over-block / harmless-elderly blocking rises beyond noise (bias guard); pairs as diagnostic",
+  "winner": {
+    "system": "BRANE policy v1_nokw + harness classifier defs v3 (one call), stricter route wins; harness forces local when the classifier finds identifiers BRANE did not mask",
+    "val_elderly": {
+      "leak": 0.165,
+      "over_block": 0.143,
+      "harmless_elderly_blocked": "6/42"
+    },
+    "val500": {
+      "leak": 0.004,
+      "over_block": 0.032,
+      "route_macro_f1": 0.927
+    },
+    "pairs": 0.65
+  },
+  "rejected": {
+    "BRANE v6 (+either classifier)": "broad health rule in BRANE's description over-generalises: harmless elderly blocked 9-10/42, pairs 30-32%",
+    "round 0 (defs v1)": "elderly leak 31.0% under the broad Art. 9 reading"
+  },
+  "locked_tests": {
+    "data/test_ar.csv": "29245578d37fd8e434e2749825174425cec0ead14c6ec83b0f99a9b0132a9e61",
+    "data/test_farm.csv": "e9ccf8aecf408e1ea555a29db1db8816c7920352eb0d63b8d5dac0b3b7973cdc"
+  },
+  "runs_per_test": [
+    "keyword baseline",
+    "tfidf_lr (dev 800)",
+    "classifier defs v3 alone",
+    "BRANE v1_nokw alone",
+    "BRANE team live policy",
+    "final system (derived combination)"
+  ]
+}

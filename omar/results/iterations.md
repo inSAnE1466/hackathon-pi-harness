@@ -25,3 +25,16 @@ For privacy we keep recall: an over-block costs convenience, a leak is a breach.
 final system 57%. Remaining failures of the final system are almost all over-protection of the harmless half; the injection pairs fail
 for every system because BRANE's built-in injection detector also blocks quoted or human-addressed instructions (not configurable).
 Honesty note: round-0 pair results were seen before the round-1 fixes were written (fixes were derived from dev errors).
+
+## Round 3 (after the independent label audit)
+Exam 1 retired into `data/val_elderly.csv` (82 rows relabelled HEALTH under the broad Art. 9 reading). Candidates (val_elderly / val 500 / pairs):
+
+| System | elderly leak | harmless elderly blocked | val500 leak / over-block | pairs | Kept? |
+|---|---|---|---|---|---|
+| BRANE v1-nokw + defs v1 (round 0) | 31.0% | 5/42 | 0.4% / 2.4% | 52% | baseline |
+| **BRANE v1-nokw + defs v3** | **16.5%** | **6/42** | **0.4% / 3.2%** | **65%** | **Yes** |
+| BRANE v6 + defs v1 | 22.2% | 9/42 | 0.8% / 2.4% | 30% | No (bias) |
+| BRANE v6 + defs v3 | 12.7% | 10/42 | 0.4% / 3.2% | 32% | No (bias) |
+
+Selection recorded 03:12:31 (`results/selection_round3.json`); then two new locked exams, one run per predictor:
+final system leak **0.0% (Arabic)** and **1.8% (farm)**, 0% unmasked identifiers. See `results/LOCKED_TEST_RESULTS.md`.

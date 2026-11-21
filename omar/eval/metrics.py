@@ -96,7 +96,7 @@ def validate(path) -> list:
                 problems.append(f"line {i} {r['id']}: gold_tier {r['gold_tier']} but labels give {t}")
             if bc.ROUTE_OF_TIER[t] != r["gold_route"].strip():
                 problems.append(f"line {i} {r['id']}: gold_route {r['gold_route']} but labels give {bc.ROUTE_OF_TIER[t]}")
-            if r["lang"].strip() not in ("en", "nl", "de"):
+            if r["lang"].strip() not in ("en", "nl", "de", "ar"):
                 problems.append(f"line {i} {r['id']}: lang {r['lang']!r}")
             if not r["prompt"].strip():
                 problems.append(f"line {i} {r['id']}: empty prompt")
@@ -206,6 +206,7 @@ def slices(gold: dict, pred: dict, predictable=None, terms=None) -> dict:
         "keyword_absent": lambda g: not has_keyword(g["prompt"], terms),
         "lang_en": lambda g: g["lang"] == "en",
         "lang_nl_de": lambda g: g["lang"] in ("nl", "de"),
+        "lang_ar": lambda g: g["lang"] == "ar",
         "short": lambda g: len(g["prompt"]) < LONG_CHARS,
         "long": lambda g: len(g["prompt"]) >= LONG_CHARS,
     }
@@ -222,7 +223,9 @@ def slices(gold: dict, pred: dict, predictable=None, terms=None) -> dict:
 
 # ----------------------------------------------------------------------------- combine / agreement
 def combine(preds: list) -> dict:
-    """Stricter route wins; labels are the union (any model flags -> flagged). Deterministic."""
+    """Stricter route wins; labels are the union (any model flags -> flagged). Deterministic.
+    preds[0] is the ENFORCER (BRANE): if it would send to the cloud unmasked while another predictor found identifiers
+    (cloud_redacted), the harness cannot mask them itself and forces the local model, so the combined route is local."""
     ids = set(preds[0])
     for p in preds[1:]:
         ids &= set(p)
@@ -231,6 +234,8 @@ def combine(preds: list) -> dict:
         routes = [p[i]["route"] for p in preds]
         valid = [r for r in routes if r in bc.ROUTE_RANK]
         route = max(valid, key=lambda r: bc.ROUTE_RANK[r]) if valid else "error"
+        if route == "cloud_redacted" and preds[0][i]["route"] == "cloud":
+            route = "local"
         labels = set().union(*[p[i]["labels"] for p in preds])
         out[i] = {"id": i, "pred_route": route, "pred_labels": labels,
                   "backend": "+".join(sorted({p[i]["backend"] for p in preds})),

@@ -1,0 +1,13 @@
+exam,predictor,tag,route_macro_f1,leak_rate,identifier_leak_rate,over_block_rate,n
+arabic,kw,FINAL_ar_kw,0.261,0.982,0.392,0.0,200
+arabic,lr800,FINAL_ar_lr800,0.114,0.0,0.0,1.0,200
+arabic,llmA_d3,FINAL_ar_llmA_d3,0.935,0.009,0.0,0.075,200
+arabic,brane_team_live,FINAL_ar_brane_team_live,0.712,0.367,0.078,0.05,200
+arabic,brane_v1_nokw,FINAL_ar_brane_v1_nokw,0.821,0.211,0.118,0.025,200
+arabic,combo,FINAL_ar_combo,0.917,0.0,0.0,0.075,200
+farm,kw,FINAL_farm_kw,0.357,0.832,0.319,0.15,200
+farm,lr800,FINAL_farm_lr800,0.619,0.265,0.085,0.35,200
+farm,llmA_d3,FINAL_farm_llmA_d3,0.965,0.027,0.0,0.0,200
+farm,brane_team_live,FINAL_farm_brane_team_live,0.648,0.504,0.149,0.05,200
+farm,brane_v1_nokw,FINAL_farm_brane_v1_nokw,0.773,0.31,0.149,0.05,200
+farm,combo,FINAL_farm_combo,0.928,0.018,0.0,0.05,200

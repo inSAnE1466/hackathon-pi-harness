@@ -23,8 +23,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 D = ROOT / "data"
-TUNING_CSV = [D / "dev.csv", D / "dev_composed.csv", D / "val.csv"]
-HELDOUT_CSV = [D / "test.csv", D / "gold.csv", D / "gold_rephrase.csv"]
+TUNING_CSV = [D / "dev.csv", D / "dev_composed.csv", D / "val.csv", D / "val_elderly.csv", D / "minimal_pairs.csv", D / "test.csv"]  # test.csv retired 21 Nov 02:40
+HELDOUT_CSV = [D / "test_ar.csv", D / "test_farm.csv", D / "gold.csv", D / "gold_rephrase.csv"]
 TUNING_TEXT = [D / "company_guidelines.md", D / "gold_briefs.md", D / "generator" / "bank_dev.json"] + \
     sorted((ROOT / "policy").glob("policy_*.json"))
 ELDERLY = ["retired", "retiree", "pensioner", "care home", "nursing home", "grandchild", "grandson", "granddaughter",
@@ -85,7 +85,10 @@ def main():
     # 1. Half B vocabulary in tuning material
     terms = [(t, term_re(t)) for t in half_b_terms()]
     hits = []
+    # Half B guarded the ORIGINAL test (now retired into tuning as test.csv / val_elderly.csv), so those two files are exempt
     for name, r in tuning:
+        if name in ("test.csv", "val_elderly.csv"):
+            continue
         for t, rx in terms:
             if rx.search(r["prompt"]):
                 hits.append(f"{name}:{r['id']} contains '{t}'")
@@ -153,7 +156,7 @@ def main():
     # 4. population split
     eld = [term_re(t) for t in ELDERLY]
     dev_eld = [f"{n}:{r['id']}" for n, r in tuning if n.startswith("dev") and any(rx.search(r["prompt"]) for rx in eld)]
-    test_rows = [r for n, r in heldout if n == "test.csv"]
+    test_rows = [r for n, r in heldout if n == "test_ar.csv"]
     test_eld = sum(1 for r in test_rows if any(rx.search(r["prompt"]) for rx in eld))
     print(f"[4] dev rows with elderly-life-stage markers: {len(dev_eld)} {dev_eld[:6]}"
           + (f" | test rows with markers: {test_eld}/{len(test_rows)}" if test_rows else ""))

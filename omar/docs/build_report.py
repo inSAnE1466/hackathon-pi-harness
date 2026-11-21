@@ -197,6 +197,10 @@ def build():
                  ("BRANE v1 no keywords, run 1", "v500_brane_v1_nokw_r1"), ("BRANE v1 no keywords, run 2", "v500_brane_v1_nokw_r2"),
                  ("BRANE v4 + classifier (stricter wins)", "v500_combo_v4"),
                  ("BRANE v1-nokw + classifier (stricter wins): selected", "v500_combo_v1_nokw")]
+    ar_tags = [("Keyword baseline", "FINAL_ar_kw"), ("TF-IDF + logistic regression", "FINAL_ar_lr800"),
+               ("Our classifier alone (defs v3)", "FINAL_ar_llmA_d3"), ("BRANE: team live policy", "FINAL_ar_brane_team_live"),
+               ("BRANE: policy v1, no keywords", "FINAL_ar_brane_v1_nokw"), ("Final system (BRANE + classifier v3)", "FINAL_ar_combo")]
+    farm_tags = [(n, t.replace("FINAL_ar_", "FINAL_farm_")) for n, t in ar_tags]
     test_tags = [("Keyword baseline", "FINAL_kw_v1_test"), ("TF-IDF + logistic regression", "FINAL_lr800_test"),
                  ("Own LLM classifier A", "FINAL_llmA_test"), ("BRANE: team live policy", "FINAL_brane_team_live_test"),
                  ("BRANE: policy v1, no keywords (selected)", "FINAL_brane_v1_nokw_test"),
@@ -231,9 +235,11 @@ reports. Sending that to an outside AI (like ChatGPT) is not allowed under EU pr
 Together they decide: <i>send to the outside AI</i>, <i>send with names hidden</i>, <i>keep it on the company's own AI</i>, or <i>block it</i>.
 A human always approves the result; the AI never decides or sends anything itself.</li>
 <li><b>We proved it.</b> It passes all 13 security tests, 3 times in a row, including "if the guard is down, nothing goes out".</li>
-<li><b>We tested it fairly.</b> 1,500 practice examples, plus a final exam of 200 examples written with different words and about
-different people (elderly customers), so the system could not have memorised the answers.</li>
-<li><b>The result.</b> BRANE alone let about 1 in 6 sensitive cases slip out. With our second check added, it is <b>about 1 in 100</b>.</li>
+<li><b>We tested it fairly.</b> 1,500 practice examples, plus <b>three locked final exams</b>, each used only once and written by a
+different author: elderly customers, customers writing in <b>Arabic</b>, and <b>farm insurance</b>, a topic never seen before. The system
+could not have memorised the answers.</li>
+<li><b>The result.</b> On the new exams BRANE alone let 21-31% of sensitive cases slip out. With our second check added: <b>0 in Arabic and
+about 2 in 100 on farm claims</b>, and no name or bank number ever went out unmasked.</li>
 </ol>
 <div class="pic">
 <div>Employee pastes a claim</div><div class="a">→</div>
@@ -243,8 +249,8 @@ different people (elderly customers), so the system could not have memorised the
 </div>
 <div class="kpis">
 <div class="kpi"><b>13/13</b><span>security tests passed, 3 runs in a row</span></div>
-<div class="kpi"><b>~1%</b><span>leak on the final exam (BRANE alone: 16-22%)</span></div>
-<div class="kpi"><b>0%</b><span>names / bank numbers sent unmasked</span></div>
+<div class="kpi"><b>0% / 1.8%</b><span>leak on the new locked exams, Arabic / farm (BRANE alone: 21% / 31%)</span></div>
+<div class="kpi"><b>0%</b><span>names / bank numbers sent unmasked (BRANE alone: 12-15%)</span></div>
 <div class="kpi"><b>100%</b><span>of decisions made by a human</span></div>
 </div>
 <h3>Words used in this report</h3>
@@ -330,6 +336,14 @@ to cloud), identifier leaks, over-block (benign rows not sent to cloud), cost an
 <p class="small">Recorded in <code>results/selection_round2.json</code>. BRANE passes were repeated twice (run-to-run variance). Winner:
 <b>BRANE policy v1-nokw + harness classifier, stricter route wins</b>; it was already on the round-1 pre-registered reference list and
 was run once on test (table below: 1.0% leak). The larger val now agrees with test (BRANE alone ~16% leak), unlike the 80-row val.</p>
+<h3>Round 3: two new locked exams (selection recorded before either was touched)</h3>
+<p class="small">After retiring exam 1 into validation data and fixing indirect health in our classifier (definitions v3; the same rule in
+BRANE's description over-generalised and was rejected by the bias check), the system was recorded in <code>results/selection_round3.json</code>
+at 03:12 and each predictor ran once on two brand-new exams.</p>
+<p class="small"><b>Exam 2: Arabic</b> (200 rows, new language and script, independent author)</p>
+{table(RES_HEAD, results_rows(ar_tags, {"FINAL_ar_combo"}), "num")}
+<p class="small"><b>Exam 3: Farm &amp; agricultural insurance</b> (200 rows, English, a topic with 0 mentions in all tuning data)</p>
+{table(RES_HEAD, results_rows(farm_tags, {"FINAL_farm_combo"}), "num")}
 <h3>Iterating to a plateau (errors found on dev, confirmed on val 500, BRANE run twice)</h3>
 <table class="small"><thead><tr><th>Round</th><th>Change</th><th>Leak (2 runs)</th><th>Over-block</th><th>Route F1</th><th>Minimal pairs</th><th>Kept?</th></tr></thead><tbody>
 <tr><td>0</td><td>BRANE v1-nokw + classifier v1 (final system)</td><td>0.8% / 0.4%</td><td>3.2% / 1.6%</td><td>0.893 / 0.933</td><td>57%</td><td>baseline</td></tr>
@@ -344,7 +358,7 @@ fail for every system because BRANE's built-in injection detector also blocks qu
 {table(RES_HEAD, results_rows(val_tags, {"brane_v1_nokw_val"}), "num")}
 <p class="small">Selection rule, recorded in <code>results/selection.json</code> before any test run: minimise leak, then over-block, then route F1.
 Winner: BRANE with policy v1 without keywords.</p>
-<h3>Held-out test (200 rows, elderly population, unseen vocabulary): one run each</h3>
+<h3>Exam 1 (retired after use): held-out test, 200 rows, elderly population, unseen vocabulary: one run each</h3>
 {test_section}
 <h3>Independent cross-check: the teammate's benchmark (200 rows, their grading rule)</h3>
 <p class="small">30 golden claims, 20 held-out claims and 150 adversarial rewrites (lowercase, padding, line breaks, politeness, embedded
@@ -386,6 +400,14 @@ assistive devices, care-home residence and guardianship to the health definition
 be used: the live team policy's PROTECTED_TRAIT_PROFILING rule refuses any prompt that merely describes protected traits, including a
 classification instruction.</p>
 
+<p class="find"><b>8. It generalises to a new language and a new topic.</b> On two brand-new locked exams the final system leaked 0.0%
+(Arabic) and 1.8% (farm insurance), with 0% unmasked identifiers, versus 21% / 31% leak and 12-15% unmasked identifiers for BRANE alone,
+which misses Arabic-script names. When our classifier finds an identifier BRANE did not mask, the harness forces the local model. The keyword
+baseline collapsed (83-98% leak) and the word-statistics model did not transfer to Arabic at all.</p>
+<p class="find"><b>9. Where a legal rule lives matters.</b> Adding the broad indirect-health rule to our classifier halved the elderly leak
+(31% → 16.5%) without extra blocking of harmless elderly claims (6 vs 5 of 42); putting the same sentence into BRANE's description made
+BRANE over-generalise (9-10 of 42 harmless elderly claims blocked, minimal pairs 30%). Bias was checked, not assumed.</p>
+
 <h2>8. Product gaps observed live (BRANE)</h2>
 <p class="find">· No native human-approval action (semantic rules only local / refuse); approval lives in agent code.</p>
 <p class="find">· No "drop span" action: an unnecessary medical remark forces the whole turn local (T2b).</p>
@@ -396,6 +418,7 @@ dev rows into redacted ones; a Dutch name and BSN were missed in another row (th
 <p class="find">· <code>PASSWORD</code> false positives on Dutch words ("sleutels" = keys, "inlogcode") turn harmless requests into 422s under a refuse rule.</p>
 <p class="find">· Semantic rules judge the whole prompt, including meta-instructions: a classification prompt that lists protected traits is
 refused as "profiling" (no way to exempt system or harness instructions).</p>
+<p class="find">· Arabic-script names are often not detected as PERSON (12% of Arabic rows sent names unmasked without our harness).</p>
 <p class="find">· No native Art. 10 category, no volume rule, no per-step rules, injection threshold not configurable, undocumented
 behaviour when BRANE's own detectors or GPU are down.</p>
 

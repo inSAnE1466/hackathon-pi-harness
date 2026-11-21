@@ -311,6 +311,8 @@ def cmd_tests(client, policy_path, use_chat, only=None, out=None, prep=True, mod
         if use_classifier and d["route"] != "error":
             labels, c_route, c_err = bc.HarnessClassifier(client).classify(text)
             final = bc.stricter(d["route"], c_route)
+            if c_route == "cloud_redacted" and d["route"] == "cloud":
+                final = "local"             # harness forces local: BRANE would not mask what the classifier found
             cls_note = (",".join(sorted(labels or [])) or "none") + f" -> {c_route}" + (f" ({c_err})" if c_err else "")
             if final != d["route"]:
                 d = dict(d, route=final, cloud_payload=None if final in ("local", "refused") else d.get("cloud_payload"),
@@ -477,6 +479,10 @@ def guarded_turn(client, user_msg, model, policy_payload, classifier=None):
             return {"status": "refused", "decision": d, "preview": preview, "classifier": cls, "blocked_by": "harness"}
         if c_route == "local" and preview["route"] in ("cloud", "cloud_redacted"):
             model = bc.LOCAL_MODEL          # stricter route wins: force the turn onto BRANE's local model
+        elif c_route == "cloud_redacted" and preview["route"] == "cloud":
+            # the classifier sees identifiers that BRANE did not mask; the harness cannot mask them itself,
+            # so the only safe stricter option is the local model
+            model = bc.LOCAL_MODEL
     try:
         resp = client.chat([{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": user_msg}], model=model)
     except bc.BraneError as e:
