@@ -133,7 +133,7 @@ Key findings: (1) BRANE semantic **keywords act as hard triggers**; removing the
 test (unseen vocabulary, 65+ population) BRANE alone leaked 21.6% (all health-type); our classifier's errors were different
 (decisions, discrimination, injection), so **BRANE + harness classifier leaked 1.0%**: defence in depth. (3) One LLM call for all labels
 beats one call per label (same F1, 1/14 of the calls). Round 1 selection (val 80) was recorded in `results/selection.json` before any test run; round 2 (val 500, final) in `results/selection_round2.json`.
-Gate suite with the **final system** (BRANE v1-nokw + harness classifier): **13/13 PASS in 3/3 repeated runs** (`results/gate_repeat_policy_v1_nokw_classifier/summary.json`); T5 covered both ways the official sources define it (T5a special category, T5b check unavailable). Official template: `submission/MAIN_Five_Tests_Gezira.csv`.
+**Correction:** identifier-leak numbers are route-level; a payload audit found BRANE partially masking names (a real name still visible in ~40% of cloud-bound person rows on the new exams), see `results/LOCKED_TEST_RESULTS.md`. Gate suite with the **final system** (BRANE v1-nokw + harness classifier): **13/13 PASS in 3/3 repeated runs** (`results/gate_repeat_policy_v1_nokw_classifier/summary.json`); T5 covered both ways the official sources define it (T5a special category, T5b check unavailable). Official template: `submission/MAIN_Five_Tests_Gezira.csv`.
 
 ## 6. Jury criteria → where to look
 | Criterion | Weight | Evidence |

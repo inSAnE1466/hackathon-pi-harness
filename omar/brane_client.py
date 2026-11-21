@@ -784,6 +784,26 @@ class HarnessClassifier:
             return None, "local", f"classifier unavailable: {e}"
 
 
+ID_LABELS = {"PERSON", "CONTACT", "IBAN", "BSN", "POLICY_ID"}
+_HARNESS_TOKEN_LABEL = {"<MV_POLICY_": "POLICY_ID", "<MV_CLAIM_": "POLICY_ID", "<MV_CUSTOMER_": "POLICY_ID", "<NL_BSN_": "BSN"}
+
+
+def masked_id_labels(decision: dict, text: str = "") -> set:
+    """Identifier labels that are actually masked before a cloud call: BRANE placeholder detections + harness tokens."""
+    out = set()
+    for d in decision.get("detected") or []:
+        if (d.get("action") or "placeholder") == "placeholder":
+            out.update(l for l in labels_for_detection(d.get("label"), d.get("sample")) if l in ID_LABELS)
+    out.update(lbl for tok, lbl in _HARNESS_TOKEN_LABEL.items() if tok in (text or ""))
+    return out
+
+
+def partial_masking(classifier_labels, decision: dict, text: str = "") -> set:
+    """Identifier types the classifier found that BRANE left unmasked (BRANE's model detectors can silently miss
+    names under load or in Arabic script). Non-empty -> the harness must not send to the cloud."""
+    return (set(classifier_labels or []) & ID_LABELS) - masked_id_labels(decision, text)
+
+
 def stricter(a, b):
     ra, rb = ROUTE_RANK.get(a, -1), ROUTE_RANK.get(b, -1)
     return a if ra >= rb else b

@@ -32,6 +32,19 @@ A domain never mentioned before (tractor, livestock, harvest, barn, silo, dairy,
 system leaks 0.0% (Arabic) and 1.8% (farm) with 0% unmasked identifiers: when our classifier finds an identifier BRANE missed, the harness
 forces the local model. The keyword baseline collapses (83-98% leak); the word-statistics model does not transfer to Arabic at all.
 
+## Correction: payload-level name check (added 21 Nov ~03:50)
+The **ID leak** columns above measure routes ("sent to cloud with placeholders" counts as protected). Checking BRANE's actual outgoing
+payloads shows partial masking: BRANE masked some names in a claim but not all.
+
+| Exam | Person rows sent to cloud | A real name still in the outgoing text | With partial-masking guard |
+|---|---|---|---|
+| Arabic | 40 | **15** | 7 |
+| Farm | 36 | **15** | 4 |
+| Elderly (exam 1) | 32 | **6** | 4 |
+
+Health / crime / decision **leak** numbers are unaffected (those rows did not go to the cloud). Details: `results/payload_name_audit.json`.
+Fix in progress: the local classifier also returns the names it sees and the harness masks them before BRANE.
+
 ---
 
 ## Exam 1 (retired): test.csv, 200 rows, elderly population, unseen vocabulary

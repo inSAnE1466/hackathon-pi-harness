@@ -234,8 +234,10 @@ def combine(preds: list) -> dict:
         routes = [p[i]["route"] for p in preds]
         valid = [r for r in routes if r in bc.ROUTE_RANK]
         route = max(valid, key=lambda r: bc.ROUTE_RANK[r]) if valid else "error"
-        if route == "cloud_redacted" and preds[0][i]["route"] == "cloud":
-            route = "local"
+        enf = preds[0][i]
+        found = set().union(*[p[i]["labels"] for p in preds[1:]]) & bc.ID_LABELS if len(preds) > 1 else set()
+        if route in ("cloud", "cloud_redacted") and enf["route"] in ("cloud", "cloud_redacted") and (found - enf["labels"]):
+            route = "local"     # partial-masking guard: identifier types BRANE did not mask -> harness forces local
         labels = set().union(*[p[i]["labels"] for p in preds])
         out[i] = {"id": i, "pred_route": route, "pred_labels": labels,
                   "backend": "+".join(sorted({p[i]["backend"] for p in preds})),

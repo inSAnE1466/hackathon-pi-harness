@@ -1,0 +1,138 @@
+{
+  "Arabic": {
+    "person_rows_to_cloud": 40,
+    "name_in_payload_as_run": 15,
+    "with_guard": 7,
+    "examples": [
+      [
+        "tar-005",
+        [
+          "كريم يوسفي"
+        ]
+      ],
+      [
+        "tar-009",
+        [
+          "Bilal"
+        ]
+      ],
+      [
+        "tar-012",
+        [
+          "Dalia",
+          "Dalia Saleh"
+        ]
+      ],
+      [
+        "tar-027",
+        [
+          "خالد البكري"
+        ]
+      ],
+      [
+        "tar-031",
+        [
+          "Huda"
+        ]
+      ]
+    ],
+    "remaining_ids": [
+      "tar-005",
+      "tar-009",
+      "tar-012",
+      "tar-031",
+      "tar-084",
+      "tar-121",
+      "tar-153"
+    ]
+  },
+  "Farm": {
+    "person_rows_to_cloud": 36,
+    "name_in_payload_as_run": 15,
+    "with_guard": 4,
+    "examples": [
+      [
+        "tfa-005",
+        [
+          "Wiebke",
+          "Wiebke Meyerhoff"
+        ]
+      ],
+      [
+        "tfa-035",
+        [
+          "Trijntje",
+          "Trijntje Bosma"
+        ]
+      ],
+      [
+        "tfa-049",
+        [
+          "Gerrit-Jan"
+        ]
+      ],
+      [
+        "tfa-062",
+        [
+          "Wietske"
+        ]
+      ],
+      [
+        "tfa-086",
+        [
+          "Tjitske",
+          "Tjitske Lubbers"
+        ]
+      ]
+    ],
+    "remaining_ids": [
+      "tfa-049",
+      "tfa-087",
+      "tfa-112",
+      "tfa-152"
+    ]
+  },
+  "Elderly (exam 1)": {
+    "person_rows_to_cloud": 32,
+    "name_in_payload_as_run": 6,
+    "with_guard": 4,
+    "examples": [
+      [
+        "test-083",
+        [
+          "Mila"
+        ]
+      ],
+      [
+        "test-084",
+        [
+          "Priya"
+        ]
+      ],
+      [
+        "test-114",
+        [
+          "Mateusz"
+        ]
+      ],
+      [
+        "test-159",
+        [
+          "Amelia"
+        ]
+      ],
+      [
+        "test-165",
+        [
+          "Thijs"
+        ]
+      ]
+    ],
+    "remaining_ids": [
+      "test-083",
+      "test-084",
+      "test-114",
+      "test-159"
+    ]
+  }
+}

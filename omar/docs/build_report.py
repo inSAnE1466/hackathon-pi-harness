@@ -239,7 +239,9 @@ A human always approves the result; the AI never decides or sends anything itsel
 different author: elderly customers, customers writing in <b>Arabic</b>, and <b>farm insurance</b>, a topic never seen before. The system
 could not have memorised the answers.</li>
 <li><b>The result.</b> On the new exams BRANE alone let 21-31% of sensitive cases slip out. With our second check added: <b>0 in Arabic and
-about 2 in 100 on farm claims</b>, and no name or bank number ever went out unmasked.</li>
+about 2 in 100 on farm claims</b> for health, crime and decision cases. <b>Correction:</b> names are not yet fully protected: in
+15 of 40 (Arabic) and 15 of 36 (farm) cloud-bound claims with a person, BRANE masked some names but not all. A harness guard halves this;
+a full fix (our local model lists the names and the harness masks them before BRANE) is the next step.</li>
 </ol>
 <div class="pic">
 <div>Employee pastes a claim</div><div class="a">→</div>
@@ -250,7 +252,7 @@ about 2 in 100 on farm claims</b>, and no name or bank number ever went out unma
 <div class="kpis">
 <div class="kpi"><b>13/13</b><span>security tests passed, 3 runs in a row</span></div>
 <div class="kpi"><b>0% / 1.8%</b><span>leak on the new locked exams, Arabic / farm (BRANE alone: 21% / 31%)</span></div>
-<div class="kpi"><b>0%</b><span>names / bank numbers sent unmasked (BRANE alone: 12-15%)</span></div>
+<div class="kpi"><b>~40%</b><span>of cloud-bound claims with a person still showed a name (BRANE partial masking; fix in progress)</span></div>
 <div class="kpi"><b>100%</b><span>of decisions made by a human</span></div>
 </div>
 <h3>Words used in this report</h3>
@@ -400,9 +402,13 @@ assistive devices, care-home residence and guardianship to the health definition
 be used: the live team policy's PROTECTED_TRAIT_PROFILING rule refuses any prompt that merely describes protected traits, including a
 classification instruction.</p>
 
-<p class="find"><b>8. It generalises to a new language and a new topic.</b> On two brand-new locked exams the final system leaked 0.0%
-(Arabic) and 1.8% (farm insurance), with 0% unmasked identifiers, versus 21% / 31% leak and 12-15% unmasked identifiers for BRANE alone,
-which misses Arabic-script names. When our classifier finds an identifier BRANE did not mask, the harness forces the local model. The keyword
+<p class="find"><b>8. It generalises to a new language and a new topic, for routing.</b> On two brand-new locked exams the final system
+sent 0.0% (Arabic) and 1.8% (farm) of health, crime and decision cases to the cloud, versus 21% / 31% for BRANE alone.
+<b>Correction (payload audit):</b> the "identifier leak" column measures routes, not the text that leaves. Checking BRANE's actual outgoing
+payloads, a real customer name was still visible in 15 of 40 (Arabic), 15 of 36 (farm) and 6 of 32 (elderly) person-containing rows sent to
+the cloud: BRANE masks some names in a claim but misses others, more often under load and in Arabic script. A partial-masking guard
+(classifier sees a name type BRANE did not mask → local) reduces this to 7 / 4 / 4; the complete fix is harness-side name masking
+before BRANE. This is the most important open item. The keyword
 baseline collapsed (83-98% leak) and the word-statistics model did not transfer to Arabic at all.</p>
 <p class="find"><b>9. Where a legal rule lives matters.</b> Adding the broad indirect-health rule to our classifier halved the elderly leak
 (31% → 16.5%) without extra blocking of harmless elderly claims (6 vs 5 of 42); putting the same sentence into BRANE's description made
