@@ -8,7 +8,7 @@ import { sha256 } from "./sha256.ts";
  * opens a route around BRANE; every model request still goes through the gated provider.
  */
 export type Switches = {
-  /** Run the second classifier on a person's text before the turn; the stricter route wins. */
+  /** Run the second classifier on a person's text before the turn; the stricter route wins. On by default. */
   readonly classifier: "off" | "on";
   /** Split health detail out on the local model before the agent's turn. */
   readonly intake: "on" | "off";
@@ -31,7 +31,7 @@ export const PROMPT_VARIANTS = ["default", "minimal", "strict"] as const;
 export type PromptVariant = (typeof PROMPT_VARIANTS)[number];
 
 export const DEFAULT_SWITCHES: Switches = {
-  classifier: "off",
+  classifier: "on",
   intake: "on",
   braneTiming: "preflight",
   cloudModel: BRANE_CLOUD_MODEL,

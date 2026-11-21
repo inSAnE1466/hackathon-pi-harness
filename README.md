@@ -33,10 +33,10 @@ every `X-Brane-*` decision, and fails the turn when BRANE is unreachable or a re
 are off, so a failed request is never resent anywhere. A refusal (HTTP 422) goes to a person as a handoff. There is no
 other route to a model. The policy is `policy/brane.json`; it also names the two models, a cloud model and a local one.
 
-**Second classifier.** An optional check runs on a person's text before the agent's turn. It makes one call to
+**Second classifier.** A second check runs on a person's text before the agent's turn. It makes one call to
 BRANE's local model with the labels in `policy/classifier.json`. It can only make a route stricter: `local` keeps the
-conversation on the local model, and `refuse` withholds the text. It is off by default. Code:
-`src/primitives/classify.ts`.
+conversation on the local model, and `refuse` withholds the text. It runs by default; the `classifier` switch
+(`src/switches.ts`) turns it off for one session. Code: `src/primitives/classify.ts`.
 
 **Tools.** `lookup` searches 223 passages of law, guidance and the synthetic insurer's policy terms
 (`corpus/passages.json`) with BM25 inside the Worker, and every result has a passage id the agent cites. `web_read`
