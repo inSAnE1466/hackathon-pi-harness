@@ -104,8 +104,10 @@ case passes only if all three runs pass. A cloud request counts as protected whe
 pre-mask row before it names every kind of value the case holds and BRANE found no personal data in what it received;
 a cloud request where BRANE found personal data and did not redact it fails.
 
-Deployed Worker (`claims-harness`, version 2ceb0625, main 307a747, angle-bracket tokens), 21 Nov 03:55 to 04:12 CET,
-policy claims-v6.1:
+Deployed Worker (`claims-harness`, version f141144a, main aaf365e: square-bracket tokens, retries off), 21 Nov 04:17
+to 04:36 CET, policy claims-v6.1. 12/12 cases pass, each 3/3. The run before it, on version 2ceb0625 with
+angle-bracket tokens, gave the same 12/12. In T1 the first request always went to the cloud unredacted; in one run a
+later request of the same turn was kept local by a semantic category, which the case allows:
 
 | Case                                                        | Classifier off                                                                                               | Classifier on                                                           |
 | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
