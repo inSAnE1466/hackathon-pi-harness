@@ -1,0 +1,7 @@
+predictor,tag,route_macro_f1,label_macro_f1,leak_rate,identifier_leak_rate,over_block_rate,calls_per_row,ms_per_row,n,run_at
+Keyword baseline,FINAL_kw_v1_test,0.260,0.283,1.000,0.442,0.000,0,2,200,2026-11-20T23:53:36+01:00
+TF-IDF + logistic regression (trained on dev 800),FINAL_lr800_test,0.478,0.377,0.588,0.093,0.283,0,0,200,2026-11-20T23:53:42+01:00
+"Own LLM classifier A (1 call, 14 labels)",FINAL_llmA_test,0.884,0.914,0.052,0.000,0.133,1.0,6504,200,2026-11-21T00:00:28+01:00
+BRANE: team live policy (5 rules),FINAL_brane_team_live_test,0.683,0.765,0.433,0.000,0.017,1.0,1506,200,2026-11-20T23:54:58+01:00
+"BRANE: policy v1, no keywords (selected on val)",FINAL_brane_v1_nokw_test,0.770,0.864,0.216,0.000,0.033,1.0,1406,200,2026-11-20T23:53:35+01:00
+"BRANE v1-nokw + classifier, stricter wins (final system)",FINAL_combo_test,0.809,0.884,0.010,0.000,0.133,2.0,6504,200,derived: combination of the two locked runs above (stricter route wins)
