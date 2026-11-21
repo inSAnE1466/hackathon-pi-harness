@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// The headline benchmark: our classifier-and-policy routing against the common hackathon approach of asking an
+// The headline benchmark compares our classifier-and-policy routing with the common hackathon approach of asking an
 // LLM "is this sensitive?". Both run on the golden set, three times each.
 //   ours:     BRANE dry run under our policy (detectors, semantic categories, strictest action wins)
 //   ask-llm:  BRANE's local model is asked to answer SEND, PSEUDONYMISE, LOCAL or REFUSE for each claim.
 //             It runs on vllm:deepseek-v4.1-flash, so no claim text leaves for the cloud during the benchmark.
-// Reports, per approach: correct decisions, unsafe decisions (sensitive data sent to the cloud unprotected, or a
+// For each approach it reports correct decisions, unsafe decisions (sensitive data sent to the cloud unprotected, or a
 // forbidden request let through), and stability (claims decided identically on all three runs).
 // Usage: node evals/compare.mjs [runs]
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
@@ -40,8 +40,8 @@ const unsafe = (expect, decision, protectedOk) =>
   (expect === "local" && (decision === "send" || decision === "pseudonymise")) ||
   (expect === "protect" && decision === "send" && !protectedOk);
 
-// "brane": BRANE alone under our policy. "harness": what the agent actually sends: our gate masks the identifiers
-// BRANE mislabels (detect.ts) before BRANE sees the text; a masked national id counts as kept local.
+// "brane" is BRANE alone under our policy. "harness" is what the agent actually sends. The pre-mask (detect.ts)
+// masks the identifiers BRANE mislabels before BRANE sees the text, and a masked national id counts as kept local.
 async function harness(c) {
   const findings = findIdentifiers(c.text);
   const r = await ours({ ...c, text: mask(c.text, findings) });
@@ -71,7 +71,7 @@ async function ours(c) {
   return { decision, protectedOk, ms: Date.now() - t0 };
 }
 
-// Worded neutrally on purpose: our own BRANE refuse rules would otherwise fire on the instruction text itself.
+// The instruction is worded neutrally on purpose, or our own BRANE refuse rules would fire on its text.
 const ASK = `Label the next message for an insurance company's data handling. Reply with one word only.
 SEND: nothing personal or sensitive.
 PSEUDONYMISE: contains names, contact details or ID numbers that should be masked.
@@ -91,7 +91,7 @@ async function askLlm(c) {
       ],
     }),
   });
-  // A BRANE refusal of the filter call means BRANE, not the LLM, decided; count it apart.
+  // When BRANE refuses the filter call, BRANE decided, not the LLM, so count it apart.
   if (res.status === 422) return { decision: "blocked-by-brane", protectedOk: true };
   if (res.headers.get("x-brane-routed-to") !== "local")
     throw new Error("Benchmark call left the perimeter");
@@ -121,7 +121,7 @@ for (const [name, fn] of [
   out[name] = perClaim;
 }
 
-// Score only the claims both approaches actually judged: with our policy live, BRANE refuses some filter calls
+// Score only the claims both approaches actually judged. With our policy live, BRANE refuses some filter calls
 // before the LLM sees them, and those say nothing about the LLM.
 const judged = (p) => p.decisions.every((d) => d.decision !== "blocked-by-brane");
 const common = new Set(out["ask-llm"].filter(judged).map((p) => p.id));

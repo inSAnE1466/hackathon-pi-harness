@@ -42,7 +42,7 @@ export function article(html, n) {
     if (!para) break;
     paragraphs.push({ n: p, text: clean(para).replace(/^\d+\.\s+/, "") });
   }
-  // Articles without numbered paragraphs (one block of text)
+  // An article without numbered paragraphs is one block of text.
   if (paragraphs.length === 0) {
     const body = art
       .replace(/<p[^>]*class="oj-ti-art"[\s\S]*?<\/p>/, "")
@@ -57,7 +57,7 @@ export function recital(html, n) {
   return r ? clean(r).replace(/^\(\d+\)\s*/, "") : undefined;
 }
 
-/** Annex by roman numeral, e.g. "III". */
+/** An annex by its roman numeral, such as "III". */
 export function annex(html, roman) {
   const id = `anx_${roman}`;
   const a = block(html, id);

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Build evals/climb-history.json from the recorded runs in evals/runs/. One row per iteration:
 //   { iter, track, change, layer, scores, kept, reason, run }
-// Nothing here is typed in by hand except each iteration's description: every score is read from a run file that
+// Nothing here is typed in by hand except each iteration's description. Every score is read from a run file that
 // evals/hill.mjs, evals/agent-climb.mjs, evals/legal.mjs or evals/trace.mjs wrote, and kept or reverted is decided
 // by the rule of its track, in code, against the best configuration so far:
 //   routing  (omar-val, Omar Shalaby's selection split) keep when the leak rate falls by more than 2 points (two
@@ -202,8 +202,8 @@ const routingScores = (name) => {
     // Labelled values in a cloud payload on the two suites every routing run includes (health and claims), so rows
     // compare; the adversarial variants are scored apart as robustness.
     span_leaks: (r.bySet.health?.span_leaks ?? 0) + (r.bySet.claims?.span_leaks ?? 0),
-    // Sensitive rows where BRANE answered with no detection and no semantic match: BRANE's own dropout, which no
-    // harness change causes. It bounds how far a leak-rate difference between two rows can be trusted.
+    // Sensitive rows where BRANE answered with no detection and no semantic match. This is BRANE's own dropout,
+    // which no harness change causes. It bounds how far a leak-rate difference between two rows can be trusted.
     blank_answers: r.bySet[r.split]?.blank_answers ?? null,
     mandatory_tests: mandatory(name),
   };
@@ -487,7 +487,8 @@ if (kw && nokw)
 else skipped.push("k-keywords / k-no-keywords");
 
 // ---------------------------------------------------------------- legal track
-// Deterministic, so it is measured here: the lookup ranking's switches one at a time on evals/legal/dev.jsonl.
+// The legal track is deterministic, so this script measures it: the lookup ranking's switches one at a time on
+// evals/legal/dev.jsonl.
 const legal = (ranking, corpus, set = "dev") => {
   const r = node([
     "evals/legal.mjs",
@@ -612,8 +613,8 @@ for (const step of LEGAL) {
   });
   if (kept) legalBest = scores;
 }
-// The 18 held-out questions, never used to choose a switch or a glossary term: scored for the baseline and for the
-// final ranking only, and reported beside the dev numbers.
+// The 18 held-out questions were never used to choose a switch or a glossary term. They are scored for the baseline
+// and the final ranking only, and reported beside the dev numbers.
 const legalHeldout = {
   split: "evals/legal/heldout.jsonl (18 questions, never tuned on)",
   start: legal({}, before, "heldout"),

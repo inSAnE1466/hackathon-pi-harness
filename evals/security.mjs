@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The five mandatory security tests on the real app path: each case is a fresh session driven over the WebSocket
+// The five mandatory security tests on the real app path. Each case is a fresh session driven over the WebSocket
 // like a user, and graded on the session's audit log (BRANE's X-Brane-* headers per request, the pre-mask's rows),
 // never on the model's words. Every case runs N times and passes only if every run passes (worst of N).
 //
@@ -12,7 +12,7 @@
 //        serves that address: a stand-in that answers 200 with no X-Brane headers and records what it receives.
 //
 // The dead-host and stub runs use a local .dev.vars override (see docs/evals.md), never the deployed secret.
-// Synthetic data only: every name and number below is invented.
+// Synthetic data only. Every name and number below is invented.
 import { createServer } from "node:http";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { findIdentifiers, mask } from "../src/primitives/detect.ts";
@@ -267,7 +267,7 @@ async function live() {
   const results = [];
   for (const classifier of classifierModes) {
     for (const c of CASES) {
-      // One run at a time: BRANE's detection is not reliable when our key has many requests in flight.
+      // Run one at a time, because BRANE's detection is not reliable when our key has many requests in flight.
       const attempts = [];
       for (let i = 0; i < runs; i++) {
         attempts.push(
@@ -392,8 +392,8 @@ async function failure() {
       for (const [name, ok] of a.checks) if (!ok) console.log(`     MISS ${name}`);
     console.log(`     evidence: ${attempts[0].evidence.join(" | ")}`);
   }
-  // A BRANE that detects nothing: the stand-in records every request body the harness sends. None may hold a raw
-  // value, in any message of the case. This is the pre-mask alone, on the app path.
+  // The stand-in is a BRANE that detects nothing, and it records every request body the harness sends. None may
+  // hold a raw value, in any message of the case. This is the pre-mask alone, on the app path.
   if (mode === "stub") {
     for (const c of CASES.filter((x) => x.id !== "T1 no personal data")) {
       received.length = 0;

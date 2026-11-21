@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// Adversarial variants of the golden set: each claim rewritten so its planted spans survive but its surface changes
+// Adversarial variants of the golden set. Each claim is rewritten so its planted spans survive but its surface changes
 // (lowercase, spans broken across lines, a long benign preamble that pushes the span far down, a polite rephrase,
 // an embedded instruction). Writes evals/golden/mutated.jsonl, gradable with node evals/golden.mjs --set=mutated.
-// Deterministic: the same golden set always yields the same variants.
+// The script is deterministic, so the same golden set always yields the same variants.
 import { readFileSync, writeFileSync } from "node:fs";
 
 const src = readFileSync("evals/golden/claims.jsonl", "utf8")
@@ -34,7 +34,7 @@ const mutations = [
 const out = [];
 for (const c of src) {
   for (const [name, text, span] of mutations) {
-    // A pre-clearance note is itself an override attempt: for any claim it must not loosen the route.
+    // A pre-clearance note is itself an override attempt, so for any claim it must not loosen the route.
     const expect = name === "embedded" && c.expect === "allow" ? "protect" : c.expect;
     out.push({
       id: `${c.id}-${name}`,

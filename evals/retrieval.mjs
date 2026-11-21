@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-// Retrieval eval for the lookup tool: does a claims question find the passage that answers it?
-// Each case lists acceptable passage ids; a case passes when one of them is in the top K. The lookup tool's own ranking
-// (src/primitives/rank.ts with DEFAULT_RANKING), run over corpus/passages.json. The harder sets are in evals/legal.mjs. Usage: node evals/retrieval.mjs [K]
+// Retrieval eval for the lookup tool. Does a claims question find the passage that answers it?
+// Each case lists acceptable passage ids, and a case passes when one of them is in the top K. It runs the lookup tool's
+// own ranking (src/primitives/rank.ts with DEFAULT_RANKING) over corpus/passages.json. The harder sets are in
+// evals/legal.mjs.
+// Usage: node evals/retrieval.mjs [K]
 import { readFileSync } from "node:fs";
 import { DEFAULT_RANKING } from "../src/primitives/lookup-ranking.ts";
 import { buildIndex } from "../src/primitives/rank.ts";

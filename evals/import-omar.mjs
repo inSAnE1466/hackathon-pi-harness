@@ -12,7 +12,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 
 const route = { cloud: "allow", cloud_redacted: "protect", local: "local", refused: "refuse" };
 
-// Gate tests: expectations from his "expected" text and his own tier mapping.
+// The gate tests take their expectations from his "expected" text and his own tier mapping.
 const gate = JSON.parse(readFileSync("omar/tests/gate_tests.json", "utf8")).tests;
 const gateExpect = {
   T1: "allow",
@@ -41,7 +41,7 @@ writeFileSync(
   gateRows.map((r) => JSON.stringify(r)).join("\n") + "\n",
 );
 
-// Locked test set: verify his recorded hash first, so we know we grade the file he locked.
+// For the locked test set, verify his recorded hash first, so we know we grade the file he locked.
 const raw = readFileSync("omar/data/test.csv");
 const sha = createHash("sha256").update(raw).digest("hex");
 const LOCKED = "42b87bc53972df681983214a5bad1ce63ece328574fa44794b6be213ff75380d";

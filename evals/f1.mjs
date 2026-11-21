@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // Score the live BRANE policy as a classifier: per-outcome precision, recall and F1, macro F1, unsafe decisions
-// and spans leaked. Reads the same golden-format sets as golden.mjs. Dry runs only (POST /policy/test): no model
-// call, no cost. Never prints the key.
+// and spans leaked. Reads the same golden-format sets as golden.mjs. It makes dry runs only (POST /policy/test), so
+// there is no model call and no cost. Never prints the key.
 // Sets are Omar Shalaby's splits (evals/import-omar.mjs): omar-dev to tune, omar-val to choose (the default),
-// omar-test locked for one final run. Four requests in flight at most: BRANE is shared by the whole team.
+// omar-test locked for one final run. At most four requests are in flight, because the whole team shares BRANE.
 // Usage: node evals/f1.mjs [--set=omar-val,omar-dev,claims] [--json] [--save]
 //   --save writes evals/f1-latest.json. Run --set=locked only for the final number, never while tuning.
 import { existsSync, readFileSync, writeFileSync } from "node:fs";

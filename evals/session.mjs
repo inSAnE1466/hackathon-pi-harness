@@ -132,7 +132,7 @@ export async function runClaim({
   let log = await audit();
   const posted = [];
   if (finished && answer) {
-    // Two rounds: an expert's answer can lead to the recommendation, which the handler then decides.
+    // Allow two rounds, because an expert's answer can lead to the recommendation, which the handler then decides.
     for (let round = 0; round < 3; round++) {
       const open = log.decisions.filter(
         (r) =>

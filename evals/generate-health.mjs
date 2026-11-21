@@ -1,15 +1,16 @@
 #!/usr/bin/env node
-// Write evals/golden/health.jsonl: a dev suite of varied synthetic health claims, 13 claim shapes times 3 variants.
+// Write evals/golden/health.jsonl, a dev suite of varied synthetic health claims, 13 claim shapes times 3 variants.
 // Each row carries different data (BSN, IBAN, birth date, ICD-10 code, medicine with ATC code, doctor and clinic
 // names, a third party's health) and lists every span that must not leave, with its category, plus the expected route.
 // Entities come from Omar Shalaby's dev pools (omar/data/generator/compose.py, POOLS.dev: names, cities, banks, BSNs)
 // so no person, IBAN or id is shared with his locked test set; wording stays inside his vocabulary split's Half A
-// (omar/data/vocab_split.json): the script fails if a Half B (test-only) term appears. Seeded: the same file every run.
+// (omar/data/vocab_split.json), and the script fails if a Half B (test-only) term appears. It is seeded, so every run
+// writes the same file.
 // Usage: node evals/generate-health.mjs [--check]   (--check verifies the committed file without writing)
 import { readFileSync, writeFileSync } from "node:fs";
 
 const OUT = "evals/golden/health.jsonl";
-// mulberry32
+// A seeded random number generator (mulberry32).
 let seed = 20261121;
 const rnd = () => {
   seed |= 0;
@@ -178,7 +179,7 @@ for (const [kind, build] of Object.entries(SHAPES))
     });
   }
 
-// Vocabulary guard, same rule as omar/eval/check_leakage.py: no Half B (test-only) term in a tuning row.
+// The vocabulary guard follows the rule in omar/eval/check_leakage.py: no Half B (test-only) term in a tuning row.
 const halfB = Object.values(JSON.parse(readFileSync("omar/data/vocab_split.json", "utf8")).half_b)
   .flat()
   .map((t) => t.replace(/\s*\(.*?\)\s*$/, "").trim());

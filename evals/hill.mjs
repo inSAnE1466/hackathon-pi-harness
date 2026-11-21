@@ -8,7 +8,7 @@
 //   classifier  a second classifier on BRANE's local model (local-only draft, nothing leaves); the stricter of its
 //               route and BRANE's wins. labels limits which of its labels count.
 // Every row is graded N times (--runs, default 1) and takes its least strict outcome, so a route that flips to the
-// cloud once counts as cloud. Answers are cached in /tmp/gz-climb-cache by request body and run index: an unchanged
+// cloud once counts as cloud. Answers are cached in /tmp/gz-climb-cache by request body and run index, so an unchanged
 // layer is not paid for twice, and a rerun of an unchanged configuration reproduces its numbers.
 // Sets, one dataset for every climb (Omar Shalaby's splits, evals/import-omar.mjs):
 //   omar-dev (800)   tune: read its mistakes to write the next candidate (--sets omar-dev --runs 1)
@@ -64,7 +64,7 @@ const pick = ({ routingMode, piiSensitivity, categories, semanticCategories }) =
   categories,
   semanticCategories,
 });
-// "open" is BRANE as handed out: every category allowed, no semantic rule.
+// "open" is BRANE as handed out, with every category allowed and no semantic rule.
 const draftPolicy =
   config.policy === "open"
     ? {
@@ -137,7 +137,8 @@ const RANK = { allow: 0, protect: 1, local: 2, refuse: 3 };
 const stricter = (a, b) => (RANK[a] >= RANK[b] ? a : b);
 
 async function gradeOnce(c, run) {
-  // What detect.ts finds is computed either way, so a run without the gate shows which identifiers reach the cloud.
+  // What detect.ts finds is computed either way, so a run without the pre-mask shows which identifiers reach the
+  // cloud.
   const found = findIdentifiers(c.text);
   // gate: true masks everything the pre-mask finds; a list masks only those kinds (the pre-mask as it once was).
   const findings = Array.isArray(config.gate)
@@ -181,7 +182,7 @@ async function gradeOnce(c, run) {
     let route = verdict.labels.length
       ? labels.map((l) => spec.labels[l].route).reduce(stricter, "allow")
       : verdict.route;
-    // The harness cannot redact by itself: an identifier the classifier sees and BRANE passed as typed stays local.
+    // The harness cannot redact by itself, so an identifier the classifier sees and BRANE passed as typed stays local.
     if (route === "protect" && brane === "allow") route = "local";
     got = stricter(brane, route);
   }
@@ -210,7 +211,7 @@ async function gradeOnce(c, run) {
       : !preMasked &&
         (!b.detected.includes("PERSON") || draftPolicy.categories.PERSON === "allow"));
   // BRANE answered with no detection and no semantic match on text the pre-mask had not already emptied of
-  // identifiers: on a sensitive row that means its checks did not run.
+  // identifiers. On a sensitive row that means its checks did not run.
   const blank = b.detected.length === 0 && b.semantic.length === 0 && findings.length === 0;
   return {
     got,
@@ -309,7 +310,7 @@ const rows = cases.flatMap((c, i) => {
         left: rs.some((r) => r.identifiers[n]?.left),
       })),
       leak,
-      // A pass in the gate's sense: nothing impermissible left and a forbidden request was refused, not answered.
+      // A pass means nothing impermissible left and a forbidden request was refused, not answered.
       pass:
         !leak &&
         (c.expect !== "refuse" || got === "refuse") &&
@@ -372,8 +373,8 @@ function score(subset) {
     confusion: m.confusion,
   };
 }
-// Per identifier kind: [values that reached the cloud as typed, values present]. With the gate off this shows which
-// of the gate's patterns the policy alone already covers.
+// Per identifier kind: [values that reached the cloud as typed, values present]. With the pre-mask off this shows
+// which of its patterns the policy alone already covers.
 const identifiers = {};
 for (const r of rows)
   for (const f of r.identifiers) {
@@ -383,7 +384,7 @@ for (const r of rows)
   }
 const of = (...names) => rows.filter((r) => names.includes(r.set));
 const bySet = Object.fromEntries(sets.map((s) => [s, score(of(s))]));
-// The split the headline numbers come from: the selection set unless the run names only another of Omar's splits.
+// The headline numbers come from the selection set, unless the run names only another of Omar's splits.
 const split = ["omar-val", "omar-test", "omar-dev"].find((s) => sets.includes(s)) ?? sets[0];
 const main = bySet[split];
 const result = {

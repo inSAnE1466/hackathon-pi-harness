@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Read evals/climb-history.json and write evals/climb-summary.json: for each headline metric the value before the
-// first change, the value after the last kept change, and the kept steps between them, on omar-val, with the locked
-// omar-test result apart. The README, the video (demo/video/climb.mjs) and docs/evals.md all read this one file;
+// Read evals/climb-history.json and write evals/climb-summary.json. For each headline metric it records the value
+// before the first change, the value after the last kept change and the kept steps between them, on omar-val, with
+// the locked omar-test result apart. The README, the video (demo/video/climb.mjs) and docs/evals.md all read this one file;
 // --docs rewrites the table between the markers in docs/evals.md from it.
 // A legal metric is included only if it moved.
 // Usage: node evals/slopes.mjs [--docs]

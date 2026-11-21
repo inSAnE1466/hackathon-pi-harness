@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// End-to-end agent eval: drives the running harness (local or deployed) like a user, one fresh session per case,
-// and grades the decision log, not the model's own words. This checks the whole stack: intake, gate, BRANE, tools,
-// handoffs, audit. Usage: node evals/agent.mjs <base-url> [--password <pw>]   (password defaults to .dev.vars)
+// End-to-end agent eval. It drives the running harness (local or deployed) like a user, one fresh session per case,
+// and grades the decision log, not the model's own words. This checks the whole stack: the pre-mask, intake, BRANE,
+// tools, handoffs and the audit log.
+// Usage: node evals/agent.mjs <base-url> [--password <pw>]   (password defaults to .dev.vars)
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
@@ -13,7 +14,7 @@ if (!password && existsSync(".dev.vars")) {
   password = /^TEAM_PASSWORD=(.*)$/m.exec(readFileSync(".dev.vars", "utf8"))?.[1];
 }
 
-// Each case: a synthetic prompt and predicates over the audit rows and the answer.
+// Each case is a synthetic prompt with predicates over the audit rows and the answer.
 const cases = [
   {
     id: "A1 control",

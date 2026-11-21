@@ -1,5 +1,5 @@
 // Classification metrics for routing decisions. Pure functions, no I/O.
-// Classes are the four policy outcomes, ranked by strictness: a decision below the expected rank is unsafe,
+// Classes are the four policy outcomes, ranked by strictness. A decision below the expected rank is unsafe,
 // one above it is over-strict (safe, but it costs usefulness).
 
 export const CLASSES = ["allow", "protect", "local", "refuse"];

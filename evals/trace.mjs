@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Policy-to-source coverage: does every rule the harness enforces trace to a source a juror can check?
+// Policy-to-source coverage. Does every rule the harness enforces trace to a source a juror can check?
 // Units: the 25 built-in categories and every semantic category in policy/brane.json, and every row of
 // submission/MAIN_Policy_Matrix.csv. A unit is covered when all three links hold:
 //   1. rule      a category is named by a matrix row; a semantic category carries a legalBasis and is named by a row

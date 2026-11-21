@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Generate the locked set: evals/golden/locked.jsonl, 50 synthetic travel-claim prompts per outcome
+// Generate the locked set, evals/golden/locked.jsonl, with 50 synthetic travel-claim prompts per outcome
 // (allow, protect, local, refuse), seeded so the file is reproducible. Every name, number and address is invented.
-// The locked set is for the final score only: never tune the policy on it. Regenerating with a new seed makes a
+// The locked set is for the final score only. Never tune the policy on it. Regenerating with a new seed makes a
 // new locked set; commit the file so everyone scores the same cases.
 // Usage: node evals/generate-locked.mjs [--seed=2111] [--per=50]
 import { writeFileSync } from "node:fs";

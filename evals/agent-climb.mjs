@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// End-to-end score of one agent configuration: every dev claim (evals/agent/dev.jsonl) runs in a fresh session of
+// End-to-end score of one agent configuration. Every dev claim (evals/agent/dev.jsonl) runs in a fresh session of
 // the running harness with the configuration's switches, a scripted reviewer answers each handoff through
 // POST /audit/human, and the audit log and the agent's tool calls are graded by code. No model grades anything.
 //   agent_pass          claims where every check holds: finished, nothing unprotected went to the cloud, the expected
@@ -23,7 +23,7 @@ const arg = (name, def) => {
 };
 const config = JSON.parse(readFileSync(process.argv[2], "utf8"));
 const base = arg("--base", "http://localhost:5199");
-// One claim at a time: BRANE is shared, and its checks have dropped out under load (evals/decision-log.md).
+// Run one claim at a time, because BRANE is shared and its checks have dropped out under load (evals/decision-log.md).
 const PARALLEL = Number(arg("--parallel", 1));
 const cases = readFileSync(arg("--cases", "evals/agent/dev.jsonl"), "utf8")
   .trim()
@@ -31,7 +31,7 @@ const cases = readFileSync(arg("--cases", "evals/agent/dev.jsonl"), "utf8")
   .map((l) => JSON.parse(l));
 const headers = await signIn(base, teamPassword());
 
-// The scripted reviewer: synthetic, fixed answers, so every configuration meets the same people.
+// The scripted reviewer gives synthetic, fixed answers, so every configuration meets the same people.
 const reviewer = (handoff) =>
   handoff.detail === "consult:medical"
     ? {
@@ -108,15 +108,14 @@ async function grade(c) {
       rows.some((r) => r.kind === "cited" && r.detail !== "") ||
       approval.some((k) => cited(k.arguments.reasons).length > 0);
   }
-  // Citations in the reasons the handler reads: the audit log's `cited` rows (one per request_approval), or the
-  // tool call's own text when the server predates those rows.
+  // Citations come from the audit log's `cited` rows (one per request_approval), which hold the reasons the handler
+  // reads. When the server predates those rows, they come from the tool call's own text.
   const citedRows = rows.filter((r) => r.kind === "cited");
   const citations = citedRows.length
     ? citedRows.flatMap((r) => r.detail.split(",").filter(Boolean))
     : approval.flatMap((k) => cited(k.arguments.reasons));
   const grounded = citations.filter((id) => returned.has(id));
   const supported = grounded.filter((id) => c.supports.includes(id));
-  // Audit completeness for this claim.
   // A refusal's decision is recorded and never sent to a model, so only a consult answer or a decision on a
   // recommendation has to come back into the conversation as a request row.
   const refusal = (h) => h.detail.startsWith("refusal:");

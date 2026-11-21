@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// BRANE contract probe: the five things about BRANE's API that our fail-closed code relies on, each checked once
+// The BRANE contract probe checks the five things about BRANE's API that our fail-closed code relies on, each once
 // against the live endpoint, one request at a time. Beside each is the test that shows what the harness does when
 // the assumption does not hold. Usage: node evals/contract.mjs   (reads .dev.vars; never prints the key)
 // Synthetic data only.

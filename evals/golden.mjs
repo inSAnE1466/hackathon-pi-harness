@@ -4,7 +4,7 @@
 // A span leaks when the route is cloud and the span appears in the outgoing payload.
 // BRANE's semantic categories vary run to run under load, so --runs N grades every claim N times and counts it as
 // PASS only if all N runs pass (worst of N). A request that still fails after retries counts as FAIL, never as pass.
-// Dry runs only (POST /policy/test): no model call, no cost. Never prints the key.
+// It makes dry runs only (POST /policy/test), so there is no model call and no cost. Never prints the key.
 // --cache keeps each dry-run answer in /tmp/brane-dryrun-cache, keyed by a hash of the policy content (what
 // brane-policy.mjs applies), the prompt and the run index, so rerunning an unchanged policy on unchanged cases costs
 // nothing and the N runs stay N distinct samples. A changed policy never reads another policy's answers. It assumes
@@ -29,7 +29,7 @@ const arg = (name) => {
 const started = Date.now();
 const set = process.argv.find((a) => a.startsWith("--set="))?.slice(6) ?? "claims";
 const runs = Math.max(1, Number(arg("--runs") ?? 1));
-// --harness grades what the agent actually sends: the gate masks identifiers before BRANE sees the text.
+// --harness grades what the agent actually sends, with the pre-mask applied before BRANE sees the text.
 const harness = process.argv.includes("--harness");
 const claims = readFileSync(`evals/golden/${set}.jsonl`, "utf8")
   .trim()
@@ -78,7 +78,7 @@ async function cachedDryRun(prompt, run) {
   return j;
 }
 
-// One dry run: 20 s per attempt, up to 2 retries on a 5xx, a timeout or a network error. Anything else throws.
+// One dry run allows 20 s per attempt and up to 2 retries on a 5xx, a timeout or a network error. Anything else throws.
 const TIMEOUT_MS = 20_000;
 const RETRIES = 2;
 let retried = 0;
@@ -133,7 +133,7 @@ async function gradeOnce(c, run) {
   };
 }
 
-// Sixteen requests in flight across all claims and runs: a dry run takes a fixed ~5 s on BRANE's side and does
+// Sixteen requests are in flight across all claims and runs. A dry run takes a fixed ~5 s on BRANE's side and does
 // not slow down with parallel calls, so a 150-claim run takes about 50 s.
 const CONCURRENCY = 16;
 const jobs = claims.flatMap((c, ci) => Array.from({ length: runs }, (_, run) => [ci, run]));
@@ -160,7 +160,7 @@ const results = claims.map((c, i) => {
     errors: rs.filter((r) => r.error).length,
     routes,
     flaky: new Set(routes).size > 1,
-    // Worst of N: a span counts as leaked if any run leaked it.
+    // Worst of N, so a span counts as leaked if any run leaked it.
     leaked: [...new Set(rs.flatMap((r) => r.leaked))],
     semantic: [...new Set(rs.flatMap((r) => r.semantic ?? []))],
     errorMessages: [...new Set(rs.flatMap((r) => (r.error ? [r.error] : [])))],
