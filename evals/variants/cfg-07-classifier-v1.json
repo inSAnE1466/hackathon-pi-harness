@@ -1,0 +1,8 @@
+{
+  "name": "07-classifier-v1",
+  "policy": "evals/variants/policy-claims-v6.1.json",
+  "gate": true,
+  "classifier": {
+    "spec": "evals/variants/classifier-v1.json"
+  }
+}

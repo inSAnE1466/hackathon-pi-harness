@@ -101,3 +101,42 @@ keep or revert, a row in `evals/decision.tsv` (gitignored). Tune on the `train` 
 `test` split generated from other templates and another seed.
 `PUT /api/v1/policy` applies a candidate policy and `POST /api/v1/policy/test` scores it without a model call, so a
 hill-climb iteration costs no model tokens ([brane](brane.md#endpoints)).
+
+## Macro F1 and the locked set
+
+`evals/f1.mjs` scores BRANE's policy as a four-way classifier (allow, protect, local, refuse): precision, recall
+and F1 per outcome, their average (macro F1), the confusion matrix, unsafe decisions (less strict than expected, or
+a planted span leaked) and over-strict ones. Macro F1 stops a policy from looking good by always answering the
+common outcome. Unsafe stays at 0 before macro F1 counts: one leak fails the track's security test.
+
+| Set       | Cases | Use                                                                                              |
+| --------- | ----- | ------------------------------------------------------------------------------------------------ |
+| `claims`  | 30    | Tuning: change the policy, rerun, keep or revert                                                 |
+| `heldout` | 20    | Checking a change; it already informed claims-v5, so it is no longer untouched                   |
+| `locked`  | 200   | Final score only, 50 per outcome, from `evals/generate-locked.mjs` (seed 2111); never tune on it |
+
+```sh
+node evals/f1.mjs                      # tuning and held-out sets
+node evals/f1.mjs --set=locked --save  # the final number, once; writes evals/f1-latest.json
+```
+
+The locked set is generated from templates, so its expected outcomes are our labels, not BRANE's: a human reads a
+sample of it before the final run, and a disputed label is fixed in the generator, not by hand.
+
+## Autonomous climb with a stop rule
+
+`evals/autoclimb.mjs` runs the climb without a human until a benchmark. Each round it proposes edits to the semantic
+categories from the tuning set's mistakes (BRANE's local model, so nothing leaves; plus a rule that turns leaked
+health wording into keywords, never names or identifiers), applies one to the live department, and keeps it only if
+the tuning score improves (fewer unsafe decisions first, then macro F1), the held-out score does not get worse and
+the organizers' tests still pass. It stops at the target (0 unsafe and macro F1 at or above `--target` on both sets),
+after `--patience` rounds without a gain, when no new edit is left, or at the round and time budget.
+
+```sh
+node evals/autoclimb.mjs --target=0.95 --rounds=30 --patience=5 --minutes=60
+node evals/autoclimb.mjs --dry   # print proposed edits, apply nothing
+```
+
+It changes the live department while it runs, so nobody demos or tests at the same time. Afterwards a person reads
+`git diff policy/brane.json`, keeps only edits they can explain to the jury, and then scores the locked set once.
+Every attempt is in `evals/autoclimb-log.tsv` (gitignored).

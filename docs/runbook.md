@@ -75,12 +75,13 @@ node scripts/brane-policy.mjs apply`.
 
 ## Hand-in (10:30 CET)
 
-| Deliverable                 | File                                                                      |
-| --------------------------- | ------------------------------------------------------------------------- |
-| Policy matrix               | `submission/MAIN_Policy_Matrix.csv`                                       |
-| Tests T1 to T5 and E1 to E5 | `submission/test_evidence_run.csv`                                        |
-| Legal research              | `docs/sources.md`, `docs/decisions.md`, the policy matrix's source column |
-| Live demo and business case | the deployed app, `demo/`                                                 |
+| Deliverable                             | File                                                                      |
+| --------------------------------------- | ------------------------------------------------------------------------- |
+| Policy matrix                           | `submission/MAIN_Policy_Matrix.csv`                                       |
+| Tests T1 to T5 and E1 to E5             | `submission/test_evidence_run.csv`                                        |
+| One claim's audit trail with human rows | `submission/audit_trail_luggage_claim.csv`                                |
+| Legal research                          | `docs/sources.md`, `docs/decisions.md`, the policy matrix's source column |
+| Live demo and business case             | the deployed app, `demo/`                                                 |
 
 ## If something breaks during the demo
 

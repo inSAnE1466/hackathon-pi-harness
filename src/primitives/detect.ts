@@ -47,3 +47,58 @@ export function mask(text: string, findings: readonly Finding[]): string {
   }
   return out;
 }
+
+/**
+ * The second classifier's pure half. The spec (prompt template, label definitions, label to route) lives in
+ * policy/classifier.json; the caller runs the prompt on BRANE's local model through a local-only draft policy, so
+ * the text never leaves, and passes the reply here. The classifier can only make a route stricter.
+ */
+export type Outcome = "allow" | "protect" | "local" | "refuse";
+export type ClassifierSpec = {
+  readonly version: string;
+  readonly template: string;
+  /** The labels that move a route. Labels left out are reported but ignored (BRANE already handles them). */
+  readonly counted?: readonly string[];
+  readonly labels: Readonly<
+    Record<string, { readonly route: Outcome; readonly definition: string }>
+  >;
+};
+export type Verdict = { readonly labels: readonly string[]; readonly route: Outcome };
+
+const RANK: Readonly<Record<Outcome, number>> = { allow: 0, protect: 1, local: 2, refuse: 3 };
+
+/** The stricter of two outcomes. */
+export const stricter = (a: Outcome, b: Outcome): Outcome => (RANK[a] >= RANK[b] ? a : b);
+
+/** The prompt for one text: every label with its definition, the text fenced as data. */
+export function classifierPrompt(spec: ClassifierSpec, text: string): string {
+  const names = Object.keys(spec.labels);
+  return spec.template
+    .replace("{definitions}", names.map((l) => `- ${l}: ${spec.labels[l].definition}`).join("\n"))
+    .replace("{keys}", names.map((l) => `"${l}": 0`).join(", "))
+    .replace("{text}", () => text);
+}
+
+/**
+ * Read the model's reply: one JSON object with every label as 0 or 1. A reply that cannot be read, or that lacks a
+ * label, yields route "local" with no labels: a failed classifier never loosens a route.
+ */
+export function readVerdict(spec: ClassifierSpec, reply: string | null | undefined): Verdict {
+  const failed: Verdict = { labels: [], route: "local" };
+  const match = /\{[\s\S]*\}/.exec(reply ?? "");
+  if (!match) return failed;
+  let parsed: Record<string, unknown>;
+  try {
+    parsed = JSON.parse(match[0]) as Record<string, unknown>;
+  } catch {
+    return failed;
+  }
+  const labels: string[] = [];
+  for (const name of Object.keys(spec.labels)) {
+    const value = parsed[name];
+    if (value === undefined) return failed;
+    if (/^(1|true|yes)$/i.test(String(value).trim())) labels.push(name);
+  }
+  const counted = labels.filter((l) => spec.counted?.includes(l) ?? true);
+  return { labels, route: counted.map((l) => spec.labels[l].route).reduce(stricter, "allow") };
+}

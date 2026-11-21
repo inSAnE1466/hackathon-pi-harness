@@ -1,0 +1,6 @@
+{
+  "name": "06-gate",
+  "policy": "evals/variants/policy-claims-v6.1.json",
+  "gate": true,
+  "classifier": null
+}

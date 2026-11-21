@@ -4,6 +4,7 @@
 //   evals/golden/omar-test.jsonl   his locked held-out test set (200 rows: unseen vocabulary, 65+ population)
 // His routes map onto ours: cloud -> allow, cloud_redacted -> protect, local -> local, refused -> refuse.
 // The locked set is graded on the route only (spans are not labelled per row); it is never used for tuning.
+//   evals/golden/omar-dev.jsonl, omar-val.jsonl   100 rows each from his tuning and selection sets, for the climb
 // Usage: node evals/import-omar.mjs
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -77,6 +78,35 @@ const test = parseCsv(raw.toString("utf8")).map((r) => ({
   spans: [],
 }));
 writeFileSync("evals/golden/omar-test.jsonl", test.map((r) => JSON.stringify(r)).join("\n") + "\n");
+
+// Dev suites for the climb: a fixed, route-stratified sample of his dev (tuning) and val (selection) rows, every
+// k-th row per route in file order, so the sample never changes between runs. Neither file is locked.
+for (const [name, n] of [
+  ["dev", 100],
+  ["val", 100],
+]) {
+  const rows = parseCsv(readFileSync(`omar/data/${name}.csv`, "utf8"));
+  const out = [];
+  for (const r of Object.keys(route)) {
+    const group = rows.filter((x) => x.gold_route === r);
+    const step = group.length / (n / 4);
+    for (let i = 0; i < n / 4; i++) out.push(group[Math.floor(i * step)]);
+  }
+  writeFileSync(
+    `evals/golden/omar-${name}.jsonl`,
+    out
+      .map((r) =>
+        JSON.stringify({
+          id: `omar-${r.id}`,
+          kind: r.notes || r.gold_route,
+          text: r.prompt,
+          expect: route[r.gold_route],
+          spans: [],
+        }),
+      )
+      .join("\n") + "\n",
+  );
+}
 console.log(
   `omar-gate: ${gateRows.length} tests; omar-test: ${test.length} rows (sha256 matches the locked hash)`,
 );

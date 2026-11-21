@@ -1341,7 +1341,11 @@ a.button-secondary[aria-disabled="true"] {
 }
 
 .audit-table .state {
-  white-space: nowrap;
+  white-space: normal;
+}
+
+.audit-table td:last-child {
+  inline-size: 30%;
 }
 
 .audit-empty {

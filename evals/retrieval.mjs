@@ -1,45 +1,16 @@
 #!/usr/bin/env node
 // Retrieval eval for the lookup tool: does a claims question find the passage that answers it?
-// Each case lists acceptable passage ids; a case passes when one of them is in the top K. Same BM25 as
-// src/primitives/lookup.ts, run over corpus/passages.json. Usage: node evals/retrieval.mjs [K]
+// Each case lists acceptable passage ids; a case passes when one of them is in the top K. The lookup tool's own ranking
+// (src/primitives/rank.ts with DEFAULT_RANKING), run over corpus/passages.json. The harder sets are in evals/legal.mjs. Usage: node evals/retrieval.mjs [K]
 import { readFileSync } from "node:fs";
+import { DEFAULT_RANKING } from "../src/primitives/lookup-ranking.ts";
+import { buildIndex } from "../src/primitives/rank.ts";
 
 const K = Number(process.argv[2] ?? 3);
 const passages = JSON.parse(readFileSync("corpus/passages.json", "utf8"));
-const STOP = new Set(
-  "a an and are as at be by for from has have in is it its of on or that the this to was were which with shall may not any".split(
-    " ",
-  ),
-);
-const tok = (s) =>
-  s
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[^a-z0-9 ]+/g, " ")
-    .split(/\s+/)
-    .filter((t) => t.length > 1 && !STOP.has(t));
-const docs = passages.map((p) => tok(`${p.id} ${p.title} ${p.text}`));
-const avg = docs.reduce((a, d) => a + d.length, 0) / docs.length;
-const df = new Map();
-for (const d of docs) for (const t of new Set(d)) df.set(t, (df.get(t) ?? 0) + 1);
-const search = (q) => {
-  const qt = tok(q);
-  return docs
-    .map((d, i) => {
-      let s = 0;
-      for (const t of qt) {
-        const f = d.filter((x) => x === t).length;
-        if (!f) continue;
-        const idf = Math.log(1 + (docs.length - (df.get(t) ?? 0) + 0.5) / ((df.get(t) ?? 0) + 0.5));
-        s += (idf * f * 2.4) / (f + 1.4 * (0.25 + (0.75 * d.length) / avg));
-      }
-      return { i, s };
-    })
-    .filter((x) => x.s > 0)
-    .sort((a, b) => b.s - a.s)
-    .slice(0, K)
-    .map((x) => passages[x.i].id);
-};
+const glossary = JSON.parse(readFileSync("policy/lookup-glossary.json", "utf8")).terms;
+const ranked = buildIndex(passages, DEFAULT_RANKING, glossary);
+const search = (q) => ranked(q, K).map((i) => passages[i].id);
 
 // Questions the claims agent asks while reconciling a claim, with the passages that answer them.
 const cases = [
