@@ -7,13 +7,13 @@ A HyperFrames 0.9.72 project, 1920x1080 at 30 fps, about 2 minutes 28 seconds. T
 
 ## Inputs
 
-| File                            | What                                                                                                      | Made by                    |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------- | -------------------------- |
-| `assets/vo-<beat>.mp3`          | the voice per beat, sped to 1.05                                                                          | `node voiceover.mjs`       |
-| `assets/timing.json`            | each beat's start and every word's time; inlined into `index.html` as `TIMING`                            | `node voiceover.mjs`       |
-| `evals/climb-summary.json`      | start and end of leak rate, route F1, over-block, mandatory tests; inlined as `CLIMB`                    | gz-climb; `node climb.mjs` |
-| `assets/climb-placeholder.json` | stand-in with the same shape, used only when the real file is missing; shows "placeholder data"           | by hand                    |
-| `assets/ui/*.png`               | crops of a burnout run: message box, trace, decision card, decision in the chat, audit log            | headless Playwright runs   |
+| File                            | What                                                                                            | Made by                    |
+| ------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------- |
+| `assets/vo-<beat>.mp3`          | the voice per beat, sped to 1.05                                                                | `node voiceover.mjs`       |
+| `assets/timing.json`            | each beat's start and every word's time; inlined into `index.html` as `TIMING`                  | `node voiceover.mjs`       |
+| `evals/climb-summary.json`      | start and end of leak rate, route F1, over-block, mandatory tests; inlined as `CLIMB`           | gz-climb; `node climb.mjs` |
+| `assets/climb-placeholder.json` | stand-in with the same shape, used only when the real file is missing; shows "placeholder data" | by hand                    |
+| `assets/ui/*.png`               | crops of a burnout run: message box, trace, decision card, decision in the chat, audit log      | headless Playwright runs   |
 
 ## Tools
 
@@ -50,7 +50,7 @@ is keyed to a spoken word, so a new voice re-times the whole video.
 
 ```sh
 cd demo/video
-node climb.mjs                                                 # inline evals/climb-summary.json  
+node climb.mjs                                                 # inline evals/climb-summary.json
 npx -y hyperframes@0.9.72 check                                # lint, layout, contrast, audio
 npx -y hyperframes@0.9.72 render -o out.mp4 --quality standard # about 2 minutes, about 9 MB
 ```

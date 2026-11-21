@@ -324,7 +324,13 @@ async function main() {
     const old =
       previous?.source === "elevenlabs" ? previous.beats.find((x) => x.id === b.id) : null;
     const forced = flag("all") || only === b.id;
-    if (!forced && old?.clipWords && old.text === b.text && old.audio?.voice === VOICES[0].name && existsSync(raw)) {
+    if (
+      !forced &&
+      old?.clipWords &&
+      old.text === b.text &&
+      old.audio?.voice === VOICES[0].name &&
+      existsSync(raw)
+    ) {
       speedUp(raw, mp3);
       clips[b.id] = { duration: duration(mp3), words: old.clipWords, voice: old.audio.voice };
       console.log(`vo-${b.id}.mp3  ${clips[b.id].duration.toFixed(2)} s  unchanged, kept`);

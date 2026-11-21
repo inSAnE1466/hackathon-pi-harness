@@ -381,12 +381,54 @@
       data-height="1080"
     >
       <!-- vo:begin -->
-      <audio id="vo-situation" src="assets/vo-situation.mp3" data-start="0.4" data-duration="22.021" data-track-index="9" data-volume="1"></audio>
-      <audio id="vo-harness" src="assets/vo-harness.mp3" data-start="22.971" data-duration="32.679" data-track-index="9" data-volume="1"></audio>
-      <audio id="vo-loop" src="assets/vo-loop.mp3" data-start="56.2" data-duration="20.976" data-track-index="9" data-volume="1"></audio>
-      <audio id="vo-evals" src="assets/vo-evals.mp3" data-start="78.726" data-duration="16.771" data-track-index="9" data-volume="1"></audio>
-      <audio id="vo-demo" src="assets/vo-demo.mp3" data-start="99.547" data-duration="37.068" data-track-index="9" data-volume="1"></audio>
-      <audio id="vo-close" src="assets/vo-close.mp3" data-start="137.165" data-duration="5.616" data-track-index="9" data-volume="1"></audio>
+      <audio
+        id="vo-situation"
+        src="assets/vo-situation.mp3"
+        data-start="0.4"
+        data-duration="22.021"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="vo-harness"
+        src="assets/vo-harness.mp3"
+        data-start="22.971"
+        data-duration="32.679"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="vo-loop"
+        src="assets/vo-loop.mp3"
+        data-start="56.2"
+        data-duration="20.976"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="vo-evals"
+        src="assets/vo-evals.mp3"
+        data-start="78.726"
+        data-duration="16.771"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="vo-demo"
+        src="assets/vo-demo.mp3"
+        data-start="99.547"
+        data-duration="37.068"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="vo-close"
+        src="assets/vo-close.mp3"
+        data-start="137.165"
+        data-duration="5.616"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
       <!-- vo:end -->
 
       <div
@@ -417,40 +459,142 @@
           <svg id="outlines" class="layer" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
 
           <!-- situation -->
-          <div class="node person" id="n-hand" style="left: 80px; top: 498px; width: 300px; height: 84px">Claims handler</div>
-          <div class="node" id="n-claim" style="left: 700px; top: 470px; width: 360px; height: 140px; flex-direction: column; gap: 6px">
-            Claim file<small style="font-size: 22px; font-weight: 500; color: #6e6e73">diagnosis · prescription · hospital note</small>
+          <div
+            class="node person"
+            id="n-hand"
+            style="left: 80px; top: 498px; width: 300px; height: 84px"
+          >
+            Claims handler
           </div>
-          <div class="node" id="n-front0" style="left: 1500px; top: 258px; width: 320px; height: 84px">Frontier model</div>
-          <div class="node" id="n-local0" style="left: 1500px; top: 738px; width: 320px; height: 84px">Local model</div>
-          <div class="sub" id="s-front0" style="left: 1500px; top: 356px">outside the EU perimeter</div>
-          <div class="sub" id="s-local0" style="left: 1500px; top: 836px">health data may stay here</div>
+          <div
+            class="node"
+            id="n-claim"
+            style="
+              left: 700px;
+              top: 470px;
+              width: 360px;
+              height: 140px;
+              flex-direction: column;
+              gap: 6px;
+            "
+          >
+            Claim file<small style="font-size: 22px; font-weight: 500; color: #6e6e73"
+              >diagnosis · prescription · hospital note</small
+            >
+          </div>
+          <div
+            class="node"
+            id="n-front0"
+            style="left: 1500px; top: 258px; width: 320px; height: 84px"
+          >
+            Frontier model
+          </div>
+          <div
+            class="node"
+            id="n-local0"
+            style="left: 1500px; top: 738px; width: 320px; height: 84px"
+          >
+            Local model
+          </div>
+          <div class="sub" id="s-front0" style="left: 1500px; top: 356px">
+            outside the EU perimeter
+          </div>
+          <div class="sub" id="s-local0" style="left: 1500px; top: 836px">
+            health data may stay here
+          </div>
           <svg class="layer" id="bar" width="1920" height="1080" viewBox="0 0 1920 1080">
-            <path id="x1" class="edge" d="M1250 380 L1310 440" style="stroke: #c62828; stroke-width: 6" />
-            <path id="x2" class="edge" d="M1310 380 L1250 440" style="stroke: #c62828; stroke-width: 6" />
+            <path
+              id="x1"
+              class="edge"
+              d="M1250 380 L1310 440"
+              style="stroke: #c62828; stroke-width: 6"
+            />
+            <path
+              id="x2"
+              class="edge"
+              d="M1310 380 L1250 440"
+              style="stroke: #c62828; stroke-width: 6"
+            />
           </svg>
 
           <!-- harness -->
-          <div class="node" id="n-asst" style="left: 100px; top: 492px; width: 280px; height: 96px">Pi agent</div>
-          <div class="sub" id="s-asst" style="left: 100px; top: 604px">one Durable Object per claim</div>
-          <div class="node check" id="n-pre" style="left: 470px; top: 470px; width: 260px; height: 140px">Pre-mask<small>regex, no model</small></div>
-          <div class="node check off" id="n-cls" style="left: 830px; top: 470px; width: 280px; height: 140px">Classifier<small>local model, per run</small></div>
-          <div class="node check ink" id="n-brane" style="left: 1210px; top: 470px; width: 240px; height: 140px">BRANE<small>the gate</small></div>
-          <div class="node" id="n-front" style="left: 1590px; top: 288px; width: 280px; height: 84px">Frontier model</div>
-          <div class="node" id="n-local" style="left: 1590px; top: 708px; width: 280px; height: 84px">Local model</div>
+          <div class="node" id="n-asst" style="left: 100px; top: 492px; width: 280px; height: 96px">
+            Pi agent
+          </div>
+          <div class="sub" id="s-asst" style="left: 100px; top: 604px">
+            one Durable Object per claim
+          </div>
+          <div
+            class="node check"
+            id="n-pre"
+            style="left: 470px; top: 470px; width: 260px; height: 140px"
+          >
+            Pre-mask<small>regex, no model</small>
+          </div>
+          <div
+            class="node check off"
+            id="n-cls"
+            style="left: 830px; top: 470px; width: 280px; height: 140px"
+          >
+            Classifier<small>local model, per run</small>
+          </div>
+          <div
+            class="node check ink"
+            id="n-brane"
+            style="left: 1210px; top: 470px; width: 240px; height: 140px"
+          >
+            BRANE<small>the gate</small>
+          </div>
+          <div
+            class="node"
+            id="n-front"
+            style="left: 1590px; top: 288px; width: 280px; height: 84px"
+          >
+            Frontier model
+          </div>
+          <div
+            class="node"
+            id="n-local"
+            style="left: 1590px; top: 708px; width: 280px; height: 84px"
+          >
+            Local model
+          </div>
           <div class="sub" id="s-front" style="left: 1590px; top: 386px">placeholders only</div>
           <div class="sub" id="s-local" style="left: 1590px; top: 806px">health detail</div>
-          <div class="node" id="n-ref" style="left: 1210px; top: 250px; width: 240px; height: 70px; background: var(--paper); box-shadow: inset 0 0 0 2.5px #c62828; color: #c62828; font-size: 26px">refused</div>
-          <div class="sub" id="s-only" style="left: 470px; top: 860px">no other path to a model</div>
+          <div
+            class="node"
+            id="n-ref"
+            style="
+              left: 1210px;
+              top: 250px;
+              width: 240px;
+              height: 70px;
+              background: var(--paper);
+              box-shadow: inset 0 0 0 2.5px #c62828;
+              color: #c62828;
+              font-size: 26px;
+            "
+          >
+            refused
+          </div>
+          <div class="sub" id="s-only" style="left: 470px; top: 860px">
+            no other path to a model
+          </div>
 
-          <div class="code" id="code-mask" style="left: 100px; top: 640px"><span class="f">src/primitives/detect.ts</span>for (const m of text.matchAll(<b>/\bPOL-\d{4}-\d{2}\b/g</b>))
-  found.push({ kind: <b>"POLICY_ID"</b>, text: m[0] });
-<i>// the same value gets the same token everywhere</i>
-out = out.split(f.text).join(seen.get(f.text));</div>
-          <div class="code" id="code-brane" style="left: 100px; top: 700px"><span class="f">src/brane.ts · braneFetch</span>if (url.origin !== base.origin)
-  throw new Error(<b>"only BRANE is allowed"</b>);
-if (decision.routedTo === "" &amp;&amp; response.status !== 422)
-  throw new Error(<b>"BRANE returned no routing decision; nothing is sent"</b>);</div>
+          <div class="code" id="code-mask" style="left: 100px; top: 640px">
+            <span class="f">src/primitives/detect.ts</span>for (const m of
+            text.matchAll(<b>/\bPOL-\d{4}-\d{2}\b/g</b>)) found.push({ kind: <b>"POLICY_ID"</b>,
+            text: m[0] });
+            <i>// the same value gets the same token everywhere</i>
+            out = out.split(f.text).join(seen.get(f.text));
+          </div>
+          <div class="code" id="code-brane" style="left: 100px; top: 700px">
+            <span class="f">src/brane.ts · braneFetch</span>if (url.origin !== base.origin) throw
+            new Error(<b>"only BRANE is allowed"</b>); if (decision.routedTo === "" &amp;&amp;
+            response.status !== 422) throw new Error(<b
+              >"BRANE returned no routing decision; nothing is sent"</b
+            >);
+          </div>
           <div class="token mono" id="k-req">POL-4410-17</div>
           <div class="token mono" id="k-tok">[POLICY_ID]</div>
         </div>
@@ -467,17 +611,34 @@ if (decision.routedTo === "" &amp;&amp; response.status !== 422)
         data-layout-allow-overlap
       >
         <svg class="layer" width="1920" height="1080" viewBox="0 0 1920 1080">
-          <circle id="ring" cx="760" cy="540" r="250" fill="none" stroke="#111" stroke-width="2.5" />
+          <circle
+            id="ring"
+            cx="760"
+            cy="540"
+            r="250"
+            fill="none"
+            stroke="#111"
+            stroke-width="2.5"
+          />
           <path id="ring-path" class="thru" d="M760 290 A250 250 0 1 1 759.9 290" />
         </svg>
-        <div class="lnode" id="l1" style="left: 760px; top: 290px"><span class="a">model call</span><span class="b">change one part</span></div>
-        <div class="lnode" id="l2" style="left: 977px; top: 665px"><span class="a">tool</span><span class="b">run the evals</span></div>
-        <div class="lnode" id="l3" style="left: 543px; top: 665px"><span class="a">result</span><span class="b">keep if better</span></div>
-        <div id="loop-mid"><span class="a">the agent</span><span class="b" style="opacity: 0">the harness</span></div>
+        <div class="lnode" id="l1" style="left: 760px; top: 290px">
+          <span class="a">model call</span><span class="b">change one part</span>
+        </div>
+        <div class="lnode" id="l2" style="left: 977px; top: 665px">
+          <span class="a">tool</span><span class="b">run the evals</span>
+        </div>
+        <div class="lnode" id="l3" style="left: 543px; top: 665px">
+          <span class="a">result</span><span class="b">keep if better</span>
+        </div>
+        <div id="loop-mid">
+          <span class="a">the agent</span><span class="b" style="opacity: 0">the harness</span>
+        </div>
         <div class="token" id="k-loop">claim</div>
-        <div class="code" id="code-climb" style="left: 1280px; top: 120px"><span class="f">evals/climb-latest.md · one kept change</span>CLAIM_HEALTH_CONTEXT keywords:
-  ent specialist, hearing aids
-<b>kept</b>  mutated leaked 6 → 3</div>
+        <div class="code" id="code-climb" style="left: 1280px; top: 120px">
+          <span class="f">evals/climb-latest.md · one kept change</span>CLAIM_HEALTH_CONTEXT
+          keywords: ent specialist, hearing aids <b>kept</b> mutated leaked 6 → 3
+        </div>
       </div>
 
       <!-- the evals: four slopes, start to end; built by script from CLIMB -->
@@ -504,14 +665,56 @@ if (decision.routedTo === "" &amp;&amp; response.status !== 422)
         data-track-index="4"
         data-layout-allow-overlap
       >
-        <img id="ui-composer" class="ui" src="assets/ui/composer.png" alt="The burnout claim in the message box" style="left: 160px; top: 380px; width: 1600px" />
-        <img id="ui-trace" class="ui" src="assets/ui/trace.png" alt="The trace: pre-mask, intake, BRANE, tools, person" style="left: 1180px; top: 70px; width: 560px" />
-        <img id="ui-card" class="ui" src="assets/ui/decision-card.png" alt="The claims handler's decision card" style="left: 120px; top: 120px; width: 960px" />
-        <div class="ring" id="ring-brane" style="left: 1170px; top: 360px; width: 580px; height: 110px"></div>
-        <div class="ring" id="ring-approve" style="left: 140px; top: 572px; width: 140px; height: 64px; border-radius: 999px"></div>
-        <img id="ui-msg" class="ui" src="assets/ui/decision-message.png" alt="The decision as a message in the chat" style="left: 120px; top: 720px; width: 960px" />
-        <img id="ui-audit" class="ui" src="assets/ui/audit-human.png" alt="The audit log with the human row" style="left: 1140px; top: 300px; width: 680px" />
-        <div class="ring" id="ring-row" style="left: 1132px; top: 616px; width: 696px; height: 82px"></div>
+        <img
+          id="ui-composer"
+          class="ui"
+          src="assets/ui/composer.png"
+          alt="The burnout claim in the message box"
+          style="left: 160px; top: 380px; width: 1600px"
+        />
+        <img
+          id="ui-trace"
+          class="ui"
+          src="assets/ui/trace.png"
+          alt="The trace: pre-mask, intake, BRANE, tools, person"
+          style="left: 1180px; top: 70px; width: 560px"
+        />
+        <img
+          id="ui-card"
+          class="ui"
+          src="assets/ui/decision-card.png"
+          alt="The claims handler's decision card"
+          style="left: 120px; top: 120px; width: 960px"
+        />
+        <div
+          class="ring"
+          id="ring-brane"
+          style="left: 1170px; top: 360px; width: 580px; height: 110px"
+        ></div>
+        <div
+          class="ring"
+          id="ring-approve"
+          style="left: 140px; top: 572px; width: 140px; height: 64px; border-radius: 999px"
+        ></div>
+        <img
+          id="ui-msg"
+          class="ui"
+          src="assets/ui/decision-message.png"
+          alt="The decision as a message in the chat"
+          style="left: 120px; top: 720px; width: 960px"
+        />
+        <img
+          id="ui-audit"
+          class="ui"
+          src="assets/ui/audit-human.png"
+          alt="The audit log with the human row"
+          style="left: 1140px; top: 300px; width: 680px"
+        />
+        <div
+          class="ring"
+          id="ring-row"
+          style="left: 1132px; top: 616px; width: 696px; height: 82px"
+        ></div>
       </div>
 
       <!-- key lines -->
@@ -524,37 +727,610 @@ if (decision.routedTo === "" &amp;&amp; response.status !== 422)
         data-track-index="5"
         data-layout-allow-overlap
       >
-        <div class="key" id="key-1"><span>Health data may not<br />leave for a frontier model.</span></div>
-        <div class="key" id="key-2"><span>Every request passes<br /><em>three checks.</em></span></div>
+        <div class="key" id="key-1">
+          <span>Health data may not<br />leave for a frontier model.</span>
+        </div>
+        <div class="key" id="key-2">
+          <span>Every request passes<br /><em>three checks.</em></span>
+        </div>
         <div class="key" id="key-3"><span>BRANE is the gate.</span></div>
-        <div class="key" id="key-4"><span>The same loop<br />improves the harness.</span></div>
+        <div class="key" id="key-4">
+          <span>The same loop<br />improves the harness.</span>
+        </div>
         <div class="key" id="key-5"><span>A person decides.</span></div>
       </div>
 
-      <div id="url-host" class="clip" data-span="total" data-start="0" data-duration="148.281" data-track-index="6">
+      <div
+        id="url-host"
+        class="clip"
+        data-span="total"
+        data-start="0"
+        data-duration="148.281"
+        data-track-index="6"
+      >
         <div id="url">
           <div class="t">Run the claim yourself</div>
           <div class="u">claims-harness.fred-755.workers.dev</div>
-          <div class="m">Team Gezira · AI-Z Challenge Track · MAIN Summit 2026 · synthetic claims only</div>
+          <div class="m">
+            Team Gezira · AI-Z Challenge Track · MAIN Summit 2026 · synthetic claims only
+          </div>
         </div>
       </div>
 
       <!-- one host per beat; voiceover.mjs sets their windows -->
-      <div class="clip" id="beat-situation" data-beat="situation" data-start="0" data-duration="22.721" data-track-index="1"></div>
-      <div class="clip" id="beat-harness" data-beat="harness" data-start="22.721" data-duration="33.229" data-track-index="1"></div>
-      <div class="clip" id="beat-loop" data-beat="loop" data-start="55.95" data-duration="22.526" data-track-index="1"></div>
-      <div class="clip" id="beat-evals" data-beat="evals" data-start="78.476" data-duration="20.821" data-track-index="1"></div>
-      <div class="clip" id="beat-demo" data-beat="demo" data-start="99.297" data-duration="37.618" data-track-index="1"></div>
-      <div class="clip" id="beat-close" data-beat="close" data-start="136.915" data-duration="11.366" data-track-index="1"></div>
+      <div
+        class="clip"
+        id="beat-situation"
+        data-beat="situation"
+        data-start="0"
+        data-duration="22.721"
+        data-track-index="1"
+      ></div>
+      <div
+        class="clip"
+        id="beat-harness"
+        data-beat="harness"
+        data-start="22.721"
+        data-duration="33.229"
+        data-track-index="1"
+      ></div>
+      <div
+        class="clip"
+        id="beat-loop"
+        data-beat="loop"
+        data-start="55.95"
+        data-duration="22.526"
+        data-track-index="1"
+      ></div>
+      <div
+        class="clip"
+        id="beat-evals"
+        data-beat="evals"
+        data-start="78.476"
+        data-duration="20.821"
+        data-track-index="1"
+      ></div>
+      <div
+        class="clip"
+        id="beat-demo"
+        data-beat="demo"
+        data-start="99.297"
+        data-duration="37.618"
+        data-track-index="1"
+      ></div>
+      <div
+        class="clip"
+        id="beat-close"
+        data-beat="close"
+        data-start="136.915"
+        data-duration="11.366"
+        data-track-index="1"
+      ></div>
 
-      <div id="cap" class="clip" data-span="total" data-start="0" data-duration="148.281" data-track-index="3" data-layout-allow-overlap></div>
+      <div
+        id="cap"
+        class="clip"
+        data-span="total"
+        data-start="0"
+        data-duration="148.281"
+        data-track-index="3"
+        data-layout-allow-overlap
+      ></div>
     </div>
 
     <script>
       // Written by voiceover.mjs; do not edit by hand.
-      const TIMING = /* timing:begin */{"source":"elevenlabs","total":148.281,"beats":[{"id":"situation","start":0,"duration":22.721,"words":[{"w":"Claims","s":0.4,"e":0.831},{"w":"handlers","s":0.875,"e":1.295},{"w":"at","s":1.34,"e":1.407},{"w":"an","s":1.45,"e":1.506},{"w":"EU","s":1.572,"e":1.827},{"w":"health","s":1.892,"e":2.081},{"w":"insurer","s":2.125,"e":2.501},{"w":"work","s":2.921,"e":3.153},{"w":"through","s":3.187,"e":3.386},{"w":"files","s":3.43,"e":3.784},{"w":"full","s":3.839,"e":4.005},{"w":"of","s":4.049,"e":4.093},{"w":"diagnoses,","s":4.149,"e":5.066},{"w":"prescriptions","s":5.177,"e":5.895},{"w":"and","s":6.039,"e":6.205},{"w":"hospital","s":6.271,"e":6.648},{"w":"notes.","s":6.691,"e":7.078},{"w":"A","s":7.653,"e":7.72},{"w":"frontier","s":7.809,"e":8.262},{"w":"model","s":8.339,"e":8.627},{"w":"would","s":8.67,"e":8.804},{"w":"help","s":8.848,"e":8.991},{"w":"them","s":9.035,"e":9.157},{"w":"check","s":9.202,"e":9.423},{"w":"each","s":9.533,"e":9.766},{"w":"invoice","s":9.81,"e":10.219},{"w":"against","s":10.251,"e":10.484},{"w":"the","s":10.517,"e":10.584},{"w":"policy,","s":10.617,"e":11.258},{"w":"but","s":11.568,"e":11.733},{"w":"health","s":11.789,"e":12.021},{"w":"data","s":12.076,"e":12.375},{"w":"is","s":12.441,"e":12.541},{"w":"a","s":12.585,"e":12.607},{"w":"special","s":12.662,"e":13.028},{"w":"category","s":13.093,"e":13.613},{"w":"under","s":13.657,"e":13.801},{"w":"the","s":13.845,"e":13.911},{"w":"GDPR","s":13.945,"e":14.609},{"w":"and","s":14.918,"e":15.117},{"w":"may","s":15.194,"e":15.327},{"w":"not","s":15.393,"e":15.526},{"w":"go","s":15.57,"e":15.67},{"w":"to","s":15.714,"e":15.758},{"w":"an","s":15.825,"e":15.88},{"w":"outside","s":15.913,"e":16.267},{"w":"model.","s":16.3,"e":16.687},{"w":"We","s":17.173,"e":17.295},{"w":"built","s":17.339,"e":17.505},{"w":"an","s":17.538,"e":17.593},{"w":"assistant","s":17.638,"e":18.036},{"w":"that","s":18.069,"e":18.18},{"w":"prepares","s":18.212,"e":18.589},{"w":"each","s":18.699,"e":18.91},{"w":"claim","s":18.965,"e":19.219},{"w":"for","s":19.286,"e":19.373},{"w":"the","s":19.407,"e":19.473},{"w":"handler","s":19.517,"e":19.871},{"w":"while","s":20.137,"e":20.347},{"w":"the","s":20.369,"e":20.435},{"w":"health","s":20.502,"e":20.733},{"w":"data","s":20.8,"e":21.032},{"w":"stays","s":21.099,"e":21.33},{"w":"on","s":21.364,"e":21.419},{"w":"a","s":21.464,"e":21.486},{"w":"local","s":21.541,"e":21.762},{"w":"model.","s":21.807,"e":22.381}]},{"id":"harness","start":22.721,"duration":33.229,"words":[{"w":"The","s":0.25,"e":0.394},{"w":"assistant","s":0.449,"e":0.902},{"w":"is","s":0.958,"e":1.035},{"w":"a","s":1.08,"e":1.101},{"w":"custom","s":1.168,"e":1.521},{"w":"harness","s":1.588,"e":1.908},{"w":"built","s":1.953,"e":2.14},{"w":"on","s":2.185,"e":2.251},{"w":"Pi,","s":2.318,"e":2.871},{"w":"and","s":3.037,"e":3.191},{"w":"every","s":3.258,"e":3.445},{"w":"request","s":3.512,"e":3.91},{"w":"it","s":3.954,"e":4.032},{"w":"makes","s":4.087,"e":4.286},{"w":"to","s":4.319,"e":4.385},{"w":"a","s":4.462,"e":4.485},{"w":"model","s":4.551,"e":4.872},{"w":"passes","s":4.949,"e":5.303},{"w":"a","s":5.347,"e":5.38},{"w":"fixed","s":5.447,"e":5.701},{"w":"series","s":5.723,"e":6.021},{"w":"of","s":6.055,"e":6.11},{"w":"checks","s":6.165,"e":6.563},{"w":"that","s":6.796,"e":6.961},{"w":"we","s":6.995,"e":7.061},{"w":"can","s":7.095,"e":7.205},{"w":"test","s":7.239,"e":7.437},{"w":"one","s":7.493,"e":7.603},{"w":"at","s":7.625,"e":7.68},{"w":"a","s":7.724,"e":7.758},{"w":"time.","s":7.813,"e":8.211},{"w":"A","s":8.786,"e":8.875},{"w":"regular-expression","s":9.019,"e":9.925},{"w":"pre-mask","s":10.002,"e":10.633},{"w":"replaces","s":10.699,"e":11.152},{"w":"policy","s":11.219,"e":11.639},{"w":"numbers","s":11.705,"e":12.081},{"w":"and","s":12.17,"e":12.324},{"w":"other","s":12.391,"e":12.545},{"w":"identifiers","s":12.59,"e":13.176},{"w":"with","s":13.209,"e":13.331},{"w":"tokens.","s":13.364,"e":13.906},{"w":"A","s":14.48,"e":14.559},{"w":"second","s":14.702,"e":15.012},{"w":"classifier","s":15.067,"e":15.698},{"w":"on","s":15.763,"e":15.874},{"w":"BRANE's","s":15.929,"e":16.217},{"w":"local","s":16.261,"e":16.482},{"w":"model,","s":16.526,"e":16.98},{"w":"which","s":17.245,"e":17.433},{"w":"we","s":17.478,"e":17.555},{"w":"switch","s":17.61,"e":17.909},{"w":"on","s":17.986,"e":18.219},{"w":"per","s":18.296,"e":18.45},{"w":"run,","s":18.517,"e":19.003},{"w":"labels","s":19.368,"e":19.766},{"w":"the","s":19.8,"e":19.865},{"w":"request","s":19.932,"e":20.363},{"w":"and","s":20.419,"e":20.496},{"w":"can","s":20.54,"e":20.661},{"w":"only","s":20.75,"e":21.027},{"w":"make","s":21.082,"e":21.237},{"w":"the","s":21.27,"e":21.337},{"w":"route","s":21.38,"e":21.58},{"w":"stricter.","s":21.613,"e":22.143},{"w":"BRANE","s":22.807,"e":23.227},{"w":"is","s":23.26,"e":23.326},{"w":"the","s":23.381,"e":23.448},{"w":"gate.","s":23.493,"e":23.901},{"w":"It","s":24.266,"e":24.4},{"w":"sends","s":24.477,"e":24.786},{"w":"the","s":24.841,"e":24.908},{"w":"request","s":24.985,"e":25.361},{"w":"to","s":25.394,"e":25.45},{"w":"the","s":25.505,"e":25.571},{"w":"frontier","s":25.616,"e":26.058},{"w":"model","s":26.135,"e":26.422},{"w":"with","s":26.478,"e":26.611},{"w":"placeholders,","s":26.655,"e":27.451},{"w":"keeps","s":27.871,"e":28.125},{"w":"it","s":28.17,"e":28.237},{"w":"on","s":28.269,"e":28.324},{"w":"the","s":28.358,"e":28.424},{"w":"local","s":28.458,"e":28.679},{"w":"model,","s":28.734,"e":29.065},{"w":"or","s":29.099,"e":29.254},{"w":"refuses","s":29.331,"e":29.828},{"w":"it,","s":29.883,"e":30.06},{"w":"and","s":30.37,"e":30.514},{"w":"the","s":30.559,"e":30.624},{"w":"harness","s":30.68,"e":30.989},{"w":"has","s":31.034,"e":31.2},{"w":"no","s":31.31,"e":31.465},{"w":"other","s":31.531,"e":31.697},{"w":"path","s":31.741,"e":31.984},{"w":"to","s":32.029,"e":32.095},{"w":"a","s":32.173,"e":32.195},{"w":"model.","s":32.25,"e":32.891}]},{"id":"loop","start":55.95,"duration":22.526,"words":[{"w":"The","s":0.25,"e":0.405},{"w":"agent","s":0.46,"e":0.715},{"w":"itself","s":0.747,"e":1.08},{"w":"runs","s":1.157,"e":1.367},{"w":"in","s":1.411,"e":1.466},{"w":"a","s":1.511,"e":1.533},{"w":"loop.","s":1.577,"e":1.886},{"w":"It","s":2.251,"e":2.384},{"w":"calls","s":2.428,"e":2.704},{"w":"the","s":2.749,"e":2.816},{"w":"model,","s":2.871,"e":3.357},{"w":"runs","s":3.589,"e":3.843},{"w":"the","s":3.899,"e":3.965},{"w":"tool","s":4.02,"e":4.231},{"w":"the","s":4.286,"e":4.352},{"w":"model","s":4.385,"e":4.584},{"w":"asks","s":4.651,"e":4.85},{"w":"for,","s":4.894,"e":5.259},{"w":"and","s":5.458,"e":5.601},{"w":"calls","s":5.657,"e":5.9},{"w":"the","s":5.944,"e":6.011},{"w":"model","s":6.055,"e":6.276},{"w":"again","s":6.331,"e":6.541},{"w":"with","s":6.597,"e":6.707},{"w":"the","s":6.74,"e":6.807},{"w":"result","s":6.873,"e":7.36},{"w":"until","s":7.481,"e":7.769},{"w":"the","s":7.813,"e":7.88},{"w":"claim","s":7.913,"e":8.1},{"w":"is","s":8.145,"e":8.211},{"w":"ready.","s":8.266,"e":8.62},{"w":"While","s":9.107,"e":9.339},{"w":"building","s":9.383,"e":9.671},{"w":"it","s":9.715,"e":9.77},{"w":"we","s":9.815,"e":9.892},{"w":"found","s":9.969,"e":10.146},{"w":"that","s":10.168,"e":10.268},{"w":"the","s":10.3,"e":10.367},{"w":"same","s":10.434,"e":10.699},{"w":"loop","s":10.743,"e":10.92},{"w":"improves","s":10.976,"e":11.319},{"w":"the","s":11.34,"e":11.406},{"w":"harness.","s":11.451,"e":11.926},{"w":"We","s":12.346,"e":12.457},{"w":"change","s":12.5,"e":12.778},{"w":"one","s":12.821,"e":12.977},{"w":"part,","s":13.02,"e":13.32},{"w":"such","s":13.463,"e":13.673},{"w":"as","s":13.718,"e":13.795},{"w":"a","s":13.85,"e":13.883},{"w":"pre-mask","s":13.949,"e":14.458},{"w":"pattern","s":14.491,"e":14.8},{"w":"or","s":14.834,"e":14.9},{"w":"a","s":14.944,"e":14.966},{"w":"policy","s":15.011,"e":15.376},{"w":"rule,","s":15.431,"e":15.796},{"w":"run","s":16.282,"e":16.448},{"w":"the","s":16.493,"e":16.559},{"w":"evals,","s":16.614,"e":17.156},{"w":"keep","s":17.576,"e":17.798},{"w":"the","s":17.853,"e":17.919},{"w":"change","s":17.974,"e":18.372},{"w":"only","s":18.439,"e":18.748},{"w":"if","s":18.793,"e":18.859},{"w":"the","s":18.903,"e":18.969},{"w":"scores","s":19.002,"e":19.29},{"w":"improve,","s":19.334,"e":19.909},{"w":"and","s":19.976,"e":20.12},{"w":"go","s":20.175,"e":20.263},{"w":"round","s":20.329,"e":20.528},{"w":"again.","s":20.573,"e":21.17}]},{"id":"evals","start":78.476,"duration":20.821,"words":[{"w":"Each","s":0.25,"e":0.504},{"w":"check","s":0.548,"e":0.725},{"w":"is","s":0.77,"e":0.825},{"w":"scored","s":0.847,"e":1.09},{"w":"on","s":1.113,"e":1.168},{"w":"its","s":1.2,"e":1.3},{"w":"own.","s":1.344,"e":1.654},{"w":"On","s":2.075,"e":2.219},{"w":"Omar","s":2.284,"e":2.56},{"w":"Shalaby's","s":2.639,"e":3.047},{"w":"split","s":3.07,"e":3.346},{"w":"we","s":3.39,"e":3.479},{"w":"tuned","s":3.523,"e":3.744},{"w":"on","s":3.778,"e":3.855},{"w":"eight","s":3.965,"e":4.164},{"w":"hundred","s":4.208,"e":4.44},{"w":"labelled","s":4.496,"e":4.772},{"w":"requests,","s":4.817,"e":5.436},{"w":"chose","s":5.668,"e":5.944},{"w":"between","s":5.989,"e":6.254},{"w":"versions","s":6.309,"e":6.652},{"w":"on","s":6.697,"e":6.774},{"w":"five","s":6.829,"e":7.04},{"w":"hundred,","s":7.072,"e":7.448},{"w":"and","s":7.714,"e":7.858},{"w":"ran","s":7.923,"e":8.089},{"w":"a","s":8.134,"e":8.156},{"w":"hash-locked","s":8.233,"e":8.741},{"w":"set","s":8.764,"e":8.897},{"w":"of","s":8.93,"e":8.974},{"w":"two","s":9.019,"e":9.129},{"w":"hundred","s":9.173,"e":9.383},{"w":"once,","s":9.449,"e":9.837},{"w":"at","s":10.146,"e":10.3},{"w":"the","s":10.345,"e":10.422},{"w":"end.","s":10.489,"e":10.832},{"w":"BRANE's","s":11.495,"e":11.86},{"w":"answers","s":11.893,"e":12.202},{"w":"vary,","s":12.258,"e":12.756},{"w":"so","s":12.9,"e":13.043},{"w":"each","s":13.154,"e":13.341},{"w":"case","s":13.397,"e":13.651},{"w":"counts","s":13.696,"e":14.005},{"w":"at","s":14.049,"e":14.127},{"w":"its","s":14.16,"e":14.26},{"w":"worst","s":14.303,"e":14.547},{"w":"run,","s":14.613,"e":15.044},{"w":"and","s":15.354,"e":15.509},{"w":"no","s":15.598,"e":15.719},{"w":"kept","s":15.797,"e":15.996},{"w":"change","s":16.028,"e":16.316},{"w":"leaked.","s":16.371,"e":16.968}]},{"id":"demo","start":99.297,"duration":37.618,"words":[{"w":"Here","s":0.25,"e":0.46},{"w":"is","s":0.493,"e":0.56},{"w":"one","s":0.626,"e":0.792},{"w":"claim","s":0.825,"e":1.035},{"w":"from","s":1.08,"e":1.19},{"w":"the","s":1.234,"e":1.3},{"w":"queue.","s":1.334,"e":1.732},{"w":"Sanne","s":2.152,"e":2.517},{"w":"Bakker","s":2.572,"e":2.893},{"w":"asks","s":2.97,"e":3.423},{"w":"whether","s":3.534,"e":3.8},{"w":"her","s":3.865,"e":3.943},{"w":"weekly","s":4.009,"e":4.319},{"w":"therapy","s":4.375,"e":4.695},{"w":"for","s":4.74,"e":4.839},{"w":"burnout","s":4.894,"e":5.193},{"w":"is","s":5.237,"e":5.314},{"w":"covered,","s":5.369,"e":5.79},{"w":"and","s":6.1,"e":6.243},{"w":"her","s":6.299,"e":6.364},{"w":"GP's","s":6.431,"e":6.896},{"w":"letter","s":6.961,"e":7.205},{"w":"names","s":7.26,"e":7.46},{"w":"the","s":7.481,"e":7.548},{"w":"diagnosis","s":7.592,"e":8.178},{"w":"and","s":8.222,"e":8.288},{"w":"the","s":8.311,"e":8.377},{"w":"medication.","s":8.4,"e":9.029},{"w":"BRANE","s":9.693,"e":10.002},{"w":"keeps","s":10.046,"e":10.268},{"w":"the","s":10.3,"e":10.379},{"w":"seven","s":10.467,"e":10.754},{"w":"requests","s":10.82,"e":11.263},{"w":"that","s":11.296,"e":11.418},{"w":"carry","s":11.462,"e":11.683},{"w":"those","s":11.739,"e":11.904},{"w":"details","s":11.938,"e":12.369},{"w":"on","s":12.413,"e":12.48},{"w":"the","s":12.512,"e":12.579},{"w":"local","s":12.612,"e":12.844},{"w":"model,","s":12.889,"e":13.286},{"w":"and","s":13.597,"e":13.74},{"w":"the","s":13.784,"e":13.851},{"w":"one","s":13.928,"e":14.105},{"w":"request","s":14.16,"e":14.658},{"w":"that","s":14.735,"e":14.901},{"w":"goes","s":14.945,"e":15.144},{"w":"to","s":15.178,"e":15.233},{"w":"the","s":15.288,"e":15.355},{"w":"frontier","s":15.399,"e":15.819},{"w":"model","s":15.885,"e":16.14},{"w":"has","s":16.195,"e":16.327},{"w":"her","s":16.382,"e":16.471},{"w":"name","s":16.516,"e":16.67},{"w":"replaced.","s":16.703,"e":17.267},{"w":"The","s":17.632,"e":17.754},{"w":"agent","s":17.831,"e":18.14},{"w":"cites","s":18.196,"e":18.473},{"w":"the","s":18.505,"e":18.572},{"w":"policy","s":18.627,"e":19.037},{"w":"terms,","s":19.092,"e":19.567},{"w":"asks","s":19.833,"e":20.142},{"w":"the","s":20.208,"e":20.275},{"w":"medical","s":20.319,"e":20.584},{"w":"adviser","s":20.628,"e":21.026},{"w":"whether","s":21.082,"e":21.303},{"w":"the","s":21.369,"e":21.436},{"w":"therapy","s":21.48,"e":21.812},{"w":"is","s":21.845,"e":21.911},{"w":"necessary,","s":21.966,"e":22.641},{"w":"and","s":22.807,"e":22.951},{"w":"recommends","s":23.028,"e":23.481},{"w":"paying","s":23.548,"e":23.858},{"w":"once","s":23.935,"e":24.089},{"w":"the","s":24.122,"e":24.189},{"w":"adviser","s":24.233,"e":24.587},{"w":"answers.","s":24.654,"e":25.14},{"w":"The","s":25.505,"e":25.616},{"w":"claims","s":25.671,"e":25.992},{"w":"handler","s":26.047,"e":26.379},{"w":"approves.","s":26.434,"e":27.009},{"w":"The","s":27.374,"e":27.496},{"w":"decision","s":27.551,"e":27.971},{"w":"comes","s":28.026,"e":28.225},{"w":"back","s":28.28,"e":28.468},{"w":"into","s":28.513,"e":28.645},{"w":"the","s":28.7,"e":28.767},{"w":"chat","s":28.8,"e":29.065},{"w":"as","s":29.12,"e":29.22},{"w":"a","s":29.264,"e":29.298},{"w":"message","s":29.375,"e":29.707},{"w":"the","s":29.751,"e":29.828},{"w":"agent","s":29.883,"e":30.149},{"w":"continues","s":30.182,"e":30.658},{"w":"from,","s":30.702,"e":31.1},{"w":"and","s":31.41,"e":31.553},{"w":"the","s":31.598,"e":31.664},{"w":"audit","s":31.72,"e":31.996},{"w":"trail","s":32.029,"e":32.317},{"w":"stores","s":32.394,"e":32.703},{"w":"it","s":32.747,"e":32.825},{"w":"as","s":32.88,"e":32.991},{"w":"a","s":33.035,"e":33.057},{"w":"human","s":33.112,"e":33.356},{"w":"row,","s":33.411,"e":33.831},{"w":"linked","s":34.14,"e":34.384},{"w":"to","s":34.406,"e":34.461},{"w":"the","s":34.505,"e":34.572},{"w":"handoff","s":34.627,"e":35.037},{"w":"it","s":35.08,"e":35.147},{"w":"answers,","s":35.191,"e":35.678},{"w":"in","s":35.755,"e":35.888},{"w":"a","s":35.932,"e":35.965},{"w":"hash-chained","s":36.032,"e":36.562},{"w":"log.","s":36.596,"e":37.27}]},{"id":"close","start":136.915,"duration":11.366,"words":[{"w":"The","s":0.25,"e":0.405},{"w":"app","s":0.493,"e":0.692},{"w":"is","s":0.737,"e":0.814},{"w":"live","s":0.902,"e":1.157},{"w":"with","s":1.19,"e":1.3},{"w":"synthetic","s":1.334,"e":1.798},{"w":"claims,","s":1.842,"e":2.318},{"w":"so","s":2.384,"e":2.505},{"w":"you","s":2.583,"e":2.672},{"w":"can","s":2.716,"e":2.826},{"w":"run","s":2.893,"e":3.047},{"w":"this","s":3.08,"e":3.202},{"w":"claim","s":3.246,"e":3.445},{"w":"yourself.","s":3.5,"e":4.032},{"w":"We","s":4.452,"e":4.574},{"w":"are","s":4.618,"e":4.717},{"w":"Team","s":4.772,"e":4.971},{"w":"Gezira.","s":5.038,"e":5.822}]}]}/* timing:end */;
+      const TIMING = /* timing:begin */ {
+        source: "elevenlabs",
+        total: 148.281,
+        beats: [
+          {
+            id: "situation",
+            start: 0,
+            duration: 22.721,
+            words: [
+              { w: "Claims", s: 0.4, e: 0.831 },
+              { w: "handlers", s: 0.875, e: 1.295 },
+              { w: "at", s: 1.34, e: 1.407 },
+              { w: "an", s: 1.45, e: 1.506 },
+              { w: "EU", s: 1.572, e: 1.827 },
+              { w: "health", s: 1.892, e: 2.081 },
+              { w: "insurer", s: 2.125, e: 2.501 },
+              { w: "work", s: 2.921, e: 3.153 },
+              { w: "through", s: 3.187, e: 3.386 },
+              { w: "files", s: 3.43, e: 3.784 },
+              { w: "full", s: 3.839, e: 4.005 },
+              { w: "of", s: 4.049, e: 4.093 },
+              { w: "diagnoses,", s: 4.149, e: 5.066 },
+              { w: "prescriptions", s: 5.177, e: 5.895 },
+              { w: "and", s: 6.039, e: 6.205 },
+              { w: "hospital", s: 6.271, e: 6.648 },
+              { w: "notes.", s: 6.691, e: 7.078 },
+              { w: "A", s: 7.653, e: 7.72 },
+              { w: "frontier", s: 7.809, e: 8.262 },
+              { w: "model", s: 8.339, e: 8.627 },
+              { w: "would", s: 8.67, e: 8.804 },
+              { w: "help", s: 8.848, e: 8.991 },
+              { w: "them", s: 9.035, e: 9.157 },
+              { w: "check", s: 9.202, e: 9.423 },
+              { w: "each", s: 9.533, e: 9.766 },
+              { w: "invoice", s: 9.81, e: 10.219 },
+              { w: "against", s: 10.251, e: 10.484 },
+              { w: "the", s: 10.517, e: 10.584 },
+              { w: "policy,", s: 10.617, e: 11.258 },
+              { w: "but", s: 11.568, e: 11.733 },
+              { w: "health", s: 11.789, e: 12.021 },
+              { w: "data", s: 12.076, e: 12.375 },
+              { w: "is", s: 12.441, e: 12.541 },
+              { w: "a", s: 12.585, e: 12.607 },
+              { w: "special", s: 12.662, e: 13.028 },
+              { w: "category", s: 13.093, e: 13.613 },
+              { w: "under", s: 13.657, e: 13.801 },
+              { w: "the", s: 13.845, e: 13.911 },
+              { w: "GDPR", s: 13.945, e: 14.609 },
+              { w: "and", s: 14.918, e: 15.117 },
+              { w: "may", s: 15.194, e: 15.327 },
+              { w: "not", s: 15.393, e: 15.526 },
+              { w: "go", s: 15.57, e: 15.67 },
+              { w: "to", s: 15.714, e: 15.758 },
+              { w: "an", s: 15.825, e: 15.88 },
+              { w: "outside", s: 15.913, e: 16.267 },
+              { w: "model.", s: 16.3, e: 16.687 },
+              { w: "We", s: 17.173, e: 17.295 },
+              { w: "built", s: 17.339, e: 17.505 },
+              { w: "an", s: 17.538, e: 17.593 },
+              { w: "assistant", s: 17.638, e: 18.036 },
+              { w: "that", s: 18.069, e: 18.18 },
+              { w: "prepares", s: 18.212, e: 18.589 },
+              { w: "each", s: 18.699, e: 18.91 },
+              { w: "claim", s: 18.965, e: 19.219 },
+              { w: "for", s: 19.286, e: 19.373 },
+              { w: "the", s: 19.407, e: 19.473 },
+              { w: "handler", s: 19.517, e: 19.871 },
+              { w: "while", s: 20.137, e: 20.347 },
+              { w: "the", s: 20.369, e: 20.435 },
+              { w: "health", s: 20.502, e: 20.733 },
+              { w: "data", s: 20.8, e: 21.032 },
+              { w: "stays", s: 21.099, e: 21.33 },
+              { w: "on", s: 21.364, e: 21.419 },
+              { w: "a", s: 21.464, e: 21.486 },
+              { w: "local", s: 21.541, e: 21.762 },
+              { w: "model.", s: 21.807, e: 22.381 },
+            ],
+          },
+          {
+            id: "harness",
+            start: 22.721,
+            duration: 33.229,
+            words: [
+              { w: "The", s: 0.25, e: 0.394 },
+              { w: "assistant", s: 0.449, e: 0.902 },
+              { w: "is", s: 0.958, e: 1.035 },
+              { w: "a", s: 1.08, e: 1.101 },
+              { w: "custom", s: 1.168, e: 1.521 },
+              { w: "harness", s: 1.588, e: 1.908 },
+              { w: "built", s: 1.953, e: 2.14 },
+              { w: "on", s: 2.185, e: 2.251 },
+              { w: "Pi,", s: 2.318, e: 2.871 },
+              { w: "and", s: 3.037, e: 3.191 },
+              { w: "every", s: 3.258, e: 3.445 },
+              { w: "request", s: 3.512, e: 3.91 },
+              { w: "it", s: 3.954, e: 4.032 },
+              { w: "makes", s: 4.087, e: 4.286 },
+              { w: "to", s: 4.319, e: 4.385 },
+              { w: "a", s: 4.462, e: 4.485 },
+              { w: "model", s: 4.551, e: 4.872 },
+              { w: "passes", s: 4.949, e: 5.303 },
+              { w: "a", s: 5.347, e: 5.38 },
+              { w: "fixed", s: 5.447, e: 5.701 },
+              { w: "series", s: 5.723, e: 6.021 },
+              { w: "of", s: 6.055, e: 6.11 },
+              { w: "checks", s: 6.165, e: 6.563 },
+              { w: "that", s: 6.796, e: 6.961 },
+              { w: "we", s: 6.995, e: 7.061 },
+              { w: "can", s: 7.095, e: 7.205 },
+              { w: "test", s: 7.239, e: 7.437 },
+              { w: "one", s: 7.493, e: 7.603 },
+              { w: "at", s: 7.625, e: 7.68 },
+              { w: "a", s: 7.724, e: 7.758 },
+              { w: "time.", s: 7.813, e: 8.211 },
+              { w: "A", s: 8.786, e: 8.875 },
+              { w: "regular-expression", s: 9.019, e: 9.925 },
+              { w: "pre-mask", s: 10.002, e: 10.633 },
+              { w: "replaces", s: 10.699, e: 11.152 },
+              { w: "policy", s: 11.219, e: 11.639 },
+              { w: "numbers", s: 11.705, e: 12.081 },
+              { w: "and", s: 12.17, e: 12.324 },
+              { w: "other", s: 12.391, e: 12.545 },
+              { w: "identifiers", s: 12.59, e: 13.176 },
+              { w: "with", s: 13.209, e: 13.331 },
+              { w: "tokens.", s: 13.364, e: 13.906 },
+              { w: "A", s: 14.48, e: 14.559 },
+              { w: "second", s: 14.702, e: 15.012 },
+              { w: "classifier", s: 15.067, e: 15.698 },
+              { w: "on", s: 15.763, e: 15.874 },
+              { w: "BRANE's", s: 15.929, e: 16.217 },
+              { w: "local", s: 16.261, e: 16.482 },
+              { w: "model,", s: 16.526, e: 16.98 },
+              { w: "which", s: 17.245, e: 17.433 },
+              { w: "we", s: 17.478, e: 17.555 },
+              { w: "switch", s: 17.61, e: 17.909 },
+              { w: "on", s: 17.986, e: 18.219 },
+              { w: "per", s: 18.296, e: 18.45 },
+              { w: "run,", s: 18.517, e: 19.003 },
+              { w: "labels", s: 19.368, e: 19.766 },
+              { w: "the", s: 19.8, e: 19.865 },
+              { w: "request", s: 19.932, e: 20.363 },
+              { w: "and", s: 20.419, e: 20.496 },
+              { w: "can", s: 20.54, e: 20.661 },
+              { w: "only", s: 20.75, e: 21.027 },
+              { w: "make", s: 21.082, e: 21.237 },
+              { w: "the", s: 21.27, e: 21.337 },
+              { w: "route", s: 21.38, e: 21.58 },
+              { w: "stricter.", s: 21.613, e: 22.143 },
+              { w: "BRANE", s: 22.807, e: 23.227 },
+              { w: "is", s: 23.26, e: 23.326 },
+              { w: "the", s: 23.381, e: 23.448 },
+              { w: "gate.", s: 23.493, e: 23.901 },
+              { w: "It", s: 24.266, e: 24.4 },
+              { w: "sends", s: 24.477, e: 24.786 },
+              { w: "the", s: 24.841, e: 24.908 },
+              { w: "request", s: 24.985, e: 25.361 },
+              { w: "to", s: 25.394, e: 25.45 },
+              { w: "the", s: 25.505, e: 25.571 },
+              { w: "frontier", s: 25.616, e: 26.058 },
+              { w: "model", s: 26.135, e: 26.422 },
+              { w: "with", s: 26.478, e: 26.611 },
+              { w: "placeholders,", s: 26.655, e: 27.451 },
+              { w: "keeps", s: 27.871, e: 28.125 },
+              { w: "it", s: 28.17, e: 28.237 },
+              { w: "on", s: 28.269, e: 28.324 },
+              { w: "the", s: 28.358, e: 28.424 },
+              { w: "local", s: 28.458, e: 28.679 },
+              { w: "model,", s: 28.734, e: 29.065 },
+              { w: "or", s: 29.099, e: 29.254 },
+              { w: "refuses", s: 29.331, e: 29.828 },
+              { w: "it,", s: 29.883, e: 30.06 },
+              { w: "and", s: 30.37, e: 30.514 },
+              { w: "the", s: 30.559, e: 30.624 },
+              { w: "harness", s: 30.68, e: 30.989 },
+              { w: "has", s: 31.034, e: 31.2 },
+              { w: "no", s: 31.31, e: 31.465 },
+              { w: "other", s: 31.531, e: 31.697 },
+              { w: "path", s: 31.741, e: 31.984 },
+              { w: "to", s: 32.029, e: 32.095 },
+              { w: "a", s: 32.173, e: 32.195 },
+              { w: "model.", s: 32.25, e: 32.891 },
+            ],
+          },
+          {
+            id: "loop",
+            start: 55.95,
+            duration: 22.526,
+            words: [
+              { w: "The", s: 0.25, e: 0.405 },
+              { w: "agent", s: 0.46, e: 0.715 },
+              { w: "itself", s: 0.747, e: 1.08 },
+              { w: "runs", s: 1.157, e: 1.367 },
+              { w: "in", s: 1.411, e: 1.466 },
+              { w: "a", s: 1.511, e: 1.533 },
+              { w: "loop.", s: 1.577, e: 1.886 },
+              { w: "It", s: 2.251, e: 2.384 },
+              { w: "calls", s: 2.428, e: 2.704 },
+              { w: "the", s: 2.749, e: 2.816 },
+              { w: "model,", s: 2.871, e: 3.357 },
+              { w: "runs", s: 3.589, e: 3.843 },
+              { w: "the", s: 3.899, e: 3.965 },
+              { w: "tool", s: 4.02, e: 4.231 },
+              { w: "the", s: 4.286, e: 4.352 },
+              { w: "model", s: 4.385, e: 4.584 },
+              { w: "asks", s: 4.651, e: 4.85 },
+              { w: "for,", s: 4.894, e: 5.259 },
+              { w: "and", s: 5.458, e: 5.601 },
+              { w: "calls", s: 5.657, e: 5.9 },
+              { w: "the", s: 5.944, e: 6.011 },
+              { w: "model", s: 6.055, e: 6.276 },
+              { w: "again", s: 6.331, e: 6.541 },
+              { w: "with", s: 6.597, e: 6.707 },
+              { w: "the", s: 6.74, e: 6.807 },
+              { w: "result", s: 6.873, e: 7.36 },
+              { w: "until", s: 7.481, e: 7.769 },
+              { w: "the", s: 7.813, e: 7.88 },
+              { w: "claim", s: 7.913, e: 8.1 },
+              { w: "is", s: 8.145, e: 8.211 },
+              { w: "ready.", s: 8.266, e: 8.62 },
+              { w: "While", s: 9.107, e: 9.339 },
+              { w: "building", s: 9.383, e: 9.671 },
+              { w: "it", s: 9.715, e: 9.77 },
+              { w: "we", s: 9.815, e: 9.892 },
+              { w: "found", s: 9.969, e: 10.146 },
+              { w: "that", s: 10.168, e: 10.268 },
+              { w: "the", s: 10.3, e: 10.367 },
+              { w: "same", s: 10.434, e: 10.699 },
+              { w: "loop", s: 10.743, e: 10.92 },
+              { w: "improves", s: 10.976, e: 11.319 },
+              { w: "the", s: 11.34, e: 11.406 },
+              { w: "harness.", s: 11.451, e: 11.926 },
+              { w: "We", s: 12.346, e: 12.457 },
+              { w: "change", s: 12.5, e: 12.778 },
+              { w: "one", s: 12.821, e: 12.977 },
+              { w: "part,", s: 13.02, e: 13.32 },
+              { w: "such", s: 13.463, e: 13.673 },
+              { w: "as", s: 13.718, e: 13.795 },
+              { w: "a", s: 13.85, e: 13.883 },
+              { w: "pre-mask", s: 13.949, e: 14.458 },
+              { w: "pattern", s: 14.491, e: 14.8 },
+              { w: "or", s: 14.834, e: 14.9 },
+              { w: "a", s: 14.944, e: 14.966 },
+              { w: "policy", s: 15.011, e: 15.376 },
+              { w: "rule,", s: 15.431, e: 15.796 },
+              { w: "run", s: 16.282, e: 16.448 },
+              { w: "the", s: 16.493, e: 16.559 },
+              { w: "evals,", s: 16.614, e: 17.156 },
+              { w: "keep", s: 17.576, e: 17.798 },
+              { w: "the", s: 17.853, e: 17.919 },
+              { w: "change", s: 17.974, e: 18.372 },
+              { w: "only", s: 18.439, e: 18.748 },
+              { w: "if", s: 18.793, e: 18.859 },
+              { w: "the", s: 18.903, e: 18.969 },
+              { w: "scores", s: 19.002, e: 19.29 },
+              { w: "improve,", s: 19.334, e: 19.909 },
+              { w: "and", s: 19.976, e: 20.12 },
+              { w: "go", s: 20.175, e: 20.263 },
+              { w: "round", s: 20.329, e: 20.528 },
+              { w: "again.", s: 20.573, e: 21.17 },
+            ],
+          },
+          {
+            id: "evals",
+            start: 78.476,
+            duration: 20.821,
+            words: [
+              { w: "Each", s: 0.25, e: 0.504 },
+              { w: "check", s: 0.548, e: 0.725 },
+              { w: "is", s: 0.77, e: 0.825 },
+              { w: "scored", s: 0.847, e: 1.09 },
+              { w: "on", s: 1.113, e: 1.168 },
+              { w: "its", s: 1.2, e: 1.3 },
+              { w: "own.", s: 1.344, e: 1.654 },
+              { w: "On", s: 2.075, e: 2.219 },
+              { w: "Omar", s: 2.284, e: 2.56 },
+              { w: "Shalaby's", s: 2.639, e: 3.047 },
+              { w: "split", s: 3.07, e: 3.346 },
+              { w: "we", s: 3.39, e: 3.479 },
+              { w: "tuned", s: 3.523, e: 3.744 },
+              { w: "on", s: 3.778, e: 3.855 },
+              { w: "eight", s: 3.965, e: 4.164 },
+              { w: "hundred", s: 4.208, e: 4.44 },
+              { w: "labelled", s: 4.496, e: 4.772 },
+              { w: "requests,", s: 4.817, e: 5.436 },
+              { w: "chose", s: 5.668, e: 5.944 },
+              { w: "between", s: 5.989, e: 6.254 },
+              { w: "versions", s: 6.309, e: 6.652 },
+              { w: "on", s: 6.697, e: 6.774 },
+              { w: "five", s: 6.829, e: 7.04 },
+              { w: "hundred,", s: 7.072, e: 7.448 },
+              { w: "and", s: 7.714, e: 7.858 },
+              { w: "ran", s: 7.923, e: 8.089 },
+              { w: "a", s: 8.134, e: 8.156 },
+              { w: "hash-locked", s: 8.233, e: 8.741 },
+              { w: "set", s: 8.764, e: 8.897 },
+              { w: "of", s: 8.93, e: 8.974 },
+              { w: "two", s: 9.019, e: 9.129 },
+              { w: "hundred", s: 9.173, e: 9.383 },
+              { w: "once,", s: 9.449, e: 9.837 },
+              { w: "at", s: 10.146, e: 10.3 },
+              { w: "the", s: 10.345, e: 10.422 },
+              { w: "end.", s: 10.489, e: 10.832 },
+              { w: "BRANE's", s: 11.495, e: 11.86 },
+              { w: "answers", s: 11.893, e: 12.202 },
+              { w: "vary,", s: 12.258, e: 12.756 },
+              { w: "so", s: 12.9, e: 13.043 },
+              { w: "each", s: 13.154, e: 13.341 },
+              { w: "case", s: 13.397, e: 13.651 },
+              { w: "counts", s: 13.696, e: 14.005 },
+              { w: "at", s: 14.049, e: 14.127 },
+              { w: "its", s: 14.16, e: 14.26 },
+              { w: "worst", s: 14.303, e: 14.547 },
+              { w: "run,", s: 14.613, e: 15.044 },
+              { w: "and", s: 15.354, e: 15.509 },
+              { w: "no", s: 15.598, e: 15.719 },
+              { w: "kept", s: 15.797, e: 15.996 },
+              { w: "change", s: 16.028, e: 16.316 },
+              { w: "leaked.", s: 16.371, e: 16.968 },
+            ],
+          },
+          {
+            id: "demo",
+            start: 99.297,
+            duration: 37.618,
+            words: [
+              { w: "Here", s: 0.25, e: 0.46 },
+              { w: "is", s: 0.493, e: 0.56 },
+              { w: "one", s: 0.626, e: 0.792 },
+              { w: "claim", s: 0.825, e: 1.035 },
+              { w: "from", s: 1.08, e: 1.19 },
+              { w: "the", s: 1.234, e: 1.3 },
+              { w: "queue.", s: 1.334, e: 1.732 },
+              { w: "Sanne", s: 2.152, e: 2.517 },
+              { w: "Bakker", s: 2.572, e: 2.893 },
+              { w: "asks", s: 2.97, e: 3.423 },
+              { w: "whether", s: 3.534, e: 3.8 },
+              { w: "her", s: 3.865, e: 3.943 },
+              { w: "weekly", s: 4.009, e: 4.319 },
+              { w: "therapy", s: 4.375, e: 4.695 },
+              { w: "for", s: 4.74, e: 4.839 },
+              { w: "burnout", s: 4.894, e: 5.193 },
+              { w: "is", s: 5.237, e: 5.314 },
+              { w: "covered,", s: 5.369, e: 5.79 },
+              { w: "and", s: 6.1, e: 6.243 },
+              { w: "her", s: 6.299, e: 6.364 },
+              { w: "GP's", s: 6.431, e: 6.896 },
+              { w: "letter", s: 6.961, e: 7.205 },
+              { w: "names", s: 7.26, e: 7.46 },
+              { w: "the", s: 7.481, e: 7.548 },
+              { w: "diagnosis", s: 7.592, e: 8.178 },
+              { w: "and", s: 8.222, e: 8.288 },
+              { w: "the", s: 8.311, e: 8.377 },
+              { w: "medication.", s: 8.4, e: 9.029 },
+              { w: "BRANE", s: 9.693, e: 10.002 },
+              { w: "keeps", s: 10.046, e: 10.268 },
+              { w: "the", s: 10.3, e: 10.379 },
+              { w: "seven", s: 10.467, e: 10.754 },
+              { w: "requests", s: 10.82, e: 11.263 },
+              { w: "that", s: 11.296, e: 11.418 },
+              { w: "carry", s: 11.462, e: 11.683 },
+              { w: "those", s: 11.739, e: 11.904 },
+              { w: "details", s: 11.938, e: 12.369 },
+              { w: "on", s: 12.413, e: 12.48 },
+              { w: "the", s: 12.512, e: 12.579 },
+              { w: "local", s: 12.612, e: 12.844 },
+              { w: "model,", s: 12.889, e: 13.286 },
+              { w: "and", s: 13.597, e: 13.74 },
+              { w: "the", s: 13.784, e: 13.851 },
+              { w: "one", s: 13.928, e: 14.105 },
+              { w: "request", s: 14.16, e: 14.658 },
+              { w: "that", s: 14.735, e: 14.901 },
+              { w: "goes", s: 14.945, e: 15.144 },
+              { w: "to", s: 15.178, e: 15.233 },
+              { w: "the", s: 15.288, e: 15.355 },
+              { w: "frontier", s: 15.399, e: 15.819 },
+              { w: "model", s: 15.885, e: 16.14 },
+              { w: "has", s: 16.195, e: 16.327 },
+              { w: "her", s: 16.382, e: 16.471 },
+              { w: "name", s: 16.516, e: 16.67 },
+              { w: "replaced.", s: 16.703, e: 17.267 },
+              { w: "The", s: 17.632, e: 17.754 },
+              { w: "agent", s: 17.831, e: 18.14 },
+              { w: "cites", s: 18.196, e: 18.473 },
+              { w: "the", s: 18.505, e: 18.572 },
+              { w: "policy", s: 18.627, e: 19.037 },
+              { w: "terms,", s: 19.092, e: 19.567 },
+              { w: "asks", s: 19.833, e: 20.142 },
+              { w: "the", s: 20.208, e: 20.275 },
+              { w: "medical", s: 20.319, e: 20.584 },
+              { w: "adviser", s: 20.628, e: 21.026 },
+              { w: "whether", s: 21.082, e: 21.303 },
+              { w: "the", s: 21.369, e: 21.436 },
+              { w: "therapy", s: 21.48, e: 21.812 },
+              { w: "is", s: 21.845, e: 21.911 },
+              { w: "necessary,", s: 21.966, e: 22.641 },
+              { w: "and", s: 22.807, e: 22.951 },
+              { w: "recommends", s: 23.028, e: 23.481 },
+              { w: "paying", s: 23.548, e: 23.858 },
+              { w: "once", s: 23.935, e: 24.089 },
+              { w: "the", s: 24.122, e: 24.189 },
+              { w: "adviser", s: 24.233, e: 24.587 },
+              { w: "answers.", s: 24.654, e: 25.14 },
+              { w: "The", s: 25.505, e: 25.616 },
+              { w: "claims", s: 25.671, e: 25.992 },
+              { w: "handler", s: 26.047, e: 26.379 },
+              { w: "approves.", s: 26.434, e: 27.009 },
+              { w: "The", s: 27.374, e: 27.496 },
+              { w: "decision", s: 27.551, e: 27.971 },
+              { w: "comes", s: 28.026, e: 28.225 },
+              { w: "back", s: 28.28, e: 28.468 },
+              { w: "into", s: 28.513, e: 28.645 },
+              { w: "the", s: 28.7, e: 28.767 },
+              { w: "chat", s: 28.8, e: 29.065 },
+              { w: "as", s: 29.12, e: 29.22 },
+              { w: "a", s: 29.264, e: 29.298 },
+              { w: "message", s: 29.375, e: 29.707 },
+              { w: "the", s: 29.751, e: 29.828 },
+              { w: "agent", s: 29.883, e: 30.149 },
+              { w: "continues", s: 30.182, e: 30.658 },
+              { w: "from,", s: 30.702, e: 31.1 },
+              { w: "and", s: 31.41, e: 31.553 },
+              { w: "the", s: 31.598, e: 31.664 },
+              { w: "audit", s: 31.72, e: 31.996 },
+              { w: "trail", s: 32.029, e: 32.317 },
+              { w: "stores", s: 32.394, e: 32.703 },
+              { w: "it", s: 32.747, e: 32.825 },
+              { w: "as", s: 32.88, e: 32.991 },
+              { w: "a", s: 33.035, e: 33.057 },
+              { w: "human", s: 33.112, e: 33.356 },
+              { w: "row,", s: 33.411, e: 33.831 },
+              { w: "linked", s: 34.14, e: 34.384 },
+              { w: "to", s: 34.406, e: 34.461 },
+              { w: "the", s: 34.505, e: 34.572 },
+              { w: "handoff", s: 34.627, e: 35.037 },
+              { w: "it", s: 35.08, e: 35.147 },
+              { w: "answers,", s: 35.191, e: 35.678 },
+              { w: "in", s: 35.755, e: 35.888 },
+              { w: "a", s: 35.932, e: 35.965 },
+              { w: "hash-chained", s: 36.032, e: 36.562 },
+              { w: "log.", s: 36.596, e: 37.27 },
+            ],
+          },
+          {
+            id: "close",
+            start: 136.915,
+            duration: 11.366,
+            words: [
+              { w: "The", s: 0.25, e: 0.405 },
+              { w: "app", s: 0.493, e: 0.692 },
+              { w: "is", s: 0.737, e: 0.814 },
+              { w: "live", s: 0.902, e: 1.157 },
+              { w: "with", s: 1.19, e: 1.3 },
+              { w: "synthetic", s: 1.334, e: 1.798 },
+              { w: "claims,", s: 1.842, e: 2.318 },
+              { w: "so", s: 2.384, e: 2.505 },
+              { w: "you", s: 2.583, e: 2.672 },
+              { w: "can", s: 2.716, e: 2.826 },
+              { w: "run", s: 2.893, e: 3.047 },
+              { w: "this", s: 3.08, e: 3.202 },
+              { w: "claim", s: 3.246, e: 3.445 },
+              { w: "yourself.", s: 3.5, e: 4.032 },
+              { w: "We", s: 4.452, e: 4.574 },
+              { w: "are", s: 4.618, e: 4.717 },
+              { w: "Team", s: 4.772, e: 4.971 },
+              { w: "Gezira.", s: 5.038, e: 5.822 },
+            ],
+          },
+        ],
+      }; /* timing:end */
       // Written by climb.mjs from evals/climb-summary.json; do not edit by hand.
-      const CLIMB = /* climb:begin */ {"source":"placeholder","metrics":[{"key":"leak_rate","label":"Leak rate","unit":"%","better":"down","start":21.6,"end":1,"steps":4},{"key":"route_f1","label":"Route F1","unit":"","better":"up","start":0.68,"end":0.81,"steps":2},{"key":"over_block","label":"Over-block","unit":"%","better":"down","start":30,"end":8,"steps":2},{"key":"mandatory_tests","label":"Mandatory tests passed","unit":"of 5","better":"up","start":3,"end":5,"steps":2}]} /* climb:end */;
+      const CLIMB = /* climb:begin */ {
+        source: "placeholder",
+        metrics: [
+          {
+            key: "leak_rate",
+            label: "Leak rate",
+            unit: "%",
+            better: "down",
+            start: 21.6,
+            end: 1,
+            steps: 4,
+          },
+          {
+            key: "route_f1",
+            label: "Route F1",
+            unit: "",
+            better: "up",
+            start: 0.68,
+            end: 0.81,
+            steps: 2,
+          },
+          {
+            key: "over_block",
+            label: "Over-block",
+            unit: "%",
+            better: "down",
+            start: 30,
+            end: 8,
+            steps: 2,
+          },
+          {
+            key: "mandatory_tests",
+            label: "Mandatory tests passed",
+            unit: "of 5",
+            better: "up",
+            start: 3,
+            end: 5,
+            steps: 2,
+          },
+        ],
+      }; /* climb:end */
 
       const beat = Object.fromEntries(TIMING.beats.map((b) => [b.id, b]));
       const norm = (s) => s.toLowerCase().replace(/[^a-z0-9-]/g, "");
@@ -578,33 +1354,58 @@ if (decision.routedTo === "" &amp;&amp; response.status !== 422)
       document.querySelectorAll("#world path.edge").forEach((p) => {
         len[p.id] = p.getTotalLength() + 2;
         if (p.classList.contains("soft")) return;
-        gsap.set(p, { strokeDasharray: `${len[p.id]} ${len[p.id] + 20}`, strokeDashoffset: len[p.id] });
+        gsap.set(p, {
+          strokeDasharray: `${len[p.id]} ${len[p.id] + 20}`,
+          strokeDashoffset: len[p.id],
+        });
       });
       gsap.set("#world .node, #world .sub, #e-cbl", { opacity: 0 });
 
       const draw = (id, t, d = 0.7) =>
-        tl.fromTo(`#${id}`, { strokeDashoffset: len[id] }, { strokeDashoffset: 0, duration: d, ease: "power2.inOut" }, t);
+        tl.fromTo(
+          `#${id}`,
+          { strokeDashoffset: len[id] },
+          { strokeDashoffset: 0, duration: d, ease: "power2.inOut" },
+          t,
+        );
       const fadeIn = (s, t, d = 0.35) =>
         tl.fromTo(s, { opacity: 0 }, { opacity: 1, duration: d, ease: "power2.out" }, t);
-      const fadeOut = (s, t, d = 0.3) => tl.to(s, { opacity: 0, duration: d, ease: "power2.in" }, t);
+      const fadeOut = (s, t, d = 0.3) =>
+        tl.to(s, { opacity: 0, duration: d, ease: "power2.in" }, t);
       const rise = (s, t, d = 0.7) =>
         tl.fromTo(s, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: d, ease: "expo.out" }, t);
-      const mark = (s, t) => tl.to(s, { backgroundColor: "#ffe14a", duration: 0.35, ease: "power2.out" }, t);
+      const mark = (s, t) =>
+        tl.to(s, { backgroundColor: "#ffe14a", duration: 0.35, ease: "power2.out" }, t);
       const unmark = (s, t, c = "#f3f3f4") => tl.to(s, { backgroundColor: c, duration: 0.3 }, t);
 
       // A node grows: its outline draws round the box, then it fills and the outline lets go.
       const outlines = document.getElementById("outlines");
       function grow(sel, t, d = 0.6) {
         const el = $(sel);
-        const x = el.offsetLeft, y = el.offsetTop, w = el.offsetWidth, h = el.offsetHeight;
+        const x = el.offsetLeft,
+          y = el.offsetTop,
+          w = el.offsetWidth,
+          h = el.offsetHeight;
         const r = el.classList.contains("person") ? h / 2 : 18;
         const rect = document.createElementNS(NS, "rect");
-        Object.entries({ x, y, width: w, height: h, rx: r, class: "outline" }).forEach(([k, v]) => rect.setAttribute(k, v));
+        Object.entries({ x, y, width: w, height: h, rx: r, class: "outline" }).forEach(([k, v]) =>
+          rect.setAttribute(k, v),
+        );
         outlines.appendChild(rect);
         const L = rect.getTotalLength() + 2;
         gsap.set(rect, { strokeDasharray: `${L} ${L + 20}`, strokeDashoffset: L, opacity: 1 });
-        tl.fromTo(rect, { strokeDashoffset: L, opacity: 1 }, { strokeDashoffset: 0, duration: d, ease: "power2.inOut" }, t);
-        tl.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power2.out" }, t + d * 0.7);
+        tl.fromTo(
+          rect,
+          { strokeDashoffset: L, opacity: 1 },
+          { strokeDashoffset: 0, duration: d, ease: "power2.inOut" },
+          t,
+        );
+        tl.fromTo(
+          el,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.35, ease: "power2.out" },
+          t + d * 0.7,
+        );
         tl.to(rect, { opacity: 0, duration: 0.3 }, t + d + 0.1);
       }
 
@@ -641,15 +1442,33 @@ if (decision.routedTo === "" &amp;&amp; response.status !== 422)
         };
         place(from * total);
         const o = { v: from * total };
-        tl.fromTo(o, { v: from * total }, { v: to * total, duration: d, ease, onUpdate: () => place(o.v) }, t);
+        tl.fromTo(
+          o,
+          { v: from * total },
+          { v: to * total, duration: d, ease, onUpdate: () => place(o.v) },
+          t,
+        );
       }
 
       // A key line: the scene steps back, the serif line holds while the voice says it, then the scene returns.
       function key(id, t, hold, behind) {
-        tl.to(behind, { opacity: 0.06, filter: "blur(4px)", duration: 0.45, ease: "power2.inOut" }, t - 0.25);
-        tl.fromTo(`#${id}`, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" }, t - 0.1);
+        tl.to(
+          behind,
+          { opacity: 0.06, filter: "blur(4px)", duration: 0.45, ease: "power2.inOut" },
+          t - 0.25,
+        );
+        tl.fromTo(
+          `#${id}`,
+          { opacity: 0, y: 18 },
+          { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" },
+          t - 0.1,
+        );
         tl.to(`#${id}`, { opacity: 0, y: -12, duration: 0.4, ease: "power2.in" }, t + hold);
-        tl.to(behind, { opacity: 1, filter: "blur(0px)", duration: 0.6, ease: "power2.out" }, t + hold + 0.2);
+        tl.to(
+          behind,
+          { opacity: 1, filter: "blur(0px)", duration: 0.6, ease: "power2.out" },
+          t + hold + 0.2,
+        );
       }
 
       // 1 Situation: the handler, the claim, and the line it may not cross.
@@ -671,7 +1490,19 @@ if (decision.routedTo === "" &amp;&amp; response.status !== 422)
 
       // 2 Harness: the situation clears; the agent and its chain of checks grow when named.
       const H = (p) => at("harness", p);
-      const sit = ["#n-hand", "#n-claim", "#n-front0", "#n-local0", "#s-front0", "#s-local0", "#e-hc", "#e-cf", "#e-cl", "#x1", "#x2"];
+      const sit = [
+        "#n-hand",
+        "#n-claim",
+        "#n-front0",
+        "#n-local0",
+        "#s-front0",
+        "#s-local0",
+        "#e-hc",
+        "#e-cf",
+        "#e-cl",
+        "#x1",
+        "#x2",
+      ];
       fadeOut(sit, start("harness") - 0.1, 0.5);
       grow("#n-asst", H("the assistant"), 0.6);
       fadeIn("#s-asst", H("built on pi"));
@@ -689,7 +1520,11 @@ if (decision.routedTo === "" &amp;&amp; response.status !== 422)
       draw("e-pc", H("a second") - 0.3, 0.4);
       grow("#n-cls", H("a second"));
       tl.to("#e-cbl", { opacity: 1, duration: 0.5 }, H("local model"));
-      tl.to("#n-cls", { backgroundColor: "#f3f3f4", boxShadow: "inset 0 0 0 2.5px #f3f3f4", duration: 0.4 }, H("switch on"));
+      tl.to(
+        "#n-cls",
+        { backgroundColor: "#f3f3f4", boxShadow: "inset 0 0 0 2.5px #f3f3f4", duration: 0.4 },
+        H("switch on"),
+      );
       draw("e-cb", H("brane is") - 0.3, 0.4);
       grow("#n-brane", H("brane is"));
       key("key-3", H("the gate") + 0.4, 1.6, "#world");
@@ -706,7 +1541,11 @@ if (decision.routedTo === "" &amp;&amp; response.status !== 422)
 
       // 3 Loop: the agent's loop, then the same loop run on the harness.
       const Lp = (p) => at("loop", p);
-      tl.to("#world", { opacity: 0, filter: "blur(6px)", duration: 0.6, ease: "power2.in" }, start("loop"));
+      tl.to(
+        "#world",
+        { opacity: 0, filter: "blur(6px)", duration: 0.6, ease: "power2.in" },
+        start("loop"),
+      );
       tl.to("#loop", { opacity: 1, duration: 0.3 }, start("loop") + 0.3);
       const RL = 2 * Math.PI * 250 + 2;
       gsap.set("#ring", { strokeDasharray: `${RL} ${RL + 20}`, strokeDashoffset: RL });
@@ -716,7 +1555,13 @@ if (decision.routedTo === "" &amp;&amp; response.status !== 422)
       rise("#l2", Lp("runs the"), 0.5);
       rise("#l3", Lp("with the"), 0.5);
       fadeIn("#k-loop", Lp("calls the"), 0.2);
-      travel("#k-loop", [["ring-path", false]], Lp("calls the"), Lp("ready.") - Lp("calls the") + 0.4, "none");
+      travel(
+        "#k-loop",
+        [["ring-path", false]],
+        Lp("calls the"),
+        Lp("ready.") - Lp("calls the") + 0.4,
+        "none",
+      );
       fadeOut("#k-loop", Lp("ready.") + 0.4, 0.2);
       key("key-4", Lp("same loop") - 0.2, 1.8, "#loop");
       const swap = (sel, t) => {
@@ -729,7 +1574,13 @@ if (decision.routedTo === "" &amp;&amp; response.status !== 422)
       swap("#l3", Lp("keep the"));
       tl.set("#k-loop", { textContent: "harness change" }, Lp("we change") - 0.1);
       fadeIn("#k-loop", Lp("change one"), 0.2);
-      travel("#k-loop", [["ring-path", false]], Lp("change one"), end("loop") - 0.6 - Lp("change one"), "none");
+      travel(
+        "#k-loop",
+        [["ring-path", false]],
+        Lp("change one"),
+        end("loop") - 0.6 - Lp("change one"),
+        "none",
+      );
       rise("#code-climb", Lp("keep the"));
       tl.to("#loop", { opacity: 0, duration: 0.4 }, end("loop") - 0.4);
 
@@ -738,9 +1589,16 @@ if (decision.routedTo === "" &amp;&amp; response.status !== 422)
       tl.to("#slopes", { opacity: 1, duration: 0.3 }, start("evals"));
       if (CLIMB.source === "placeholder") document.getElementById("ph").style.display = "block";
       const fmt = (v, unit) =>
-        unit === "%" ? `${+v.toFixed(1)}%` : unit === "" ? (Math.abs(v) < 10 ? v.toFixed(2) : `${Math.round(v)}`) : `${+v.toFixed(1)} ${unit}`;
+        unit === "%"
+          ? `${+v.toFixed(1)}%`
+          : unit === ""
+            ? Math.abs(v) < 10
+              ? v.toFixed(2)
+              : `${Math.round(v)}`
+            : `${+v.toFixed(1)} ${unit}`;
       const ms = CLIMB.metrics;
-      const W = 380, GAP = (1728 - ms.length * W) / Math.max(1, ms.length - 1);
+      const W = 380,
+        GAP = (1728 - ms.length * W) / Math.max(1, ms.length - 1);
       const PH = 380;
       const host = document.getElementById("slope-host");
       const slot0 = start("evals") + 0.3;
@@ -753,13 +1611,26 @@ if (decision.routedTo === "" &amp;&amp; response.status !== 422)
         el.style.width = `${W}px`;
         const good = m.better === "down" ? m.end <= m.start : m.end >= m.start;
         el.innerHTML = `<div class="lb">${m.label}</div><div class="bt">${m.better === "down" ? "lower is better" : "higher is better"}</div>`;
-        let lo = Math.min(m.start, m.end), hi = Math.max(m.start, m.end);
-        if (m.unit === "%") { lo = 0; hi = Math.max(hi, 1); }
-        if (m.unit === "of 5") { lo = 0; hi = 5; }
-        if (m.unit === "") { lo = Math.min(lo, 0.5); hi = Math.max(hi, 1); }
+        let lo = Math.min(m.start, m.end),
+          hi = Math.max(m.start, m.end);
+        if (m.unit === "%") {
+          lo = 0;
+          hi = Math.max(hi, 1);
+        }
+        if (m.unit === "of 5") {
+          lo = 0;
+          hi = 5;
+        }
+        if (m.unit === "") {
+          lo = Math.min(lo, 0.5);
+          hi = Math.max(hi, 1);
+        }
         if (hi === lo) hi = lo + 1;
         const Y = (v) => PH - ((v - lo) / (hi - lo)) * PH;
-        const x0 = 100, x1 = W - 120, y0 = Y(m.start), y1 = Y(m.end);
+        const x0 = 100,
+          x1 = W - 120,
+          y0 = Y(m.start),
+          y1 = Y(m.end);
         const svg = document.createElementNS(NS, "svg");
         svg.setAttribute("width", W);
         svg.setAttribute("height", PH);
@@ -799,10 +1670,29 @@ if (decision.routedTo === "" &amp;&amp; response.status !== 422)
         tl.fromTo(el.querySelector(".bt"), { opacity: 0 }, { opacity: 1, duration: 0.3 }, t + 0.1);
         tl.to(c0, { opacity: 1, duration: 0.2 }, t + 0.2);
         tl.fromTo(vs, { opacity: 0 }, { opacity: 1, duration: 0.3 }, t + 0.2);
-        tl.to(path, { strokeDashoffset: 0, duration: Math.min(1.4, per * 0.6), ease: "power2.inOut" }, t + 0.35);
-        tl.fromTo(c1, { opacity: 0, scale: 0, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, t + 0.35 + Math.min(1.4, per * 0.6));
-        tl.fromTo(ve, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, t + 0.45 + Math.min(1.4, per * 0.6));
-        tl.fromTo(st, { opacity: 0 }, { opacity: 1, duration: 0.3 }, t + 0.6 + Math.min(1.4, per * 0.6));
+        tl.to(
+          path,
+          { strokeDashoffset: 0, duration: Math.min(1.4, per * 0.6), ease: "power2.inOut" },
+          t + 0.35,
+        );
+        tl.fromTo(
+          c1,
+          { opacity: 0, scale: 0, transformOrigin: "50% 50%" },
+          { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" },
+          t + 0.35 + Math.min(1.4, per * 0.6),
+        );
+        tl.fromTo(
+          ve,
+          { opacity: 0, y: 8 },
+          { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" },
+          t + 0.45 + Math.min(1.4, per * 0.6),
+        );
+        tl.fromTo(
+          st,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.3 },
+          t + 0.6 + Math.min(1.4, per * 0.6),
+        );
       });
       tl.to("#slopes", { opacity: 0, duration: 0.4 }, end("evals") - 0.4);
 
@@ -811,23 +1701,48 @@ if (decision.routedTo === "" &amp;&amp; response.status !== 422)
       rise("#ui-composer", D("here is"));
       tl.to("#ui-composer", { opacity: 0, y: -16, duration: 0.4 }, D("brane keeps") - 0.6);
       rise("#ui-trace", D("brane keeps") - 0.4);
-      tl.fromTo("#ring-brane", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.4, ease: "expo.out" }, D("seven requests"));
+      tl.fromTo(
+        "#ring-brane",
+        { opacity: 0, scale: 1.04 },
+        { opacity: 1, scale: 1, duration: 0.4, ease: "expo.out" },
+        D("seven requests"),
+      );
       tl.to("#ring-brane", { opacity: 0, duration: 0.3 }, D("the agent cites"));
       rise("#ui-card", D("the agent cites"));
       tl.to("#ui-trace", { opacity: 0, duration: 0.4 }, D("the claims handler") - 0.4);
       key("key-5", D("the claims handler"), 1.4, ["#ui-card"]);
-      tl.fromTo("#ring-approve", { opacity: 0, scale: 1.3 }, { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" }, D("approves") + 1.2);
+      tl.fromTo(
+        "#ring-approve",
+        { opacity: 0, scale: 1.3 },
+        { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" },
+        D("approves") + 1.2,
+      );
       tl.to("#ring-approve", { opacity: 0, duration: 0.3 }, D("the decision") + 0.4);
       tl.to("#ui-card", { opacity: 0.25, duration: 0.4 }, D("comes back"));
       rise("#ui-msg", D("chat"));
       rise("#ui-audit", D("audit trail"));
-      tl.fromTo("#ring-row", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.4, ease: "expo.out" }, D("human row"));
+      tl.fromTo(
+        "#ring-row",
+        { opacity: 0, scale: 1.04 },
+        { opacity: 1, scale: 1, duration: 0.4, ease: "expo.out" },
+        D("human row"),
+      );
       fadeOut(["#ui-card", "#ui-msg", "#ui-audit", "#ring-row"], end("demo") - 0.4, 0.35);
 
       // 6 Close: the address.
-      tl.fromTo("#url", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" }, start("close") + 0.1);
+      tl.fromTo(
+        "#url",
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" },
+        start("close") + 0.1,
+      );
       const u = document.querySelector("#url .u");
-      tl.fromTo(u, { boxShadow: "inset 0 0 0 3px #111" }, { boxShadow: "inset 0 0 0 3px #111, 0 0 0 8px #ffe14a", duration: 0.5 }, at("close", "run this"));
+      tl.fromTo(
+        u,
+        { boxShadow: "inset 0 0 0 3px #111" },
+        { boxShadow: "inset 0 0 0 3px #111, 0 0 0 8px #ffe14a", duration: 0.5 },
+        at("close", "run this"),
+      );
 
       // Captions: groups of up to 8 words, split at sentence ends and pauses of 0.3 s or more.
       const cap = document.getElementById("cap");
@@ -839,7 +1754,9 @@ if (decision.routedTo === "" &amp;&amp; response.status !== 422)
           const el = document.createElement("div");
           el.className = "cg";
           el.id = `cg${cn++}`;
-          el.appendChild(document.createElement("span")).textContent = group.map((w) => w.w).join(" ");
+          el.appendChild(document.createElement("span")).textContent = group
+            .map((w) => w.w)
+            .join(" ");
           cap.appendChild(el);
           const s = b.start + group[0].s - 0.05;
           const next = b.words[b.words.indexOf(group.at(-1)) + 1];
