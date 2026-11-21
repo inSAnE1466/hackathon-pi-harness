@@ -28,13 +28,16 @@ The flow is in [routing](routing.md#brane-first): BRANE first, then `decide` on 
 `src/audit.ts` keeps the `audit_log` table in the session Durable Object's SQLite, beside Pi's own tables. It records
 who did what for every decision:
 
-| Kind                | Actor                     | Written when                                                                            |
-| ------------------- | ------------------------- | --------------------------------------------------------------------------------------- |
-| `request`           | the person's display name | a person sends a request (the conversation id, never the text)                          |
-| `brane`             | `brane`                   | BRANE decides a model request (status, route, action, categories, rule, resolved model) |
-| `masked`, `intake`  | `gate`                    | the gate masks identifiers or intake splits health detail out on the local model        |
-| `lookup`, `handoff` | `agent`                   | the assistant cites passages or hands a case to a person                                |
-| `human`             | the person's role or name | a person decides a handoff (`ref_id` names it; one decision each)                       |
+| Kind                | Actor                     | Written when                                                                                   |
+| ------------------- | ------------------------- | ---------------------------------------------------------------------------------------------- |
+| `request`           | the person's display name | a person sends a request (the conversation id, never the text)                                 |
+| `brane`             | `brane`                   | BRANE decides a model request (status, route, action, categories, rule, resolved model)        |
+| `masked`, `intake`  | `gate`                    | the gate masks identifiers or intake splits health detail out on the local model               |
+| `lookup`, `handoff` | `agent`                   | the assistant cites passages or hands a case to a person                                       |
+| `cited`             | `agent`                   | the passage ids a recommendation's reasons cite (`ref_id` names its handoff)                   |
+| `handoff`           | `gate`                    | BRANE refused a request (`detail` is `refusal:<rule>`, `ref_id` names the refused `brane` row) |
+| `config`            | `operator`                | the harness switches were set                                                                  |
+| `human`             | the person's role or name | a person decides a handoff (`ref_id` names it; one decision each)                              |
 
 Automated rows also carry the policy version that decided them (`policy/brane.json` `version`). The rows form a hash
 chain: each stores the previous row's hash and `hash = sha256(prev_hash + its fields)`, so changing or deleting any row
@@ -49,7 +52,8 @@ breaks every later hash. Rows written before the chain existed are sealed in id 
 
 A person's decision is canonical here, not in the browser. `POST /audit/human` takes
 `{handoffId, decision, note, reviewer}`: `approved`, `rejected` or `edited` on a `request_approval` handoff,
-`answered` on a `consult` (the note is the answer). It writes the `human` row, then submits the decision to the
+`answered` on a `consult` (the note is the answer). A refusal handoff takes `approved`, `rejected` or `edited`; it records what the person
+did with the refused request and is never sent back to a model. It writes the `human` row, then submits the decision to the
 conversation the handoff came from as a user message (`[reviewer]`, then
 `Human decision on handoff #<id> (<tool>): <decision>`, then `Note: ...`), and writes a `request` row whose `ref_id`
 is the human row. The agent continues from that message, and the model request it starts goes through BRANE like

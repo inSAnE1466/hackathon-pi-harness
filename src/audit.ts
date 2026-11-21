@@ -203,11 +203,32 @@ export class AuditLog {
           : e.kind === "intake"
             ? e.result
             : e.ids;
-    // The agent chose to hand off or to cite passages; the gate masked and the intake split on its own.
-    const actor = e.kind === "handoff" || e.kind === "lookup" ? "agent" : "gate";
+    // A refusal's handoff comes from BRANE's 422: it names that `brane` row and the rule that refused.
+    const refusal =
+      e.kind === "handoff" && e.tool === "refusal"
+        ? this.#sql
+            .exec(
+              `SELECT id, refused_by FROM audit_log WHERE kind = 'brane' AND status = 422 ORDER BY id DESC LIMIT 1`,
+            )
+            .toArray()[0]
+        : undefined;
+    // The agent chose to hand off or to cite passages; the gate masked, split at intake and handed off a refusal.
+    const actor =
+      (e.kind === "handoff" && e.tool !== "refusal") || e.kind === "lookup" || e.kind === "cited"
+        ? "agent"
+        : "gate";
+    // A `cited` row names the recommendation it belongs to: the handoff written just before it.
+    const handoff =
+      e.kind === "cited"
+        ? this.#sql
+            .exec(`SELECT id FROM audit_log WHERE kind = 'handoff' ORDER BY id DESC LIMIT 1`)
+            .toArray()[0]
+        : undefined;
     this.#insert({
       kind: e.kind,
-      detail,
+      detail: refusal === undefined ? detail : `refusal:${String(refusal.refused_by)}`,
+      ...(refusal === undefined ? {} : { ref_id: Number(refusal.id) }),
+      ...(handoff === undefined ? {} : { ref_id: Number(handoff.id) }),
       actor,
       policy_version: POLICY_VERSION,
       ...(e.kind === "handoff" ? { conversation_id: e.conversationId } : {}),

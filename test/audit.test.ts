@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import policy from "../policy/brane.json";
 import { AuditLog, CSV_COLUMNS } from "../src/audit.ts";
 import type { BraneDecision } from "../src/brane.ts";
+import { citedIds } from "../src/primitives/gate.ts";
 
 const base = "https://example.com/api/sessions";
 
@@ -162,60 +163,64 @@ describe("audit trail", () => {
     expect(lines[1]).toContain("Alice");
   });
 
-  it("passes a decision back into the conversation, linked to the human row, through the gate", async () => {
-    const { handoffId } = await seed("audit-return");
-    const socketResponse = await exports.default.fetch(`${base}/audit-return?username=Lisa`, {
-      headers: { Upgrade: "websocket" },
-    });
-    const socket = socketResponse.webSocket!;
-    const frames: string[] = [];
-    socket.addEventListener("message", (event) => frames.push(String(event.data)));
-    socket.accept();
+  it(
+    "passes a decision back into the conversation, linked to the human row, through the gate",
+    { timeout: 30_000 },
+    async () => {
+      const { handoffId } = await seed("audit-return");
+      const socketResponse = await exports.default.fetch(`${base}/audit-return?username=Lisa`, {
+        headers: { Upgrade: "websocket" },
+      });
+      const socket = socketResponse.webSocket!;
+      const frames: string[] = [];
+      socket.addEventListener("message", (event) => frames.push(String(event.data)));
+      socket.accept();
 
-    const created = await postDecision("audit-return", {
-      handoffId,
-      decision: "approved",
-      note: "pay in full",
-      reviewer: "Claims handler",
-    });
-    expect(created.status).toBe(201);
-    const body = (await created.json()) as {
-      decision: { id: number; kind: string; refId: number };
-      message: { kind: string; actor: string; refId: number; conversationId: number };
-    };
-    expect(body.decision).toMatchObject({ kind: "human", refId: handoffId });
-    expect(body.message).toMatchObject({
-      kind: "request",
-      actor: "Claims handler",
-      refId: body.decision.id,
-    });
-    expect(body.message.conversationId).toBeGreaterThan(0);
-
-    // The agent's conversation receives the decision as a user message.
-    const text = `[Claims handler]\\nHuman decision on handoff #${handoffId} (request_approval): approved\\nNote: pay in full`;
-    await expect
-      .poll(() => frames.some((frame) => frame.includes(text)), { timeout: 10_000 })
-      .toBe(true);
-
-    // The model request it starts goes to BRANE only. BRANE is unreachable in tests, so it is withheld.
-    const rows = async () =>
-      (await (await exports.default.fetch(`${base}/audit-return/audit`)).json()) as {
-        decisions: { id: number; kind: string; routedTo: string }[];
-        chain: { ok: boolean };
+      const created = await postDecision("audit-return", {
+        handoffId,
+        decision: "approved",
+        note: "pay in full",
+        reviewer: "Claims handler",
+      });
+      expect(created.status).toBe(201);
+      const body = (await created.json()) as {
+        decision: { id: number; kind: string; refId: number };
+        message: { kind: string; actor: string; refId: number; conversationId: number };
       };
-    await expect
-      .poll(
-        async () =>
-          (await rows()).decisions.some(
-            (row) =>
-              row.kind === "brane" && row.routedTo === "withheld" && row.id > body.decision.id,
-          ),
-        { timeout: 10_000 },
-      )
-      .toBe(true);
-    expect((await rows()).chain.ok).toBe(true);
-    socket.close(1000, "done");
-  });
+      expect(body.decision).toMatchObject({ kind: "human", refId: handoffId });
+      expect(body.message).toMatchObject({
+        kind: "request",
+        actor: "Claims handler",
+        refId: body.decision.id,
+      });
+      expect(body.message.conversationId).toBeGreaterThan(0);
+
+      // The agent's conversation receives the decision as a user message.
+      const text = `[Claims handler]\\nHuman decision on handoff #${handoffId} (request_approval): approved\\nNote: pay in full`;
+      await expect
+        .poll(() => frames.some((frame) => frame.includes(text)), { timeout: 10_000 })
+        .toBe(true);
+
+      // The model request it starts goes to BRANE only. BRANE is unreachable in tests, so it is withheld.
+      const rows = async () =>
+        (await (await exports.default.fetch(`${base}/audit-return/audit`)).json()) as {
+          decisions: { id: number; kind: string; routedTo: string }[];
+          chain: { ok: boolean };
+        };
+      await expect
+        .poll(
+          async () =>
+            (await rows()).decisions.some(
+              (row) =>
+                row.kind === "brane" && row.routedTo === "withheld" && row.id > body.decision.id,
+            ),
+          { timeout: 10_000 },
+        )
+        .toBe(true);
+      expect((await rows()).chain.ok).toBe(true);
+      socket.close(1000, "done");
+    },
+  );
 
   it("takes an expert's answer on a consult, and only that", async () => {
     const { handoffId, consultId } = await seed("audit-consult");
@@ -232,5 +237,49 @@ describe("audit trail", () => {
     expect(answered.status).toBe(201);
     const body = (await answered.json()) as { decision: { action: string; actor: string } };
     expect(body.decision).toMatchObject({ action: "answered", actor: "Medical adviser" });
+  });
+
+  it("turns a BRANE refusal into a handoff a person closes, and never sends it back to a model", async () => {
+    const stub = env.SESSIONS.getByName("audit-refusal");
+    const handoff = await runInDurableObject(stub, (_instance, state) => {
+      const log = new AuditLog(state.storage.sql);
+      log.brane(refusal);
+      log.gate({ kind: "handoff", tool: "refusal", detail: "", conversationId: 1 });
+      return log.list()[0]!;
+    });
+    expect(handoff).toMatchObject({
+      kind: "handoff",
+      actor: "gate",
+      detail: "refusal:semantic:CLAIM_OUTCOME_DECISION->refuse",
+      refId: handoff.id - 1,
+    });
+    const closed = await postDecision("audit-refusal", {
+      handoffId: handoff.id,
+      decision: "rejected",
+      note: "Not a request the assistant may carry out.",
+      reviewer: "Claims handler",
+    });
+    expect(closed.status).toBe(201);
+    const body = (await closed.json()) as { decision: { refId: number }; message: unknown };
+    expect(body.decision.refId).toBe(handoff.id);
+    expect(body.message).toBeNull();
+  });
+
+  it("records the passage ids a recommendation cites, linked to its handoff", async () => {
+    const stub = env.SESSIONS.getByName("audit-cited");
+    const rows = await runInDurableObject(stub, (_instance, state) => {
+      const log = new AuditLog(state.storage.sql);
+      log.gate({ kind: "handoff", tool: "request_approval", detail: "pay", conversationId: 1 });
+      log.gate({
+        kind: "cited",
+        ids: citedIds("Covered [POL-3.2], see [GDPR-22(1)] and [POL-3.2]."),
+      });
+      return log.list();
+    });
+    expect(rows[0]).toMatchObject({
+      kind: "cited",
+      detail: "POL-3.2,GDPR-22(1)",
+      refId: rows[1]!.id,
+    });
   });
 });

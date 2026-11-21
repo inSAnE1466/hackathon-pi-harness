@@ -368,11 +368,12 @@ export class Session extends DurableObject<Env> {
    * Passes a recorded decision back into the conversation the handoff came from, as a message the agent continues
    * from. It is an ordinary input: the model request it starts goes through BRANE like every other, and a refusal
    * fails that turn. Returns the `request` row that links the message to the `human` row, or null when the
-   * conversation is gone. The human row stands either way.
+   * conversation is gone or the handoff is a refusal, which is never sent back to a model. The human row stands either way.
    */
   async #returnDecision(decision: AuditRow): Promise<AuditRow | null> {
     const handoff = this.#audit.get(decision.refId);
-    if (handoff === undefined) return null;
+    // A refused request stays with the person: BRANE would refuse the same conversation again.
+    if (handoff === undefined || handoffTool(handoff) === "refusal") return null;
     const root = await this.#harness.root(BACKGROUND_CONTEXT);
     // Handoffs logged before the conversation was recorded came from the claim's root conversation.
     const conversationId = (handoff.conversationId || root.id) as ConversationId;

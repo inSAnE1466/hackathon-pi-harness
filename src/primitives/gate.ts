@@ -13,6 +13,8 @@ export type GateEvent =
       readonly conversationId: number;
     }
   | { readonly kind: "lookup"; readonly ids: string }
+  /** The passage ids a recommendation's reasons cite, so a check can compare them with what lookup returned. */
+  | { readonly kind: "cited"; readonly ids: string }
   | { readonly kind: "intake"; readonly result: string };
 
 /**
@@ -22,6 +24,10 @@ export type GateEvent =
  * - afterTool: handoffs (consult, request_approval) and lookups are logged with what they cite.
  * The same two hooks apply the session's switches: the model asked for, and the tools offered and callable.
  */
+/** Passage ids in square brackets, e.g. `[POL-3.2]` or `[GDPR-22(1)]`, in order, once each. */
+export const citedIds = (text: string): string =>
+  [...new Set([...text.matchAll(/\[([A-Z][A-Za-z]*-[\w().-]+)\]/g)].map((m) => m[1]!))].join(",");
+
 export function gateExtension(
   onEvent: (event: GateEvent) => void,
   switches: () => Switches = () => DEFAULT_SWITCHES,
@@ -62,6 +68,16 @@ export function gateExtension(
             },
           };
         },
+        // A request BRANE refused needs a person. Log it as a handoff, so the person's action closes it.
+        afterResponse: (message, api) => {
+          if (message.stopReason === "error" && /^422\b/.test(message.errorMessage ?? ""))
+            onEvent({
+              kind: "handoff",
+              tool: "refusal",
+              detail: "",
+              conversationId: api.conversationId,
+            });
+        },
       }),
       hook(ToolTask, {
         beforeTool: (call) =>
@@ -77,6 +93,8 @@ export function gateExtension(
               detail: String(details.expert ?? details.recommendation ?? ""),
               conversationId: api.conversationId,
             });
+            if (call.name === "request_approval")
+              onEvent({ kind: "cited", ids: citedIds(String(call.arguments.reasons ?? "")) });
           } else if (call.name === "web_read") {
             onEvent({ kind: "lookup", ids: `web:${String(details.url ?? "refused")}` });
           } else if (call.name === "lookup") {
