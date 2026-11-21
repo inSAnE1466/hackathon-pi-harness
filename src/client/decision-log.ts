@@ -126,7 +126,7 @@ export function actorLabel(row: AuditRow): string {
     case "pre-mask":
     case "gate":
       return row.kind === "intake"
-        ? "Intake (local model)"
+        ? "Intake (pre-masked, local model)"
         : row.kind === "handoff"
           ? "BRANE refusal"
           : "Pre-mask (regex)";

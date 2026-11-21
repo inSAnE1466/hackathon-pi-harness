@@ -11,10 +11,10 @@ import {
 } from "./decision-log.ts";
 
 /**
- * A claim's path through the harness, derived from its decision log (rows newest first): intake, the pre-mask, BRANE,
+ * A claim's path through the harness, derived from its decision log (rows newest first): the pre-mask, intake, BRANE,
  * tools, person. The steps never move; they only fill in, so the diagram does not shift while a turn runs. BRANE is
  * the only gate. The pre-mask is pattern matching in our own code (`src/primitives/detect.ts`), drawn as a small
- * step on the edge into BRANE. A local classifier step has a slot that shows only once its audit rows exist.
+ * step; it runs on the claim before intake and on every request before BRANE, so no model sees raw identifiers. A local classifier step has a slot that shows only once its audit rows exist.
  */
 export type StepId = "intake" | "classifier" | "premask" | "brane" | "tools" | "person";
 
@@ -35,14 +35,14 @@ export interface Step {
 
 const IDLE: Record<StepId, { readonly title: string; readonly summary: string }> = {
   intake: {
-    title: "Intake (local model, inside BRANE)",
-    summary: "Splits health facts from the claim",
+    title: "Intake (local model inside BRANE)",
+    summary: "Splits health facts from the masked claim",
   },
   classifier: { title: "Classifier (local model)", summary: "Labels the request before BRANE" },
   premask: {
     title: "Pre-mask (regex)",
     summary:
-      "Pattern rules in our code: BSN checksum, policy, claim and passport numbers, plates. No model.",
+      "Pattern rules in our code: BSN checksum, policy, claim and passport numbers, plates. Runs before intake and before every BRANE request.",
   },
   brane: { title: "BRANE (the gate)", summary: "Decides the route for each request" },
   tools: { title: "Tools", summary: "Policy and law lookups, handoffs" },
@@ -51,11 +51,12 @@ const IDLE: Record<StepId, { readonly title: string; readonly summary: string }>
 
 const unique = (values: readonly string[]): string[] => [...new Set(values)];
 
+/** Intake only ever reads the claim after the pre-mask, so each summary says so. */
 function intakeSummary(detail: string): string {
-  if (detail === "split") return "Split, health facts kept local";
-  if (detail === "unchanged") return "Unchanged, no health data to split";
-  if (detail.startsWith("kept local")) return "Kept local as a whole";
-  return detail;
+  if (detail === "split") return "On the pre-masked claim: split, health facts kept local";
+  if (detail === "unchanged") return "On the pre-masked claim: no health data to split";
+  if (detail.startsWith("kept local")) return "On the pre-masked claim: kept local as a whole";
+  return `On the pre-masked claim: ${detail}`;
 }
 
 export function traceOf(rows: readonly AuditRow[], running: boolean): Step[] {
@@ -85,24 +86,26 @@ export function traceOf(rows: readonly AuditRow[], running: boolean): Step[] {
     });
   };
 
+  // The pre-mask comes first: intake masks the claim with the same patterns before its own BRANE calls, and every
+  // request of the agent is masked before BRANE. The findings are the pattern kinds that fired on the agent's
+  // requests, e.g. BSN or POLICY_ID; the values never reach the log.
   const lastIntake = intake.at(-1);
+  const fired = unique(masked.flatMap((row) => list(row.detail)));
+  push(
+    "premask",
+    lastIntake !== undefined || masked.length > 0 || brane.length > 0,
+    fired.length > 0
+      ? `Masked before any model: ${fired.length} ${fired.length === 1 ? "pattern" : "patterns"} fired`
+      : "No pattern fired, nothing to mask",
+    fired,
+  );
+
   push("intake", lastIntake !== undefined, intakeSummary(lastIntake?.detail ?? ""));
 
   if (classified.length > 0) {
     const labels = unique(classified.flatMap((row) => classifyOf(row).labels));
     push("classifier", true, `${classified.length} labelled`, labels);
   }
-
-  // The findings are the pattern kinds that fired, e.g. BSN or POLICY_ID; the values never reach the log.
-  const fired = unique(masked.flatMap((row) => list(row.detail)));
-  push(
-    "premask",
-    masked.length > 0 || brane.length > 0,
-    fired.length > 0
-      ? `Masked before BRANE: ${fired.length} ${fired.length === 1 ? "pattern" : "patterns"} fired`
-      : "No pattern fired, nothing to mask",
-    fired,
-  );
 
   const routes = { cloud: 0, local: 0 };
   for (const row of brane) {

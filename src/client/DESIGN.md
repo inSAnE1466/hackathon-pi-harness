@@ -41,10 +41,11 @@ synthetic-data note.
 | Route        | Cloud, protected (green), Local model (green), Refused (red), No decision (red)                 |
 | Data         | Loading text in place of rows, an empty line with what fills it, an inline error with the cause |
 
-The trace reads Intake, Pre-mask, BRANE, Tools, Person with fixed heights, so it fills without moving. BRANE is the
+The trace reads Pre-mask, Intake, BRANE, Tools, Person with fixed heights, so it fills without moving. BRANE is the
 only gate. The pre-mask is pattern matching in our own code (regex and the BSN checksum, no model), so it is a small
-hollow diamond with a "No model" tag on the line into BRANE, never a round node of the same weight; its chips are the
-patterns that fired. Intake is labelled "local model, inside BRANE". A "Classifier (local model)" step has a slot
+hollow diamond with a "No model" tag at the top of the line, never a round node of the same weight; it masks the claim
+before intake and every request before BRANE, and its chips are the patterns that fired. Intake is labelled
+"local model inside BRANE" and its summary starts "On the pre-masked claim". A "Classifier (local model)" step has a slot
 that stays hidden until the server writes `classifier` audit rows. The server's actor `gate` stays in the data; only
 the labels say pre-mask.
 A person's decision is a square node wherever a model step is a round one (run thread, trace). Motion draws shapes

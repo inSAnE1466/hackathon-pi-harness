@@ -45,7 +45,7 @@ export function threadOf(rows: readonly AuditRow[]): ThreadRow[] {
       case "intake":
         thread.push({
           key,
-          label: "Intake (local model, inside BRANE) checked the claim",
+          label: "Intake checked the pre-masked claim on BRANE's local model",
           result: intakeResult(row.detail),
           chips: [],
         });
@@ -167,7 +167,7 @@ const PENDING: Record<string, string> = {
 export function pendingStep(rows: readonly AuditRow[], tools: readonly ToolProgress[]): string {
   const tool = tools.find((candidate) => candidate.status !== "done");
   if (tool !== undefined) return PENDING[tool.name] ?? `Running ${tool.name}`;
-  if (rows.length === 0) return "Intake is checking the claim with BRANE's local model";
+  if (rows.length === 0) return "Intake is checking the pre-masked claim with BRANE's local model";
   return "Waiting for BRANE and the model";
 }
 

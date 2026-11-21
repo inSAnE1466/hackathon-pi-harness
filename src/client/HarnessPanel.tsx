@@ -307,7 +307,7 @@ const KIND_LABEL: Record<AuditRow["kind"], string> = {
   masked: "Pre-mask (regex)",
   lookup: "Lookup",
   handoff: "Handoff",
-  intake: "Intake (local model)",
+  intake: "Intake (pre-masked, local model)",
   request: "Request",
   human: "Person",
   cited: "Cited",
