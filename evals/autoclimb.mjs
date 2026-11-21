@@ -27,9 +27,10 @@ const ORGANIZERS = !process.argv.includes("--no-organizers");
 const DRY = process.argv.includes("--dry");
 const POLICY = "policy/brane.json";
 const LOG = "evals/autoclimb-log.tsv";
-// Tune on claims; heldout is only a check that a kept change does not get worse on cases it never learned from.
-const TUNE = "claims";
-const CHECK = "heldout";
+// Tune on Omar's dev split; his val split is only a check that a kept change does not get worse on rows it never
+// learned from. His locked test split is never scored here.
+const TUNE = "omar-dev";
+const CHECK = "omar-val";
 const LOCAL_MODEL = arg("model", "vllm:deepseek-v4.1-flash");
 
 const vars = { ...process.env };

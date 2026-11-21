@@ -2,7 +2,9 @@
 // Score the live BRANE policy as a classifier: per-outcome precision, recall and F1, macro F1, unsafe decisions
 // and spans leaked. Reads the same golden-format sets as golden.mjs. Dry runs only (POST /policy/test): no model
 // call, no cost. Never prints the key.
-// Usage: node evals/f1.mjs [--set=claims,heldout,locked] [--json] [--save]
+// Sets are Omar Shalaby's splits (evals/import-omar.mjs): omar-dev to tune, omar-val to choose (the default),
+// omar-test locked for one final run. Four requests in flight at most: BRANE is shared by the whole team.
+// Usage: node evals/f1.mjs [--set=omar-val,omar-dev,claims] [--json] [--save]
 //   --save writes evals/f1-latest.json. Run --set=locked only for the final number, never while tuning.
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { CLASSES, metrics, outcome } from "./metrics.mjs";
@@ -19,9 +21,7 @@ if (!vars.BRANE_BASE_URL || !vars.BRANE_API_KEY) {
   process.exit(2);
 }
 const base = vars.BRANE_BASE_URL.replace(/\/+$/, "");
-const sets = (process.argv.find((a) => a.startsWith("--set="))?.slice(6) ?? "claims,heldout").split(
-  ",",
-);
+const sets = (process.argv.find((a) => a.startsWith("--set="))?.slice(6) ?? "omar-val").split(",");
 
 async function dryRun(prompt) {
   const res = await fetch(`${base}/policy/test`, {

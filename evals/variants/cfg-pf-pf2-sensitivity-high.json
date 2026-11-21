@@ -1,0 +1,6 @@
+{
+  "name": "pf-pf2-sensitivity-high",
+  "policy": "evals/variants/policy-pf2-sensitivity-high.json",
+  "gate": false,
+  "classifier": null
+}

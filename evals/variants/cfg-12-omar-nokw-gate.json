@@ -1,0 +1,6 @@
+{
+  "name": "12-omar-nokw-gate",
+  "policy": "evals/variants/policy-omar-v1-nokw.json",
+  "gate": true,
+  "classifier": null
+}

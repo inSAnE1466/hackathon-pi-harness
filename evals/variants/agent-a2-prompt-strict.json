@@ -1,0 +1,6 @@
+{
+  "name": "a2-prompt-strict",
+  "switches": {
+    "promptVariant": "strict"
+  }
+}

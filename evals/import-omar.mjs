@@ -4,7 +4,8 @@
 //   evals/golden/omar-test.jsonl   his locked held-out test set (200 rows: unseen vocabulary, 65+ population)
 // His routes map onto ours: cloud -> allow, cloud_redacted -> protect, local -> local, refused -> refuse.
 // The locked set is graded on the route only (spans are not labelled per row); it is never used for tuning.
-//   evals/golden/omar-dev.jsonl, omar-val.jsonl   100 rows each from his tuning and selection sets, for the climb
+//   evals/golden/omar-dev.jsonl    his tuning set (800 rows)
+//   evals/golden/omar-val.jsonl    his selection set (500 rows)
 // Usage: node evals/import-omar.mjs
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -70,43 +71,54 @@ function parseCsv(text) {
     .filter((r) => r.length === header.length)
     .map((r) => Object.fromEntries(header.map((h, i) => [h, r[i]])));
 }
-const test = parseCsv(raw.toString("utf8")).map((r) => ({
+
+// The full tuning and selection sets for the climb: dev (800 rows, tune) and val (500 rows, choose). The pinned
+// hashes are those of the files on origin/omar/gezira-harness, so every climb row is scored on the rows his table
+// uses. Each row keeps his 14 labels, for the per-category score.
+const LABELS = [
+  "PERSON",
+  "CONTACT",
+  "IBAN",
+  "BSN",
+  "POLICY_ID",
+  "HEALTH",
+  "THIRD_PARTY_HEALTH",
+  "MENTAL_HEALTH",
+  "WORK_INCAPACITY",
+  "CRIMINAL",
+  "AUTO_DECISION",
+  "DISCRIMINATORY",
+  "BULK_EXPORT",
+  "INJECTION",
+];
+const row = (r) => ({
   id: `omar-${r.id}`,
   kind: r.notes || r.gold_route,
+  lang: r.lang,
   text: r.prompt,
   expect: route[r.gold_route],
+  labels: LABELS.filter((l) => r[l] === "1"),
   spans: [],
-}));
-writeFileSync("evals/golden/omar-test.jsonl", test.map((r) => JSON.stringify(r)).join("\n") + "\n");
-
-// Dev suites for the climb: a fixed, route-stratified sample of his dev (tuning) and val (selection) rows, every
-// k-th row per route in file order, so the sample never changes between runs. Neither file is locked.
-for (const [name, n] of [
-  ["dev", 100],
-  ["val", 100],
-]) {
-  const rows = parseCsv(readFileSync(`omar/data/${name}.csv`, "utf8"));
-  const out = [];
-  for (const r of Object.keys(route)) {
-    const group = rows.filter((x) => x.gold_route === r);
-    const step = group.length / (n / 4);
-    for (let i = 0; i < n / 4; i++) out.push(group[Math.floor(i * step)]);
-  }
+});
+const PINNED = {
+  dev: "e8d6c6991bc5bbfe9370febe16495778f26c90d8dc04706cbc766b495031b81f",
+  val: "2bd8164e2da280898cf1f9e74f2f10feaa33549ad83bf2abe19c4de7040461d6",
+};
+const counts = {};
+for (const name of ["dev", "val"]) {
+  const bytes = readFileSync(`omar/data/${name}.csv`);
+  const got = createHash("sha256").update(bytes).digest("hex");
+  if (got !== PINNED[name])
+    throw new Error(`omar/data/${name}.csv hash ${got} differs from the pinned ${PINNED[name]}`);
+  const rows = parseCsv(bytes.toString("utf8")).map(row);
+  counts[name] = rows.length;
   writeFileSync(
     `evals/golden/omar-${name}.jsonl`,
-    out
-      .map((r) =>
-        JSON.stringify({
-          id: `omar-${r.id}`,
-          kind: r.notes || r.gold_route,
-          text: r.prompt,
-          expect: route[r.gold_route],
-          spans: [],
-        }),
-      )
-      .join("\n") + "\n",
+    rows.map((r) => JSON.stringify(r)).join("\n") + "\n",
   );
 }
+const test = parseCsv(raw.toString("utf8")).map(row);
+writeFileSync("evals/golden/omar-test.jsonl", test.map((r) => JSON.stringify(r)).join("\n") + "\n");
 console.log(
-  `omar-gate: ${gateRows.length} tests; omar-test: ${test.length} rows (sha256 matches the locked hash)`,
+  `omar-gate: ${gateRows.length} tests; omar-dev: ${counts.dev}; omar-val: ${counts.val}; omar-test: ${test.length} rows (all hashes match)`,
 );

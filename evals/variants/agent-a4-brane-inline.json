@@ -1,0 +1,6 @@
+{
+  "name": "a4-brane-inline",
+  "switches": {
+    "braneTiming": "inline"
+  }
+}

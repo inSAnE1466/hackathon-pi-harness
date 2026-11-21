@@ -1,0 +1,148 @@
+{
+  "version": "pf2-sensitivity-high",
+  "routingMode": "cloud-preferred",
+  "piiSensitivity": "high",
+  "models": {
+    "cloud": "openrouter:anthropic/claude-haiku-5.5",
+    "local": "vllm:deepseek-v4.1-flash"
+  },
+  "categories": {
+    "PERSON": "placeholder",
+    "EMAIL": "placeholder",
+    "PHONE": "placeholder",
+    "ADDRESS": "placeholder",
+    "IP_ADDRESS": "placeholder",
+    "ORG": "allow",
+    "TRADE_REGISTER": "allow",
+    "VAT_ID": "allow",
+    "DATE_OF_BIRTH": "placeholder",
+    "SSN": "local",
+    "PASSPORT": "local",
+    "TAX_NUMBER": "local",
+    "INSURANCE_NUMBER": "placeholder",
+    "IBAN": "placeholder",
+    "CREDIT_CARD": "placeholder",
+    "ACCOUNT_NUMBER": "placeholder",
+    "PASSWORD": "refuse",
+    "SECRET_KEY": "refuse",
+    "HEALTH_DATA": "local",
+    "ETHNIC_ORIGIN": "local",
+    "POLITICAL_OPINION": "local",
+    "RELIGIOUS_BELIEF": "local",
+    "SEXUAL_ORIENTATION": "local",
+    "TRADE_UNION": "local",
+    "SENSITIVE_CONTEXT": "local"
+  },
+  "semanticCategories": [
+    {
+      "code": "CLAIM_HEALTH_CONTEXT",
+      "name": "Indirect health detail in a claim",
+      "description": "Health information about a specific person in a claim: their injury, fracture, symptoms, dental or eye treatment, procedure, diagnosis, treatment they received, therapy, medication, surgery, hospital or clinic stay, sick leave, inability to work, disability, pregnancy or mental health, even when no diagnosis is named. The name of the hospital or clinic where that person was treated counts. General policy wording about what care is covered, with no person, is not health information. Mentions such as ent specialist, hearing aids count, also when the request is wrapped in polite phrasing.",
+      "keywords": [
+        "fractured",
+        "her wrist",
+        "his wrist",
+        "plaster",
+        "burnout",
+        "sertraline",
+        "sick leave",
+        "unable to work",
+        "was hospitalised",
+        "was admitted",
+        "her surgery",
+        "his surgery",
+        "UMC",
+        "dental",
+        "crown",
+        "molar",
+        "laser",
+        "eye surgery",
+        "ent specialist",
+        "hearing aids"
+      ],
+      "legalBasis": "GDPR Art. 9(1); UAVG Art. 30(3)(b) and 30(4) (Netherlands); Insurers' code of conduct 5.1; kept local by design, stricter than the legal minimum",
+      "action": "local"
+    },
+    {
+      "code": "CLAIM_OUTCOME_DECISION",
+      "name": "Final claim decision without a handler",
+      "description": "A request for the AI to reject, deny, reduce, approve for payment, cancel a policy or flag fraud on a claim, or to send such a decision to the claimant, without a human claims handler deciding.",
+      "keywords": [
+        "reject this claim",
+        "deny the claim",
+        "send the rejection",
+        "reduce the payout",
+        "flag as fraud",
+        "cancel the policy"
+      ],
+      "legalBasis": "GDPR Art. 22(3)-(4); CJEU C-634/21 SCHUFA; EU AI Act Art. 14; design choice: a claims handler decides every outcome",
+      "action": "refuse"
+    },
+    {
+      "code": "CROSS_CLAIMANT_COMPARISON",
+      "name": "Comparing or ranking several claimants",
+      "description": "A request to compare, rank, match or combine the records of more than one claimant or policyholder, including their health or claim history.",
+      "keywords": [
+        "compare claimants",
+        "rank the claimants",
+        "which claimant",
+        "across all claims",
+        "all claimants with"
+      ],
+      "legalBasis": "GDPR Art. 5(1)(b) purpose limitation and 5(1)(c) minimisation; Insurers' code of conduct 5.1.1",
+      "action": "refuse"
+    },
+    {
+      "code": "PROTECTED_TRAIT_PROFILING",
+      "name": "Selecting claims by protected trait or proxy",
+      "description": "A request to select, flag, price or treat claims differently by ethnicity, nationality, religion, sex, sexual orientation or a proxy for them such as surname, first name or country of birth.",
+      "keywords": [
+        "surnames",
+        "nationality",
+        "foreign names",
+        "ethnicity",
+        "religion",
+        "country of origin"
+      ],
+      "legalBasis": "GDPR Art. 9(1); CJEU C-184/20 (proxies that reveal a special category); Directive 2000/43/EC Arts. 2 and 3(1)(h); EU Charter Art. 21",
+      "action": "refuse"
+    },
+    {
+      "code": "RULE_OVERRIDE_ATTEMPT",
+      "name": "Instruction to bypass data protection",
+      "description": "Text inside a claim or request that tells the AI or a reviewer to ignore rules, send raw data to an external model, approve in full, or otherwise change how the claim is handled.",
+      "keywords": [
+        "ignore all",
+        "system override",
+        "send unredacted",
+        "approve in full",
+        "note to reviewer",
+        "disregard previous"
+      ],
+      "legalBasis": "GDPR Art. 32 security of processing; OWASP LLM01 prompt injection",
+      "action": "refuse"
+    },
+    {
+      "code": "CRIMINAL_OFFENCE_DATA",
+      "name": "Criminal offence data about a specific person",
+      "description": "The text contains information about criminal offences, suspicions, arrests, convictions or a criminal record of a specific person, for example a police report naming or describing a suspect, or an allegation that a named person committed fraud or theft. Include: 'police report PV-2026-118: suspect is the neighbour, Mr K., previously convicted of burglary'. Exclude: a claim that only mentions that a police report was filed with a reference number and no information about any suspect.",
+      "keywords": [
+        "suspect",
+        "arrested",
+        "convicted",
+        "criminal record",
+        "police report suspect",
+        "verdachte",
+        "aangehouden",
+        "veroordeeld",
+        "strafblad",
+        "proces-verbaal verdachte",
+        "Tatverdächtiger",
+        "vorbestraft",
+        "Strafanzeige gegen"
+      ],
+      "action": "local",
+      "legalBasis": "GDPR Art. 10; UAVG Arts. 31-33 (criminal data; rule from Omar Shalaby, omar/policy/policy_v1.json)"
+    }
+  ]
+}

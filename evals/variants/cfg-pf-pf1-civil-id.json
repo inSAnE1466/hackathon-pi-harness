@@ -1,0 +1,6 @@
+{
+  "name": "pf-pf1-civil-id",
+  "policy": "evals/variants/policy-pf1-civil-id.json",
+  "gate": false,
+  "classifier": null
+}

@@ -1,0 +1,6 @@
+{
+  "name": "a3-intake-off",
+  "switches": {
+    "intake": "off"
+  }
+}

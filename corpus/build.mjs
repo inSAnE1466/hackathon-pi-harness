@@ -121,5 +121,29 @@ for (const file of [
 }
 
 writeFileSync("corpus/passages.json", JSON.stringify(passages, null, 1) + "\n");
+// The passages the agent reads most, as the lookup tool returns them, as an eval set: the insurer's own material,
+// national law, case law and guidance, plus every EUR-Lex passage a question in evals/legal/dev.jsonl expects. None
+// holds personal data, so the policy should let every one through to the cloud (evals/hill.mjs, context_over_block).
+const expected = new Set(
+  readFileSync("evals/legal/dev.jsonl", "utf8")
+    .trim()
+    .split("\n")
+    .flatMap((l) => JSON.parse(l).want.flat()),
+);
+writeFileSync(
+  "evals/golden/passages.jsonl",
+  passages
+    .filter((p) => !["GDPR", "EU AI Act"].includes(p.source) || expected.has(p.id))
+    .map((p) =>
+      JSON.stringify({
+        id: `ctx-${p.id}`,
+        kind: p.source,
+        text: `[${p.id}] ${p.title}\n${p.text}`,
+        expect: "allow",
+        spans: [],
+      }),
+    )
+    .join("\n") + "\n",
+);
 const bySource = passages.reduce((m, p) => ({ ...m, [p.source]: (m[p.source] ?? 0) + 1 }), {});
 console.log(`wrote corpus/passages.json: ${passages.length} passages`, bySource);

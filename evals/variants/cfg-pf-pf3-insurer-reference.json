@@ -1,0 +1,6 @@
+{
+  "name": "pf-pf3-insurer-reference",
+  "policy": "evals/variants/policy-pf3-insurer-reference.json",
+  "gate": false,
+  "classifier": null
+}

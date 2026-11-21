@@ -1,0 +1,6 @@
+{
+  "name": "a5-model-gpt-6-luna",
+  "switches": {
+    "cloudModel": "openrouter:openai/gpt-6-luna"
+  }
+}

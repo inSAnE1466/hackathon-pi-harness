@@ -1,0 +1,6 @@
+{
+  "name": "c2-criminal-not-on-general-wording",
+  "policy": "evals/variants/policy-c2-criminal-not-on-general-wording.json",
+  "gate": true,
+  "classifier": null
+}

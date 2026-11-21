@@ -1,0 +1,6 @@
+{
+  "name": "a6-model-mistral-large",
+  "switches": {
+    "cloudModel": "openrouter:mistralai/mistral-large-4-0"
+  }
+}
