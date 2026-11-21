@@ -33,7 +33,7 @@ const userEntryText = (entry: EntryRecord): string | undefined => {
   return message.content.flatMap((part) => (part.type === "text" ? [part.text] : [])).join("\n");
 };
 
-/** User texts in a view: entries of the window, and inputs queued in `pi.inbox`. */
+/** The user texts in a view, from the window's entries and the inputs queued in `pi.inbox`. */
 const submittedTexts = (view: ConversationView | undefined): readonly string[] => [
   ...(view?.entries ?? []).flatMap((entry) => {
     const text = userEntryText(entry);
@@ -100,7 +100,7 @@ const jsonMessages = (socket: WebSocket) => {
         await next();
       }
     },
-    /** Session snapshot, root conversation view, and typing presence. */
+    /** Reads the session snapshot, the root conversation's view and the typing presence. */
     skipConnectFrames: async (): Promise<void> => {
       for (let index = 0; index < 3; index++) await next();
     },
@@ -497,7 +497,7 @@ describe("chat application", () => {
       }),
     );
 
-    // The restarted object watches the conversation again for the hibernated socket: a fresh first value.
+    // The restarted object watches the conversation again for the hibernated socket and sends a fresh first value.
     const restored = await messages.nextMatching<ProtocolMessage>(
       (message) =>
         message.type === "conversation.view" && message.conversationId === created.conversationId,
@@ -749,12 +749,12 @@ describe("chat application", () => {
       );
     };
 
-    // Newest first: the answer, with more before it.
+    // Newest first, the first page is the answer, with more entries before it.
     const newest = await requestPage("page-1", { order: "descending", limit: 1 });
     expect(newest.ok).toBe(true);
     expect(newest.page?.items).toHaveLength(1);
     expect(newest.page?.next).toBeDefined();
-    // Up to the input, the first entry: nothing before it.
+    // A page that ends at the input, the first entry, has nothing before it.
     const first = await requestPage("page-2", { maxEntryId: input, order: "descending", limit: 1 });
     expect(first.page?.items.map(({ id }) => id)).toEqual([input]);
     expect(first.page?.next).toBeUndefined();
@@ -801,7 +801,7 @@ describe("chat application", () => {
     const socket = response.webSocket!;
     const messages = jsonMessages(socket);
     socket.accept();
-    // The reopened Session resumes the delivery, which goes to sleep: its activity update may precede the snapshot.
+    // The reopened Session resumes the delivery, which goes to sleep. Its activity update may precede the snapshot.
     const snapshot = await messages.nextMatching<{
       type: string;
       session: {

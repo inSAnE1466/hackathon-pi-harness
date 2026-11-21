@@ -49,7 +49,7 @@ const viewOf = (
     ...(before === undefined ? {} : { before }),
   }) as unknown as ConversationView;
 
-/** A client transcript that never pages: the tests below only merge views. */
+/** A client transcript that never pages, because the tests below only merge views. */
 const transcript = () => new ConversationTranscript(async () => ({ items: [] }));
 
 /** Merges `view` into `client` and shows it, as the session hook does. */
@@ -186,7 +186,7 @@ describe("session state", () => {
         },
       ]),
     );
-    // The view keeps the history; head markers sit where they were written.
+    // The view keeps the history, and head markers stay where they were written.
     expect(state.snapshots[1]?.entries).toEqual([
       expect.objectContaining({ role: "user", text: "Before the summary" }),
       expect.objectContaining({

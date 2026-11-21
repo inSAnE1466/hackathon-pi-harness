@@ -99,21 +99,21 @@ describe("conversation search", () => {
 describe("history search subagent", () => {
   it("searches ordinary top-level turns but excludes search turns and subagents", async () => {
     const harness = await openHarness([
-      // Seed, in the root: the decision.
+      // The root conversation records the decision.
       fauxAssistantMessage([fauxText("Decision: Postgres, one database per tenant.")]),
       // An ordinary turn in the conversation that will later search.
       fauxAssistantMessage([fauxText("Postgres replicas should stay regional.")]),
-      // Asking conversation delegates.
+      // The asking conversation delegates the search.
       fauxAssistantMessage(
         [fauxToolCall(SEARCH_HISTORY_TOOL_NAME, { question: "Did we pick postgres?" })],
         { stopReason: "toolUse" },
       ),
-      // Child searches, then answers.
+      // The child searches, then answers.
       fauxAssistantMessage([fauxToolCall("search_conversations", { term: "postgres" })], {
         stopReason: "toolUse",
       }),
       fauxAssistantMessage([fauxText("Yes, Postgres, per the earlier conversation.")]),
-      // Asking conversation reports.
+      // The asking conversation reports the answer.
       fauxAssistantMessage([fauxText("Yes, you picked Postgres.")]),
     ]);
     try {

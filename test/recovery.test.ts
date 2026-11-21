@@ -147,7 +147,7 @@ describe("session recovery", () => {
 
     // The reopened Session resumes the delivery, which sleeps; `onWake` moves the alarm to its deadline.
     await expectAlarm(stub, runAt);
-    // The live instance keeps no timer for the sleep: only its alarm handler can make the delivery runnable.
+    // The live instance keeps no timer for the sleep, so only its alarm handler can make the delivery runnable.
     await new Promise((resolve) => setTimeout(resolve, Math.max(0, runAt - Date.now()) + 20));
     // The alarm may already have fired by itself; running it again is harmless (alarms are at-least-once).
     await runDurableObjectAlarm(stub);
@@ -171,7 +171,7 @@ describe("session recovery", () => {
 
   it("clears an early alarm that finds an idle Session", async () => {
     const stub = env.SESSIONS.getByName("early-platform-alarm");
-    // A live, idle Session: `onWake` reports nothing to do, and does not report it again unchanged.
+    // In a live, idle Session, `onWake` reports nothing to do and does not report it again unchanged.
     await expectAlarm(stub, null);
     await runInDurableObject(stub, (_instance, state) =>
       state.storage.setAlarm(Date.now() + 30_000),
