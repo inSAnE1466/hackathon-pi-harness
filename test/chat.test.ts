@@ -448,7 +448,7 @@ describe("chat application", () => {
           "pi.agent": {
             model: { provider: "brane", modelId: "openrouter:anthropic/claude-haiku-5.5" },
             thinkingLevel: "off",
-            tools: ["lookup", "consult", "request_approval"],
+            tools: ["lookup", "web_read", "consult", "request_approval"],
           },
         },
       },

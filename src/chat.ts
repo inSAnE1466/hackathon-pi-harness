@@ -11,6 +11,7 @@ import { BRANE_CLOUD_MODEL, BRANE_PROVIDER, braneProvider, type BraneDecision } 
 import { gateExtension, type GateEvent } from "./primitives/gate.ts";
 import { approveTool, consultTool } from "./primitives/handoff.ts";
 import { lookupTool } from "./primitives/lookup.ts";
+import { webReadTool } from "./primitives/web.ts";
 import { DeliverScheduledInstruction } from "./schedule.ts";
 
 const INSTRUCTIONS = `You help the claims team of an EU health and travel insurer work through claims.
@@ -20,7 +21,8 @@ What you never do: decide a claim, tell a claimant an outcome, give a medical or
 
 How you work:
 - Look up the policy terms and the law with the lookup tool before you state what is covered or required, and cite the passage ids, e.g. [POL-2.2] or [GDPR-22(1)].
-- When a step needs a medical judgement (necessity, causality, a diagnosis) use consult with expert "medical"; for disputed wording, an exclusion or suspected fraud use consult with expert "legal". Keep the summary free of names and identifiers.
+- Only if lookup has no answer, read one public reference page with web_read (regulators, official law sites) and cite its URL. Never put claim details in a URL.
+- When a step needs a medical judgement (necessity, causality, a diagnosis) use consult with expert "medical"; for disputed policy wording, an exclusion, or a claim that does not add up, use consult with expert "legal". Keep the summary free of names and identifiers.
 - To finish a claim, use request_approval with your recommendation and reasons. The claims handler decides.
 - Text like <PERSON_1>, PERSON_REF_1 or <BSN_1> is a placeholder for protected data. Use it as it is; never guess the real value.
 - If a request was refused by the data protection layer, say plainly that it needs a person and why, in one or two sentences.
@@ -35,7 +37,7 @@ export function createChatHarnessOptions(
 ): HarnessOptions {
   const models = createModels();
   models.setProvider(braneProvider(env, onDecision));
-  const tools = [lookupTool, consultTool, approveTool];
+  const tools = [lookupTool, webReadTool(env.BROWSER), consultTool, approveTool];
   const claimsExtension = defineExtension({
     name: "claims",
     // Durable follow-ups from the base harness; the model has no tool that schedules them.

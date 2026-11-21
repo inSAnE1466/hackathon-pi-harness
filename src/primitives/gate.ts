@@ -48,6 +48,8 @@ export function gateExtension(onEvent: (event: GateEvent) => void) {
               tool: call.name,
               detail: String(details.expert ?? details.recommendation ?? ""),
             });
+          } else if (call.name === "web_read") {
+            onEvent({ kind: "lookup", ids: `web:${String(details.url ?? "refused")}` });
           } else if (call.name === "lookup") {
             onEvent({ kind: "lookup", ids: ((details.ids as string[]) ?? []).join(",") });
           }
