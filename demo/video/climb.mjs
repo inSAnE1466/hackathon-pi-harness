@@ -15,12 +15,22 @@ const src = existsSync(real) ? real : join(here, "assets", "climb-placeholder.js
 const raw = JSON.parse(readFileSync(src, "utf8"));
 const rows = Array.isArray(raw) ? raw : raw.rows;
 if (!Array.isArray(rows) || rows.length === 0) throw new Error(`${src} has no rows`);
-const criteria = raw.criteria ?? Object.fromEntries(Object.keys(rows[0].scores).map((k) => [k, { label: k, unit: "", better: "up" }]));
+const criteria =
+  raw.criteria ??
+  Object.fromEntries(
+    Object.keys(rows[0].scores).map((k) => [k, { label: k, unit: "", better: "up" }]),
+  );
 const data = {
   source: src === real ? "evals/climb-history.json" : "placeholder",
   criteria,
   rows: rows
-    .map((r) => ({ iter: r.iter, change: r.change, layer: r.layer, kept: Boolean(r.kept), scores: r.scores }))
+    .map((r) => ({
+      iter: r.iter,
+      change: r.change,
+      layer: r.layer,
+      kept: Boolean(r.kept),
+      scores: r.scores,
+    }))
     .sort((a, b) => a.iter - b.iter),
 };
 const html = join(here, "index.html");
@@ -31,4 +41,6 @@ const i = s.indexOf(a);
 const j = s.indexOf(b, i);
 if (i < 0 || j < 0) throw new Error("index.html is missing the climb markers");
 writeFileSync(html, s.slice(0, i + a.length) + " " + JSON.stringify(data) + " " + s.slice(j));
-console.log(`${data.rows.length} iterations, ${Object.keys(criteria).length} criteria, from ${data.source}`);
+console.log(
+  `${data.rows.length} iterations, ${Object.keys(criteria).length} criteria, from ${data.source}`,
+);

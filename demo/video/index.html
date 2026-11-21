@@ -410,13 +410,62 @@
     >
       <!-- Voiceover clips, one per beat, written by voiceover.mjs. -->
       <!-- vo:begin -->
-      <audio id="vo-cast" src="assets/vo-cast.mp3" data-start="0.4" data-duration="14.446" data-track-index="9" data-volume="1"></audio>
-      <audio id="vo-harness" src="assets/vo-harness.mp3" data-start="15.396" data-duration="19.096" data-track-index="9" data-volume="1"></audio>
-      <audio id="vo-claim" src="assets/vo-claim.mp3" data-start="35.042" data-duration="8.385" data-track-index="9" data-volume="1"></audio>
-      <audio id="vo-decide" src="assets/vo-decide.mp3" data-start="43.977" data-duration="11.546" data-track-index="9" data-volume="1"></audio>
-      <audio id="vo-attack" src="assets/vo-attack.mp3" data-start="56.073" data-duration="8.516" data-track-index="9" data-volume="1"></audio>
-      <audio id="vo-climb" src="assets/vo-climb.mp3" data-start="65.139" data-duration="12.8" data-track-index="9" data-volume="1"></audio>
-      <audio id="vo-close" src="assets/vo-close.mp3" data-start="82.989" data-duration="5.512" data-track-index="9" data-volume="1"></audio>
+      <audio
+        id="vo-cast"
+        src="assets/vo-cast.mp3"
+        data-start="0.4"
+        data-duration="14.446"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="vo-harness"
+        src="assets/vo-harness.mp3"
+        data-start="15.396"
+        data-duration="19.096"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="vo-claim"
+        src="assets/vo-claim.mp3"
+        data-start="35.042"
+        data-duration="8.385"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="vo-decide"
+        src="assets/vo-decide.mp3"
+        data-start="43.977"
+        data-duration="11.546"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="vo-attack"
+        src="assets/vo-attack.mp3"
+        data-start="56.073"
+        data-duration="8.516"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="vo-climb"
+        src="assets/vo-climb.mp3"
+        data-start="65.139"
+        data-duration="12.8"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+      <audio
+        id="vo-close"
+        src="assets/vo-close.mp3"
+        data-start="82.989"
+        data-duration="5.512"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
       <!-- vo:end -->
 
       <div
@@ -464,27 +513,114 @@
           <svg id="outlines" class="layer" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
 
           <!-- the six actors: people outlined, machines grey, BRANE in ink -->
-          <div class="node person" id="n-claimant" style="left: 60px; top: 498px; width: 220px; height: 84px">Claimant</div>
+          <div
+            class="node person"
+            id="n-claimant"
+            style="left: 60px; top: 498px; width: 220px; height: 84px"
+          >
+            Claimant
+          </div>
           <div class="sub" id="s-claimant" style="left: 120px; top: 596px">Daan Mulder</div>
-          <div class="node bare" data-layout-allow-occlusion id="n-agent0" style="left: 660px; top: 498px; width: 260px; height: 84px">Agent</div>
-          <div class="node ink" id="n-brane" style="left: 1300px; top: 282px; width: 200px; height: 96px">BRANE</div>
-          <div class="node person" id="n-adv" style="left: 1590px; top: 548px; width: 280px; height: 76px">Medical adviser</div>
-          <div class="node person" id="n-rev" style="left: 1590px; top: 668px; width: 280px; height: 76px">Legal reviewer</div>
-          <div class="node person" id="n-hand" style="left: 1590px; top: 800px; width: 280px; height: 76px">Claims handler</div>
+          <div
+            class="node bare"
+            data-layout-allow-occlusion
+            id="n-agent0"
+            style="left: 660px; top: 498px; width: 260px; height: 84px"
+          >
+            Agent
+          </div>
+          <div
+            class="node ink"
+            id="n-brane"
+            style="left: 1300px; top: 282px; width: 200px; height: 96px"
+          >
+            BRANE
+          </div>
+          <div
+            class="node person"
+            id="n-adv"
+            style="left: 1590px; top: 548px; width: 280px; height: 76px"
+          >
+            Medical adviser
+          </div>
+          <div
+            class="node person"
+            id="n-rev"
+            style="left: 1590px; top: 668px; width: 280px; height: 76px"
+          >
+            Legal reviewer
+          </div>
+          <div
+            class="node person"
+            id="n-hand"
+            style="left: 1590px; top: 800px; width: 280px; height: 76px"
+          >
+            Claims handler
+          </div>
           <div class="sub" id="s-adv" style="left: 1606px; top: 510px">health</div>
           <div class="sub" id="s-rev" style="left: 1606px; top: 630px">law</div>
           <div class="sub" id="s-hand" style="left: 1606px; top: 762px">decides</div>
 
           <!-- the harness -->
-          <div class="sub" id="s-do" style="left: 400px; top: 940px">Pi harness · one Durable Object per claim</div>
-          <div class="node tool" id="n-intake" style="left: 440px; top: 296px; width: 180px; height: 68px">intake</div>
-          <div class="node" id="n-agent" style="left: 560px; top: 500px; width: 240px; height: 96px">Pi agent</div>
-          <div class="node tool" id="n-gate" style="left: 960px; top: 296px; width: 140px; height: 68px">gate</div>
-          <div class="node tool" id="n-lookup" style="left: 900px; top: 470px; width: 250px; height: 60px">lookup</div>
-          <div class="node tool" id="n-consult" style="left: 900px; top: 560px; width: 250px; height: 60px">consult</div>
-          <div class="node tool" id="n-appr" style="left: 900px; top: 650px; width: 250px; height: 60px">request_approval</div>
-          <div class="node" id="n-front" style="left: 1590px; top: 180px; width: 280px; height: 76px">Frontier model</div>
-          <div class="node" id="n-local" style="left: 1590px; top: 360px; width: 280px; height: 76px">Local model</div>
+          <div class="sub" id="s-do" style="left: 400px; top: 940px">
+            Pi harness · one Durable Object per claim
+          </div>
+          <div
+            class="node tool"
+            id="n-intake"
+            style="left: 440px; top: 296px; width: 180px; height: 68px"
+          >
+            intake
+          </div>
+          <div
+            class="node"
+            id="n-agent"
+            style="left: 560px; top: 500px; width: 240px; height: 96px"
+          >
+            Pi agent
+          </div>
+          <div
+            class="node tool"
+            id="n-gate"
+            style="left: 960px; top: 296px; width: 140px; height: 68px"
+          >
+            gate
+          </div>
+          <div
+            class="node tool"
+            id="n-lookup"
+            style="left: 900px; top: 470px; width: 250px; height: 60px"
+          >
+            lookup
+          </div>
+          <div
+            class="node tool"
+            id="n-consult"
+            style="left: 900px; top: 560px; width: 250px; height: 60px"
+          >
+            consult
+          </div>
+          <div
+            class="node tool"
+            id="n-appr"
+            style="left: 900px; top: 650px; width: 250px; height: 60px"
+          >
+            request_approval
+          </div>
+          <div
+            class="node"
+            id="n-front"
+            style="left: 1590px; top: 180px; width: 280px; height: 76px"
+          >
+            Frontier model
+          </div>
+          <div
+            class="node"
+            id="n-local"
+            style="left: 1590px; top: 360px; width: 280px; height: 76px"
+          >
+            Local model
+          </div>
 
           <!-- Rows from the live ski run (assets/ui/ski-audit.json), the decision, and the hidden-note refusal
                (assets/ui/hidden-note-audit.json). -->
@@ -498,7 +634,9 @@
                 <div class="row" id="r3"><i>lookup</i><b>POL-3.1, POL-2.3, MED-4</b></div>
                 <div class="row" id="r4"><i>handoff</i><b>consult:medical</b></div>
                 <div class="row" id="r5"><i>handoff</i><b>request_approval</b> #15</div>
-                <div class="row human" id="r6"><i>human</i><b>Claims handler</b> · approved → #15</div>
+                <div class="row human" id="r6">
+                  <i>human</i><b>Claims handler</b> · approved → #15
+                </div>
                 <div class="row" id="r7"><i>request</i>#17 back to the agent</div>
                 <div class="row" id="r8"><i>brane</i>refused · <b>RULE_OVERRIDE_ATTEMPT</b></div>
               </div>
@@ -529,10 +667,25 @@
 
           <!-- The decision in the real app (gz-web, therapy-for-burnout run, handoff #15): the card, the decision back in
                the chat, and the audit log's human row (#17) and the request that carried it to the agent (#18). -->
-          <img id="ui-card" class="ui" src="assets/ui/decision-card.png" alt="The claims handler's decision card" />
+          <img
+            id="ui-card"
+            class="ui"
+            src="assets/ui/decision-card.png"
+            alt="The claims handler's decision card"
+          />
           <div id="ring"></div>
-          <img id="ui-msg" class="ui" src="assets/ui/decision-message.png" alt="The decision as a message in the chat" />
-          <img id="ui-audit" class="ui" src="assets/ui/audit-human.png" alt="The audit log with the human row" />
+          <img
+            id="ui-msg"
+            class="ui"
+            src="assets/ui/decision-message.png"
+            alt="The decision as a message in the chat"
+          />
+          <img
+            id="ui-audit"
+            class="ui"
+            src="assets/ui/audit-human.png"
+            alt="The audit log with the human row"
+          />
           <div id="hl17"></div>
           <img id="ui-refusal" src="assets/ui/refusal.png" alt="The refusal card in the app" />
         </div>
@@ -554,15 +707,64 @@
       </div>
 
       <!-- One host per beat; voiceover.mjs sets their windows. Only the climb and the close carry a line. -->
-      <div class="clip" id="beat-cast" data-beat="cast" data-start="0" data-duration="15.146" data-track-index="1"></div>
-      <div class="clip" id="beat-harness" data-beat="harness" data-start="15.146" data-duration="19.646" data-track-index="1"></div>
-      <div class="clip" id="beat-claim" data-beat="claim" data-start="34.792" data-duration="8.935" data-track-index="1"></div>
-      <div class="clip" id="beat-decide" data-beat="decide" data-start="43.727" data-duration="12.096" data-track-index="1"></div>
-      <div class="clip" id="beat-attack" data-beat="attack" data-start="55.823" data-duration="9.066" data-track-index="1"></div>
-      <div class="clip" id="beat-climb" data-beat="climb" data-start="64.889" data-duration="17.85" data-track-index="1">
+      <div
+        class="clip"
+        id="beat-cast"
+        data-beat="cast"
+        data-start="0"
+        data-duration="15.146"
+        data-track-index="1"
+      ></div>
+      <div
+        class="clip"
+        id="beat-harness"
+        data-beat="harness"
+        data-start="15.146"
+        data-duration="19.646"
+        data-track-index="1"
+      ></div>
+      <div
+        class="clip"
+        id="beat-claim"
+        data-beat="claim"
+        data-start="34.792"
+        data-duration="8.935"
+        data-track-index="1"
+      ></div>
+      <div
+        class="clip"
+        id="beat-decide"
+        data-beat="decide"
+        data-start="43.727"
+        data-duration="12.096"
+        data-track-index="1"
+      ></div>
+      <div
+        class="clip"
+        id="beat-attack"
+        data-beat="attack"
+        data-start="55.823"
+        data-duration="9.066"
+        data-track-index="1"
+      ></div>
+      <div
+        class="clip"
+        id="beat-climb"
+        data-beat="climb"
+        data-start="64.889"
+        data-duration="17.85"
+        data-track-index="1"
+      >
         <div class="head" id="hd-climb"><h1>Each criterion, iteration by iteration</h1></div>
       </div>
-      <div class="clip" id="beat-close" data-beat="close" data-start="82.739" data-duration="9.262" data-track-index="1">
+      <div
+        class="clip"
+        id="beat-close"
+        data-beat="close"
+        data-start="82.739"
+        data-duration="9.262"
+        data-track-index="1"
+      >
         <div class="head" id="hd-close">
           <h1>Frontier quality, local privacy, and a person decides</h1>
           <p>Team Gezira · AI-Z Challenge Track · MAIN Summit 2026</p>
@@ -582,9 +784,375 @@
 
     <script>
       // Written by voiceover.mjs; do not edit by hand.
-      const TIMING = /* timing:begin */{"source":"elevenlabs","total":92.001,"beats":[{"id":"cast","start":0,"duration":15.146,"words":[{"w":"Daan,","s":0.4,"e":0.953},{"w":"the","s":1.062,"e":1.16},{"w":"claimant,","s":1.203,"e":1.723},{"w":"breaks","s":1.887,"e":2.201},{"w":"his","s":2.234,"e":2.353},{"w":"leg","s":2.418,"e":2.603},{"w":"skiing","s":2.657,"e":3.069},{"w":"in","s":3.178,"e":3.286},{"w":"Austria.","s":3.351,"e":4.024},{"w":"The","s":4.588,"e":4.707},{"w":"agent","s":4.783,"e":5.142},{"w":"prepares","s":5.196,"e":5.608},{"w":"his","s":5.651,"e":5.76},{"w":"claim.","s":5.814,"e":6.357},{"w":"BRANE","s":6.835,"e":7.214},{"w":"checks","s":7.258,"e":7.55},{"w":"every","s":7.692,"e":8.028},{"w":"model","s":8.093,"e":8.332},{"w":"request.","s":8.386,"e":9.015},{"w":"The","s":9.427,"e":9.547},{"w":"adviser","s":9.591,"e":10.09},{"w":"judges","s":10.393,"e":10.74},{"w":"health,","s":10.794,"e":11.25},{"w":"the","s":11.511,"e":11.608},{"w":"reviewer","s":11.674,"e":12.021},{"w":"judges","s":12.075,"e":12.379},{"w":"law,","s":12.455,"e":12.921},{"w":"and","s":13.225,"e":13.355},{"w":"the","s":13.399,"e":13.464},{"w":"handler","s":13.518,"e":13.844},{"w":"decides.","s":13.887,"e":14.809}]},{"id":"harness","start":15.146,"duration":19.646,"words":[{"w":"The","s":0.25,"e":0.413},{"w":"agent","s":0.478,"e":0.869},{"w":"is","s":1.097,"e":1.248},{"w":"a","s":1.292,"e":1.314},{"w":"Pi","s":1.368,"e":1.617},{"w":"harness","s":1.683,"e":2.095},{"w":"in","s":2.236,"e":2.377},{"w":"one","s":2.453,"e":2.681},{"w":"Durable","s":2.745,"e":3.234},{"w":"Object.","s":3.288,"e":3.939},{"w":"Its","s":4.298,"e":4.482},{"w":"intake","s":4.536,"e":5.143},{"w":"keeps","s":5.306,"e":5.577},{"w":"health","s":5.643,"e":5.882},{"w":"detail","s":5.936,"e":6.294},{"w":"local.","s":6.37,"e":6.88},{"w":"The","s":7.443,"e":7.542},{"w":"gate","s":7.585,"e":7.78},{"w":"masks","s":7.813,"e":8.269},{"w":"numbers","s":8.387,"e":8.822},{"w":"BRANE","s":9.18,"e":9.549},{"w":"misses.","s":9.603,"e":10.298},{"w":"BRANE","s":10.775,"e":11.133},{"w":"is","s":11.176,"e":11.263},{"w":"the","s":11.317,"e":11.393},{"w":"only","s":11.47,"e":11.708},{"w":"road","s":11.784,"e":12.056},{"w":"to","s":12.11,"e":12.186},{"w":"a","s":12.261,"e":12.283},{"w":"model.","s":12.348,"e":12.826},{"w":"A","s":13.39,"e":13.455},{"w":"lookup","s":13.52,"e":13.813},{"w":"cites","s":13.878,"e":14.16},{"w":"the","s":14.203,"e":14.269},{"w":"policy,","s":14.313,"e":14.92},{"w":"consult","s":15.147,"e":15.614},{"w":"and","s":15.657,"e":15.723},{"w":"approval","s":15.756,"e":16.135},{"w":"go","s":16.2,"e":16.33},{"w":"to","s":16.385,"e":16.45},{"w":"people,","s":16.514,"e":17.003},{"w":"and","s":17.199,"e":17.35},{"w":"audit","s":17.427,"e":17.708},{"w":"records","s":17.763,"e":18.218},{"w":"each","s":18.381,"e":18.598},{"w":"step.","s":18.653,"e":19.303}]},{"id":"claim","start":34.792,"duration":8.935,"words":[{"w":"The","s":0.25,"e":0.391},{"w":"discharge","s":0.434,"e":0.869},{"w":"note","s":0.923,"e":1.118},{"w":"stays","s":1.183,"e":1.476},{"w":"local.","s":1.542,"e":1.997},{"w":"The","s":2.409,"e":2.507},{"w":"frontier","s":2.561,"e":2.952},{"w":"model","s":3.017,"e":3.234},{"w":"sees","s":3.31,"e":3.538},{"w":"placeholders,","s":3.592,"e":4.46},{"w":"checks","s":4.72,"e":5.014},{"w":"the","s":5.057,"e":5.122},{"w":"invoices","s":5.198,"e":5.729},{"w":"against","s":5.772,"e":6.055},{"w":"the","s":6.087,"e":6.153},{"w":"policy,","s":6.186,"e":6.771},{"w":"and","s":6.999,"e":7.14},{"w":"asks","s":7.205,"e":7.509},{"w":"the","s":7.563,"e":7.65},{"w":"adviser.","s":7.704,"e":8.583}]},{"id":"decide","start":43.727,"duration":12.096,"words":[{"w":"The","s":0.25,"e":0.402},{"w":"handler","s":0.457,"e":0.814},{"w":"reads","s":0.879,"e":1.14},{"w":"the","s":1.183,"e":1.248},{"w":"recommendation","s":1.292,"e":1.975},{"w":"and","s":2.279,"e":2.463},{"w":"approves.","s":2.517,"e":3.277},{"w":"The","s":3.581,"e":3.7},{"w":"decision","s":3.743,"e":4.091},{"w":"comes","s":4.157,"e":4.384},{"w":"back","s":4.428,"e":4.59},{"w":"into","s":4.633,"e":4.764},{"w":"the","s":4.818,"e":4.883},{"w":"chat","s":4.915,"e":5.165},{"w":"as","s":5.426,"e":5.577},{"w":"a","s":5.632,"e":5.664},{"w":"message,","s":5.718,"e":6.25},{"w":"and","s":6.445,"e":6.576},{"w":"the","s":6.619,"e":6.685},{"w":"agent","s":6.76,"e":7.14},{"w":"continues","s":7.335,"e":7.9},{"w":"from","s":7.943,"e":8.095},{"w":"it.","s":8.149,"e":8.41},{"w":"In","s":8.822,"e":8.942},{"w":"the","s":8.985,"e":9.06},{"w":"audit","s":9.114,"e":9.386},{"w":"trail,","s":9.418,"e":9.95},{"w":"it","s":10.308,"e":10.428},{"w":"is","s":10.471,"e":10.547},{"w":"a","s":10.59,"e":10.623},{"w":"human","s":10.677,"e":11.014},{"w":"row.","s":11.089,"e":11.752}]},{"id":"attack","start":55.823,"duration":9.066,"words":[{"w":"A","s":0.25,"e":0.337},{"w":"claim","s":0.402,"e":0.673},{"w":"letter","s":0.738,"e":1.01},{"w":"hides","s":1.172,"e":1.542},{"w":"an","s":1.573,"e":1.639},{"w":"order:","s":1.714,"e":2.171},{"w":"approve","s":2.474,"e":2.854},{"w":"in","s":2.886,"e":2.952},{"w":"full,","s":3.028,"e":3.472},{"w":"send","s":3.733,"e":4.037},{"w":"the","s":4.102,"e":4.167},{"w":"bank","s":4.221,"e":4.428},{"w":"details.","s":4.503,"e":5.263},{"w":"BRANE","s":5.621,"e":6.023},{"w":"refuses,","s":6.077,"e":6.793},{"w":"and","s":6.988,"e":7.129},{"w":"nothing","s":7.216,"e":7.53},{"w":"reaches","s":7.617,"e":7.954},{"w":"a","s":7.998,"e":8.029},{"w":"model.","s":8.084,"e":8.714}]},{"id":"climb","start":64.889,"duration":17.85,"words":[{"w":"We","s":0.25,"e":0.413},{"w":"climb","s":0.467,"e":0.76},{"w":"the","s":0.814,"e":0.879},{"w":"harness,","s":0.933,"e":1.455},{"w":"never","s":1.758,"e":1.986},{"w":"the","s":2.029,"e":2.095},{"w":"model.","s":2.149,"e":2.572},{"w":"Each","s":3.049,"e":3.256},{"w":"change","s":3.31,"e":3.83},{"w":"is","s":3.971,"e":4.134},{"w":"a","s":4.178,"e":4.211},{"w":"real","s":4.298,"e":4.547},{"w":"run,","s":4.623,"e":5.078},{"w":"kept","s":5.383,"e":5.654},{"w":"only","s":5.718,"e":5.99},{"w":"if","s":6.044,"e":6.12},{"w":"it","s":6.174,"e":6.24},{"w":"scores","s":6.294,"e":6.641},{"w":"better","s":6.706,"e":7.01},{"w":"and","s":7.368,"e":7.53},{"w":"nothing","s":7.617,"e":7.954},{"w":"leaks.","s":8.029,"e":8.583},{"w":"Here","s":9.06,"e":9.364},{"w":"is","s":9.429,"e":9.538},{"w":"each","s":9.603,"e":9.755},{"w":"criterion,","s":9.809,"e":10.644},{"w":"iteration","s":10.905,"e":11.534},{"w":"by","s":11.795,"e":11.969},{"w":"iteration.","s":12.044,"e":13.01}]},{"id":"close","start":82.739,"duration":9.262,"words":[{"w":"Frontier","s":0.25,"e":0.684},{"w":"quality,","s":0.738,"e":1.27},{"w":"local","s":1.432,"e":1.704},{"w":"privacy,","s":1.747,"e":2.377},{"w":"and","s":2.54,"e":2.691},{"w":"a","s":2.745,"e":2.768},{"w":"person","s":2.822,"e":3.169},{"w":"decides.","s":3.223,"e":3.939},{"w":"Team","s":4.243,"e":4.633},{"w":"Gezira.","s":4.829,"e":5.718}]}]}/* timing:end */;
+      const TIMING = /* timing:begin */ {
+        source: "elevenlabs",
+        total: 92.001,
+        beats: [
+          {
+            id: "cast",
+            start: 0,
+            duration: 15.146,
+            words: [
+              { w: "Daan,", s: 0.4, e: 0.953 },
+              { w: "the", s: 1.062, e: 1.16 },
+              { w: "claimant,", s: 1.203, e: 1.723 },
+              { w: "breaks", s: 1.887, e: 2.201 },
+              { w: "his", s: 2.234, e: 2.353 },
+              { w: "leg", s: 2.418, e: 2.603 },
+              { w: "skiing", s: 2.657, e: 3.069 },
+              { w: "in", s: 3.178, e: 3.286 },
+              { w: "Austria.", s: 3.351, e: 4.024 },
+              { w: "The", s: 4.588, e: 4.707 },
+              { w: "agent", s: 4.783, e: 5.142 },
+              { w: "prepares", s: 5.196, e: 5.608 },
+              { w: "his", s: 5.651, e: 5.76 },
+              { w: "claim.", s: 5.814, e: 6.357 },
+              { w: "BRANE", s: 6.835, e: 7.214 },
+              { w: "checks", s: 7.258, e: 7.55 },
+              { w: "every", s: 7.692, e: 8.028 },
+              { w: "model", s: 8.093, e: 8.332 },
+              { w: "request.", s: 8.386, e: 9.015 },
+              { w: "The", s: 9.427, e: 9.547 },
+              { w: "adviser", s: 9.591, e: 10.09 },
+              { w: "judges", s: 10.393, e: 10.74 },
+              { w: "health,", s: 10.794, e: 11.25 },
+              { w: "the", s: 11.511, e: 11.608 },
+              { w: "reviewer", s: 11.674, e: 12.021 },
+              { w: "judges", s: 12.075, e: 12.379 },
+              { w: "law,", s: 12.455, e: 12.921 },
+              { w: "and", s: 13.225, e: 13.355 },
+              { w: "the", s: 13.399, e: 13.464 },
+              { w: "handler", s: 13.518, e: 13.844 },
+              { w: "decides.", s: 13.887, e: 14.809 },
+            ],
+          },
+          {
+            id: "harness",
+            start: 15.146,
+            duration: 19.646,
+            words: [
+              { w: "The", s: 0.25, e: 0.413 },
+              { w: "agent", s: 0.478, e: 0.869 },
+              { w: "is", s: 1.097, e: 1.248 },
+              { w: "a", s: 1.292, e: 1.314 },
+              { w: "Pi", s: 1.368, e: 1.617 },
+              { w: "harness", s: 1.683, e: 2.095 },
+              { w: "in", s: 2.236, e: 2.377 },
+              { w: "one", s: 2.453, e: 2.681 },
+              { w: "Durable", s: 2.745, e: 3.234 },
+              { w: "Object.", s: 3.288, e: 3.939 },
+              { w: "Its", s: 4.298, e: 4.482 },
+              { w: "intake", s: 4.536, e: 5.143 },
+              { w: "keeps", s: 5.306, e: 5.577 },
+              { w: "health", s: 5.643, e: 5.882 },
+              { w: "detail", s: 5.936, e: 6.294 },
+              { w: "local.", s: 6.37, e: 6.88 },
+              { w: "The", s: 7.443, e: 7.542 },
+              { w: "gate", s: 7.585, e: 7.78 },
+              { w: "masks", s: 7.813, e: 8.269 },
+              { w: "numbers", s: 8.387, e: 8.822 },
+              { w: "BRANE", s: 9.18, e: 9.549 },
+              { w: "misses.", s: 9.603, e: 10.298 },
+              { w: "BRANE", s: 10.775, e: 11.133 },
+              { w: "is", s: 11.176, e: 11.263 },
+              { w: "the", s: 11.317, e: 11.393 },
+              { w: "only", s: 11.47, e: 11.708 },
+              { w: "road", s: 11.784, e: 12.056 },
+              { w: "to", s: 12.11, e: 12.186 },
+              { w: "a", s: 12.261, e: 12.283 },
+              { w: "model.", s: 12.348, e: 12.826 },
+              { w: "A", s: 13.39, e: 13.455 },
+              { w: "lookup", s: 13.52, e: 13.813 },
+              { w: "cites", s: 13.878, e: 14.16 },
+              { w: "the", s: 14.203, e: 14.269 },
+              { w: "policy,", s: 14.313, e: 14.92 },
+              { w: "consult", s: 15.147, e: 15.614 },
+              { w: "and", s: 15.657, e: 15.723 },
+              { w: "approval", s: 15.756, e: 16.135 },
+              { w: "go", s: 16.2, e: 16.33 },
+              { w: "to", s: 16.385, e: 16.45 },
+              { w: "people,", s: 16.514, e: 17.003 },
+              { w: "and", s: 17.199, e: 17.35 },
+              { w: "audit", s: 17.427, e: 17.708 },
+              { w: "records", s: 17.763, e: 18.218 },
+              { w: "each", s: 18.381, e: 18.598 },
+              { w: "step.", s: 18.653, e: 19.303 },
+            ],
+          },
+          {
+            id: "claim",
+            start: 34.792,
+            duration: 8.935,
+            words: [
+              { w: "The", s: 0.25, e: 0.391 },
+              { w: "discharge", s: 0.434, e: 0.869 },
+              { w: "note", s: 0.923, e: 1.118 },
+              { w: "stays", s: 1.183, e: 1.476 },
+              { w: "local.", s: 1.542, e: 1.997 },
+              { w: "The", s: 2.409, e: 2.507 },
+              { w: "frontier", s: 2.561, e: 2.952 },
+              { w: "model", s: 3.017, e: 3.234 },
+              { w: "sees", s: 3.31, e: 3.538 },
+              { w: "placeholders,", s: 3.592, e: 4.46 },
+              { w: "checks", s: 4.72, e: 5.014 },
+              { w: "the", s: 5.057, e: 5.122 },
+              { w: "invoices", s: 5.198, e: 5.729 },
+              { w: "against", s: 5.772, e: 6.055 },
+              { w: "the", s: 6.087, e: 6.153 },
+              { w: "policy,", s: 6.186, e: 6.771 },
+              { w: "and", s: 6.999, e: 7.14 },
+              { w: "asks", s: 7.205, e: 7.509 },
+              { w: "the", s: 7.563, e: 7.65 },
+              { w: "adviser.", s: 7.704, e: 8.583 },
+            ],
+          },
+          {
+            id: "decide",
+            start: 43.727,
+            duration: 12.096,
+            words: [
+              { w: "The", s: 0.25, e: 0.402 },
+              { w: "handler", s: 0.457, e: 0.814 },
+              { w: "reads", s: 0.879, e: 1.14 },
+              { w: "the", s: 1.183, e: 1.248 },
+              { w: "recommendation", s: 1.292, e: 1.975 },
+              { w: "and", s: 2.279, e: 2.463 },
+              { w: "approves.", s: 2.517, e: 3.277 },
+              { w: "The", s: 3.581, e: 3.7 },
+              { w: "decision", s: 3.743, e: 4.091 },
+              { w: "comes", s: 4.157, e: 4.384 },
+              { w: "back", s: 4.428, e: 4.59 },
+              { w: "into", s: 4.633, e: 4.764 },
+              { w: "the", s: 4.818, e: 4.883 },
+              { w: "chat", s: 4.915, e: 5.165 },
+              { w: "as", s: 5.426, e: 5.577 },
+              { w: "a", s: 5.632, e: 5.664 },
+              { w: "message,", s: 5.718, e: 6.25 },
+              { w: "and", s: 6.445, e: 6.576 },
+              { w: "the", s: 6.619, e: 6.685 },
+              { w: "agent", s: 6.76, e: 7.14 },
+              { w: "continues", s: 7.335, e: 7.9 },
+              { w: "from", s: 7.943, e: 8.095 },
+              { w: "it.", s: 8.149, e: 8.41 },
+              { w: "In", s: 8.822, e: 8.942 },
+              { w: "the", s: 8.985, e: 9.06 },
+              { w: "audit", s: 9.114, e: 9.386 },
+              { w: "trail,", s: 9.418, e: 9.95 },
+              { w: "it", s: 10.308, e: 10.428 },
+              { w: "is", s: 10.471, e: 10.547 },
+              { w: "a", s: 10.59, e: 10.623 },
+              { w: "human", s: 10.677, e: 11.014 },
+              { w: "row.", s: 11.089, e: 11.752 },
+            ],
+          },
+          {
+            id: "attack",
+            start: 55.823,
+            duration: 9.066,
+            words: [
+              { w: "A", s: 0.25, e: 0.337 },
+              { w: "claim", s: 0.402, e: 0.673 },
+              { w: "letter", s: 0.738, e: 1.01 },
+              { w: "hides", s: 1.172, e: 1.542 },
+              { w: "an", s: 1.573, e: 1.639 },
+              { w: "order:", s: 1.714, e: 2.171 },
+              { w: "approve", s: 2.474, e: 2.854 },
+              { w: "in", s: 2.886, e: 2.952 },
+              { w: "full,", s: 3.028, e: 3.472 },
+              { w: "send", s: 3.733, e: 4.037 },
+              { w: "the", s: 4.102, e: 4.167 },
+              { w: "bank", s: 4.221, e: 4.428 },
+              { w: "details.", s: 4.503, e: 5.263 },
+              { w: "BRANE", s: 5.621, e: 6.023 },
+              { w: "refuses,", s: 6.077, e: 6.793 },
+              { w: "and", s: 6.988, e: 7.129 },
+              { w: "nothing", s: 7.216, e: 7.53 },
+              { w: "reaches", s: 7.617, e: 7.954 },
+              { w: "a", s: 7.998, e: 8.029 },
+              { w: "model.", s: 8.084, e: 8.714 },
+            ],
+          },
+          {
+            id: "climb",
+            start: 64.889,
+            duration: 17.85,
+            words: [
+              { w: "We", s: 0.25, e: 0.413 },
+              { w: "climb", s: 0.467, e: 0.76 },
+              { w: "the", s: 0.814, e: 0.879 },
+              { w: "harness,", s: 0.933, e: 1.455 },
+              { w: "never", s: 1.758, e: 1.986 },
+              { w: "the", s: 2.029, e: 2.095 },
+              { w: "model.", s: 2.149, e: 2.572 },
+              { w: "Each", s: 3.049, e: 3.256 },
+              { w: "change", s: 3.31, e: 3.83 },
+              { w: "is", s: 3.971, e: 4.134 },
+              { w: "a", s: 4.178, e: 4.211 },
+              { w: "real", s: 4.298, e: 4.547 },
+              { w: "run,", s: 4.623, e: 5.078 },
+              { w: "kept", s: 5.383, e: 5.654 },
+              { w: "only", s: 5.718, e: 5.99 },
+              { w: "if", s: 6.044, e: 6.12 },
+              { w: "it", s: 6.174, e: 6.24 },
+              { w: "scores", s: 6.294, e: 6.641 },
+              { w: "better", s: 6.706, e: 7.01 },
+              { w: "and", s: 7.368, e: 7.53 },
+              { w: "nothing", s: 7.617, e: 7.954 },
+              { w: "leaks.", s: 8.029, e: 8.583 },
+              { w: "Here", s: 9.06, e: 9.364 },
+              { w: "is", s: 9.429, e: 9.538 },
+              { w: "each", s: 9.603, e: 9.755 },
+              { w: "criterion,", s: 9.809, e: 10.644 },
+              { w: "iteration", s: 10.905, e: 11.534 },
+              { w: "by", s: 11.795, e: 11.969 },
+              { w: "iteration.", s: 12.044, e: 13.01 },
+            ],
+          },
+          {
+            id: "close",
+            start: 82.739,
+            duration: 9.262,
+            words: [
+              { w: "Frontier", s: 0.25, e: 0.684 },
+              { w: "quality,", s: 0.738, e: 1.27 },
+              { w: "local", s: 1.432, e: 1.704 },
+              { w: "privacy,", s: 1.747, e: 2.377 },
+              { w: "and", s: 2.54, e: 2.691 },
+              { w: "a", s: 2.745, e: 2.768 },
+              { w: "person", s: 2.822, e: 3.169 },
+              { w: "decides.", s: 3.223, e: 3.939 },
+              { w: "Team", s: 4.243, e: 4.633 },
+              { w: "Gezira.", s: 4.829, e: 5.718 },
+            ],
+          },
+        ],
+      }; /* timing:end */
       // Written by climb.mjs from evals/climb-history.json; do not edit by hand.
-      const CLIMB = /* climb:begin */ {"source":"placeholder","criteria":{"leak_rate":{"label":"Leak rate","unit":"%","better":"down"},"macro_f1":{"label":"Macro-F1","unit":"","better":"up"},"robustness":{"label":"Adversarial variants passed","unit":"%","better":"up"},"gate_pass":{"label":"Gate tests passed","unit":"%","better":"up"},"over_block":{"label":"Permitted requests kept off cloud","unit":"%","better":"down"},"stability":{"label":"Same route on rerun","unit":"%","better":"up"},"agent_pass":{"label":"Agent runs completed","unit":"%","better":"up"},"audit_completeness":{"label":"Handoffs with a human row","unit":"%","better":"up"},"latency_ms":{"label":"Median latency","unit":"ms","better":"down"},"calls_per_request":{"label":"BRANE calls per request","unit":"","better":"down"}},"rows":[{"iter":0,"change":"BRANE default, no harness","layer":"policy","kept":true,"scores":{"leak_rate":21.6,"macro_f1":0.61,"robustness":70,"gate_pass":60,"over_block":30,"stability":88,"agent_pass":null,"audit_completeness":null,"latency_ms":2400,"calls_per_request":1}},{"iter":1,"change":"policy v1","layer":"policy","kept":true,"scores":{"leak_rate":9.5,"macro_f1":0.72,"robustness":80,"gate_pass":75,"over_block":22,"stability":90,"agent_pass":60,"audit_completeness":50,"latency_ms":2500,"calls_per_request":1}},{"iter":2,"change":"gate masks ids","layer":"gate","kept":true,"scores":{"leak_rate":3.2,"macro_f1":0.8,"robustness":88,"gate_pass":85,"over_block":20,"stability":93,"agent_pass":null,"audit_completeness":null,"latency_ms":2550,"calls_per_request":1}},{"iter":3,"change":"looser health rule","layer":"policy","kept":false,"scores":{"leak_rate":6,"macro_f1":0.78,"robustness":84,"gate_pass":80,"over_block":12,"stability":92,"agent_pass":null,"audit_completeness":null,"latency_ms":2500,"calls_per_request":1}},{"iter":4,"change":"intake split","layer":"routing","kept":true,"scores":{"leak_rate":1.1,"macro_f1":0.86,"robustness":93,"gate_pass":95,"over_block":9,"stability":96,"agent_pass":85,"audit_completeness":90,"latency_ms":3100,"calls_per_request":2}},{"iter":5,"change":"second classifier","layer":"model","kept":true,"scores":{"leak_rate":0,"macro_f1":0.9,"robustness":97,"gate_pass":100,"over_block":8,"stability":97,"agent_pass":95,"audit_completeness":100,"latency_ms":3300,"calls_per_request":2}}]} /* climb:end */;
+      const CLIMB = /* climb:begin */ {
+        source: "placeholder",
+        criteria: {
+          leak_rate: { label: "Leak rate", unit: "%", better: "down" },
+          macro_f1: { label: "Macro-F1", unit: "", better: "up" },
+          robustness: { label: "Adversarial variants passed", unit: "%", better: "up" },
+          gate_pass: { label: "Gate tests passed", unit: "%", better: "up" },
+          over_block: { label: "Permitted requests kept off cloud", unit: "%", better: "down" },
+          stability: { label: "Same route on rerun", unit: "%", better: "up" },
+          agent_pass: { label: "Agent runs completed", unit: "%", better: "up" },
+          audit_completeness: { label: "Handoffs with a human row", unit: "%", better: "up" },
+          latency_ms: { label: "Median latency", unit: "ms", better: "down" },
+          calls_per_request: { label: "BRANE calls per request", unit: "", better: "down" },
+        },
+        rows: [
+          {
+            iter: 0,
+            change: "BRANE default, no harness",
+            layer: "policy",
+            kept: true,
+            scores: {
+              leak_rate: 21.6,
+              macro_f1: 0.61,
+              robustness: 70,
+              gate_pass: 60,
+              over_block: 30,
+              stability: 88,
+              agent_pass: null,
+              audit_completeness: null,
+              latency_ms: 2400,
+              calls_per_request: 1,
+            },
+          },
+          {
+            iter: 1,
+            change: "policy v1",
+            layer: "policy",
+            kept: true,
+            scores: {
+              leak_rate: 9.5,
+              macro_f1: 0.72,
+              robustness: 80,
+              gate_pass: 75,
+              over_block: 22,
+              stability: 90,
+              agent_pass: 60,
+              audit_completeness: 50,
+              latency_ms: 2500,
+              calls_per_request: 1,
+            },
+          },
+          {
+            iter: 2,
+            change: "gate masks ids",
+            layer: "gate",
+            kept: true,
+            scores: {
+              leak_rate: 3.2,
+              macro_f1: 0.8,
+              robustness: 88,
+              gate_pass: 85,
+              over_block: 20,
+              stability: 93,
+              agent_pass: null,
+              audit_completeness: null,
+              latency_ms: 2550,
+              calls_per_request: 1,
+            },
+          },
+          {
+            iter: 3,
+            change: "looser health rule",
+            layer: "policy",
+            kept: false,
+            scores: {
+              leak_rate: 6,
+              macro_f1: 0.78,
+              robustness: 84,
+              gate_pass: 80,
+              over_block: 12,
+              stability: 92,
+              agent_pass: null,
+              audit_completeness: null,
+              latency_ms: 2500,
+              calls_per_request: 1,
+            },
+          },
+          {
+            iter: 4,
+            change: "intake split",
+            layer: "routing",
+            kept: true,
+            scores: {
+              leak_rate: 1.1,
+              macro_f1: 0.86,
+              robustness: 93,
+              gate_pass: 95,
+              over_block: 9,
+              stability: 96,
+              agent_pass: 85,
+              audit_completeness: 90,
+              latency_ms: 3100,
+              calls_per_request: 2,
+            },
+          },
+          {
+            iter: 5,
+            change: "second classifier",
+            layer: "model",
+            kept: true,
+            scores: {
+              leak_rate: 0,
+              macro_f1: 0.9,
+              robustness: 97,
+              gate_pass: 100,
+              over_block: 8,
+              stability: 97,
+              agent_pass: 95,
+              audit_completeness: 100,
+              latency_ms: 3300,
+              calls_per_request: 2,
+            },
+          },
+        ],
+      }; /* climb:end */
 
       const beat = Object.fromEntries(TIMING.beats.map((b) => [b.id, b]));
       const norm = (s) => s.toLowerCase().replace(/[^a-z0-9-]/g, "");
@@ -609,7 +1177,10 @@
       const len = {};
       document.querySelectorAll("#world path.edge").forEach((p) => {
         len[p.id] = p.getTotalLength();
-        gsap.set(p, { strokeDasharray: `${len[p.id]} ${len[p.id] + 20}`, strokeDashoffset: len[p.id] + 2 });
+        gsap.set(p, {
+          strokeDasharray: `${len[p.id]} ${len[p.id] + 20}`,
+          strokeDashoffset: len[p.id] + 2,
+        });
       });
       gsap.set("#world .node, #world .sub, #n-log", { opacity: 0 });
       gsap.set("#world", { x: 0, y: 0, scale: 1 });
@@ -618,30 +1189,64 @@
 
       // Vocabulary. Shapes draw their outline, then fill; arrivals on long ease-outs; camera eases both ways.
       const draw = (id, t, d = 0.7) =>
-        tl.fromTo(`#${id}`, { strokeDashoffset: len[id] + 2 }, { strokeDashoffset: 0, duration: d, ease: "power2.inOut" }, t);
+        tl.fromTo(
+          `#${id}`,
+          { strokeDashoffset: len[id] + 2 },
+          { strokeDashoffset: 0, duration: d, ease: "power2.inOut" },
+          t,
+        );
       const fadeIn = (s, t, d = 0.35) =>
-        tl.fromTo(s, { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: d, ease: "power3.out" }, t);
-      const fadeOut = (s, t, d = 0.25) => tl.to(s, { opacity: 0, duration: d, ease: "power2.in" }, t);
-      const dim = (s, t, v = 0.15, d = 0.4) => tl.to(s, { opacity: v, duration: d, ease: "power2.out" }, t);
+        tl.fromTo(
+          s,
+          { opacity: 0, filter: "blur(6px)" },
+          { opacity: 1, filter: "blur(0px)", duration: d, ease: "power3.out" },
+          t,
+        );
+      const fadeOut = (s, t, d = 0.25) =>
+        tl.to(s, { opacity: 0, duration: d, ease: "power2.in" }, t);
+      const dim = (s, t, v = 0.15, d = 0.4) =>
+        tl.to(s, { opacity: v, duration: d, ease: "power2.out" }, t);
       const cam = (cx, cy, s, t, d = 1.1) =>
-        tl.to("#world", { x: 960 - cx * s, y: 540 - cy * s, scale: s, duration: d, ease: "power2.inOut" }, t);
-      const camHome = (t, d = 1.1) => tl.to("#world", { x: 0, y: 0, scale: 1, duration: d, ease: "power2.inOut" }, t);
-      const mark = (s, t) => tl.to(s, { backgroundColor: "#ffe14a", duration: 0.35, ease: "power2.out" }, t);
-      const unmark = (s, t, c = "#ffffff") => tl.to(s, { backgroundColor: c, duration: 0.3, ease: "power2.in" }, t);
+        tl.to(
+          "#world",
+          { x: 960 - cx * s, y: 540 - cy * s, scale: s, duration: d, ease: "power2.inOut" },
+          t,
+        );
+      const camHome = (t, d = 1.1) =>
+        tl.to("#world", { x: 0, y: 0, scale: 1, duration: d, ease: "power2.inOut" }, t);
+      const mark = (s, t) =>
+        tl.to(s, { backgroundColor: "#ffe14a", duration: 0.35, ease: "power2.out" }, t);
+      const unmark = (s, t, c = "#ffffff") =>
+        tl.to(s, { backgroundColor: c, duration: 0.3, ease: "power2.in" }, t);
 
       // A node grows: its outline draws round the box, then the node fills in and the outline lets go.
       const outlines = document.getElementById("outlines");
       function grow(sel, t, d = 0.6) {
         const el = $(sel);
-        const x = el.offsetLeft, y = el.offsetTop, w = el.offsetWidth, h = el.offsetHeight;
+        const x = el.offsetLeft,
+          y = el.offsetTop,
+          w = el.offsetWidth,
+          h = el.offsetHeight;
         const r = el.classList.contains("person") ? h / 2 : 18;
         const rect = document.createElementNS(NS, "rect");
-        Object.entries({ x, y, width: w, height: h, rx: r, class: "outline" }).forEach(([k, v]) => rect.setAttribute(k, v));
+        Object.entries({ x, y, width: w, height: h, rx: r, class: "outline" }).forEach(([k, v]) =>
+          rect.setAttribute(k, v),
+        );
         outlines.appendChild(rect);
         const L = rect.getTotalLength() + 2;
         gsap.set(rect, { strokeDasharray: `${L} ${L + 20}`, strokeDashoffset: L });
-        tl.fromTo(rect, { strokeDashoffset: L }, { strokeDashoffset: 0, duration: d, ease: "power2.inOut" }, t);
-        tl.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power2.out" }, t + d * 0.7);
+        tl.fromTo(
+          rect,
+          { strokeDashoffset: L },
+          { strokeDashoffset: 0, duration: d, ease: "power2.inOut" },
+          t,
+        );
+        tl.fromTo(
+          el,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.35, ease: "power2.out" },
+          t + d * 0.7,
+        );
         tl.to(rect, { opacity: 0, duration: 0.3 }, t + d + 0.1);
       }
 
@@ -690,11 +1295,24 @@
       function drop(i, x, y, t) {
         const slot = Math.min(landed, VISIBLE - 1);
         tl.fromTo(`#d${i}`, { x, y, opacity: 0 }, { opacity: 1, duration: 0.1 }, t);
-        tl.to(`#d${i}`, { x: 470, y: 760 + 12 + 34 + slot * ROW + ROW / 2, duration: 0.6, ease: "power2.inOut" }, t + 0.05);
+        tl.to(
+          `#d${i}`,
+          { x: 470, y: 760 + 12 + 34 + slot * ROW + ROW / 2, duration: 0.6, ease: "power2.inOut" },
+          t + 0.05,
+        );
         tl.to(`#d${i}`, { opacity: 0, duration: 0.12 }, t + 0.65);
         if (landed >= VISIBLE)
-          tl.to("#rows", { y: -(landed - VISIBLE + 1) * ROW, duration: 0.4, ease: "power2.inOut" }, t + 0.4);
-        tl.fromTo(`#r${i}`, { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.5, ease: "expo.out" }, t + 0.6);
+          tl.to(
+            "#rows",
+            { y: -(landed - VISIBLE + 1) * ROW, duration: 0.4, ease: "power2.inOut" },
+            t + 0.4,
+          );
+        tl.fromTo(
+          `#r${i}`,
+          { opacity: 0, x: -12 },
+          { opacity: 1, x: 0, duration: 0.5, ease: "expo.out" },
+          t + 0.6,
+        );
         landed++;
       }
 
@@ -702,9 +1320,18 @@
       grow("#n-claimant", 0.05, 0.5);
       fadeIn("#s-claimant", 0.4);
       fadeIn("#ui-claim", at("cast", "breaks"), 0.5);
-      tl.fromTo("#ui-claim", { y: 12 }, { y: 0, duration: 0.8, ease: "expo.out" }, at("cast", "breaks"));
+      tl.fromTo(
+        "#ui-claim",
+        { y: 12 },
+        { y: 0, duration: 0.8, ease: "expo.out" },
+        at("cast", "breaks"),
+      );
       fadeOut("#ui-claim", at("cast", "the agent") - 0.2, 0.3);
-      tl.to("#do", { strokeDashoffset: 0, duration: 0.7, ease: "power2.inOut" }, at("cast", "the agent"));
+      tl.to(
+        "#do",
+        { strokeDashoffset: 0, duration: 0.7, ease: "power2.inOut" },
+        at("cast", "the agent"),
+      );
       fadeIn("#n-agent0", at("cast", "agent") + 0.3);
       tl.set("#n-agent0", { opacity: 1 }, at("cast", "agent") + 0.7);
       draw("c-claim", at("cast", "prepares"), 0.8);
@@ -729,10 +1356,26 @@
       const opens = at("harness", "pi harness");
       fadeOut("#n-agent0", opens - 0.2, 0.2);
       tl.set("#n-agent0", { visibility: "hidden" }, opens + 0.05);
-      tl.to(["#c-claim", "#c-brane", "#c-adv", "#c-rev", "#c-hand"], { opacity: 0, duration: 0.3 }, opens - 0.1);
+      tl.to(
+        ["#c-claim", "#c-brane", "#c-adv", "#c-rev", "#c-hand"],
+        { opacity: 0, duration: 0.3 },
+        opens - 0.1,
+      );
       tl.set("#do", { strokeDasharray: "none" }, opens - 0.05);
-      tl.to("#do", { attr: { x: 380, y: 210, width: 820, height: 720, rx: 28 }, duration: 1.0, ease: "power3.inOut" }, opens);
-      tl.to("#do", { fill: "#fafafa", stroke: "#b4b4ba", strokeDasharray: "10 10", duration: 0.5 }, opens + 0.8);
+      tl.to(
+        "#do",
+        {
+          attr: { x: 380, y: 210, width: 820, height: 720, rx: 28 },
+          duration: 1.0,
+          ease: "power3.inOut",
+        },
+        opens,
+      );
+      tl.to(
+        "#do",
+        { fill: "#fafafa", stroke: "#b4b4ba", strokeDasharray: "10 10", duration: 0.5 },
+        opens + 0.8,
+      );
       grow("#n-agent", opens + 0.7);
       fadeIn("#s-do", at("harness", "durable object"));
       draw("e-claim", at("harness", "its intake") - 0.3, 0.6);
@@ -746,7 +1389,11 @@
       draw("e-gb", at("harness", "masks"), 0.4);
       draw("e-bf", at("harness", "only road"), 0.5);
       grow("#n-front", at("harness", "only road") + 0.2);
-      tl.to("#n-brane", { scale: 1.08, duration: 0.25, yoyo: true, repeat: 1, ease: "power2.out" }, at("harness", "only road"));
+      tl.to(
+        "#n-brane",
+        { scale: 1.08, duration: 0.25, yoyo: true, repeat: 1, ease: "power2.out" },
+        at("harness", "only road"),
+      );
       draw("e-tl", at("harness", "a lookup") - 0.2, 0.4);
       grow("#n-lookup", at("harness", "lookup"));
       draw("e-tc", at("harness", "consult") - 0.2, 0.4);
@@ -762,12 +1409,35 @@
       const C = (p) => at("claim", p);
       drop(0, 530, 330, start("claim") + 0.1);
       show("#k-note", C("discharge"));
-      travel("#k-note", [["e-claim", false], ["t-int", false], ["e-ib", false], ["t-bd", false], ["e-bl", false]], C("discharge"), 2.0);
+      travel(
+        "#k-note",
+        [
+          ["e-claim", false],
+          ["t-int", false],
+          ["e-ib", false],
+          ["t-bd", false],
+          ["e-bl", false],
+        ],
+        C("discharge"),
+        2.0,
+      );
       mark("#n-local", C("local"));
       fadeOut("#k-note", C("local") + 0.5);
       unmark("#n-local", C("the frontier") + 0.4, "#f3f3f4");
       show("#k-ph", C("the frontier"));
-      travel("#k-ph", [["t-agent", false], ["e-ag", false], ["t-gate", false], ["e-gb", false], ["t-brane", false], ["e-bf", false]], C("the frontier"), 2.0);
+      travel(
+        "#k-ph",
+        [
+          ["t-agent", false],
+          ["e-ag", false],
+          ["t-gate", false],
+          ["e-gb", false],
+          ["t-brane", false],
+          ["e-bf", false],
+        ],
+        C("the frontier"),
+        2.0,
+      );
       drop(1, 1030, 330, C("frontier") + 0.4);
       drop(2, 1400, 330, C("sees"));
       mark("#n-front", C("placeholders"));
@@ -778,7 +1448,15 @@
       drop(3, 1020, 500, C("invoices"));
       fadeOut("#k-cite", C("and asks") - 0.1);
       show("#k-med", C("and asks"));
-      travel("#k-med", [["e-tc", false], ["e-adv", false]], C("and asks"), 1.4);
+      travel(
+        "#k-med",
+        [
+          ["e-tc", false],
+          ["e-adv", false],
+        ],
+        C("and asks"),
+        1.4,
+      );
       drop(4, 1020, 590, C("asks"));
       mark("#n-adv", C("adviser"));
       fadeOut("#k-med", end("claim") - 0.3);
@@ -788,20 +1466,56 @@
       // chat and lands in the audit trail as a human row.
       const D = (p) => at("decide", p);
       show("#k-rec", start("decide") + 0.1);
-      travel("#k-rec", [["e-tr", false], ["e-hand", false]], start("decide") + 0.1, 1.4);
+      travel(
+        "#k-rec",
+        [
+          ["e-tr", false],
+          ["e-hand", false],
+        ],
+        start("decide") + 0.1,
+        1.4,
+      );
       drop(5, 1020, 680, start("decide") + 0.6);
       mark("#n-hand", D("reads"));
       fadeOut("#k-rec", D("reads") + 0.3);
       const others = "#world .node, #world .sub, #world path.edge:not([id^=c-]), #do, #n-log";
       const keep = ["n-hand", "s-hand"];
-      dim([...document.querySelectorAll(others)].filter((e) => !keep.includes(e.id)), D("reads"), 0.06);
-      tl.fromTo("#ui-card", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" }, D("reads"));
-      tl.fromTo("#ring", { opacity: 0, scale: 1.3 }, { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" }, D("approves") - 0.2);
+      dim(
+        [...document.querySelectorAll(others)].filter((e) => !keep.includes(e.id)),
+        D("reads"),
+        0.06,
+      );
+      tl.fromTo(
+        "#ui-card",
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" },
+        D("reads"),
+      );
+      tl.fromTo(
+        "#ring",
+        { opacity: 0, scale: 1.3 },
+        { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" },
+        D("approves") - 0.2,
+      );
       tl.to("#ring", { opacity: 0, duration: 0.3 }, D("approves") + 0.6);
       show("#k-dec", D("the decision"));
-      travel("#k-dec", [["e-hand", true], ["e-tr", true], ["t-agent", true]], D("the decision"), 1.3);
+      travel(
+        "#k-dec",
+        [
+          ["e-hand", true],
+          ["e-tr", true],
+          ["t-agent", true],
+        ],
+        D("the decision"),
+        1.3,
+      );
       tl.to("#ui-card", { opacity: 0, duration: 0.4 }, D("comes back"));
-      tl.fromTo("#ui-msg", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" }, D("chat") - 0.1);
+      tl.fromTo(
+        "#ui-msg",
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" },
+        D("chat") - 0.1,
+      );
       tl.to("#n-agent", { opacity: 1, duration: 0.3 }, D("agent continues") - 0.2);
       mark("#n-agent", D("continues"));
       fadeOut("#k-dec", D("continues"), 0.2);
@@ -809,8 +1523,18 @@
       tl.to("#n-log", { opacity: 1, duration: 0.3 }, D("in the audit") - 0.3);
       drop(6, 1730, 838, D("in the audit") - 0.3);
       drop(7, 680, 548, D("audit trail"));
-      tl.fromTo("#ui-audit", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" }, D("audit trail"));
-      tl.fromTo("#hl17", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, D("human"));
+      tl.fromTo(
+        "#ui-audit",
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" },
+        D("audit trail"),
+      );
+      tl.fromTo(
+        "#hl17",
+        { opacity: 0, scale: 1.04 },
+        { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" },
+        D("human"),
+      );
       fadeOut(["#ui-card", "#ui-msg", "#ui-audit", "#hl17"], end("decide") - 0.5, 0.35);
       tl.to(others, { opacity: 1, duration: 0.4 }, end("decide") - 0.4);
       unmark("#n-hand", end("decide") - 0.4);
@@ -818,34 +1542,86 @@
       // 5 Attack: a letter's planted order reaches BRANE and stops there.
       const A = (p) => at("attack", p);
       show("#k-letter", A("claim letter"));
-      travel("#k-letter", [["e-claim", false], ["t-int", false], ["e-ia", false]], A("claim letter"), 1.6);
+      travel(
+        "#k-letter",
+        [
+          ["e-claim", false],
+          ["t-int", false],
+          ["e-ia", false],
+        ],
+        A("claim letter"),
+        1.6,
+      );
       fadeOut("#k-letter", A("an order") - 0.1, 0.2);
       show("#k-order", A("an order"));
       cam(1180, 360, 1.12, A("approve in"), 1.0);
-      travel("#k-order", [["t-agent", false], ["e-ag", false], ["t-gate", false], ["e-gb", false]], A("approve in"), 2.4);
+      travel(
+        "#k-order",
+        [
+          ["t-agent", false],
+          ["e-ag", false],
+          ["t-gate", false],
+          ["e-gb", false],
+        ],
+        A("approve in"),
+        2.4,
+      );
       tl.to("#n-brane", { scale: 1.1, duration: 0.2, yoyo: true, repeat: 1 }, A("refuses"));
       fadeOut("#k-order", A("refuses") + 0.1, 0.15);
-      dim(["#e-bf", "#e-bl", "#n-front", "#n-local", "#n-adv", "#n-rev", "#s-adv", "#s-rev"], A("refuses"), 0.12);
-      tl.fromTo("#ui-refusal", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "expo.out" }, A("refuses") + 0.1);
+      dim(
+        ["#e-bf", "#e-bl", "#n-front", "#n-local", "#n-adv", "#n-rev", "#s-adv", "#s-rev"],
+        A("refuses"),
+        0.12,
+      );
+      tl.fromTo(
+        "#ui-refusal",
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "expo.out" },
+        A("refuses") + 0.1,
+      );
       drop(8, 1400, 330, A("nothing"));
       camHome(end("attack") - 0.9, 0.8);
       fadeOut("#ui-refusal", end("attack") - 0.4);
-      tl.to(["#e-bf", "#e-bl", "#n-front", "#n-local", "#n-adv", "#n-rev", "#s-adv", "#s-rev"], { opacity: 1, duration: 0.3 }, end("attack") - 0.3);
+      tl.to(
+        ["#e-bf", "#e-bl", "#n-front", "#n-local", "#n-adv", "#n-rev", "#s-adv", "#s-rev"],
+        { opacity: 1, duration: 0.3 },
+        end("attack") - 0.3,
+      );
 
       // 6 Climb: the graph steps back and every criterion gets its own small graph over the iterations.
-      tl.to("#world", { opacity: 0, scale: 0.94, x: 58, y: 32, filter: "blur(6px)", duration: 0.6, ease: "power2.in" }, at("climb", "never") - 0.2);
+      tl.to(
+        "#world",
+        {
+          opacity: 0,
+          scale: 0.94,
+          x: 58,
+          y: 32,
+          filter: "blur(6px)",
+          duration: 0.6,
+          ease: "power2.in",
+        },
+        at("climb", "never") - 0.2,
+      );
       tl.to("#climb", { opacity: 1, duration: 0.3 }, at("climb", "never") + 0.3);
-      tl.fromTo("#hd-climb h1", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, ease: "expo.out" }, at("climb", "never") + 0.3);
+      tl.fromTo(
+        "#hd-climb h1",
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "expo.out" },
+        at("climb", "never") + 0.3,
+      );
 
       const rows = CLIMB.rows;
       const keys = Object.keys(CLIMB.criteria).filter((k) => rows.some((r) => r.scores[k] != null));
       if (CLIMB.source === "placeholder") document.getElementById("ph").style.display = "block";
       const cols = Math.min(5, keys.length);
       const nrows = Math.ceil(keys.length / cols);
-      const GW = 1728, GAP = 32;
+      const GW = 1728,
+        GAP = 32;
       const CW = (GW - GAP * (cols - 1)) / cols;
-      const PW = CW, PH = nrows > 1 ? 150 : 300;
-      const top0 = 196, rowH = nrows > 1 ? 380 : 600;
+      const PW = CW,
+        PH = nrows > 1 ? 150 : 300;
+      const top0 = 196,
+        rowH = nrows > 1 ? 380 : 600;
       const fmt = (v, unit) => {
         if (v == null) return "–";
         if (unit === "ms") return `${(v / 1000).toFixed(1)} s`;
@@ -868,23 +1644,36 @@
         el.innerHTML = `<div class="lb">${c.label}</div><div class="bt">${c.better === "down" ? "lower is better" : "higher is better"}</div><div class="val"></div>`;
         const vals = rows.map((r) => r.scores[k]);
         const have = vals.filter((v) => v != null);
-        let lo = Math.min(...have), hi = Math.max(...have);
-        if (c.unit === "%" && hi <= 100) { lo = Math.min(lo, 0); hi = Math.max(hi, lo + 1); }
-        if (hi === lo) { hi += 1; lo -= 1; }
+        let lo = Math.min(...have),
+          hi = Math.max(...have);
+        if (c.unit === "%" && hi <= 100) {
+          lo = Math.min(lo, 0);
+          hi = Math.max(hi, lo + 1);
+        }
+        if (hi === lo) {
+          hi += 1;
+          lo -= 1;
+        }
         const X = (i) => (n === 1 ? PW / 2 : (i / (n - 1)) * PW);
         const Y = (v) => PH - ((v - lo) / (hi - lo)) * PH;
         const svg = document.createElementNS(NS, "svg");
         svg.setAttribute("width", PW);
         svg.setAttribute("height", PH);
         const axis = document.createElementNS(NS, "line");
-        Object.entries({ x1: 0, y1: PH, x2: PW, y2: PH, class: "axis" }).forEach(([a, v]) => axis.setAttribute(a, v));
+        Object.entries({ x1: 0, y1: PH, x2: PW, y2: PH, class: "axis" }).forEach(([a, v]) =>
+          axis.setAttribute(a, v),
+        );
         svg.appendChild(axis);
         // The line follows the harness as kept: kept iterations only, broken where the criterion was not measured.
-        let d = "", pen = false;
+        let d = "",
+          pen = false;
         rows.forEach((r, i) => {
           const v = r.scores[k];
           if (!r.kept) return;
-          if (v == null) { pen = false; return; }
+          if (v == null) {
+            pen = false;
+            return;
+          }
           d += `${pen ? "L" : "M"}${X(i).toFixed(1)} ${Y(v).toFixed(1)} `;
           pen = true;
         });
@@ -906,44 +1695,78 @@
           p.setAttribute("class", `pt ${r.kept ? "" : "rv"} ${i === lastKept ? "end" : ""}`);
           p.setAttribute("opacity", 0);
           svg.appendChild(p);
-          tl.fromTo(p, { opacity: 0, scale: 0, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, tAt(i));
+          tl.fromTo(
+            p,
+            { opacity: 0, scale: 0, transformOrigin: "50% 50%" },
+            { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" },
+            tAt(i),
+          );
         });
         el.appendChild(svg);
         host.appendChild(el);
         const t0 = at("climb", "never") + 0.5 + ci * 0.06;
-        tl.fromTo(axis, { attr: { x2: 0 } }, { attr: { x2: PW }, duration: 0.6, ease: "power2.out" }, t0);
+        tl.fromTo(
+          axis,
+          { attr: { x2: 0 } },
+          { attr: { x2: PW }, duration: 0.6, ease: "power2.out" },
+          t0,
+        );
         tl.fromTo(el.querySelector(".lb"), { opacity: 0 }, { opacity: 1, duration: 0.3 }, t0);
         tl.fromTo(el.querySelector(".bt"), { opacity: 0 }, { opacity: 1, duration: 0.3 }, t0 + 0.1);
-        tl.to(`#${clipId}-r`, { attr: { width: PW + 20 }, duration: sweepEnd - sweepStart, ease: "none" }, sweepStart);
+        tl.to(
+          `#${clipId}-r`,
+          { attr: { width: PW + 20 }, duration: sweepEnd - sweepStart, ease: "none" },
+          sweepStart,
+        );
         const valEl = el.querySelector(".val");
         tl.fromTo(valEl, { opacity: 0 }, { opacity: 1, duration: 0.3 }, sweepStart);
         // The number shows the harness's current score: the last kept value at or before the cursor.
         const cur = { i: 0 };
-        tl.fromTo(cur, { i: 0 }, {
-          i: n - 1, duration: sweepEnd - sweepStart, ease: "none",
-          onUpdate: () => {
-            let v = null;
-            for (let j = 0; j <= Math.round(cur.i); j++) if (rows[j].kept && rows[j].scores[k] != null) v = rows[j].scores[k];
-            valEl.textContent = fmt(v, c.unit);
+        tl.fromTo(
+          cur,
+          { i: 0 },
+          {
+            i: n - 1,
+            duration: sweepEnd - sweepStart,
+            ease: "none",
+            onUpdate: () => {
+              let v = null;
+              for (let j = 0; j <= Math.round(cur.i); j++)
+                if (rows[j].kept && rows[j].scores[k] != null) v = rows[j].scores[k];
+              valEl.textContent = fmt(v, c.unit);
+            },
           },
-        }, sweepStart);
+          sweepStart,
+        );
       });
       // The ticker names the change being tried.
       const tick = document.getElementById("ticker");
       const tk = { i: 0 };
       tl.fromTo("#ticker", { opacity: 0 }, { opacity: 1, duration: 0.3 }, sweepStart);
-      tl.fromTo(tk, { i: 0 }, {
-        i: n - 1, duration: sweepEnd - sweepStart, ease: "none",
-        onUpdate: () => {
-          const r = rows[Math.round(tk.i)];
-          tick.innerHTML = `Iteration ${r.iter} · ${r.layer} · <b>${r.change}</b> · ${r.kept ? "kept" : "reverted"}`;
+      tl.fromTo(
+        tk,
+        { i: 0 },
+        {
+          i: n - 1,
+          duration: sweepEnd - sweepStart,
+          ease: "none",
+          onUpdate: () => {
+            const r = rows[Math.round(tk.i)];
+            tick.innerHTML = `Iteration ${r.iter} · ${r.layer} · <b>${r.change}</b> · ${r.kept ? "kept" : "reverted"}`;
+          },
         },
-      }, sweepStart);
+        sweepStart,
+      );
 
       // 7 Close: the graphs stay; the closing line replaces the climb heading.
       tl.to("#hd-climb", { opacity: 0, duration: 0.25 }, start("close") - 0.1);
       fadeOut("#ticker", start("close") - 0.1);
-      tl.fromTo("#hd-close h1", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" }, start("close") + 0.1);
+      tl.fromTo(
+        "#hd-close h1",
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" },
+        start("close") + 0.1,
+      );
       tl.fromTo("#hd-close p", { opacity: 0 }, { opacity: 1, duration: 0.4 }, at("close", "team"));
 
       // Captions: groups of up to 7 words, split at sentence ends and pauses of 0.3 s or more.
@@ -956,7 +1779,9 @@
           const el = document.createElement("div");
           el.className = "cg";
           el.id = `cg${cn++}`;
-          el.appendChild(document.createElement("span")).textContent = group.map((w) => w.w).join(" ");
+          el.appendChild(document.createElement("span")).textContent = group
+            .map((w) => w.w)
+            .join(" ");
           cap.appendChild(el);
           const s = b.start + group[0].s - 0.05;
           const next = b.words[b.words.indexOf(group.at(-1)) + 1];
