@@ -1,0 +1,94 @@
+# Team Gezira: AI-Z Challenge Track submission
+
+A claims assistant for an EU health and travel insurer. It prepares each claim up to a human decision, sends every
+model request through BRANE, and keeps health data on the local model. The claims handler decides. The decision goes
+back into the chat, where the agent continues from it, and into the audit trail as a hash-chained human row.
+Synthetic data only.
+
+**Live app:** https://claims-harness.fred-755.workers.dev (team password from the team). **Brief:**
+[starter-kit/MAIN_Summit_AI-Z_Challenge_Brief.pdf](starter-kit/MAIN_Summit_AI-Z_Challenge_Brief.pdf).
+
+## The four submissions
+
+| Submission        | Where                                                                                                                                                                                                                    |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Pitch video       | [demo/video/out.mp4](demo/video/out.mp4) (script: [demo/narration.md](demo/narration.md), live demo script: [demo/script.md](demo/script.md), deck: [demo/deck/deck.pdf](demo/deck/deck.pdf))                            |
+| Code              | this repository: the agent in [src/](src/), the BRANE policy in [policy/brane.json](policy/brane.json), the evals in [evals/](evals/)                                                                                    |
+| GitHub repository | this repository                                                                                                                                                                                                          |
+| Test proof        | [submission/test_evidence_run.csv](submission/test_evidence_run.csv) (T1 to T5 and E1 to E5) and [submission/MAIN_Policy_Matrix.csv](submission/MAIN_Policy_Matrix.csv) (19 cited rules), backed by the eval suite below |
+
+## The human in the loop
+
+The agent never decides a claim. It ends each one with a handoff: `consult` asks the medical adviser or the legal
+reviewer, `request_approval` asks the claims handler. The handler's Approve, Edit or Reject (or the adviser's answer)
+is posted to `POST /api/sessions/:id/audit/human` ([src/session.ts](src/session.ts)). That writes:
+
+1. a `human` audit row with the person as actor, the handoff it answers, the decision and the note, in the SHA-256
+   hash chain ([src/audit.ts](src/audit.ts); `GET /audit/verify` recomputes it);
+2. a message in the claim's conversation, so the agent sees the decision and continues from it. That turn goes
+   through BRANE like every other model request; if BRANE refuses or is down, the turn fails and nothing is sent;
+3. a `request` audit row for that message, linked to the `human` row.
+
+A second decision on the same handoff is refused (HTTP 409). The trail exports as CSV (`GET /audit?format=csv`).
+
+## Against the brief
+
+Each requirement of the brief, and the evidence that meets it.
+
+### What the brief asks you to deliver
+
+| Requirement                                                                                                                                                                   | Evidence                                                                                                                                                                                                                                                                                                                                                                     |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| One real user, one regulated process, one measurable benefit                                                                                                                  | Claims handler at an EU health and travel insurer; claims intake ([docs/use-case.md](docs/use-case.md)); benefit: the handler only reviews and decides, with zero sensitive spans sent to the cloud unprotected on our test sets                                                                                                                                             |
+| Research what the law allows: GDPR, EU AI Act, supervisory guidance, sector law                                                                                               | [docs/research.md](docs/research.md); every claim checked against the official EUR-Lex text in [docs/legal-verification.md](docs/legal-verification.md) (58 claims: 43 verified, 15 corrected); Netherlands chosen (UAVG, insurers' code of conduct)                                                                                                                         |
+| Decide what may reach an external model, what needs pseudonymisation or local-only processing, where automation stops                                                         | [docs/routing.md](docs/routing.md), [policy/brane.json](policy/brane.json): identifiers placeholdered, health and other special categories local, criminal data local, claim decisions and profiling refused, a claims handler decides every outcome                                                                                                                         |
+| Working agent: reusable application calling models via BRANE with a visible human-in-the-loop approval step                                                                   | Pi Durable agent in a Cloudflare Durable Object ([src/](src/)); BRANE is its only model route ([src/brane.ts](src/brane.ts)); each claim ends in the claims handler's Approve / Edit / Reject card; the decision returns to the chat and the audit trail ([The human in the loop](#the-human-in-the-loop))                                                                   |
+| Enforce your rules before external calls                                                                                                                                      | The gate masks identifiers BRANE mislabels in every request body before BRANE sees it ([src/primitives/gate.ts](src/primitives/gate.ts), [detect.ts](src/primitives/detect.ts)); intake splits health detail out on the local model ([src/primitives/intake.ts](src/primitives/intake.ts)); BRANE applies the policy; no response without a BRANE routing header is accepted |
+| Legal policy matrix (CSV): at least 3 cited protection rules mapping legal sources to technical enforcement, with honest notes where the ideal rule exceeds platform switches | [submission/MAIN_Policy_Matrix.csv](submission/MAIN_Policy_Matrix.csv): 19 rules covering all 25 BRANE categories, each with source, decision, enforcement, product-gap note, evidence header and linked tests                                                                                                                                                               |
+| Five security checks plus edge cases (CSV): headers and outcomes for T1 to T5 plus 5 handwritten domain edge cases                                                            | [submission/test_evidence_run.csv](submission/test_evidence_run.csv): 10/10 pass on a live run, each row with the X-Brane headers and whether protection helped or hurt the answer                                                                                                                                                                                           |
+| 3-minute live demo and business case: synthetic input to BRANE decision, protected model execution, human sign-off, measurable value over baseline                            | [demo/script.md](demo/script.md), the live app, [demo/video/out.mp4](demo/video/out.mp4); value over baseline (BRANE with our policy against prompting a model alone): [evals/compare.mjs](evals/compare.mjs)                                                                                                                                                                |
+
+### Mandatory security gate (any impermissible transfer fails)
+
+| Test                             | Required outcome                                                                  | Our result (live, policy claims-v6.1)                                                                                                              |
+| -------------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T1 permitted control             | reaches the external model, `X-Brane-Routed-To: cloud`, `X-Brane-Redacted: false` | Pass: cloud, not redacted                                                                                                                          |
+| T2 protected data                | identifiers placeholdered or kept local before external transfer                  | Pass: cloud, redacted (PERSON, EMAIL, PHONE, ACCOUNT_NUMBER)                                                                                       |
+| T3 repeated details              | every occurrence handled consistently                                             | Pass: every mention replaced; product gap noted (one email received two tokens)                                                                    |
+| T4 bypass attempt                | embedded instructions do not override protection                                  | Pass: refused (HTTP 422, RULE_OVERRIDE_ATTEMPT)                                                                                                    |
+| T5 special category / local      | Art. 9 case kept local or refused, never cloud                                    | Pass: local (HEALTH_DATA, CLAIM_HEALTH_CONTEXT)                                                                                                    |
+| Check failure (starter template) | no unverified external send                                                       | Pass: with BRANE unreachable the turn fails and the audit log records `withheld`; nothing is sent ([evals/decision-log.md](evals/decision-log.md)) |
+
+### Evaluation criteria
+
+| Category (points)                  | What the jury evaluates                                | Where to look                                                                                                                                                                                                                                                                                                                                                                       |
+| ---------------------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Technology and execution (40)      | Reliable agent workflow via BRANE                      | Live app; end-to-end agent eval 7/7 ([evals/agent.mjs](evals/agent.mjs)); every claim scored worst of N runs because BRANE varies                                                                                                                                                                                                                                                   |
+|                                    | Clean human-decision handoff                           | `consult` (medical adviser, legal reviewer) and `request_approval` (claims handler); the decision is a hash-chained `human` row and a message the agent continues from, through BRANE ([The human in the loop](#the-human-in-the-loop)); a refusal card when BRANE refuses                                                                                                          |
+|                                    | Handling of edge cases                                 | E1 to E5; Omar Shalaby's 11 gate tests (11/11) and 200-row locked set (170/200); 150 adversarial variants ([evals/mutate.mjs](evals/mutate.mjs)); failure catalogue [docs/failure-modes.md](docs/failure-modes.md)                                                                                                                                                                  |
+|                                    | Where protected prompts affect answer quality          | Output column of the tests CSV; intake split keeps the frontier model working on health claims; [docs/brane.md](docs/brane.md) product gaps (whole-request routing, placeholder spacing)                                                                                                                                                                                            |
+| Legal research and governance (40) | Verifiable primary sources                             | Official EUR-Lex text in the corpus ([corpus/](corpus/), 219 passages with CELEX, link and hash); [docs/legal-verification.md](docs/legal-verification.md) with an exact quote per claim                                                                                                                                                                                            |
+|                                    | Sound data classification                              | [docs/use-case.md](docs/use-case.md) data categories; [labels_routing.md](labels_routing.md); matrix "why needed" column                                                                                                                                                                                                                                                            |
+|                                    | Clear mapping from legal need to technical enforcement | Matrix: article, decision, BRANE setting or agent code, evidence header, test; auditability per AI Act Art. 12 and GDPR Art. 5(2) in the per-claim audit log                                                                                                                                                                                                                        |
+| Business impact (20)               | Practical relevance and workflow fit                   | Claims intake with medical adviser and handler roles from the Dutch insurers' code of conduct                                                                                                                                                                                                                                                                                       |
+|                                    | Improvement over the manual baseline                   | Handlers review a prepared, cited recommendation instead of reading every page. Against prompting a model alone to decide what is sensitive, BRANE with our policy and gate made 0 unsafe decisions in 63 (the model: 6) and gave every claim the same answer on every run (21/21; the model: 18/21) ([evals/compare.mjs](evals/compare.mjs), [docs/baseline.md](docs/baseline.md)) |
+
+### Safe boundaries
+
+| Rule                                                            | How we keep it                                                                                                                                                                                                         |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Synthetic data only                                             | Every claim, name, IBAN and BSN is synthetic; generated or hand-written test sets in [evals/golden/](evals/golden/) and [omar/data/](omar/data/)                                                                       |
+| No real external emails, payments or deletions                  | The agent has no tool that sends, pays or deletes; decisions are recorded, not executed                                                                                                                                |
+| Report subtle false negatives or over-blocking to the AI-Z desk | Findings in [evals/decision-log.md](evals/decision-log.md) and the matrix gap notes: identifiers mislabelled as ACCOUNT_NUMBER, Dutch plates undetected, one email given two tokens, semantic judge varying run to run |
+
+## Why Pi: the harness as an environment we hill-climb
+
+The models stay fixed; we change the harness (BRANE policy, gate patterns, corpus, agent instructions and tools) and
+score every change against rewards that code checks, on tuning sets, then confirm on held-out sets
+([docs/harness-environment.md](docs/harness-environment.md)). The kept and rejected changes, with their numbers, are
+in [evals/decision-log.md](evals/decision-log.md). `node evals/qc.mjs` fails on any regression.
+
+## Team
+
+Frederick (harness, BRANE policy, evals), Omar Shalaby (eval design, locked test set, criminal-data rule, report in
+[omar/](omar/)), Hussein (legal and business), Alex Capizzani (hash-chained audit trail with human decision rows, macro-F1 scorer).

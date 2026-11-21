@@ -1,8 +1,15 @@
-# AI-Z hackathon agent
+# Gezira: an insurance claims assistant behind BRANE
 
-Team repository for the AI-Z Challenge Track, MAIN Summit 2026. Start with [AGENTS.md](AGENTS.md) and
-[docs/README.md](docs/README.md). Everything below is upstream's README for the Pi Durable base and stays accurate
-until we replace the example agent.
+Team Gezira's entry to the AI-Z Challenge Track, MAIN Summit 2026. A Pi Durable agent on Cloudflare prepares EU health
+and travel insurance claims up to a human decision. Every model request goes through BRANE; health data stays on the
+local model; a claims handler decides every outcome.
+
+- **Submission and how it meets the brief:** [SUBMISSION.md](SUBMISSION.md)
+- **Docs:** [docs/README.md](docs/README.md)
+- **Run it:** [docs/run.md](docs/run.md)
+
+Synthetic data only. Built on [earendil-works/pi-durable-cloudflare](https://github.com/earendil-works/pi-durable-cloudflare)
+(MIT); its README follows.
 
 ---
 
