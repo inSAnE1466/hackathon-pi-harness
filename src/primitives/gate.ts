@@ -17,19 +17,20 @@ export type GateEvent =
   | { readonly kind: "cited"; readonly ids: string }
   | { readonly kind: "intake"; readonly result: string };
 
-/**
- * The gate: our deterministic layer around BRANE, as Pi hooks.
- * - beforeProviderRequest: every request body, the harness's own housekeeping calls included, has names, street
- *   addresses, email addresses, phone numbers, IBANs, BSNs, policy and claim numbers, passport numbers and plates
- *   replaced with the conversation's tokens before it reaches BRANE. BRANE mislabels some of these and misses
- *   others on some runs, so nothing here depends on what BRANE detects.
- * - afterTool: handoffs (consult, request_approval) and lookups are logged with what they cite.
- * The same two hooks apply the session's switches: the model asked for, and the tools offered and callable.
- */
 /** Passage ids in square brackets, e.g. `[POL-3.2]` or `[GDPR-22(1)]`, in order, once each. */
 export const citedIds = (text: string): string =>
   [...new Set([...text.matchAll(/\[([A-Z][A-Za-z]*-[\w().-]+)\]/g)].map((m) => m[1]!))].join(",");
 
+/**
+ * The pre-mask and the audit hooks: our deterministic code around BRANE, as Pi hooks. BRANE is the only gate.
+ * - beforeProviderRequest replaces names, street addresses, email addresses, phone numbers, IBANs, BSNs, policy and
+ *   claim numbers, passport numbers and plates with the conversation's tokens in every request body before it
+ *   reaches BRANE, the harness's own housekeeping calls included. BRANE mislabels some of these and misses others on
+ *   some runs, so nothing here depends on what BRANE detects.
+ * - afterTool logs each handoff (consult, request_approval) and each lookup with the passages it cites.
+ * The same two hooks apply the session's switches: the model the request asks for, and the tools offered and
+ * callable.
+ */
 export function gateExtension(
   onEvent: (event: GateEvent) => void,
   switches: () => Switches = () => DEFAULT_SWITCHES,
@@ -43,7 +44,8 @@ export function gateExtension(
     if (typeof v === "string") {
       const findings = findIdentifiers(v);
       for (const f of findings) kinds.add(f.kind);
-      // Also with no finding: a surname the conversation already knows is replaced where it stands alone.
+      // Mask even when nothing was found, so a surname the conversation already knows is replaced where it stands
+      // alone.
       return mask(v, findings, tokens);
     }
     if (Array.isArray(v)) return v.map((x) => maskDeep(x, tokens, kinds));
@@ -65,7 +67,7 @@ export function gateExtension(
           const tools = p.tools?.filter((tool) => !switchedOff(tool.function?.name ?? ""));
           const kinds = new Set<string>();
           const messages = maskDeep(p.messages, tokensFor(api.conversationId), kinds);
-          // One row per request: which kinds of value the pre-mask replaced in it.
+          // Write one row per request, naming the kinds of value the pre-mask replaced in it.
           if (kinds.size > 0) onEvent({ kind: "masked", findings: [...kinds].join(",") });
           return {
             payload: {

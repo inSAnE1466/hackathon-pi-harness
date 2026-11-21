@@ -10,7 +10,7 @@ import {
 /** The one route from this harness to any model. BRANE inspects, protects and routes every request. */
 export const BRANE_PROVIDER = "brane";
 
-/** Our cloud and local models: chosen once, in policy/brane.json, from the organizers' list (`GET /api/v1/models`). */
+/** Our cloud and local models, chosen once in policy/brane.json from the organizers' list (`GET /api/v1/models`). */
 export const BRANE_CLOUD_MODEL: string = policy.models.cloud;
 export const BRANE_LOCAL_MODEL: string = policy.models.local;
 
@@ -93,7 +93,7 @@ export function braneFetch(
     try {
       response = await fetch(input, init);
     } catch (error) {
-      // BRANE unreachable: record the withheld request and fail the turn. Nothing goes anywhere else.
+      // BRANE is unreachable. Record the withheld request and fail the turn; nothing goes anywhere else.
       onDecision({ ...EMPTY_DECISION, routedTo: "withheld", localCause: "brane_unreachable" });
       throw error;
     }

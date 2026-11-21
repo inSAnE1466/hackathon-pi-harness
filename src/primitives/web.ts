@@ -2,14 +2,14 @@ import { obj, str } from "@earendil-works/pi-schema";
 import type { ToolRegistration } from "@earendil-works/pi-durable";
 
 /**
- * web_read: read one public web page as Markdown through Cloudflare Browser Run (the BROWSER binding), for public
- * references the corpus lacks: a regulator's guidance page, a provider's tariff, an airline's baggage rules.
+ * web_read reads one public web page as Markdown through Cloudflare Browser Run (the BROWSER binding), for public
+ * references the corpus lacks, such as a regulator's guidance page, a provider's tariff or an airline's baggage rules.
  *
  * Reads only, and only from allowed hosts, so the agent cannot send claim data anywhere: the request carries a URL,
- * never claim text, and a URL with personal data in it is refused. Page text is untrusted content, never instructions;
- * it re-enters the conversation through the same gate and BRANE as everything else.
+ * never claim text, and the tool refuses a URL with personal data in it. Page text is untrusted content, never
+ * instructions. It re-enters the conversation through the same pre-mask and BRANE as everything else.
  */
-// Public references a claims assistant may consult. Extend deliberately; never a wildcard.
+// Public references a claims assistant may consult. Add hosts one at a time; never add a wildcard.
 export const ALLOWED_HOSTS = [
   "eur-lex.europa.eu",
   "edpb.europa.eu",

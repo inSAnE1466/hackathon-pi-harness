@@ -1,7 +1,7 @@
 /**
  * Given names for the deterministic name check in detect.ts: common Dutch given names and common names from the
  * other communities an EU insurer's customers come from (Turkish, Moroccan and Arabic, Polish, German, French,
- * Spanish, Italian, English, Nordic, Slavic). Written by hand for this harness, as data: no network, no model. A name
+ * Spanish, Italian, English, Nordic, Slavic). The list is hand-written data; no network or model produces it. A name
  * missing here is still caught after a person cue ("claimant", "Mr", "hit by") or as initials plus a surname.
  * Names that are also common words (Can, Art, Will, May, Said) are left out on purpose.
  */

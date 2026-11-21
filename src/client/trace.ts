@@ -11,10 +11,11 @@ import {
 } from "./decision-log.ts";
 
 /**
- * A claim's path through the harness, derived from its decision log (rows newest first): the pre-mask, intake, BRANE,
- * tools, person. The steps never move; they only fill in, so the diagram does not shift while a turn runs. BRANE is
- * the only gate. The pre-mask is pattern matching in our own code (`src/primitives/detect.ts`), drawn as a small
- * step; it runs on the claim before intake and on every request before BRANE, so no model sees raw identifiers. A local classifier step has a slot that shows only once its audit rows exist.
+ * A claim's path through the harness, derived from its decision log (rows newest first). The steps are the pre-mask,
+ * intake, BRANE, tools and a person. They never move and only fill in, so the diagram does not shift while a turn
+ * runs. BRANE is the only gate. The pre-mask is pattern matching in our own code (`src/primitives/detect.ts`), drawn
+ * as a small step. It runs on the claim before intake and on every request before BRANE, so no model sees raw
+ * identifiers. The local classifier's step has a slot that shows only once its audit rows exist.
  */
 export type StepId = "intake" | "classifier" | "premask" | "brane" | "tools" | "person";
 
@@ -86,8 +87,8 @@ export function traceOf(rows: readonly AuditRow[], running: boolean): Step[] {
     });
   };
 
-  // The pre-mask comes first: intake masks the claim with the same patterns before its own BRANE calls, and every
-  // request of the agent is masked before BRANE. The findings are the pattern kinds that fired on the agent's
+  // The pre-mask comes first. Intake masks the claim with the same patterns before its own BRANE calls, and the
+  // pre-mask hook masks every request of the agent before BRANE. The findings are the pattern kinds that fired on the agent's
   // requests, e.g. BSN or POLICY_ID; the values never reach the log.
   const lastIntake = intake.at(-1);
   const fired = unique(masked.flatMap((row) => list(row.detail)));

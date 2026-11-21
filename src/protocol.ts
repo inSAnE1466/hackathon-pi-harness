@@ -21,7 +21,7 @@ export const MAX_CLIENT_FRAME_CHARACTERS =
 const SCHEDULED_INSTRUCTION_PREFIX = "Scheduled instruction due now: ";
 const RECURRENCE_NOTE_PREFIX = "\n\nThis instruction recurs.";
 
-/** Input submitted when a scheduled instruction is due. Self-contained; no system-prompt support needed. */
+/** The input submitted when a scheduled instruction is due. It is self-contained and needs no system prompt. */
 export function formatScheduledInstruction(scheduled: {
   readonly id: string;
   readonly instruction: string;
@@ -48,7 +48,7 @@ export function parseScheduledInstruction(content: string): string | undefined {
   return note === -1 ? text : text.slice(0, note);
 }
 
-/** Display text of queued user input content: a string or text/image parts. */
+/** The display text of queued user input, which is a string or a list of text and image parts. */
 function userInputText(content: unknown): string {
   if (typeof content === "string") return content;
   if (!Array.isArray(content)) return "";
@@ -153,7 +153,10 @@ export type CommandResult =
         readonly code: string;
         readonly message: string;
       };
-      /** `refused`: the harness withheld the request on purpose; a person takes it from here. Absent for a failure. */
+      /**
+       * `refused` means the harness withheld the request on purpose and a person takes it from here. Absent for a
+       * failure.
+       */
       readonly reason?: "refused";
       /** For a refusal, the audit row of the handoff that a person's decision closes. */
       readonly auditId?: number;
@@ -225,7 +228,7 @@ const requireId = (value: unknown, name: string): number => {
 const optionalId = (value: unknown, name: string): number | undefined =>
   value === undefined ? undefined : requireId(value, name);
 
-/** An entry bound: an exclusive bound turned inclusive can be 0. */
+/** An entry bound. It may be 0, because an exclusive bound turned inclusive can be 0. */
 const optionalCommandId = (value: unknown, name: string): number | undefined => {
   if (value === undefined) return undefined;
   if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0) {

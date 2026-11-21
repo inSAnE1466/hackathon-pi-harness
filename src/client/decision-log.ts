@@ -115,9 +115,9 @@ export function decisionsByHandoff(rows: readonly AuditRow[]): ReadonlyMap<numbe
 }
 
 /**
- * Who acted, in words. BRANE is the only gate. The server's actor `pre-mask` (older rows: `gate`) is our own code:
- * the pre-mask (regex, no model) for a `masked` row, the intake step, which runs BRANE's local model, for an `intake`
- * row, and the handoff our code writes when BRANE refuses a request.
+ * Who acted, in words. BRANE is the only gate. The server's actor `pre-mask` (`gate` on older rows) is our own code.
+ * On a `masked` row it is the pre-mask, regex matching with no model. On an `intake` row it is the intake step, which
+ * runs BRANE's local model. On a handoff it is the handoff our code writes when BRANE refuses a request.
  */
 export function actorLabel(row: AuditRow): string {
   switch (row.actor) {
@@ -168,7 +168,7 @@ export const list = (value: string): string[] => [
   ),
 ];
 
-/** A `classify` row's detail is `<labels>:<route>`, the labels comma-separated. */
+/** A `classify` row's detail is `<labels>:<route>`, with the labels comma-separated. */
 export function classifyOf(row: AuditRow): { readonly labels: string[]; readonly route: string } {
   const split = row.detail.lastIndexOf(":");
   return split < 0

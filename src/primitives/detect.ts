@@ -1,16 +1,17 @@
 import { GIVEN_NAMES } from "./names.ts";
 
 /**
- * detect: deterministic checks, the pre-mask, that cover the gaps measured in BRANE's detectors
- * (evals/decision-log.md): a Dutch BSN is labeled ACCOUNT_NUMBER, a passport number is labeled ACCOUNT_NUMBER, a
- * policy number is labeled PERSON and only partly masked, a Dutch licence plate is not detected, and a person's name
- * or street address is missed on some runs and under load. Pure functions: same input, same answer, every time.
+ * The pre-mask: deterministic checks that cover the gaps measured in BRANE's detectors (evals/decision-log.md).
+ * BRANE labels a Dutch BSN and a passport number ACCOUNT_NUMBER, labels a policy number PERSON and masks it only in
+ * part, does not detect a Dutch licence plate, and misses a person's name or street address on some runs and under
+ * load. These are pure functions, so the same input always gives the same answer.
  *
- * `NAME`, `STREET`, `MAIL`, `TEL`, `BANK` and `BIRTH` are named so on purpose: BRANE's own placeholders are `<PERSON_1>`,
- * `<ADDRESS_1>`, `<EMAIL_1>`, `<PHONE_1>` and `<IBAN_1>`, and it puts the real value back into the answer for those.
- * A token of ours with the same spelling would come back as the wrong value. Ours are written in square brackets,
- * `[NAME_1]`: BRANE's prompt-injection guard scores text full of angle-bracket tokens as an injection and keeps the
- * whole request local, while square brackets pass (measured on /policy/test, evals/decision-log.md).
+ * `NAME`, `STREET`, `MAIL`, `TEL`, `BANK` and `BIRTH` differ from BRANE's own placeholders on purpose. BRANE uses
+ * `<PERSON_1>`, `<ADDRESS_1>`, `<EMAIL_1>`, `<PHONE_1>` and `<IBAN_1>` and puts the real value back into the answer
+ * for those, so a token of ours with the same spelling would come back as the wrong value. Ours are written in
+ * square brackets, as in `[NAME_1]`, because BRANE's prompt-injection guard scores text full of angle-bracket
+ * tokens as an injection and keeps the whole request local, while square brackets pass (measured on /policy/test,
+ * evals/decision-log.md).
  */
 export type Finding = {
   readonly kind:
@@ -30,7 +31,7 @@ export type Finding = {
   readonly key?: string;
 };
 
-/** The Dutch BSN "11-proof": 9 digits, weights 9..2 and -1, sum divisible by 11. */
+/** The Dutch BSN "11-proof". A BSN has 9 digits; weighted 9 down to 2 and then -1, their sum is divisible by 11. */
 export function isBsn(digits: string): boolean {
   if (!/^\d{9}$/.test(digits) || digits === "000000000") return false;
   const d = [...digits].map(Number);
@@ -66,7 +67,7 @@ function identifierSpans(text: string): Span[] {
   )) {
     add("PLATE", m[0], m.index);
   }
-  // Email addresses, IBANs and phone numbers: BRANE finds them on most runs; under load it finds nothing.
+  // Email addresses, IBANs and phone numbers. BRANE finds them on most runs, but under load it finds nothing.
   for (const m of text.matchAll(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g)) add("MAIL", m[0], m.index);
   for (const m of text.matchAll(
     /\b[A-Z]{2}\d{2}(?:[ ]?[A-Z0-9]{4}){2,7}(?:[ ]?[A-Z0-9]{1,3})?\b/g,
@@ -77,7 +78,7 @@ function identifierSpans(text: string): Span[] {
     /(?<![\w-])(?:\+\d{1,3}[ -]?(?:\(0\)[ -]?)?|\b00\d{2}[ -]?|\b0)\d(?:[ -]?\d){7,10}(?![\d-])/g,
   ))
     add("TEL", m[0], m.index);
-  // A date of birth: a full date after "born", "geboren", "geb.", "date of birth" or "DOB".
+  // A date of birth is a full date after "born", "geboren", "geb.", "date of birth" or "DOB".
   for (const m of text.matchAll(
     /\b(?:born(?: on)?|geboren(?: op)?|geb\.?|date of birth|geboortedatum|dob)[:,]?[ \t]+(\d{1,2}[-/.]\d{1,2}[-/.]\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2} \p{L}{3,9} \d{4})/giu,
   ))
@@ -87,7 +88,7 @@ function identifierSpans(text: string): Span[] {
 
 type Word = { readonly text: string; readonly start: number; readonly end: number };
 
-/** A capitalized word of two letters or more, such as a name: "Vries", "El-Amrani", "McDonald". Not "EUR". */
+/** A capitalized word of two letters or more, such as the name "Vries", "El-Amrani" or "McDonald", but not "EUR". */
 const isCapitalized = (word: string): boolean =>
   /^\p{Lu}[\p{L}\p{M}'’-]*\p{Ll}[\p{L}\p{M}'’-]*$/u.test(word);
 
@@ -117,7 +118,7 @@ const NOT_A_NAME = new Set(
     .filter((word) => word !== ""),
 );
 
-/** Given names that are also ordinary capitalized words; masked with a surname or after a cue, not alone. */
+/** Given names that are also ordinary capitalized words. They are masked with a surname or after a cue, not alone. */
 const NOT_ALONE = new Set(
   `mark max will grace frank jack floor roos iris amber ruby lily rosa luna ward mason stan sterre puck sem
   august art said bas victoria christian jean marie karl leo sam bo can may june april roy rob`
@@ -125,7 +126,7 @@ const NOT_ALONE = new Set(
     .filter((word) => word !== ""),
 );
 
-/** Words after which a capitalized sequence is a person: a title, a role in a claim, a relative. */
+/** Words after which a capitalized sequence is a person, such as a title, a role in a claim or a relative. */
 const PERSON_CUES = new Set(
   `mr mrs ms miss mx dr prof sir madam madame monsieur mme herr frau mevrouw mevr mw meneer mijnheer dhr heer
   policyholder claimant insured patient driver passenger witness beneficiary applicant tenant owner landlord
@@ -138,7 +139,7 @@ const PERSON_CUES = new Set(
     .filter((word) => word !== ""),
 );
 
-/** Titles: after one, a name counts even when it is typed without capitals. */
+/** After a title, a name counts even when it is typed without capitals. */
 const PERSON_TITLES = new Set(
   "mr mrs ms miss mx dr mevrouw mevr mw meneer mijnheer dhr herr frau".split(" "),
 );
@@ -186,12 +187,12 @@ function nameSpans(text: string): Span[] {
   const lower = (i: number): string => words[i]!.text.toLowerCase();
   const isGiven = (i: number): boolean =>
     isCapitalized(words[i]!.text) && GIVEN_NAMES.has(fold(words[i]!.text));
-  /** In text typed without capitals: a listed given name that is not also an ordinary word. */
+  /** In text typed without capitals, a listed given name that is not also an ordinary word. */
   const isLowerGiven = (i: number): boolean =>
     /^\p{Ll}+$/u.test(words[i]!.text) &&
     GIVEN_NAMES.has(fold(words[i]!.text)) &&
     !NOT_ALONE.has(lower(i));
-  /** Typed without capitals: "jan de vries", "j. de vries" after a known name, "mr de vries". */
+  /** A name typed without capitals, such as "jan de vries", "mr de vries", or "j. de vries" after a known name. */
   const lowerNameAt = (i: number, cue: boolean): { last: number; key: string } | undefined => {
     const given = isLowerGiven(i);
     if (!given && !cue) return undefined;
@@ -217,8 +218,8 @@ function nameSpans(text: string): Span[] {
     isCapitalized(words[i]!.text) && !NOT_A_NAME.has(lower(i)) && !PERSON_CUES.has(lower(i));
 
   /**
-   * A name starting at word `i`: given names or initials, particles, a surname. With `loose`, after a cue, the
-   * first word may be any capitalized word and one or two more may follow.
+   * A name starting at word `i`, made of given names or initials, particles and a surname. With `loose`, used after
+   * a cue, the first word may be any capitalized word and one or two more may follow.
    */
   const nameAt = (i: number, loose: boolean): { last: number; key: string } | undefined => {
     let at = i;
@@ -230,7 +231,6 @@ function nameSpans(text: string): Span[] {
     }
     const afterFront = front.length === 0 ? i : front.at(-1)! + 1;
     const connected = front.length === 0 || joined(front.at(-1)!);
-    // Particles, then the surname.
     let p = afterFront;
     const particles: number[] = [];
     while (
@@ -246,7 +246,7 @@ function nameSpans(text: string): Span[] {
     const initial = front.length === 0 ? "" : fold(words[front[0]!]!.text).charAt(0);
     if (connected && p < words.length && isSurname(p) && (front.length > 0 || loose)) {
       let last = p;
-      // After a cue the name may be made of words the list does not know: take up to two more.
+      // After a cue the name may be made of words the list does not know, so take up to two more.
       if (loose && front.length === 0) {
         while (last - p < 2 && joined(last) && last + 1 < words.length && isSurname(last + 1))
           last += 1;
@@ -293,15 +293,15 @@ function streetSpans(text: string): Span[] {
   for (let i = 0; i < words.length; i++) {
     const word = words[i]!;
     if (!STREET_ENDINGS.test(word.text)) continue;
-    // Typed without a capital, the word must be more than the ending itself: "kerkstraat", not "weg".
+    // Typed without a capital, the word must be longer than the street ending itself: "kerkstraat", not "weg".
     if (!/^\p{Lu}/u.test(word.text) && word.text.replace(STREET_ENDINGS, "").length < 3) continue;
-    // A house number, not a year: "Kerkstraat 14", "Markt 12a", "Dorpsweg 3-5".
+    // A house number, not a year, as in "Kerkstraat 14", "Markt 12a", "Dorpsweg 3-5".
     const number =
       /^[ \t]+(?!(?:19|20)\d\d\b)(\d{1,4}(?:[ \t]?[a-zA-Z]\b|-\d{1,4})?)(?![\d.,]\d)/.exec(
         text.slice(word.end, word.end + 16),
       );
     if (number === null) continue;
-    // Up to two capitalized words before it belong to the street: "Prins Hendriklaan", "Oude Kerkstraat".
+    // Up to two capitalized words before it belong to the street, as in "Prins Hendriklaan" or "Oude Kerkstraat".
     let first = i;
     while (
       first > 0 &&
@@ -327,7 +327,8 @@ function streetSpans(text: string): Span[] {
     }
     add(start, end, key);
   }
-  // House number first, or a street word first: "10 Downing Street", "Rue de la Loi 16", "16 rue de la Loi".
+  // An address may start with the house number or with a street word: "10 Downing Street", "Rue de la Loi 16",
+  // "16 rue de la Loi".
   for (const m of text.matchAll(
     /\b\d{1,4},?[ \t](?:\p{Lu}[\p{L}'’-]+[ \t]){1,3}(?:Street|Road|Avenue|Lane|Drive|Square|Close|Court|Way)\b/gu,
   ))
@@ -337,7 +338,7 @@ function streetSpans(text: string): Span[] {
   )) {
     if (/\d/.test(m[0])) add(m.index, m.index + m[0].length, m[0]);
   }
-  // A Dutch postcode on its own: 6211 AB.
+  // A Dutch postcode on its own, such as 6211 AB.
   for (const m of text.matchAll(
     /(?<![\d-])(?!(?:19|20)\d\d)[1-9]\d{3}[ \t]?[A-Z]{2}(?![\p{L}\d])/gu,
   ))
@@ -364,7 +365,7 @@ export function findIdentifiers(text: string): Finding[] {
 }
 
 /**
- * The tokens of one conversation: the same value gets the same token in every request, tool result and message, so
+ * The tokens of one conversation. The same value gets the same token in every request, tool result and message, so
  * `[NAME_1]` never means two people. The harness keeps one per conversation in the session's storage. It holds the
  * real values and is never sent to a model.
  */
@@ -392,7 +393,7 @@ export class Tokens {
     return [...this.#byKey.values()];
   }
 
-  /** The surnames seen so far, with their tokens: a later bare "de Vries" is the same person. */
+  /** The surnames seen so far, with their tokens, so a later bare "de Vries" is the same person. */
   surnames(): { readonly surname: string; readonly token: string }[] {
     const out: { surname: string; token: string }[] = [];
     for (const [key, { token }] of this.#byKey) {
@@ -421,7 +422,7 @@ export class Tokens {
       if (!key.startsWith("NAME:")) continue;
       const [otherSurname, otherInitial] = key.slice(5).split("|") as [string, string];
       if (surname === "") {
-        // A given name alone: the person whose name starts with it.
+        // A given name alone belongs to the person whose name starts with it.
         if (fold(value.text).split(" ")[0] === initial) return value;
       } else if (
         otherSurname === surname &&
@@ -475,8 +476,8 @@ export function mask(
 }
 
 /**
- * The second classifier's pure half. The spec (prompt template, label definitions, label to route) lives in
- * policy/classifier.json; the caller runs the prompt on BRANE's local model through a local-only draft policy, so
+ * The second classifier's pure half. The spec (prompt template, label definitions, the route for each label) lives
+ * in policy/classifier.json; the caller runs the prompt on BRANE's local model through a local-only draft policy, so
  * the text never leaves, and passes the reply here. The classifier can only make a route stricter.
  */
 export type Outcome = "allow" | "protect" | "local" | "refuse";
@@ -496,7 +497,7 @@ const RANK: Readonly<Record<Outcome, number>> = { allow: 0, protect: 1, local: 2
 /** The stricter of two outcomes. */
 export const stricter = (a: Outcome, b: Outcome): Outcome => (RANK[a] >= RANK[b] ? a : b);
 
-/** The prompt for one text: every label with its definition, the text fenced as data. */
+/** The prompt for one text. It lists every label with its definition and fences the text as data. */
 export function classifierPrompt(spec: ClassifierSpec, text: string): string {
   const names = Object.keys(spec.labels);
   return spec.template
@@ -507,7 +508,7 @@ export function classifierPrompt(spec: ClassifierSpec, text: string): string {
 
 /**
  * Read the model's reply: one JSON object with every label as 0 or 1. A reply that cannot be read, or that lacks a
- * label, yields route "local" with no labels: a failed classifier never loosens a route.
+ * label, yields route "local" with no labels, so a failed classifier never loosens a route.
  */
 export function readVerdict(spec: ClassifierSpec, reply: string | null | undefined): Verdict {
   const failed: Verdict = { labels: [], route: "local" };

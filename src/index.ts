@@ -9,7 +9,7 @@ const tokensRoute = /^\/api\/sessions\/([^/]+)\/tokens\/?$/;
 const auditRoute = /^\/api\/sessions\/([^/]+)\/audit(?:\/(human|verify))?\/?$/;
 const COOKIE = "team_session";
 
-/** The cookie value: a hash of the password, so the password itself is never stored in the browser. */
+/** The cookie value is a hash of the password, so the browser never stores the password itself. */
 async function token(password: string): Promise<string> {
   const digest = await crypto.subtle.digest(
     "SHA-256",
@@ -70,7 +70,7 @@ export default {
         const parsed: unknown = await request.json();
         if (typeof parsed === "object" && parsed !== null) body = parsed;
       } catch {
-        // No body, or not JSON: a session with the default switches.
+        // Without a body, or with a body that is not JSON, the session gets the default switches.
       }
       if (body.switches === undefined)
         return json({ sessionId, url: `/sessions/${sessionId}` }, 201);

@@ -1,6 +1,6 @@
 /**
- * rank: the lookup tool's ranking, as pure functions over a list of passages. BM25 with switches the climb scores one
- * at a time on evals/legal/dev.jsonl (evals/legal.mjs); DEFAULT_RANKING holds the switches that were kept.
+ * The lookup tool's ranking, as pure functions over a list of passages. It is BM25 with switches that the climb scores
+ * one at a time on evals/legal/dev.jsonl (evals/legal.mjs); DEFAULT_RANKING holds the switches that were kept.
  */
 export type Ranked = { readonly id: string; readonly title: string; readonly text: string };
 
@@ -11,7 +11,7 @@ export type Ranking = {
   readonly glossary: boolean;
   /** Count a passage's id and title this many times. 1 is plain BM25 over id, title and text. */
   readonly titleWeight: number;
-  /** After the best hit, prefer passages that answer words the hits so far do not. For two-part questions. */
+  /** After the best hit, prefer passages that answer words the hits so far do not. This helps two-part questions. */
   readonly diverse: boolean;
   /** Rank each part of a two-part question ("..., and ...", "...: ... and ...") by itself and take hits in turn. */
   readonly split: boolean;
@@ -123,7 +123,8 @@ export function buildIndex(passages: readonly Ranked[], ranking: Ranking, glossa
       .filter((x) => x.score > 0 && keep(x.i))
       .sort((a, b) => b.score - a.score);
     if (!ranking.diverse) return scored.slice(0, limit).map((x) => x.i);
-    // Greedy cover: each next hit is scored with the query words the earlier hits already answer at half weight.
+    // Pick hits as a greedy cover. Each next hit is scored with the query words the earlier hits already answer at
+    // half weight.
     const picked: typeof scored = [];
     const pool = scored.slice(0, 30);
     const covered = q.map(() => 0);

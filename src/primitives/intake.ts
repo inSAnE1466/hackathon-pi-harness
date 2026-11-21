@@ -8,23 +8,23 @@ import {
 import { findIdentifiers, mask, Tokens } from "./detect.ts";
 
 /**
- * intake: split a claim before the orchestrator sees it.
+ * Intake splits a claim before the orchestrator sees it.
  *
  * BRANE routes a whole request by its strictest category, so one health detail sends the entire claim to the local
- * model and the frontier model never helps. Intake runs first, on BRANE's local model inside the perimeter: it turns
+ * model and the frontier model never helps. Intake runs first, on BRANE's local model inside the perimeter. It turns
  * the medical part into a health-free fact sheet (service categories, dates, amounts, whether a referral or report is
  * present, whether the medical adviser is needed). The orchestrator receives the claim with that sheet in place of the
  * medical text, so its turns can go to the frontier model while health detail never leaves.
  *
  * It only runs when BRANE says the claim would go local for health reasons. Everything else passes through unchanged.
  *
- * Egress rules, because intake handles the claim before the agent's gate does:
- * - Names, addresses and identifiers are masked before either BRANE call, with the conversation's tokens, as the
- *   gate does for the agent's requests.
+ * Egress rules, because intake handles the claim before the pre-mask hook sees the agent's requests:
+ * - Intake masks names, addresses and identifiers with the conversation's tokens before either BRANE call, as the
+ *   pre-mask does for the agent's requests.
  * - The extraction is pinned to a local model id (`vllm:*`). BRANE runs an explicitly requested local model on its
  *   local lane whatever its classifiers say for that request, so a classifier that varies between the dry run and
  *   the call cannot move the health text to the cloud. A model id that is not local is refused before any call.
- * - The extraction goes through `braneFetch`: it is recorded as a `brane` audit row and fails closed on a response
+ * - The extraction goes through `braneFetch`, so it is recorded as a `brane` audit row and fails closed on a response
  *   without a routing decision. The body is read only after the response says it ran locally on a local model.
  */
 export type IntakeResult =
@@ -90,7 +90,7 @@ export async function intake(
         messages: [{ role: "user", content: EXTRACT + claim }],
       }),
     });
-    // The extraction itself carries the health text, so it must stay local; anything else is a failure.
+    // The extraction itself carries the health text, so it must stay local. Any other route is a failure.
     const routedTo = res.headers.get("x-brane-routed-to") ?? "";
     const resolved = res.headers.get("x-brane-model-resolved") ?? "";
     if (routedTo !== "local" || !isLocalModel(resolved)) {

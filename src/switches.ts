@@ -2,17 +2,17 @@ import { BRANE_CLOUD_MODEL, BRANE_LOCAL_MODEL, isLocalModel } from "./brane.ts";
 import { sha256 } from "./sha256.ts";
 
 /**
- * Harness switches: what an eval run can change about one session without a code edit. Set when the session is
- * created (`POST /api/sessions` with `{switches}`) or later (`PUT /api/sessions/:id/switches`); stored in the
- * session's SQLite; read at every model request, so a change applies from the next request. None of them opens a
- * route around BRANE: every model request still goes through the gated provider.
+ * Harness switches are what an eval run can change about one session without a code edit. They are set when the
+ * session is created (`POST /api/sessions` with `{switches}`) or later (`PUT /api/sessions/:id/switches`), stored in
+ * the session's SQLite, and read at every model request, so a change applies from the next request. None of them
+ * opens a route around BRANE; every model request still goes through the gated provider.
  */
 export type Switches = {
   /** Run the second classifier on a person's text before the turn; the stricter route wins. */
   readonly classifier: "off" | "on";
   /** Split health detail out on the local model before the agent's turn. */
   readonly intake: "on" | "off";
-  /** `preflight`: a BRANE dry run of the prompt before the turn (intake needs it). `inline`: the chat call only. */
+  /** `preflight` makes a BRANE dry run of the prompt before the turn, which intake needs. `inline` skips it. */
   readonly braneTiming: "preflight" | "inline";
   /** The model the agent asks BRANE for. BRANE still moves a request to its local model when the policy says so. */
   readonly cloudModel: string;
@@ -133,7 +133,7 @@ export function applySwitches(current: Switches, change: unknown): SwitchesResul
   return { ok: true, switches: next };
 }
 
-/** The switches as the audit log records them: free-text instructions as a hash, never the text. */
+/** The switches as the audit log records them, with free-text instructions as a hash, never the text. */
 export const switchesForAudit = (s: Switches): string =>
   JSON.stringify({
     ...s,
@@ -171,7 +171,7 @@ export class SwitchStore {
 
   /**
    * Keeps a conversation on the local model from now on. It is stored, so it survives a restart, and it is never
-   * undone: the text that caused it stays in the conversation and travels with every later request.
+   * undone, because the text that caused it stays in the conversation and travels with every later request.
    */
   keepLocal(conversationId: number): void {
     this.#sql.exec(

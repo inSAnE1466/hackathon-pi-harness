@@ -6,9 +6,10 @@ import { DEFAULT_RANKING } from "./lookup-ranking.ts";
 import { buildIndex } from "./rank.ts";
 
 /**
- * lookup: keyword search over the legal corpus and the insurer's policy terms (corpus/passages.json).
- * BM25 (src/primitives/rank.ts, with the switches the climb kept) over passages bundled into the Worker, so it is deterministic, needs no external service, and every result
- * carries a passage id the agent cites and the audit can trace. Runs inside the perimeter; nothing leaves.
+ * lookup is a keyword search over the legal corpus and the insurer's policy terms (corpus/passages.json). It runs
+ * BM25 (src/primitives/rank.ts, with the switches the climb kept) over passages bundled into the Worker. It is
+ * deterministic and needs no external service, and every result carries a passage id the agent cites and the audit
+ * can trace. It runs inside the perimeter, so nothing leaves.
  */
 export type Passage = {
   readonly id: string;

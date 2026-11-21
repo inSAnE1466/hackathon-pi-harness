@@ -7,14 +7,14 @@ import { sha256 } from "./sha256.ts";
 
 /**
  * The decision log: one row per decision, in the session Durable Object's own SQLite, beside Pi's tables. Kinds:
- * BRANE's routing decision for each model request, the gate's own events (identifiers masked, a handoff to a
- * person, the passages a lookup cited, intake), a person's request, a person's decision on a handoff, and a change
- * of the harness switches.
+ * BRANE's routing decision for each model request, the events our own code writes around BRANE (identifiers the
+ * pre-mask replaced, a handoff to a person, the passages a lookup cited, intake), a person's request, a person's
+ * decision on a handoff, and a change of the harness switches.
  *
  * Every row names its actor (`brane`, `pre-mask`, `intake`, `classifier`, `gate`, `agent`, `operator`, or the
- * person's display name) and, for automated rows, the
- * policy version that decided it. Rows form a hash chain: each stores the previous row's hash and the SHA-256 of
- * that hash plus its own fields, so editing or deleting a row breaks every later hash. It is served to the audit
+ * person's display name) and, for automated rows, the policy version that decided it. Rows form a hash chain. Each
+ * stores the previous row's hash and the SHA-256 of that hash plus its own fields, so editing or deleting a row
+ * breaks every later hash. It is served to the audit
  * view over HTTP and never written into a conversation, so no model reads it. Rows hold categories, ids and a
  * reviewer's own note, never prompt text.
  */
@@ -37,8 +37,8 @@ export type AuditRow = {
   /** The policy version that decided an automated row; empty for a person's row. */
   readonly policyVersion: string;
   /**
-   * The row this one answers: for a `human` row the handoff, for the `request` row that carries a person's decision
-   * back into the conversation the `human` row.
+   * The row this one answers. For a `human` row it is the handoff. For the `request` row that carries a person's
+   * decision back into the conversation, it is the `human` row.
    */
   readonly refId: number;
   /** The conversation a handoff was made in and its decision returns to; 0 when not recorded. */
@@ -95,7 +95,7 @@ const ADDED = [
 ] as const;
 
 /**
- * The hash of a row: the previous hash, then every recorded field in a fixed order. `conversation_id`, the last
+ * A row's hash covers the previous hash, then every recorded field in a fixed order. `conversation_id`, the last
  * field, is hashed only when set, so rows sealed before it existed still verify.
  */
 const rowHash = (prevHash: string, values: readonly (string | number)[]): string =>
@@ -217,8 +217,8 @@ export class AuditLog {
             )
             .toArray()[0]
         : undefined;
-    // The agent chose to hand off or to cite passages; the gate masked, split at intake and handed off a refusal.
-    // `pre-mask` is the deterministic identifier masking in detect.ts.
+    // The agent chose to hand off or to cite passages. Our own code masked identifiers (the pre-mask in detect.ts),
+    // split the claim at intake, or handed off a refusal; a refusal keeps the actor name `gate`.
     const actor =
       (e.kind === "handoff" && e.tool !== "refusal") || e.kind === "lookup" || e.kind === "cited"
         ? "agent"
@@ -227,7 +227,7 @@ export class AuditLog {
           : e.kind === "intake"
             ? "intake"
             : "gate";
-    // A `cited` row names the recommendation it belongs to: the handoff written just before it.
+    // A `cited` row names the recommendation it belongs to, which is the handoff written just before it.
     const handoff =
       e.kind === "cited"
         ? this.#sql

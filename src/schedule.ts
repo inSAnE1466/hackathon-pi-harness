@@ -206,7 +206,7 @@ export const ScheduleDeliveries = defineDoc<{
   version: 1,
   scope: "session",
   initial: () => ({ active: [] }),
-  // Changed by every delivery for the life of the session: store a small base whenever none is active, as the
+  // Every delivery changes this for the life of the session. Store a small base whenever none is active, as the
   // built-in inbox does, so replay stays short.
   checkpointWhen: (value) => value.active.length === 0,
 });
@@ -216,7 +216,7 @@ export const DeliverScheduledInstruction = defineTask<ScheduledInstruction, Deli
   version: 1,
   initial: () => ({ phase: "wait" }),
   phases: {
-    // A durable sleep: the task holds no invocation until runAt, and `onWake` moves the alarm.
+    // A durable sleep. The task holds no invocation until runAt, and `onWake` moves the alarm.
     wait: (task, runtime, context) =>
       runtime.sleepUntil(task.input.runAt, { phase: "mark" }, context),
     mark: async (task, runtime, context) => {

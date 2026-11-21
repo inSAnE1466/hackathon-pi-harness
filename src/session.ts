@@ -207,7 +207,7 @@ export class Session extends DurableObject<Env> {
           (conversationId) => this.#switches.isKeptLocal(conversationId),
           (conversationId) => this.#tokens.for(conversationId),
         ),
-        // `kind` says what happened, e.g. `task_faulted` or `task_interrupted`, with the task and extension.
+        // `kind` says what happened, such as `task_faulted` or `task_interrupted`, with the task and extension.
         onReport: ({ error, ...report }) =>
           reportError("Harness reported a failure", error, report),
         // Called after open and whenever the next wake changes. With `onWake`, the Harness keeps no timer for
@@ -379,7 +379,8 @@ export class Session extends DurableObject<Env> {
    * Passes a recorded decision back into the conversation the handoff came from, as a message the agent continues
    * from. It is an ordinary input: the model request it starts goes through BRANE like every other, and a refusal
    * fails that turn. Returns the `request` row that links the message to the `human` row, or null when the
-   * conversation is gone, the handoff is a refusal, or the classifier refuses the note: none of those reach a model. The human row stands either way.
+   * conversation is gone, the handoff is a refusal, or the classifier refuses the note. None of those reach a model.
+   * The human row stands either way.
    */
   async #returnDecision(decision: AuditRow): Promise<AuditRow | null> {
     const handoff = this.#audit.get(decision.refId);
@@ -418,7 +419,7 @@ export class Session extends DurableObject<Env> {
   }
 
   /**
-   * Writes a verdict to the audit log and applies it. `local` keeps the conversation on the local model; `refuse`
+   * Writes a verdict to the audit log and applies it. `local` keeps the conversation on the local model. `refuse`
    * writes a refusal handoff and returns the reason, and the caller sends nothing to a model.
    */
   #applyVerdict(
@@ -644,7 +645,7 @@ export class Session extends DurableObject<Env> {
         // still woken. An early alarm is harmless; a missing one strands the turn.
         await this.#arm({ ...this.#harness.wake(), active: true });
         this.#audit.request(connectionState(socket)?.username ?? "Guest", command.conversationId);
-        // Intake: when BRANE would keep the whole claim local for health reasons, the local model first reduces the
+        // When BRANE would keep the whole claim local for health reasons, intake has the local model first reduce the
         // medical part to a health-free fact sheet, so the agent's turns can use the frontier model.
         // Both need BRANE's dry run before the turn, so `braneTiming: inline` skips intake too.
         const switches = this.#switches.current;
@@ -678,7 +679,7 @@ export class Session extends DurableObject<Env> {
                   : split.kind,
         });
         if (refused !== undefined) {
-          // An expected outcome, not a failure: answered as a refusal and logged at info level.
+          // A refusal is an expected outcome, not a failure. It is answered as a refusal and logged at info level.
           console.log(
             JSON.stringify({
               message: "Request refused by the classifier",

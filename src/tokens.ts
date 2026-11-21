@@ -1,7 +1,7 @@
 import { Tokens } from "./primitives/detect.ts";
 
 /**
- * The pre-mask's tokens, one map per conversation, in the session's own SQLite: the same value gets the same token
+ * The pre-mask's tokens, one map per conversation, in the session's own SQLite. The same value gets the same token
  * in every request, tool result and message of that conversation, across restarts. The table holds the real values.
  * It is read by the pre-mask and by the authorised handler's view (`GET /api/sessions/:id/tokens`), and it is never
  * part of a model request.

@@ -12,17 +12,17 @@ import {
 } from "./detect.ts";
 
 /**
- * classify: the second classifier, run on a person's text before the agent's turn. One call to BRANE's local model
- * with the labels in `policy/classifier.json`; the stricter of its route and BRANE's own wins. It can only make a
- * route stricter: `local` keeps the conversation on the local model, `refuse` withholds the text.
+ * The second classifier runs on a person's text before the agent's turn. It makes one call to BRANE's local model
+ * with the labels in `policy/classifier.json`, and the stricter of its route and BRANE's own wins. It can only make
+ * a route stricter. `local` keeps the conversation on the local model, and `refuse` withholds the text.
  *
  * Egress rules:
  * - The text is pre-masked (names, addresses, identifiers) with the conversation's tokens before it is sent.
  * - The call goes to BRANE's origin only: `POST /policy/test` with a local-only draft policy and
- *   `executeCompletion`. The chat endpoint cannot carry it: under the live policy BRANE refuses the classifier's own
- *   prompt, because the label definitions name the things the policy forbids.
+ *   `executeCompletion`. The chat endpoint cannot carry it, because under the live policy BRANE refuses the
+ *   classifier's own prompt: the label definitions name the things the policy forbids.
  * - `/policy/test` returns no `X-Brane-*` headers, so the check reads its body: the decision must say `local` and the
- *   completion must have run on a local model. Anything else, an error or an unreadable reply yields `local`.
+ *   completion must have run on a local model. Any other answer, an error or an unreadable reply yields `local`.
  */
 export type Classification = {
   readonly labels: readonly string[];

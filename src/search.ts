@@ -68,8 +68,9 @@ function match(entry: EntryRecord, term: string): ConversationMatch | undefined 
 
 /**
  * Case-insensitive substring search over ordinary turns in ownerless conversations. Owned conversations (subagents)
- * and every turn that invokes history search are skipped, so search questions and answers derived from earlier searches never
- * become evidence. Each page is read in its own commit so a scan never holds the Session's commit line for long.
+ * and every turn that invokes history search are skipped, so search questions, and answers derived from earlier
+ * searches, never become evidence. Each page is read in its own commit so a scan never holds the Session's commit
+ * line for long.
  */
 export async function searchConversations(
   api: Pick<ToolExecutionApi, "commit">,
@@ -156,7 +157,7 @@ export const searchHistoryTool: ToolRegistration = {
   parameters: obj({
     question: str({ description: "What to find out from past conversations" }),
   }),
-  // Safe to rerun after a crash: a rerun finds the child it created and the submission it made.
+  // A rerun after a crash is safe, because it finds the child it created and the submission it made.
   replay: "safe",
   execute: async (args, api, context) => {
     const { question } = args as { question: string };
