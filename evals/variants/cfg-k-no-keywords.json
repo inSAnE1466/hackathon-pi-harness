@@ -1,0 +1,6 @@
+{
+  "name": "k-no-keywords",
+  "policy": "evals/variants/policy-claims-v6.1-nokw.json",
+  "gate": true,
+  "classifier": null
+}

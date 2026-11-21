@@ -1,0 +1,6 @@
+{
+  "name": "p-base",
+  "policy": "evals/variants/policy-claims-v6.1.json",
+  "gate": false,
+  "classifier": null
+}

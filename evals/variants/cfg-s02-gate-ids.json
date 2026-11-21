@@ -1,0 +1,6 @@
+{
+  "name": "s02-gate-ids",
+  "policy": "evals/variants/policy-claims-v6.1.json",
+  "gate": ["BSN", "POLICY_ID", "CLAIM_ID", "PASSPORT", "PLATE"],
+  "classifier": null
+}

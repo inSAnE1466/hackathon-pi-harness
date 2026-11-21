@@ -1,5 +1,5 @@
 {
-  "name": "pf-pf4-plate",
+  "name": "p-pf4-plate",
   "policy": "evals/variants/policy-pf4-plate.json",
   "gate": false,
   "classifier": null

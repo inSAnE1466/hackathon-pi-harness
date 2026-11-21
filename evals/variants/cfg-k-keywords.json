@@ -1,5 +1,5 @@
 {
-  "name": "06-gate",
+  "name": "k-keywords",
   "policy": "evals/variants/policy-claims-v6.1.json",
   "gate": true,
   "classifier": null

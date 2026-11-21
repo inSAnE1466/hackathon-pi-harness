@@ -1,6 +1,0 @@
-{
-  "name": "c1-profiling-not-on-law-text",
-  "policy": "evals/variants/policy-c1-profiling-not-on-law-text.json",
-  "gate": true,
-  "classifier": null
-}

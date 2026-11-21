@@ -1,6 +1,6 @@
 {
-  "name": "10-nokw-classifier",
-  "policy": "evals/variants/policy-claims-v6.1-nokw.json",
+  "name": "s-c3-health-keywords-off-policy-terms",
+  "policy": "evals/variants/policy-c3-health-keywords-off-policy-terms.json",
   "gate": true,
   "classifier": {
     "spec": "evals/variants/classifier-v2.json",

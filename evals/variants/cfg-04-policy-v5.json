@@ -1,6 +1,0 @@
-{
-  "name": "04-policy-v5",
-  "policy": "evals/variants/policy-claims-v5.json",
-  "gate": false,
-  "classifier": null
-}

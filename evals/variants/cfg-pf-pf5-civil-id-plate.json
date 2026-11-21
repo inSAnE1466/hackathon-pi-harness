@@ -1,6 +1,0 @@
-{
-  "name": "pf-pf5-civil-id-plate",
-  "policy": "evals/variants/policy-pf5-civil-id-plate.json",
-  "gate": false,
-  "classifier": null
-}

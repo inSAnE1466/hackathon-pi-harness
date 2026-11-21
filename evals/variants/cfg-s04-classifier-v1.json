@@ -1,0 +1,19 @@
+{
+  "name": "s04-classifier-v1",
+  "policy": "evals/variants/policy-claims-v6.1.json",
+  "gate": true,
+  "classifier": {
+    "spec": "evals/variants/classifier-v1.json",
+    "labels": [
+      "HEALTH",
+      "THIRD_PARTY_HEALTH",
+      "MENTAL_HEALTH",
+      "WORK_INCAPACITY",
+      "CRIMINAL",
+      "AUTO_DECISION",
+      "DISCRIMINATORY",
+      "BULK_EXPORT",
+      "INJECTION"
+    ]
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "name": "00-open",
+  "name": "s00-open",
   "policy": "open",
   "gate": false,
   "classifier": null

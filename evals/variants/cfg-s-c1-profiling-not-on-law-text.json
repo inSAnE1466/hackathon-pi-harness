@@ -1,6 +1,6 @@
 {
-  "name": "09-classifier-v2-sensitive",
-  "policy": "evals/variants/policy-claims-v6.1.json",
+  "name": "s-c1-profiling-not-on-law-text",
+  "policy": "evals/variants/policy-c1-profiling-not-on-law-text.json",
   "gate": true,
   "classifier": {
     "spec": "evals/variants/classifier-v2.json",

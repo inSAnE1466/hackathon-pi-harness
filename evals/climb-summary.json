@@ -1,0 +1,136 @@
+{
+  "source": "evals/climb-history.json: real runs of evals/hill.mjs against BRANE (draft policies, POST /policy/test) on Omar Shalaby's selection split omar-val, and of evals/legal.mjs on the hard legal questions. start is the baseline before the first change, end is after the last kept change.",
+  "generated": "2026-11-21T02:54:43.919Z",
+  "iterations": {
+    "total": 10,
+    "kept": 5
+  },
+  "locked": null,
+  "reference": [
+    {
+      "source": "omar",
+      "predictor": "Keyword baseline",
+      "split": "omar-test (locked, one run)",
+      "scores": {
+        "macro_f1": 0.26,
+        "leak_rate": 100,
+        "identifier_leak_rate": 44.2,
+        "over_block": 0,
+        "calls_per_request": 0,
+        "latency_ms": 2
+      }
+    },
+    {
+      "source": "omar",
+      "predictor": "TF-IDF + logistic regression (trained on dev 800)",
+      "split": "omar-test (locked, one run)",
+      "scores": {
+        "macro_f1": 0.478,
+        "leak_rate": 58.8,
+        "identifier_leak_rate": 9.3,
+        "over_block": 28.3,
+        "calls_per_request": 0,
+        "latency_ms": 0
+      }
+    },
+    {
+      "source": "omar",
+      "predictor": "Own LLM classifier A (1 call, 14 labels)",
+      "split": "omar-test (locked, one run)",
+      "scores": {
+        "macro_f1": 0.884,
+        "leak_rate": 5.2,
+        "identifier_leak_rate": 0,
+        "over_block": 13.3,
+        "calls_per_request": 1,
+        "latency_ms": 6504
+      }
+    },
+    {
+      "source": "omar",
+      "predictor": "BRANE: team live policy (5 rules)",
+      "split": "omar-test (locked, one run)",
+      "scores": {
+        "macro_f1": 0.683,
+        "leak_rate": 43.3,
+        "identifier_leak_rate": 0,
+        "over_block": 1.7,
+        "calls_per_request": 1,
+        "latency_ms": 1506
+      }
+    },
+    {
+      "source": "omar",
+      "predictor": "BRANE: policy v1, no keywords (selected on val)",
+      "split": "omar-test (locked, one run)",
+      "scores": {
+        "macro_f1": 0.77,
+        "leak_rate": 21.6,
+        "identifier_leak_rate": 0,
+        "over_block": 3.3,
+        "calls_per_request": 1,
+        "latency_ms": 1406
+      }
+    },
+    {
+      "source": "omar",
+      "predictor": "BRANE v1-nokw + classifier, stricter wins (final system)",
+      "split": "omar-test (locked, one run)",
+      "scores": {
+        "macro_f1": 0.809,
+        "leak_rate": 1,
+        "identifier_leak_rate": 0,
+        "over_block": 13.3,
+        "calls_per_request": 2,
+        "latency_ms": 6504
+      }
+    }
+  ],
+  "metrics": [
+    {
+      "key": "retrieval_recall_at_3",
+      "label": "Legal lookup recall@3",
+      "unit": "0-1",
+      "better": "up",
+      "start": 0.37,
+      "end": 0.907,
+      "steps": [
+        "glossary of plain and Dutch words",
+        "title counts twice",
+        "stemming",
+        "four missing provisions added"
+      ],
+      "points": [
+        {
+          "iter": 2,
+          "value": 0.37,
+          "change": "Baseline lookup: plain BM25 over id, title and text"
+        },
+        {
+          "iter": 3,
+          "value": 0.87,
+          "change": "Lookup: glossary of plain and Dutch words to legal terms (policy/lookup-glossary.json)"
+        },
+        {
+          "iter": 4,
+          "value": 0.889,
+          "change": "Lookup: passage id and title count twice"
+        },
+        {
+          "iter": 6,
+          "value": 0.907,
+          "change": "Lookup: stem English plurals and verb endings"
+        },
+        {
+          "iter": 9,
+          "value": 0.907,
+          "change": "Corpus: add the four provisions the policy matrix cited without a passage (UAVG Arts. 31 and 33(2), Charter Art. 21, AI Act Art. 113 as amended), quoted from the official texts"
+        }
+      ],
+      "tried": 7,
+      "reverted": 3,
+      "split": "evals/legal/dev.jsonl (54 questions)",
+      "locked": null
+    }
+  ]
+}

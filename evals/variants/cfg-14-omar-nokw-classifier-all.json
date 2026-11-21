@@ -1,8 +1,0 @@
-{
-  "name": "14-omar-nokw-classifier-all",
-  "policy": "evals/variants/policy-omar-v1-nokw.json",
-  "gate": true,
-  "classifier": {
-    "spec": "evals/variants/classifier-v2.json"
-  }
-}

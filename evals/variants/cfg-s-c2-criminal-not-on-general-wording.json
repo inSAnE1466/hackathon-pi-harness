@@ -1,9 +1,9 @@
 {
-  "name": "08-classifier-v1-sensitive",
-  "policy": "evals/variants/policy-claims-v6.1.json",
+  "name": "s-c2-criminal-not-on-general-wording",
+  "policy": "evals/variants/policy-c2-criminal-not-on-general-wording.json",
   "gate": true,
   "classifier": {
-    "spec": "evals/variants/classifier-v1.json",
+    "spec": "evals/variants/classifier-v2.json",
     "labels": [
       "HEALTH",
       "THIRD_PARTY_HEALTH",

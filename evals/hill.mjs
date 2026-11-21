@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // Score one harness configuration on the dev sets. One run of this file is one iteration of the climb.
 // A configuration (evals/variants/cfg-*.json) names what the harness does around the fixed models:
-//   { name, policy: "open" | <policy file>, gate: bool, classifier: null | { spec: <file>, labels?: [..] } }
+//   { name, policy: "open" | <policy file>, gate: bool | [kinds], classifier: null | { spec: <file>, labels?: [..] } }
 //   policy      scored as a BRANE draft (POST /policy/test, draftPolicy), so the live department is never touched
-//   gate        mask identifiers with src/primitives/detect.ts before BRANE sees the text
+//   gate        the pre-mask (src/primitives/detect.ts) before BRANE sees the text: true for everything it finds, or
+//               a list of kinds, e.g. ["BSN","POLICY_ID"]
 //   classifier  a second classifier on BRANE's local model (local-only draft, nothing leaves); the stricter of its
 //               route and BRANE's wins. labels limits which of its labels count.
 // Every row is graded N times (--runs, default 1) and takes its least strict outcome, so a route that flips to the
@@ -138,7 +139,12 @@ const stricter = (a, b) => (RANK[a] >= RANK[b] ? a : b);
 async function gradeOnce(c, run) {
   // What detect.ts finds is computed either way, so a run without the gate shows which identifiers reach the cloud.
   const found = findIdentifiers(c.text);
-  const findings = config.gate ? found : [];
+  // gate: true masks everything the pre-mask finds; a list masks only those kinds (the pre-mask as it once was).
+  const findings = Array.isArray(config.gate)
+    ? found.filter((f) => config.gate.includes(f.kind))
+    : config.gate
+      ? found
+      : [];
   const sent = mask(c.text, findings);
   // One after the other, so a worker never has two BRANE requests in flight.
   const b = await policyTest({ prompt: sent, executeCompletion: false, draftPolicy }, run);

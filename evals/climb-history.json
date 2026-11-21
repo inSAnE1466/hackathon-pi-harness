@@ -1,0 +1,407 @@
+{
+  "about": "One row per climb iteration. Scores are read from evals/runs/*.json; kept or reverted is decided by evals/history.mjs. Routing rows are scored on omar-val (Omar Shalaby's selection split, a fixed sample of 50 rows per route) with his metric definitions; the locked omar-test run is reported apart and was never used to choose.",
+  "generated": "2026-11-21T02:54:43.919Z",
+  "criteria": {
+    "leak_rate": {
+      "label": "Leak rate (should stay local or be refused, reached the cloud)",
+      "unit": "%",
+      "better": "down",
+      "judging": "GATE, BI-baseline"
+    },
+    "identifier_leak_rate": {
+      "label": "Identifier leak rate (should be pseudonymised, sent as typed)",
+      "unit": "%",
+      "better": "down",
+      "judging": "GATE"
+    },
+    "name_leak_rate": {
+      "label": "Names left as typed on the cloud",
+      "unit": "%",
+      "better": "down",
+      "judging": "GATE"
+    },
+    "span_leaks": {
+      "label": "Labelled must-not-leave values found in a cloud payload",
+      "unit": "count",
+      "better": "down",
+      "judging": "GATE"
+    },
+    "mandatory_tests": {
+      "label": "Mandatory tests passed (T1 to T5, worst of 5, sequential)",
+      "unit": "of 5",
+      "better": "up",
+      "judging": "GATE"
+    },
+    "macro_f1": {
+      "label": "Route macro F1",
+      "unit": "0-1",
+      "better": "up",
+      "judging": "LG-classification"
+    },
+    "category_recall": {
+      "label": "Data categories routed at least as strictly as required",
+      "unit": "%",
+      "better": "up",
+      "judging": "LG-classification"
+    },
+    "over_block": {
+      "label": "Over-block rate (harmless rows kept local or refused)",
+      "unit": "%",
+      "better": "down",
+      "judging": "TE-quality-cost"
+    },
+    "context_over_block": {
+      "label": "Lookup passages kept off the cloud",
+      "unit": "%",
+      "better": "down",
+      "judging": "TE-quality-cost"
+    },
+    "robustness": {
+      "label": "Adversarial variants passed",
+      "unit": "%",
+      "better": "up",
+      "judging": "TE-robustness"
+    },
+    "health_pass": {
+      "label": "Varied health claims kept local with no value leaked",
+      "unit": "%",
+      "better": "up",
+      "judging": "TE-robustness"
+    },
+    "gate_pass": {
+      "label": "Omar's gate tests passed",
+      "unit": "%",
+      "better": "up",
+      "judging": "GATE"
+    },
+    "stability": {
+      "label": "Rows routed the same on every run",
+      "unit": "%",
+      "better": "up",
+      "judging": "TE-reliability"
+    },
+    "latency_ms": {
+      "label": "BRANE time per request",
+      "unit": "ms",
+      "better": "down",
+      "judging": "TE-quality-cost"
+    },
+    "calls_per_request": {
+      "label": "BRANE calls per request",
+      "unit": "count",
+      "better": "down",
+      "judging": "TE-quality-cost"
+    },
+    "retrieval_recall_at_3": {
+      "label": "Legal lookup recall@3 (hard questions)",
+      "unit": "0-1",
+      "better": "up",
+      "judging": "LG-sources"
+    },
+    "retrieval_mrr": {
+      "label": "Legal lookup MRR (hard questions)",
+      "unit": "0-1",
+      "better": "up",
+      "judging": "LG-sources"
+    },
+    "source_coverage": {
+      "label": "Provisions the policy matrix cites that the agent can look up",
+      "unit": "%",
+      "better": "up",
+      "judging": "LG-mapping"
+    },
+    "rule_coverage": {
+      "label": "Policy categories and matrix rows traced to a verified source",
+      "unit": "%",
+      "better": "up",
+      "judging": "LG-mapping"
+    },
+    "agent_pass": {
+      "label": "End-to-end claims passed",
+      "unit": "%",
+      "better": "up",
+      "judging": "TE-reliability"
+    },
+    "audit_completeness": {
+      "label": "Claims where every handoff has its human row",
+      "unit": "%",
+      "better": "up",
+      "judging": "TE-handoff"
+    },
+    "citation_precision": {
+      "label": "Cited passages that lookup returned and that support the claim",
+      "unit": "%",
+      "better": "up",
+      "judging": "LG-sources"
+    },
+    "cloud_share": {
+      "label": "Model requests answered by the frontier model",
+      "unit": "%",
+      "better": "up",
+      "judging": "TE-quality-cost"
+    },
+    "unprotected_cloud": {
+      "label": "Cloud requests with unredacted personal data",
+      "unit": "count",
+      "better": "down",
+      "judging": "TE-enforcement"
+    },
+    "claim_seconds": {
+      "label": "Time to the first answer per claim",
+      "unit": "s",
+      "better": "down",
+      "judging": "TE-quality-cost"
+    },
+    "model_calls": {
+      "label": "Model requests per claim",
+      "unit": "count",
+      "better": "down",
+      "judging": "TE-quality-cost"
+    }
+  },
+  "rows": [
+    {
+      "iter": 0,
+      "track": "policy-first",
+      "layer": "policy",
+      "change": "Policy: semantic category 'named private person with an address or claim detail', action local",
+      "run": "names-named-person",
+      "scores": {
+        "name_leak_rate": 0,
+        "leak_rate": 3.3,
+        "macro_f1": 0.707,
+        "over_block": 6.7
+      },
+      "detail": {
+        "split": "omar-dev (60 rows, 15 per route) and claims (30 rows), worst of 2",
+        "names_left": "0/50; claims-v6.1 0/50",
+        "placeholder_rows_kept_local": "18/21; claims-v6.1 2/21",
+        "macro_f1_before": 0.885
+      },
+      "kept": false,
+      "reason": "Reverted: costs the frontier model on named claims. Names left as typed 0/50 against 0/50 for claims-v6.1 (BRANE detected every name in this window, so no benefit could show); rows that only needed placeholders kept local 18/21 against 2/21; route macro F1 0.885 -> 0.707."
+    },
+    {
+      "iter": 1,
+      "track": "policy-first",
+      "layer": "policy",
+      "change": "Policy: piiSensitivity high",
+      "run": "names-sensitivity-high",
+      "scores": {
+        "name_leak_rate": 0,
+        "leak_rate": 6.7,
+        "macro_f1": 0.885,
+        "over_block": 6.7
+      },
+      "detail": {
+        "split": "omar-dev (60 rows, 15 per route) and claims (30 rows), worst of 2",
+        "names_left": "0/50; claims-v6.1 0/50",
+        "placeholder_rows_kept_local": "2/21; claims-v6.1 2/21",
+        "macro_f1_before": 0.885
+      },
+      "kept": false,
+      "reason": "Reverted: no effect. Names left as typed 0/50 against 0/50 for claims-v6.1 (BRANE detected every name in this window, so no benefit could show); rows that only needed placeholders kept local 2/21 against 2/21; route macro F1 0.885 -> 0.885."
+    },
+    {
+      "iter": 2,
+      "track": "legal",
+      "layer": "prompt",
+      "change": "Baseline lookup: plain BM25 over id, title and text",
+      "short": "baseline",
+      "scores": {
+        "retrieval_recall_at_3": 0.37,
+        "retrieval_mrr": 0.364,
+        "source_coverage": 93.8,
+        "rule_coverage": 100
+      },
+      "kept": true,
+      "reason": "Baseline for the legal primitive: 54 hard dev questions (paraphrase, two-part, Dutch and national law, data category to rule)."
+    },
+    {
+      "iter": 3,
+      "track": "legal",
+      "layer": "prompt",
+      "change": "Lookup: glossary of plain and Dutch words to legal terms (policy/lookup-glossary.json)",
+      "short": "glossary of plain and Dutch words",
+      "scores": {
+        "retrieval_recall_at_3": 0.87,
+        "retrieval_mrr": 0.872,
+        "source_coverage": 93.8,
+        "rule_coverage": 100
+      },
+      "kept": true,
+      "reason": "Kept: recall@3 0.37 -> 0.87, MRR 0.364 -> 0.872."
+    },
+    {
+      "iter": 4,
+      "track": "legal",
+      "layer": "prompt",
+      "change": "Lookup: passage id and title count twice",
+      "short": "title counts twice",
+      "scores": {
+        "retrieval_recall_at_3": 0.889,
+        "retrieval_mrr": 0.886,
+        "source_coverage": 93.8,
+        "rule_coverage": 100
+      },
+      "kept": true,
+      "reason": "Kept: recall@3 0.87 -> 0.889, MRR 0.872 -> 0.886."
+    },
+    {
+      "iter": 5,
+      "track": "legal",
+      "layer": "prompt",
+      "change": "Lookup: passage id and title count three times",
+      "short": "title counts three times",
+      "scores": {
+        "retrieval_recall_at_3": 0.889,
+        "retrieval_mrr": 0.877,
+        "source_coverage": 93.8,
+        "rule_coverage": 100
+      },
+      "kept": false,
+      "reason": "Reverted: recall@3 0.889 -> 0.889, MRR 0.886 -> 0.877."
+    },
+    {
+      "iter": 6,
+      "track": "legal",
+      "layer": "prompt",
+      "change": "Lookup: stem English plurals and verb endings",
+      "short": "stemming",
+      "scores": {
+        "retrieval_recall_at_3": 0.907,
+        "retrieval_mrr": 0.881,
+        "source_coverage": 93.8,
+        "rule_coverage": 100
+      },
+      "kept": true,
+      "reason": "Kept: recall@3 0.889 -> 0.907, MRR 0.886 -> 0.881."
+    },
+    {
+      "iter": 7,
+      "track": "legal",
+      "layer": "prompt",
+      "change": "Lookup: prefer passages that answer words the earlier hits do not",
+      "short": "diverse hits",
+      "scores": {
+        "retrieval_recall_at_3": 0.861,
+        "retrieval_mrr": 0.871,
+        "source_coverage": 93.8,
+        "rule_coverage": 100
+      },
+      "kept": false,
+      "reason": "Reverted: recall@3 0.907 -> 0.861, MRR 0.881 -> 0.871."
+    },
+    {
+      "iter": 8,
+      "track": "legal",
+      "layer": "prompt",
+      "change": "Lookup: rank each part of a two-part question by itself",
+      "short": "split two-part questions",
+      "scores": {
+        "retrieval_recall_at_3": 0.889,
+        "retrieval_mrr": 0.879,
+        "source_coverage": 93.8,
+        "rule_coverage": 100
+      },
+      "kept": false,
+      "reason": "Reverted: recall@3 0.907 -> 0.889, MRR 0.881 -> 0.879."
+    },
+    {
+      "iter": 9,
+      "track": "legal",
+      "layer": "policy",
+      "short": "four missing provisions added",
+      "change": "Corpus: add the four provisions the policy matrix cited without a passage (UAVG Arts. 31 and 33(2), Charter Art. 21, AI Act Art. 113 as amended), quoted from the official texts",
+      "scores": {
+        "retrieval_recall_at_3": 0.907,
+        "retrieval_mrr": 0.878,
+        "source_coverage": 100,
+        "rule_coverage": 100
+      },
+      "kept": true,
+      "reason": "Kept: provisions the matrix cites that the agent can look up 93.8% -> 100%; recall@3 0.907 -> 0.907, MRR 0.881 -> 0.878."
+    }
+  ],
+  "locked": null,
+  "reference": [
+    {
+      "source": "omar",
+      "predictor": "Keyword baseline",
+      "split": "omar-test (locked, one run)",
+      "scores": {
+        "macro_f1": 0.26,
+        "leak_rate": 100,
+        "identifier_leak_rate": 44.2,
+        "over_block": 0,
+        "calls_per_request": 0,
+        "latency_ms": 2
+      }
+    },
+    {
+      "source": "omar",
+      "predictor": "TF-IDF + logistic regression (trained on dev 800)",
+      "split": "omar-test (locked, one run)",
+      "scores": {
+        "macro_f1": 0.478,
+        "leak_rate": 58.8,
+        "identifier_leak_rate": 9.3,
+        "over_block": 28.3,
+        "calls_per_request": 0,
+        "latency_ms": 0
+      }
+    },
+    {
+      "source": "omar",
+      "predictor": "Own LLM classifier A (1 call, 14 labels)",
+      "split": "omar-test (locked, one run)",
+      "scores": {
+        "macro_f1": 0.884,
+        "leak_rate": 5.2,
+        "identifier_leak_rate": 0,
+        "over_block": 13.3,
+        "calls_per_request": 1,
+        "latency_ms": 6504
+      }
+    },
+    {
+      "source": "omar",
+      "predictor": "BRANE: team live policy (5 rules)",
+      "split": "omar-test (locked, one run)",
+      "scores": {
+        "macro_f1": 0.683,
+        "leak_rate": 43.3,
+        "identifier_leak_rate": 0,
+        "over_block": 1.7,
+        "calls_per_request": 1,
+        "latency_ms": 1506
+      }
+    },
+    {
+      "source": "omar",
+      "predictor": "BRANE: policy v1, no keywords (selected on val)",
+      "split": "omar-test (locked, one run)",
+      "scores": {
+        "macro_f1": 0.77,
+        "leak_rate": 21.6,
+        "identifier_leak_rate": 0,
+        "over_block": 3.3,
+        "calls_per_request": 1,
+        "latency_ms": 1406
+      }
+    },
+    {
+      "source": "omar",
+      "predictor": "BRANE v1-nokw + classifier, stricter wins (final system)",
+      "split": "omar-test (locked, one run)",
+      "scores": {
+        "macro_f1": 0.809,
+        "leak_rate": 1,
+        "identifier_leak_rate": 0,
+        "over_block": 13.3,
+        "calls_per_request": 2,
+        "latency_ms": 6504
+      }
+    }
+  ]
+}

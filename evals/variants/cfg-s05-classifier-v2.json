@@ -1,6 +1,6 @@
 {
-  "name": "13-omar-nokw-gate-classifier",
-  "policy": "evals/variants/policy-omar-v1-nokw.json",
+  "name": "s05-classifier-v2",
+  "policy": "evals/variants/policy-claims-v6.1.json",
   "gate": true,
   "classifier": {
     "spec": "evals/variants/classifier-v2.json",

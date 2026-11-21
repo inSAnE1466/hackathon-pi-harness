@@ -1,8 +1,8 @@
 {
-  "name": "07-classifier-v1",
+  "name": "s06-classifier-all-labels",
   "policy": "evals/variants/policy-claims-v6.1.json",
   "gate": true,
   "classifier": {
-    "spec": "evals/variants/classifier-v1.json"
+    "spec": "evals/variants/classifier-v2.json"
   }
 }

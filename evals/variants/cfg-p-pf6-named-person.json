@@ -1,5 +1,5 @@
 {
-  "name": "pf-pf6-named-person",
+  "name": "p-pf6-named-person",
   "policy": "evals/variants/policy-pf6-named-person.json",
   "gate": false,
   "classifier": null
