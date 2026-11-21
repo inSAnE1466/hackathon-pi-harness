@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 // The headline benchmark compares our classifier-and-policy routing with the common hackathon approach of asking an
 // LLM "is this sensitive?". Both run on the golden set, three times each.
-//   ours:     BRANE dry run under our policy (detectors, semantic categories, strictest action wins)
+//   harness:  the complete system the app runs: the pre-mask, a BRANE dry run under our policy, then the second
+//             classifier (policy/classifier.json, evals/classify.mjs); the stricter route wins
+//   brane:    BRANE dry run under our policy alone (detectors, semantic categories, strictest action wins)
 //   ask-llm:  BRANE's local model is asked to answer SEND, PSEUDONYMISE, LOCAL or REFUSE for each claim.
 //             It runs on vllm:deepseek-v4.1-flash, so no claim text leaves for the cloud during the benchmark.
 // For each approach it reports correct decisions, unsafe decisions (sensitive data sent to the cloud unprotected, or a
 // forbidden request let through), and stability (claims decided identically on all three runs).
 // Usage: node evals/compare.mjs [runs]
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { classify } from "./classify.mjs";
 import { findIdentifiers, mask } from "../src/primitives/detect.ts";
 
 const vars = { ...process.env };
@@ -40,17 +43,31 @@ const unsafe = (expect, decision, protectedOk) =>
   (expect === "local" && (decision === "send" || decision === "pseudonymise")) ||
   (expect === "protect" && decision === "send" && !protectedOk);
 
-// "brane" is BRANE alone under our policy. "harness" is what the agent actually sends. The pre-mask (detect.ts)
-// masks the identifiers BRANE mislabels before BRANE sees the text, and a masked national id counts as kept local.
+// "brane" is BRANE alone under our policy. "harness" is what the app does. The pre-mask (detect.ts) masks names,
+// contact details and identifiers before BRANE sees the text, and a masked national id counts as kept local. Then
+// the second classifier judges the pre-masked text, one request after the other, and can only make the decision
+// stricter: `local` keeps a request off the cloud, `refuse` withholds it.
 async function harness(c) {
+  const t0 = Date.now();
   const findings = findIdentifiers(c.text);
-  const r = await ours({ ...c, text: mask(c.text, findings) });
+  const sent = mask(c.text, findings);
+  const r = await ours({ ...c, text: sent });
+  const verdict = await classify(base, vars.BRANE_API_KEY, sent);
   const local = findings.some((f) => f.kind === "BSN" || f.kind === "PASSPORT");
   const leaked = c.spans.filter((s) => !findings.some((f) => f.text === s.text));
+  const decision =
+    r.decision === "refuse" || verdict.route === "refuse"
+      ? "refuse"
+      : local || verdict.route === "local"
+        ? "local"
+        : r.decision;
   return {
     ...r,
-    decision: local && r.decision !== "refuse" ? "local" : r.decision,
-    protectedOk: r.protectedOk || leaked.length === 0,
+    brane: r.decision,
+    classifier: { route: verdict.route, labels: verdict.labels, failure: verdict.failure },
+    decision,
+    protectedOk: r.protectedOk || leaked.length === 0 || decision === "local",
+    ms: Date.now() - t0,
   };
 }
 
@@ -149,6 +166,18 @@ console.log(
 );
 writeFileSync(
   "evals/compare-latest.json",
-  JSON.stringify({ runs, common: [...common], summary, perClaim: out }, null, 2),
+  JSON.stringify(
+    {
+      at: new Date().toISOString(),
+      system:
+        "harness = pre-mask, BRANE claims-v6.1 dry run, second classifier (policy/classifier.json); brane = BRANE claims-v6.1 alone; ask-llm = the local model asked for a label",
+      runs,
+      common: [...common],
+      summary,
+      perClaim: out,
+    },
+    null,
+    2,
+  ),
 );
 console.log("wrote evals/compare-latest.json");

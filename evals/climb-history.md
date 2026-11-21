@@ -44,14 +44,18 @@ A new iteration is a new file in `evals/variants/`, a run, and one line in the t
 
 ## Limits
 
-- The climb was stopped at 04:45 on 21 November. Run and recorded: the routing stack up to the pre-mask (4 rows), the
-  two named-person policy options, the legal lookup (8 rows), and the agent with and without the lookup tool. Not
-  run, so not results: the second classifier in the stack, the three narrowed policy rules, the policy-first pass
-  per pre-mask pattern, keywords against no keywords, the other agent switches, and the locked `omar-test` run.
-  Their configurations are in `evals/variants/` and listed under `not_run` in `climb-history.json`.
-- The leak rate ends at 23% on `omar-val` because the stack stops before the second classifier. Omar measured the
-  same shape on his locked test: BRANE alone 21.6%, with a classifier 1.0% (`omar/results/LOCKED_TEST_RESULTS.md`).
-  Those are his numbers on another split, shown as reference rows, not ours.
+- The climb was stopped at 04:45 on 21 November with the routing stack at the pre-mask. From 05:30 the complete
+  system was measured as one more routing row, `s07-full-stack`: the second classifier exactly as the app ships it
+  (`policy/classifier.json`, its counted labels), with its mandatory tests and one locked `omar-test` run. Not run,
+  so not results: the classifier variants s04 to s06, the three narrowed policy rules, the policy-first pass per
+  pre-mask pattern, keywords against no keywords and the other agent switches. Their configurations are in
+  `evals/variants/` and listed under `not_run` in `climb-history.json`.
+- The rows before `s07-full-stack` (the policy alone, then the pre-mask) are steps on the way. No document quotes
+  them as a result; the numbers to quote are the `headline` object in `climb-summary.json`.
+- The classifier costs a second BRANE call per person's message (about 5 to 6 seconds more in a dry run) and it
+  is one run on 200 rows, so one row is 1 point of leak rate.
+- The two agent runs (with and without the lookup tool) were made before the classifier ran by default, with the
+  classifier off. They were not re-measured, and the headline labels them so.
 - BRANE is shared. Keep at most three requests in flight (`hill.mjs` does) and run the mandatory tests one at a
   time: BRANE has answered sensitive requests with no detection ([decision log](decision-log.md)). Blank answers
   on sensitive rows are counted per run (`blank_answers`); between two routing rows they are noise no harness

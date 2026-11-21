@@ -6,7 +6,8 @@
 //   gate        the pre-mask (src/primitives/detect.ts) before BRANE sees the text: true for everything it finds, or
 //               a list of kinds, e.g. ["BSN","POLICY_ID"]
 //   classifier  a second classifier on BRANE's local model (local-only draft, nothing leaves); the stricter of its
-//               route and BRANE's wins. labels limits which of its labels count.
+//               route and BRANE's wins. labels limits which of its labels count; without it the spec's counted
+//               list applies, as in the app.
 // Every row is graded N times (--runs, default 1) and takes its least strict outcome, so a route that flips to the
 // cloud once counts as cloud. Answers are cached in /tmp/gz-climb-cache by request body and run index, so an unchanged
 // layer is not paid for twice, and a rerun of an unchanged configuration reproduces its numbers.
@@ -80,7 +81,10 @@ const classifierDraft = spec && {
   categories: allAllow,
   semanticCategories: [],
 };
-const counted = spec && new Set(config.classifier.labels ?? Object.keys(spec.labels));
+// Which labels move a route: the configuration's list, else the spec's own `counted` list (policy/classifier.json
+// has one, and src/primitives/detect.ts readVerdict applies it in the app), else every label.
+const counted =
+  spec && new Set(config.classifier.labels ?? spec.counted ?? Object.keys(spec.labels));
 
 let calls = 0;
 let cacheHits = 0;

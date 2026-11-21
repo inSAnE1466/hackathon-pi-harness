@@ -1,6 +1,6 @@
 {
   "about": "One row per climb iteration. Scores are read from evals/runs/*.json; kept or reverted is decided by evals/history.mjs. Routing rows are scored on omar-val (Omar Shalaby's selection split, a fixed sample of 50 rows per route) with his metric definitions; the locked omar-test run is reported apart and was never used to choose.",
-  "generated": "2026-11-21T04:01:14.849Z",
+  "generated": "2026-11-21T04:53:48.171Z",
   "criteria": {
     "leak_rate": {
       "label": "Leak rate (should stay local or be refused, reached the cloud)",
@@ -201,6 +201,7 @@
       "short": "policy claims-v6.1",
       "layer": "policy",
       "change": "Policy claims-v6.1: identifiers get placeholders, special categories stay local, six semantic rules (health context, claim decisions, comparing claimants, profiling, rule overrides, criminal data)",
+      "at": "2026-11-21T03:36:04.840Z",
       "scores": {
         "leak_rate": 26,
         "identifier_leak_rate": 2,
@@ -229,6 +230,7 @@
       "short": "pre-mask: ids",
       "layer": "gate",
       "change": "Pre-mask before BRANE: BSN (11-proof), passport, policy and claim numbers, licence plates",
+      "at": "2026-11-21T03:36:05.025Z",
       "scores": {
         "leak_rate": 25,
         "identifier_leak_rate": 2,
@@ -257,6 +259,7 @@
       "short": "pre-mask: names and contacts",
       "layer": "gate",
       "change": "Pre-mask also covers names, street addresses, email, phone, IBAN and date of birth",
+      "at": "2026-11-21T03:36:05.304Z",
       "scores": {
         "leak_rate": 23,
         "identifier_leak_rate": 2,
@@ -280,6 +283,35 @@
     },
     {
       "iter": 4,
+      "track": "routing",
+      "run": "s07-full-stack",
+      "short": "second classifier (the complete system)",
+      "layer": "classifier",
+      "change": "The complete system the app runs: the second classifier as shipped (policy/classifier.json, classifier-v2, its counted labels) on BRANE's local model after the pre-mask and BRANE claims-v6.1; the stricter route wins",
+      "at": "2026-11-21T04:50:56.289Z",
+      "scores": {
+        "leak_rate": 1,
+        "identifier_leak_rate": 2,
+        "name_leak_rate": 0.8,
+        "macro_f1": 0.949,
+        "over_block": 6,
+        "category_recall": 99.1,
+        "robustness": 97.1,
+        "gate_pass": 100,
+        "health_pass": 100,
+        "context_over_block": 11.8,
+        "span_leaks": 0,
+        "stability": null,
+        "latency_ms": 11614,
+        "calls_per_request": 2,
+        "blank_answers": 8.7,
+        "mandatory_tests": 5
+      },
+      "kept": true,
+      "reason": "Kept: fewer impermissible transfers (leak_rate 23% -> 1%, name_leak_rate 1.7% -> 0.8%, span_leaks 1 -> 0, macro_f1 0.814 -> 0.949, context_over_block 10.8% -> 11.8%, health_pass 97.4% -> 100%)."
+    },
+    {
+      "iter": 5,
       "track": "policy-first",
       "layer": "policy",
       "change": "Policy: semantic category 'named private person with an address or claim detail', action local",
@@ -300,7 +332,7 @@
       "reason": "Reverted: costs the frontier model on named claims. Names left as typed 0/50 against 0/50 for claims-v6.1 (BRANE detected every name in this window, so no benefit could show); rows that only needed placeholders kept local 18/21 against 2/21; route macro F1 0.885 -> 0.707."
     },
     {
-      "iter": 5,
+      "iter": 6,
       "track": "policy-first",
       "layer": "policy",
       "change": "Policy: piiSensitivity high",
@@ -321,7 +353,7 @@
       "reason": "Reverted: no effect. Names left as typed 0/50 against 0/50 for claims-v6.1 (BRANE detected every name in this window, so no benefit could show); rows that only needed placeholders kept local 2/21 against 2/21; route macro F1 0.885 -> 0.885."
     },
     {
-      "iter": 6,
+      "iter": 7,
       "track": "legal",
       "layer": "prompt",
       "change": "Baseline lookup: plain BM25 over id, title and text",
@@ -336,7 +368,7 @@
       "reason": "Baseline for the legal primitive: 54 hard dev questions (paraphrase, two-part, Dutch and national law, data category to rule)."
     },
     {
-      "iter": 7,
+      "iter": 8,
       "track": "legal",
       "layer": "prompt",
       "change": "Lookup: glossary of plain and Dutch words to legal terms (policy/lookup-glossary.json)",
@@ -351,7 +383,7 @@
       "reason": "Kept: recall@3 0.37 -> 0.87, MRR 0.364 -> 0.872."
     },
     {
-      "iter": 8,
+      "iter": 9,
       "track": "legal",
       "layer": "prompt",
       "change": "Lookup: passage id and title count twice",
@@ -366,7 +398,7 @@
       "reason": "Kept: recall@3 0.87 -> 0.889, MRR 0.872 -> 0.886."
     },
     {
-      "iter": 9,
+      "iter": 10,
       "track": "legal",
       "layer": "prompt",
       "change": "Lookup: passage id and title count three times",
@@ -381,7 +413,7 @@
       "reason": "Reverted: recall@3 0.889 -> 0.889, MRR 0.886 -> 0.877."
     },
     {
-      "iter": 10,
+      "iter": 11,
       "track": "legal",
       "layer": "prompt",
       "change": "Lookup: stem English plurals and verb endings",
@@ -396,7 +428,7 @@
       "reason": "Kept: recall@3 0.889 -> 0.907, MRR 0.886 -> 0.881."
     },
     {
-      "iter": 11,
+      "iter": 12,
       "track": "legal",
       "layer": "prompt",
       "change": "Lookup: prefer passages that answer words the earlier hits do not",
@@ -411,7 +443,7 @@
       "reason": "Reverted: recall@3 0.907 -> 0.861, MRR 0.881 -> 0.871."
     },
     {
-      "iter": 12,
+      "iter": 13,
       "track": "legal",
       "layer": "prompt",
       "change": "Lookup: rank each part of a two-part question by itself",
@@ -426,7 +458,7 @@
       "reason": "Reverted: recall@3 0.907 -> 0.889, MRR 0.881 -> 0.879."
     },
     {
-      "iter": 13,
+      "iter": 14,
       "track": "legal",
       "layer": "policy",
       "short": "four missing provisions added",
@@ -441,7 +473,7 @@
       "reason": "Kept: provisions the matrix cites that the agent can look up 93.8% -> 100%; recall@3 0.907 -> 0.907, MRR 0.881 -> 0.878."
     },
     {
-      "iter": 14,
+      "iter": 15,
       "track": "agent",
       "run": "agent-a0-default",
       "layer": "prompt",
@@ -459,7 +491,7 @@
       "reason": "Baseline: 12 dev claims end to end, one fresh session each, a scripted reviewer answers every handoff."
     },
     {
-      "iter": 15,
+      "iter": 16,
       "track": "agent",
       "run": "agent-a9-tools-no-lookup",
       "layer": "tools",

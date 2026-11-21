@@ -1,9 +1,163 @@
 {
   "source": "evals/climb-history.json: real runs of evals/hill.mjs against BRANE (draft policies, POST /policy/test) on Omar Shalaby's selection split omar-val, and of evals/legal.mjs on the hard legal questions. start is the baseline before the first change, end is after the last kept change.",
-  "generated": "2026-11-21T04:01:14.849Z",
+  "generated": "2026-11-21T04:53:48.171Z",
+  "headline": {
+    "about": "The single source for every number the README, submission/README.md, docs/evals.md, docs/track.md and the video quote. Read values.<key>.value (with .of for counts and .start for the baseline before any change). scripts/numbers-check.mjs fails when a document states something else.",
+    "system": "pre-mask, BRANE claims-v6.1, second classifier (classifier-v2), stricter route wins",
+    "values": {
+      "leak_rate": {
+        "label": "Leak rate (should stay local or be refused, reached the cloud)",
+        "value": 1,
+        "unit": "%",
+        "start": 83,
+        "split": "omar-val, a fixed sample of 200 rows (50 per route), one run",
+        "system": "pre-mask, BRANE claims-v6.1, second classifier (classifier-v2), stricter route wins",
+        "run": "evals/runs/s07-full-stack.json",
+        "at": "2026-11-21T04:50:56.289Z"
+      },
+      "route_f1": {
+        "label": "Route macro F1",
+        "value": 0.949,
+        "unit": "0-1",
+        "start": 0.115,
+        "split": "omar-val, a fixed sample of 200 rows (50 per route), one run",
+        "system": "pre-mask, BRANE claims-v6.1, second classifier (classifier-v2), stricter route wins",
+        "run": "evals/runs/s07-full-stack.json",
+        "at": "2026-11-21T04:50:56.289Z"
+      },
+      "over_block": {
+        "label": "Over-block rate (harmless rows kept local or refused)",
+        "value": 6,
+        "unit": "%",
+        "start": 0,
+        "split": "omar-val, a fixed sample of 200 rows (50 per route), one run",
+        "system": "pre-mask, BRANE claims-v6.1, second classifier (classifier-v2), stricter route wins",
+        "run": "evals/runs/s07-full-stack.json",
+        "at": "2026-11-21T04:50:56.289Z"
+      },
+      "names_as_typed": {
+        "label": "Names left as typed on the cloud",
+        "value": 0.8,
+        "unit": "%",
+        "start": 85.7,
+        "split": "omar-val, a fixed sample of 200 rows (50 per route), one run",
+        "system": "pre-mask, BRANE claims-v6.1, second classifier (classifier-v2), stricter route wins",
+        "run": "evals/runs/s07-full-stack.json",
+        "at": "2026-11-21T04:50:56.289Z"
+      },
+      "span_leaks": {
+        "label": "Labelled must-not-leave values found in a cloud payload",
+        "value": 0,
+        "unit": "count",
+        "start": 217,
+        "split": "39 health claims (228 labelled values) and 30 claims of our own, one run",
+        "system": "pre-mask, BRANE claims-v6.1, second classifier (classifier-v2), stricter route wins",
+        "run": "evals/runs/s07-full-stack.json",
+        "at": "2026-11-21T04:50:56.289Z"
+      },
+      "context_over_block": {
+        "label": "Lookup passages kept off the cloud (a cost: they hold no personal data)",
+        "value": 11.8,
+        "unit": "%",
+        "start": null,
+        "split": "93 corpus passages as the lookup tool returns them, one run",
+        "system": "pre-mask, BRANE claims-v6.1, second classifier (classifier-v2), stricter route wins",
+        "run": "evals/runs/s07-full-stack.json",
+        "at": "2026-11-21T04:50:56.289Z"
+      },
+      "health_claims": {
+        "label": "Varied health claims kept local with no value leaked",
+        "value": 39,
+        "of": 39,
+        "unit": "of",
+        "split": "evals/golden/health.jsonl, one run",
+        "system": "pre-mask, BRANE claims-v6.1, second classifier (classifier-v2), stricter route wins",
+        "run": "evals/runs/s07-full-stack.json",
+        "at": "2026-11-21T04:50:56.289Z"
+      },
+      "adversarial_variants": {
+        "label": "Adversarial rewrites of our claims passed",
+        "value": 136,
+        "of": 140,
+        "unit": "of",
+        "split": "evals/golden/mutated.jsonl, a fixed sample of 140 of 150, one run",
+        "system": "pre-mask, BRANE claims-v6.1, second classifier (classifier-v2), stricter route wins",
+        "run": "evals/runs/s07-full-stack.json",
+        "at": "2026-11-21T04:50:56.289Z"
+      },
+      "omar_gate_tests": {
+        "label": "Omar Shalaby's gate tests passed",
+        "value": 11,
+        "of": 11,
+        "unit": "of",
+        "split": "evals/golden/omar-gate.jsonl, one run",
+        "system": "pre-mask, BRANE claims-v6.1, second classifier (classifier-v2), stricter route wins",
+        "run": "evals/runs/s07-full-stack.json",
+        "at": "2026-11-21T04:50:56.289Z"
+      },
+      "own_claims": {
+        "label": "Our own 30 claims routed correctly",
+        "value": 30,
+        "of": 30,
+        "unit": "of",
+        "split": "evals/golden/claims.jsonl, one run",
+        "system": "pre-mask, BRANE claims-v6.1, second classifier (classifier-v2), stricter route wins",
+        "run": "evals/runs/s07-full-stack.json",
+        "at": "2026-11-21T04:50:56.289Z"
+      },
+      "routing_kept": {
+        "label": "Keep rule on the complete-system routing row",
+        "value": "kept",
+        "unit": "text",
+        "reason": "Kept: fewer impermissible transfers (leak_rate 23% -> 1%, name_leak_rate 1.7% -> 0.8%, span_leaks 1 -> 0, macro_f1 0.814 -> 0.949, context_over_block 10.8% -> 11.8%, health_pass 97.4% -> 100%).",
+        "split": "omar-val, a fixed sample of 200 rows (50 per route), one run",
+        "system": "pre-mask, BRANE claims-v6.1, second classifier (classifier-v2), stricter route wins",
+        "run": "evals/runs/s07-full-stack.json",
+        "at": "2026-11-21T04:50:56.289Z"
+      },
+      "legal_recall_tuning": {
+        "label": "Legal lookup recall@3, tuning questions",
+        "value": 0.907,
+        "start": 0.37,
+        "unit": "0-1",
+        "split": "evals/legal/dev.jsonl (54 questions)",
+        "system": "the lookup tool as shipped (src/primitives/lookup-ranking.ts)",
+        "run": "evals/climb-history.json (node evals/legal.mjs, no network)",
+        "at": "2026-11-21T04:53:48.171Z"
+      },
+      "legal_recall_unseen": {
+        "label": "Legal lookup recall@3, unseen questions",
+        "value": 0.639,
+        "start": 0.528,
+        "unit": "0-1",
+        "split": "evals/legal/heldout.jsonl (18 questions, never tuned on)",
+        "system": "the lookup tool as shipped (src/primitives/lookup-ranking.ts)",
+        "run": "evals/climb-history.json (node evals/legal.mjs, no network)",
+        "at": "2026-11-21T04:53:48.171Z"
+      },
+      "lookup_with": {
+        "label": "End-to-end claims passed, agent with the lookup tool",
+        "value": 83.3,
+        "unit": "%",
+        "split": "evals/agent/dev.jsonl (12 claims, one run each, a scripted reviewer answers every handoff)",
+        "system": "the agent on http://localhost:5199, classifier off (the default when this ran; not re-measured with the classifier on)",
+        "run": "evals/runs/agent-a0-default.json",
+        "at": "2026-11-21T03:35:11.300Z"
+      },
+      "lookup_without": {
+        "label": "End-to-end claims passed, agent without the lookup tool",
+        "value": 25,
+        "unit": "%",
+        "split": "evals/agent/dev.jsonl (12 claims, one run each, a scripted reviewer answers every handoff)",
+        "system": "the agent on http://localhost:5199, classifier off (the default when this ran; not re-measured with the classifier on)",
+        "run": "evals/runs/agent-a9-tools-no-lookup.json",
+        "at": "2026-11-21T03:59:34.380Z"
+      }
+    }
+  },
   "iterations": {
-    "total": 16,
-    "kept": 10
+    "total": 17,
+    "kept": 11
   },
   "locked": null,
   "reference": [
@@ -93,8 +247,13 @@
       "unit": "%",
       "better": "down",
       "start": 83,
-      "end": 23,
-      "steps": ["policy claims-v6.1", "pre-mask: ids", "pre-mask: names and contacts"],
+      "end": 1,
+      "steps": [
+        "policy claims-v6.1",
+        "pre-mask: ids",
+        "pre-mask: names and contacts",
+        "second classifier (the complete system)"
+      ],
       "points": [
         {
           "iter": 0,
@@ -115,9 +274,14 @@
           "iter": 3,
           "value": 23,
           "change": "Pre-mask also covers names, street addresses, email, phone, IBAN and date of birth"
+        },
+        {
+          "iter": 4,
+          "value": 1,
+          "change": "The complete system the app runs: the second classifier as shipped (policy/classifier.json, classifier-v2, its counted labels) on BRANE's local model after the pre-mask and BRANE claims-v6.1; the stricter route wins"
         }
       ],
-      "tried": 3,
+      "tried": 4,
       "reverted": 0,
       "split": "omar-val",
       "heldout": null,
@@ -129,8 +293,13 @@
       "unit": "0-1",
       "better": "up",
       "start": 0.115,
-      "end": 0.814,
-      "steps": ["policy claims-v6.1", "pre-mask: ids", "pre-mask: names and contacts"],
+      "end": 0.949,
+      "steps": [
+        "policy claims-v6.1",
+        "pre-mask: ids",
+        "pre-mask: names and contacts",
+        "second classifier (the complete system)"
+      ],
       "points": [
         {
           "iter": 0,
@@ -151,9 +320,14 @@
           "iter": 3,
           "value": 0.814,
           "change": "Pre-mask also covers names, street addresses, email, phone, IBAN and date of birth"
+        },
+        {
+          "iter": 4,
+          "value": 0.949,
+          "change": "The complete system the app runs: the second classifier as shipped (policy/classifier.json, classifier-v2, its counted labels) on BRANE's local model after the pre-mask and BRANE claims-v6.1; the stricter route wins"
         }
       ],
-      "tried": 3,
+      "tried": 4,
       "reverted": 0,
       "split": "omar-val",
       "heldout": null,
@@ -166,7 +340,12 @@
       "better": "down",
       "start": 0,
       "end": 6,
-      "steps": ["policy claims-v6.1", "pre-mask: ids", "pre-mask: names and contacts"],
+      "steps": [
+        "policy claims-v6.1",
+        "pre-mask: ids",
+        "pre-mask: names and contacts",
+        "second classifier (the complete system)"
+      ],
       "points": [
         {
           "iter": 0,
@@ -187,9 +366,14 @@
           "iter": 3,
           "value": 6,
           "change": "Pre-mask also covers names, street addresses, email, phone, IBAN and date of birth"
+        },
+        {
+          "iter": 4,
+          "value": 6,
+          "change": "The complete system the app runs: the second classifier as shipped (policy/classifier.json, classifier-v2, its counted labels) on BRANE's local model after the pre-mask and BRANE claims-v6.1; the stricter route wins"
         }
       ],
-      "tried": 3,
+      "tried": 4,
       "reverted": 0,
       "split": "omar-val",
       "heldout": null,
@@ -202,7 +386,12 @@
       "better": "up",
       "start": 2,
       "end": 5,
-      "steps": ["policy claims-v6.1", "pre-mask: ids", "pre-mask: names and contacts"],
+      "steps": [
+        "policy claims-v6.1",
+        "pre-mask: ids",
+        "pre-mask: names and contacts",
+        "second classifier (the complete system)"
+      ],
       "points": [
         {
           "iter": 0,
@@ -223,9 +412,14 @@
           "iter": 3,
           "value": 5,
           "change": "Pre-mask also covers names, street addresses, email, phone, IBAN and date of birth"
+        },
+        {
+          "iter": 4,
+          "value": 5,
+          "change": "The complete system the app runs: the second classifier as shipped (policy/classifier.json, classifier-v2, its counted labels) on BRANE's local model after the pre-mask and BRANE claims-v6.1; the stricter route wins"
         }
       ],
-      "tried": 3,
+      "tried": 4,
       "reverted": 0,
       "split": "T1 to T5 as BRANE dry runs, worst of 5 in sequence (live evidence: submission/test_evidence_run.csv)",
       "heldout": null,
@@ -246,27 +440,27 @@
       ],
       "points": [
         {
-          "iter": 6,
+          "iter": 7,
           "value": 0.37,
           "change": "Baseline lookup: plain BM25 over id, title and text"
         },
         {
-          "iter": 7,
+          "iter": 8,
           "value": 0.87,
           "change": "Lookup: glossary of plain and Dutch words to legal terms (policy/lookup-glossary.json)"
         },
         {
-          "iter": 8,
+          "iter": 9,
           "value": 0.889,
           "change": "Lookup: passage id and title count twice"
         },
         {
-          "iter": 10,
+          "iter": 11,
           "value": 0.907,
           "change": "Lookup: stem English plurals and verb endings"
         },
         {
-          "iter": 13,
+          "iter": 14,
           "value": 0.907,
           "change": "Corpus: add the four provisions the policy matrix cited without a passage (UAVG Arts. 31 and 33(2), Charter Art. 21, AI Act Art. 113 as amended), quoted from the official texts"
         }

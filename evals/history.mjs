@@ -258,6 +258,13 @@ const ROUTING = [
       "Classifier's identifier labels also count (a name BRANE passed as typed sends the turn local)",
   },
   {
+    run: "s07-full-stack",
+    short: "second classifier (the complete system)",
+    layer: "classifier",
+    change:
+      "The complete system the app runs: the second classifier as shipped (policy/classifier.json, classifier-v2, its counted labels) on BRANE's local model after the pre-mask and BRANE claims-v6.1; the stricter route wins",
+  },
+  {
     run: "s-c1-profiling-not-on-law-text",
     short: "profiling rule narrowed",
     layer: "policy",
@@ -345,7 +352,7 @@ for (const step of ROUTING) {
     identifiers: `Kept: fewer identifiers or names sent as typed (${moved}).`,
     none: `Reverted: no criterion moved past noise (${moved || "no change"}).`,
   }[why];
-  add({ track: "routing", ...step, scores, kept, reason });
+  add({ track: "routing", ...step, at: run(step.run).at, scores, kept, reason });
   if (kept) best = scores;
 }
 
@@ -715,7 +722,11 @@ for (const step of AGENT) {
 }
 
 // ---------------------------------------------------------------- the locked test and Omar's reference rows
-const locked = run("locked-final");
+// One run of the complete system on the locked split, recorded once and never used to choose.
+const LOCKED_RUN = existsSync("evals/runs/locked-s07-full-stack.json")
+  ? "locked-s07-full-stack"
+  : "locked-final";
+const locked = run(LOCKED_RUN);
 const reference = readFileSync("omar/results/LOCKED_TEST_RESULTS.csv", "utf8")
   .trim()
   .split("\n")
@@ -747,11 +758,14 @@ const history = {
     ? {
         split: "omar-test (200 rows, locked, one run)",
         config: locked.config.name,
+        run: `evals/runs/${LOCKED_RUN}.json`,
         at: locked.at,
+        rows: locked.rows,
         scores: locked.bySet["omar-test"] && {
           macro_f1: locked.bySet["omar-test"].macro_f1,
           leak_rate: locked.bySet["omar-test"].leak_rate,
           identifier_leak_rate: locked.bySet["omar-test"].identifier_leak_rate,
+          name_leak_rate: locked.bySet["omar-test"].name_leak_rate,
           over_block: locked.bySet["omar-test"].over_block,
           calls_per_request: locked.scores.calls_per_request,
           latency_ms: locked.bySet["omar-test"].ms_per_row,

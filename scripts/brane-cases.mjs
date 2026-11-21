@@ -1,12 +1,15 @@
 #!/usr/bin/env node
-// Run the track's tests T1-T5 and our edge cases E1-E5 against the live BRANE policy.
+// Run the track's tests T1-T5 and our edge cases E1-E5 against the live BRANE policy, as the complete system the app
+// runs: the pre-mask, then BRANE, then the second classifier (policy/classifier.json), and the stricter route wins.
 // Usage: node scripts/brane-cases.mjs [--live] [--runs N]   (--live also runs the model; default is a dry run)
+// Also writes evals/runs/security-cases-full-stack.json: the same result with its run time.
 // Pass rules follow the organizers' starter kit, plus a payload check over every protected value in the prompt.
 // Each case runs 5 times in sequence (--runs N) and passes only if every run passes. T5 (check unavailable) cannot be
 // provoked on the live BRANE, so it runs test/brane.test.ts, which drives the harness's BRANE fetch with BRANE unreachable, a 502 and a 200 without a
 // routing decision, and a foreign origin. Writes submission/test_evidence_run.csv. Never prints the key.
 import { execFileSync } from "node:child_process";
 import { readFileSync, existsSync, writeFileSync } from "node:fs";
+import { classify, spec, stricterRoute } from "../evals/classify.mjs";
 import { findIdentifiers, mask } from "../src/primitives/detect.ts";
 
 const vars = { ...process.env };
@@ -138,26 +141,37 @@ async function run([id, scenario, expected, prompt, pass, listed]) {
   });
   const j = await res.json();
   const h = j.simulatedHeaders ?? {};
-  const payload = j.decision?.route === "cloud" ? (j.outgoingCloudPayloadPreview ?? "") : "";
+  // One request at a time: the classifier call starts after BRANE's dry run has answered.
+  const verdict = await classify(base, key, sent);
+  const braneRoute = j.decision?.route;
+  const route = stricterRoute(braneRoute, verdict);
+  // Nothing is sent to the cloud unless both BRANE and the classifier leave the request on the cloud route.
+  const payload = route === "cloud" ? (j.outgoingCloudPayloadPreview ?? "") : "";
   const checked = protectedValues(prompt, listed);
   const leaked = checked.filter((v) => fold(payload).includes(fold(v)));
   const d = {
-    route: j.decision?.route,
+    route,
     status: j.decision?.httpStatus,
     redacted: h["X-Brane-Redacted"],
     payloadClean: leaked.length === 0,
     premasked: sent !== prompt,
   };
   // --live: one chat call as the app makes it (agent instructions as the system prompt, pre-masked text, the policy's
-  // cloud model). Its own X-Brane headers must agree with the dry run's route, or the case fails.
+  // cloud model, or its local model by name when the classifier kept the request local). Its own X-Brane headers
+  // must agree with the route above, or the case fails. A request the classifier refused is withheld: no chat call.
   let answerText = "";
   let model = "";
-  if (live) {
+  const withheld = verdict.route === "refuse" && braneRoute !== "refused";
+  if (live && withheld) answerText = "Withheld by the classifier before any model ran";
+  if (live && !withheld) {
     const chat = await fetch(`${base}/chat/completions`, {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: policyFile.models.cloud,
+        model:
+          verdict.route === "local" && braneRoute === "cloud"
+            ? policyFile.models.local
+            : policyFile.models.cloud,
         messages: [
           { role: "system", content: system },
           { role: "user", content: sent },
@@ -179,12 +193,16 @@ async function run([id, scenario, expected, prompt, pass, listed]) {
   const blank =
     d.route === "cloud" && checked.length > 0 && !h["X-Brane-Pii-Types"] && !d.premasked;
   const ok = pass(d) && d.payloadClean && !blank && !d.chatRouteMismatch;
+  const classifierNote = `Classifier ${spec.version}: ${verdict.labels.join(",") || "no label"} -> ${
+    { allow: "cloud allowed", local: "local", refuse: "refused" }[verdict.route]
+  }${verdict.failure ? ` (failed closed: ${verdict.failure})` : ""}${verdict.ranOn ? `, ran on ${verdict.ranOn}` : ""}`;
   const detail = [
     h["X-Brane-Pii-Types"],
     h["X-Brane-Semantic-Matches"],
     h["X-Brane-Local-Cause"],
     h["X-Brane-Refused-By"],
     h["X-Brane-Policy-Triggers"] && `Triggers: ${h["X-Brane-Policy-Triggers"]}`,
+    classifierNote,
   ]
     .filter(Boolean)
     .join(" | ");
@@ -197,9 +215,13 @@ async function run([id, scenario, expected, prompt, pass, listed]) {
             ? "Protected: the harness replaced personal data with placeholders before BRANE; the cloud model saw only placeholders"
             : "Sent as typed: no personal data in the request",
       local:
-        "Kept local: the whole request stayed on BRANE's local model; nothing went to the cloud",
+        braneRoute === "cloud"
+          ? "Kept local by the classifier (BRANE alone would have used the cloud): the request ran on BRANE's local model; nothing went to the cloud"
+          : "Kept local: the whole request stayed on BRANE's local model; nothing went to the cloud",
       refused:
-        "Refused (HTTP 422) before any model ran; in the app the step goes to an authorised person",
+        braneRoute === "refused"
+          ? "Refused (HTTP 422) before any model ran; in the app the step goes to an authorised person"
+          : "Withheld by the classifier before any model ran; in the app the step goes to an authorised person",
     }[d.route] ?? "";
   const output = [
     impact,
@@ -221,7 +243,8 @@ async function run([id, scenario, expected, prompt, pass, listed]) {
     scenario,
     expected,
     prompt,
-    h["X-Brane-Routed-To"] ?? `HTTP_${res.status}`,
+    // BRANE's own header when its route stands; the stricter route when the classifier changed it.
+    route === braneRoute ? (h["X-Brane-Routed-To"] ?? `HTTP_${res.status}`) : route,
     d.redacted ?? "",
     detail,
     output,
@@ -267,6 +290,8 @@ function checkFailure() {
 }
 
 const rows = [];
+const started = new Date().toISOString();
+const passedRuns = {};
 for (const c of cases) {
   const results = [];
   for (let i = 0; i < runs; i++) results.push(await run(c));
@@ -274,6 +299,7 @@ for (const c of cases) {
   const row = results.find((r) => r[8] !== "Pass") ?? results.at(-1);
   row[7] = `${row[7]} | ${passed}/${runs} runs passed`;
   row[8] = passed === runs ? "Pass" : "Fail";
+  passedRuns[row[0]] = passed;
   rows.push(row);
 }
 rows.splice(4, 0, checkFailure());
@@ -295,5 +321,33 @@ const csv =
     .join("\n") + "\n";
 writeFileSync("submission/test_evidence_run.csv", csv);
 const failed = rows.filter((r) => r[8] !== "Pass").length;
+// The same result as a run file, with its time, for evals/climb-summary.json's headline.
+writeFileSync(
+  "evals/runs/security-cases-full-stack.json",
+  `${JSON.stringify(
+    {
+      at: started,
+      finished: new Date().toISOString(),
+      system: `pre-mask, BRANE ${version} (live department), second classifier ${spec.version}; the stricter route wins`,
+      live,
+      runs,
+      passed: rows.length - failed,
+      total: rows.length,
+      mandatory: {
+        passed: rows.filter((r) => /^T\d/.test(r[0]) && r[8] === "Pass").length,
+        total: rows.filter((r) => /^T\d/.test(r[0])).length,
+      },
+      cases: rows.map((r) => ({
+        id: r[0],
+        pass: r[8] === "Pass",
+        runs_passed: passedRuns[r[0]] ?? null,
+        route: r[4],
+        evidence: r[6],
+      })),
+    },
+    null,
+    1,
+  )}\n`,
+);
 console.log(`${rows.length - failed}/${rows.length} pass; wrote submission/test_evidence_run.csv`);
 process.exit(failed ? 1 : 0);

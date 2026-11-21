@@ -1,0 +1,8 @@
+{
+  "name": "s07-full-stack",
+  "policy": "evals/variants/policy-claims-v6.1.json",
+  "gate": true,
+  "classifier": {
+    "spec": "policy/classifier.json"
+  }
+}

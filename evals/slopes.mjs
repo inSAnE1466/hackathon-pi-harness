@@ -2,10 +2,18 @@
 // Read evals/climb-history.json and write evals/climb-summary.json. For each headline metric it records the value
 // before the first change, the value after the last kept change and the kept steps between them, on omar-val, with
 // the locked omar-test result apart. The README, the video (demo/video/climb.mjs) and docs/evals.md all read this one file;
-// --docs rewrites the table between the markers in docs/evals.md from it.
+// --docs rewrites the table between the markers in docs/evals.md from it, and the headline table between the
+// headline markers in README.md, submission/README.md, docs/evals.md and docs/track.md.
 // A legal metric is included only if it moved.
 // Usage: node evals/slopes.mjs [--docs]
 import { readFileSync, writeFileSync } from "node:fs";
+import {
+  buildHeadline,
+  HEADLINE_BEGIN,
+  HEADLINE_DOCS,
+  HEADLINE_END,
+  renderHeadline,
+} from "./headline.mjs";
 
 const history = JSON.parse(readFileSync("evals/climb-history.json", "utf8"));
 const HEADLINE = [
@@ -128,6 +136,8 @@ const summary = {
   source:
     "evals/climb-history.json: real runs of evals/hill.mjs against BRANE (draft policies, POST /policy/test) on Omar Shalaby's selection split omar-val, and of evals/legal.mjs on the hard legal questions. start is the baseline before the first change, end is after the last kept change.",
   generated: history.generated,
+  // The one set of numbers every document and the video quote (evals/headline.mjs).
+  headline: buildHeadline(history),
   iterations: { total: history.rows.length, kept: history.rows.filter((r) => r.kept).length },
   locked: history.locked,
   reference: history.reference,
@@ -165,6 +175,16 @@ if (process.argv.includes("--docs")) {
     `${doc.slice(0, doc.indexOf(begin) + begin.length)}\n\n${table}\n\n${doc.slice(doc.indexOf(end))}`,
   );
 }
+if (process.argv.includes("--docs"))
+  for (const file of HEADLINE_DOCS) {
+    const doc = readFileSync(file, "utf8");
+    if (!doc.includes(HEADLINE_BEGIN) || !doc.includes(HEADLINE_END))
+      throw new Error(`${file} lacks the headline markers`);
+    writeFileSync(
+      file,
+      `${doc.slice(0, doc.indexOf(HEADLINE_BEGIN) + HEADLINE_BEGIN.length)}\n\n${renderHeadline(summary.headline)}\n\n${doc.slice(doc.indexOf(HEADLINE_END))}`,
+    );
+  }
 for (const c of comparisons)
   console.log(`${c.label}: with ${JSON.stringify(c.with)} | without ${JSON.stringify(c.without)}`);
 console.log(table);
