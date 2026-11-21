@@ -44,12 +44,35 @@ A new iteration is a new file in `evals/variants/`, a run, and one line in the t
 
 ## Limits
 
+- The climb was stopped at 04:45 on 21 November. Run and recorded: the routing stack up to the pre-mask (4 rows), the
+  two named-person policy options, the legal lookup (8 rows), and the agent with and without the lookup tool. Not
+  run, so not results: the second classifier in the stack, the three narrowed policy rules, the policy-first pass
+  per pre-mask pattern, keywords against no keywords, the other agent switches, and the locked `omar-test` run.
+  Their configurations are in `evals/variants/` and listed under `not_run` in `climb-history.json`.
+- The leak rate ends at 23% on `omar-val` because the stack stops before the second classifier. Omar measured the
+  same shape on his locked test: BRANE alone 21.6%, with a classifier 1.0% (`omar/results/LOCKED_TEST_RESULTS.md`).
+  Those are his numbers on another split, shown as reference rows, not ours.
 - BRANE is shared. Keep at most three requests in flight (`hill.mjs` does) and run the mandatory tests one at a
-  time: under load BRANE has answered sensitive requests with no detection ([decision log](decision-log.md)).
+  time: BRANE has answered sensitive requests with no detection ([decision log](decision-log.md)). Blank answers
+  on sensitive rows are counted per run (`blank_answers`); between two routing rows they are noise no harness
+  change causes.
 - Routing rows use a fixed sample of `omar-val` (every k-th row per route, 200 of 500) because one request takes
-  about 5 seconds whatever the load. With 50 rows per route, one row is 2 points of leak rate; smaller differences
-  are noise, and the keep rule ignores F1 changes under 0.01 and over-block changes under 1 point.
-- Most rows are one run. Stability (same route on every run) is only reported where a row ran more than once.
-- The 12 agent claims are few and the agent varies between runs: one claim is 8 points of the pass rate.
+  about 5 seconds whatever the load. With 50 rows per route, one row is 1 point of leak rate. Each row is one run,
+  so the keep rule treats a leak-rate change of 2 points or less as no change. The two pre-mask rows were kept for
+  fewer names and labelled values sent as typed, not for the leak rate.
+- The mandatory tests here are BRANE dry runs graded by `hill.mjs`. The submission's evidence is the live run in
+  `submission/test_evidence_run.csv`.
+- The 12 agent claims are few and the agent varies between runs: one claim is 8 points of the pass rate, and each
+  configuration ran once.
+- With and without the lookup tool (pass 83.3% against 25%, one run each): most of the gap is by construction. The
+  checks ask for a cited passage, and an agent without lookup has no passage ids to cite, so 9 of 12 claims fail on
+  that check or on the missing recommendation. It shows that grounded, cited recommendations depend on lookup; it
+  does not measure how much better the advice is. Without lookup 93% of model requests stayed on the frontier model
+  against 23% with it: lookup passages in the context trigger the policy's semantic rules and send later turns
+  local. That cost is real and was not climbed (the three narrowed policy rules are among the runs not done).
+- The pre-mask for names was kept although route macro F1 fell from 0.825 to 0.814: names left as typed fell from
+  7.6% to 1.7%, and the leak-rate change (25% to 23%) is inside the noise band.
 - The reviewer in the agent eval is a script with fixed answers. It checks that the handoff loop closes and is
   recorded; it says nothing about how good a real handler's decision is.
+- The legal glossary was tuned on the 54 dev questions. On the 18 held-out questions recall@3 is lower; both numbers
+  are in `climb-summary.json`.

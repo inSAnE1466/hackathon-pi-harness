@@ -1,9 +1,9 @@
 {
   "source": "evals/climb-history.json: real runs of evals/hill.mjs against BRANE (draft policies, POST /policy/test) on Omar Shalaby's selection split omar-val, and of evals/legal.mjs on the hard legal questions. start is the baseline before the first change, end is after the last kept change.",
-  "generated": "2026-11-21T02:54:43.919Z",
+  "generated": "2026-11-21T04:01:14.849Z",
   "iterations": {
-    "total": 10,
-    "kept": 5
+    "total": 16,
+    "kept": 10
   },
   "locked": null,
   "reference": [
@@ -88,6 +88,150 @@
   ],
   "metrics": [
     {
+      "key": "leak_rate",
+      "label": "Leak rate",
+      "unit": "%",
+      "better": "down",
+      "start": 83,
+      "end": 23,
+      "steps": ["policy claims-v6.1", "pre-mask: ids", "pre-mask: names and contacts"],
+      "points": [
+        {
+          "iter": 0,
+          "value": 83,
+          "change": "Baseline: BRANE as handed out (all 25 categories allowed, no semantic rule), no harness"
+        },
+        {
+          "iter": 1,
+          "value": 26,
+          "change": "Policy claims-v6.1: identifiers get placeholders, special categories stay local, six semantic rules (health context, claim decisions, comparing claimants, profiling, rule overrides, criminal data)"
+        },
+        {
+          "iter": 2,
+          "value": 25,
+          "change": "Pre-mask before BRANE: BSN (11-proof), passport, policy and claim numbers, licence plates"
+        },
+        {
+          "iter": 3,
+          "value": 23,
+          "change": "Pre-mask also covers names, street addresses, email, phone, IBAN and date of birth"
+        }
+      ],
+      "tried": 3,
+      "reverted": 0,
+      "split": "omar-val",
+      "heldout": null,
+      "locked": null
+    },
+    {
+      "key": "route_f1",
+      "label": "Route macro F1",
+      "unit": "0-1",
+      "better": "up",
+      "start": 0.115,
+      "end": 0.814,
+      "steps": ["policy claims-v6.1", "pre-mask: ids", "pre-mask: names and contacts"],
+      "points": [
+        {
+          "iter": 0,
+          "value": 0.115,
+          "change": "Baseline: BRANE as handed out (all 25 categories allowed, no semantic rule), no harness"
+        },
+        {
+          "iter": 1,
+          "value": 0.825,
+          "change": "Policy claims-v6.1: identifiers get placeholders, special categories stay local, six semantic rules (health context, claim decisions, comparing claimants, profiling, rule overrides, criminal data)"
+        },
+        {
+          "iter": 2,
+          "value": 0.825,
+          "change": "Pre-mask before BRANE: BSN (11-proof), passport, policy and claim numbers, licence plates"
+        },
+        {
+          "iter": 3,
+          "value": 0.814,
+          "change": "Pre-mask also covers names, street addresses, email, phone, IBAN and date of birth"
+        }
+      ],
+      "tried": 3,
+      "reverted": 0,
+      "split": "omar-val",
+      "heldout": null,
+      "locked": null
+    },
+    {
+      "key": "over_block",
+      "label": "Over-block rate",
+      "unit": "%",
+      "better": "down",
+      "start": 0,
+      "end": 6,
+      "steps": ["policy claims-v6.1", "pre-mask: ids", "pre-mask: names and contacts"],
+      "points": [
+        {
+          "iter": 0,
+          "value": 0,
+          "change": "Baseline: BRANE as handed out (all 25 categories allowed, no semantic rule), no harness"
+        },
+        {
+          "iter": 1,
+          "value": 6,
+          "change": "Policy claims-v6.1: identifiers get placeholders, special categories stay local, six semantic rules (health context, claim decisions, comparing claimants, profiling, rule overrides, criminal data)"
+        },
+        {
+          "iter": 2,
+          "value": 6,
+          "change": "Pre-mask before BRANE: BSN (11-proof), passport, policy and claim numbers, licence plates"
+        },
+        {
+          "iter": 3,
+          "value": 6,
+          "change": "Pre-mask also covers names, street addresses, email, phone, IBAN and date of birth"
+        }
+      ],
+      "tried": 3,
+      "reverted": 0,
+      "split": "omar-val",
+      "heldout": null,
+      "locked": null
+    },
+    {
+      "key": "mandatory_tests",
+      "label": "Mandatory tests passed",
+      "unit": "of 5",
+      "better": "up",
+      "start": 2,
+      "end": 5,
+      "steps": ["policy claims-v6.1", "pre-mask: ids", "pre-mask: names and contacts"],
+      "points": [
+        {
+          "iter": 0,
+          "value": 2,
+          "change": "Baseline: BRANE as handed out (all 25 categories allowed, no semantic rule), no harness"
+        },
+        {
+          "iter": 1,
+          "value": 5,
+          "change": "Policy claims-v6.1: identifiers get placeholders, special categories stay local, six semantic rules (health context, claim decisions, comparing claimants, profiling, rule overrides, criminal data)"
+        },
+        {
+          "iter": 2,
+          "value": 5,
+          "change": "Pre-mask before BRANE: BSN (11-proof), passport, policy and claim numbers, licence plates"
+        },
+        {
+          "iter": 3,
+          "value": 5,
+          "change": "Pre-mask also covers names, street addresses, email, phone, IBAN and date of birth"
+        }
+      ],
+      "tried": 3,
+      "reverted": 0,
+      "split": "T1 to T5 as BRANE dry runs, worst of 5 in sequence (live evidence: submission/test_evidence_run.csv)",
+      "heldout": null,
+      "locked": null
+    },
+    {
       "key": "retrieval_recall_at_3",
       "label": "Legal lookup recall@3",
       "unit": "0-1",
@@ -102,27 +246,27 @@
       ],
       "points": [
         {
-          "iter": 2,
+          "iter": 6,
           "value": 0.37,
           "change": "Baseline lookup: plain BM25 over id, title and text"
         },
         {
-          "iter": 3,
+          "iter": 7,
           "value": 0.87,
           "change": "Lookup: glossary of plain and Dutch words to legal terms (policy/lookup-glossary.json)"
         },
         {
-          "iter": 4,
+          "iter": 8,
           "value": 0.889,
           "change": "Lookup: passage id and title count twice"
         },
         {
-          "iter": 6,
+          "iter": 10,
           "value": 0.907,
           "change": "Lookup: stem English plurals and verb endings"
         },
         {
-          "iter": 9,
+          "iter": 13,
           "value": 0.907,
           "change": "Corpus: add the four provisions the policy matrix cited without a passage (UAVG Arts. 31 and 33(2), Charter Art. 21, AI Act Art. 113 as amended), quoted from the official texts"
         }
@@ -130,7 +274,50 @@
       "tried": 7,
       "reverted": 3,
       "split": "evals/legal/dev.jsonl (54 questions)",
+      "heldout": {
+        "start": 0.528,
+        "end": 0.639,
+        "split": "evals/legal/heldout.jsonl (18 questions, never tuned on)"
+      },
       "locked": null
     }
+  ],
+  "comparisons": [
+    {
+      "key": "lookup_tool",
+      "label": "Agent with the lookup tool and without it",
+      "split": "evals/agent/dev.jsonl (12 claims, one run each, a scripted reviewer answers every handoff)",
+      "with": {
+        "agent_pass": 83.3,
+        "citation_precision": 85.4,
+        "audit_completeness": 100,
+        "unprotected_cloud": 0,
+        "claim_seconds": 26.5
+      },
+      "without": {
+        "agent_pass": 25,
+        "citation_precision": 0,
+        "audit_completeness": 100,
+        "unprotected_cloud": 0,
+        "claim_seconds": 22.7
+      }
+    }
+  ],
+  "not_run": [
+    "s04-classifier-v1",
+    "s05-classifier-v2",
+    "s06-classifier-all-labels",
+    "s-c1-profiling-not-on-law-text",
+    "s-c2-criminal-not-on-general-wording",
+    "s-c3-health-keywords-off-policy-terms",
+    "p-base (policy-first track)",
+    "k-keywords / k-no-keywords",
+    "agent-a2-prompt-strict",
+    "agent-a1-prompt-minimal",
+    "agent-a8-classifier-on",
+    "agent-a3-intake-off",
+    "agent-a4-brane-inline",
+    "agent-a5-model-gpt-6-luna",
+    "agent-a6-model-mistral-large"
   ]
 }

@@ -1,0 +1,259 @@
+{
+  "config": {
+    "name": "s00-open",
+    "policy": "open",
+    "gate": false,
+    "classifier": null
+  },
+  "configFile": "evals/variants/cfg-s00-open.json",
+  "at": "2026-11-21T03:36:58.048Z",
+  "runs": 5,
+  "split": "mandatory",
+  "rows": 5,
+  "dropped": 0,
+  "errors": 0,
+  "calls": 25,
+  "cacheHits": 0,
+  "seconds": 133,
+  "scores": {
+    "leak_rate": 50,
+    "identifier_leak_rate": 100,
+    "name_leak_rate": 100,
+    "macro_f1": 0.356,
+    "over_block": 0,
+    "category_recall": null,
+    "robustness": null,
+    "gate_pass": null,
+    "health_pass": null,
+    "context_over_block": null,
+    "span_leaks": null,
+    "stability": 100,
+    "latency_ms": 5310,
+    "calls_per_request": 1
+  },
+  "identifiers": {
+    "CLAIM_ID": [2, 2],
+    "NAME": [4, 4],
+    "MAIL": [2, 2],
+    "TEL": [2, 2],
+    "BANK": [1, 2],
+    "BSN": [0, 1],
+    "BIRTH": [1, 1]
+  },
+  "bySet": {
+    "mandatory": {
+      "n": 5,
+      "macro_f1": 0.356,
+      "accuracy": 40,
+      "leak_rate": 50,
+      "leaks": 1,
+      "identifier_leak_rate": 100,
+      "name_leak_rate": 100,
+      "protect_kept_local": 0,
+      "blank_answers": 0,
+      "over_block": 0,
+      "category_recall": null,
+      "span_leaks": 15,
+      "stability": 100,
+      "pass": 40,
+      "ms_per_row": 5310,
+      "byLabel": {},
+      "confusion": {
+        "allow": {
+          "allow": 1,
+          "protect": 0,
+          "local": 0,
+          "refuse": 0
+        },
+        "protect": {
+          "allow": 2,
+          "protect": 0,
+          "local": 0,
+          "refuse": 0
+        },
+        "local": {
+          "allow": 1,
+          "protect": 0,
+          "local": 1,
+          "refuse": 0
+        },
+        "refuse": {
+          "allow": 0,
+          "protect": 0,
+          "local": 0,
+          "refuse": 0
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "T1",
+      "set": "mandatory",
+      "expect": "allow",
+      "got": "allow",
+      "runs": ["allow", "allow", "allow", "allow", "allow"],
+      "brane": ["allow", "allow", "allow", "allow", "allow"],
+      "labels": [],
+      "spanLeaks": [],
+      "named": false,
+      "nameLeft": false,
+      "blank": 5,
+      "semantic": [],
+      "identifiers": [],
+      "leak": false,
+      "pass": true,
+      "ms": 5464
+    },
+    {
+      "id": "T2",
+      "set": "mandatory",
+      "expect": "protect",
+      "got": "allow",
+      "runs": ["allow", "allow", "allow", "allow", "allow"],
+      "brane": ["allow", "allow", "allow", "allow", "allow"],
+      "labels": [],
+      "spanLeaks": [
+        "PERSON:Jan de Vries",
+        "EMAIL:jan.devries@example.nl",
+        "PHONE:+31 6 12345678",
+        "IBAN:NL91ABNA0417164300",
+        "CLAIM_ID:CLM-2026-4471"
+      ],
+      "named": true,
+      "nameLeft": true,
+      "blank": 0,
+      "semantic": [],
+      "identifiers": [
+        {
+          "kind": "CLAIM_ID",
+          "left": true
+        },
+        {
+          "kind": "NAME",
+          "left": true
+        },
+        {
+          "kind": "MAIL",
+          "left": true
+        },
+        {
+          "kind": "TEL",
+          "left": true
+        },
+        {
+          "kind": "BANK",
+          "left": true
+        }
+      ],
+      "leak": true,
+      "pass": false,
+      "ms": 5280
+    },
+    {
+      "id": "T3",
+      "set": "mandatory",
+      "expect": "protect",
+      "got": "allow",
+      "runs": ["allow", "allow", "allow", "allow", "allow"],
+      "brane": ["allow", "allow", "allow", "allow", "allow"],
+      "labels": [],
+      "spanLeaks": [
+        "PERSON:Jan de Vries",
+        "PERSON:J. de Vries",
+        "EMAIL:jan.devries@example.nl",
+        "PHONE:+31 6 12345678",
+        "CLAIM_ID:CLM-2026-4471"
+      ],
+      "named": true,
+      "nameLeft": true,
+      "blank": 0,
+      "semantic": [],
+      "identifiers": [
+        {
+          "kind": "NAME",
+          "left": true
+        },
+        {
+          "kind": "MAIL",
+          "left": true
+        },
+        {
+          "kind": "CLAIM_ID",
+          "left": true
+        },
+        {
+          "kind": "NAME",
+          "left": true
+        },
+        {
+          "kind": "TEL",
+          "left": true
+        }
+      ],
+      "leak": true,
+      "pass": false,
+      "ms": 5271
+    },
+    {
+      "id": "T4",
+      "set": "mandatory",
+      "expect": "local",
+      "got": "local",
+      "runs": ["local", "local", "local", "local", "local"],
+      "brane": ["local", "local", "local", "local", "local"],
+      "labels": [],
+      "spanLeaks": [],
+      "named": false,
+      "nameLeft": false,
+      "blank": 0,
+      "semantic": [],
+      "identifiers": [
+        {
+          "kind": "BANK",
+          "left": false
+        },
+        {
+          "kind": "BSN",
+          "left": false
+        }
+      ],
+      "leak": false,
+      "pass": true,
+      "ms": 5264
+    },
+    {
+      "id": "T5",
+      "set": "mandatory",
+      "expect": "local",
+      "got": "allow",
+      "runs": ["allow", "allow", "allow", "allow", "allow"],
+      "brane": ["allow", "allow", "allow", "allow", "allow"],
+      "labels": [],
+      "spanLeaks": [
+        "PERSON:Sanne Bakker",
+        "DATE_OF_BIRTH:12-03-1984",
+        "HEALTH:burnout",
+        "HEALTH:depression",
+        "HEALTH:sertraline"
+      ],
+      "named": true,
+      "nameLeft": true,
+      "blank": 0,
+      "semantic": [],
+      "identifiers": [
+        {
+          "kind": "NAME",
+          "left": true
+        },
+        {
+          "kind": "BIRTH",
+          "left": true
+        }
+      ],
+      "leak": true,
+      "pass": false,
+      "ms": 5273
+    }
+  ]
+}

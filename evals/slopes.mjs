@@ -79,15 +79,51 @@ for (const m of HEADLINE) {
     split:
       m.track === "routing"
         ? m.key === "mandatory_tests"
-          ? "T1 to T5, worst of 5 runs in sequence"
+          ? "T1 to T5 as BRANE dry runs, worst of 5 in sequence (live evidence: submission/test_evidence_run.csv)"
           : "omar-val"
         : "evals/legal/dev.jsonl (54 questions)",
+    // The same metric on questions that were never tuned on (legal track only).
+    heldout:
+      m.track === "legal" && history.legal_heldout
+        ? {
+            start: history.legal_heldout.start[m.from],
+            end: history.legal_heldout.end[m.from],
+            split: history.legal_heldout.split,
+          }
+        : null,
     locked:
       m.track === "routing" && history.locked?.scores
         ? (history.locked.scores[lockedKey] ?? null)
         : null,
   });
 }
+// With the lookup tool and without it: the same 12 dev claims end to end, everything else equal.
+const agentRow = (name) => history.rows.find((r) => r.run === name);
+const withLookup = agentRow("agent-a0-default");
+const withoutLookup = agentRow("agent-a9-tools-no-lookup");
+const pickScores = (r) =>
+  Object.fromEntries(
+    [
+      "agent_pass",
+      "citation_precision",
+      "audit_completeness",
+      "unprotected_cloud",
+      "claim_seconds",
+    ].map((k) => [k, r.scores[k]]),
+  );
+const comparisons =
+  withLookup && withoutLookup
+    ? [
+        {
+          key: "lookup_tool",
+          label: "Agent with the lookup tool and without it",
+          split:
+            "evals/agent/dev.jsonl (12 claims, one run each, a scripted reviewer answers every handoff)",
+          with: pickScores(withLookup),
+          without: pickScores(withoutLookup),
+        },
+      ]
+    : [];
 const summary = {
   source:
     "evals/climb-history.json: real runs of evals/hill.mjs against BRANE (draft policies, POST /policy/test) on Omar Shalaby's selection split omar-val, and of evals/legal.mjs on the hard legal questions. start is the baseline before the first change, end is after the last kept change.",
@@ -96,6 +132,8 @@ const summary = {
   locked: history.locked,
   reference: history.reference,
   metrics,
+  comparisons,
+  not_run: history.not_run,
 };
 writeFileSync("evals/climb-summary.json", `${JSON.stringify(summary, null, 1)}\n`);
 
@@ -108,11 +146,11 @@ const show = (m, v) =>
         ? `${v} of 5`
         : String(v);
 const table = [
-  "| Metric | Start | End | Locked test (one run) | Kept steps | Tried | Measured on |",
-  "| ------ | ----- | --- | --------------------- | ---------- | ----- | ----------- |",
+  "| Metric | Start | End | On unseen data (locked test, one run) | Kept steps | Tried | Measured on |",
+  "| ------ | ----- | --- | ------------------------------------- | ---------- | ----- | ----------- |",
   ...metrics.map(
     (m) =>
-      `| ${m.label} (${m.better === "down" ? "lower" : "higher"} is better) | ${show(m, m.start)} | ${show(m, m.end)} | ${m.split === "omar-val" ? show(m, m.locked) : "n/a"} | ${m.steps.join("; ") || "none"} | ${m.tried} (${m.reverted} reverted) | ${m.split} |`,
+      `| ${m.label} (${m.better === "down" ? "lower" : "higher"} is better) | ${show(m, m.start)} | ${show(m, m.end)} | ${m.heldout ? `${show(m, m.heldout.start)} to ${show(m, m.heldout.end)} (18 held-out questions)` : m.split === "omar-val" ? show(m, m.locked) : "n/a"} | ${m.steps.join("; ") || "none"} | ${m.tried} (${m.reverted} reverted) | ${m.split} |`,
   ),
 ].join("\n");
 if (process.argv.includes("--docs")) {
@@ -127,5 +165,7 @@ if (process.argv.includes("--docs")) {
     `${doc.slice(0, doc.indexOf(begin) + begin.length)}\n\n${table}\n\n${doc.slice(doc.indexOf(end))}`,
   );
 }
+for (const c of comparisons)
+  console.log(`${c.label}: with ${JSON.stringify(c.with)} | without ${JSON.stringify(c.without)}`);
 console.log(table);
 console.log(`\n${metrics.length} metrics -> evals/climb-summary.json`);

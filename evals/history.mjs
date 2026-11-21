@@ -4,7 +4,8 @@
 // Nothing here is typed in by hand except each iteration's description: every score is read from a run file that
 // evals/hill.mjs, evals/agent-climb.mjs, evals/legal.mjs or evals/trace.mjs wrote, and kept or reverted is decided
 // by the rule of its track, in code, against the best configuration so far:
-//   routing  (omar-val, Omar Shalaby's selection split) keep when the leak rate falls; or when it holds and route
+//   routing  (omar-val, Omar Shalaby's selection split) keep when the leak rate falls by more than 2 points (two
+//            rows; less is noise); or when it holds and fewer names, identifiers or labelled values leave; or route
 //            macro F1 rises by more than 0.01, or over-block or context over-block falls by more than 1 point with F1
 //            holding. Never keep a change that fails a mandatory test it passed before or leaks a labelled span.
 //   policy-first  each detect.ts pattern: can the policy alone cover it? Kept only if no identifier of that kind
@@ -52,6 +53,12 @@ export const CRITERIA = {
     unit: "of 5",
     better: "up",
     judging: "GATE",
+  },
+  blank_answers: {
+    label: "Sensitive rows BRANE answered with no detection at all",
+    unit: "%",
+    better: "down",
+    judging: "TE-enforcement",
   },
   macro_f1: { label: "Route macro F1", unit: "0-1", better: "up", judging: "LG-classification" },
   category_recall: {
@@ -190,7 +197,16 @@ const mandatory = (name) => {
 const routingScores = (name) => {
   const r = run(name);
   if (!r) return undefined;
-  return { ...r.scores, mandatory_tests: mandatory(name) };
+  return {
+    ...r.scores,
+    // Labelled values in a cloud payload on the two suites every routing run includes (health and claims), so rows
+    // compare; the adversarial variants are scored apart as robustness.
+    span_leaks: (r.bySet.health?.span_leaks ?? 0) + (r.bySet.claims?.span_leaks ?? 0),
+    // Sensitive rows where BRANE answered with no detection and no semantic match: BRANE's own dropout, which no
+    // harness change causes. It bounds how far a leak-rate difference between two rows can be trusted.
+    blank_answers: r.bySet[r.split]?.blank_answers ?? null,
+    mandatory_tests: mandatory(name),
+  };
 };
 const ROUTING = [
   {
@@ -288,11 +304,14 @@ for (const step of ROUTING) {
       best.mandatory_tests !== null &&
       scores.mandatory_tests < best.mandatory_tests) ||
     higher("span_leaks");
+  // One row of the 100 sensitive rows is 1 point, and BRANE's own answers vary between runs, so a leak-rate change
+  // of 2 points or less counts as no change.
+  const NOISE = 2;
   const why = guard
     ? "guard"
-    : lower("leak_rate")
+    : lower("leak_rate", NOISE)
       ? "leak"
-      : higher("leak_rate")
+      : higher("leak_rate", NOISE)
         ? "leak-up"
         : higher("macro_f1", 0.01)
           ? "f1"
@@ -469,10 +488,12 @@ else skipped.push("k-keywords / k-no-keywords");
 
 // ---------------------------------------------------------------- legal track
 // Deterministic, so it is measured here: the lookup ranking's switches one at a time on evals/legal/dev.jsonl.
-const legal = (ranking, corpus) => {
+const legal = (ranking, corpus, set = "dev") => {
   const r = node([
     "evals/legal.mjs",
     "--json",
+    "--set",
+    set,
     "--ranking",
     JSON.stringify(ranking),
     ...(corpus ? ["--corpus", corpus] : []),
@@ -591,6 +612,13 @@ for (const step of LEGAL) {
   });
   if (kept) legalBest = scores;
 }
+// The 18 held-out questions, never used to choose a switch or a glossary term: scored for the baseline and for the
+// final ranking only, and reported beside the dev numbers.
+const legalHeldout = {
+  split: "evals/legal/heldout.jsonl (18 questions, never tuned on)",
+  start: legal({}, before, "heldout"),
+  end: legal(ranking, undefined, "heldout"),
+};
 const { DEFAULT_RANKING } = await import("../src/primitives/lookup-ranking.ts");
 const shipped = Object.entries(ranking).every(([k, v]) => DEFAULT_RANKING[k] === v);
 if (!shipped)
@@ -605,6 +633,13 @@ const AGENT = [
     layer: "prompt",
     change:
       "Baseline agent: default instructions, intake split on, BRANE dry run before the turn, claude-haiku-5.5, all four tools",
+  },
+  {
+    run: "agent-a9-tools-no-lookup",
+    layer: "tools",
+    short: "lookup tool removed",
+    change:
+      "Tools: the lookup tool removed (web_read, consult and request_approval stay), everything else as the baseline",
   },
   {
     run: "agent-a2-prompt-strict",
@@ -722,6 +757,9 @@ const history = {
         },
       }
     : null,
+  legal_heldout: legalHeldout,
+  // Configurations that exist in evals/variants/ but had no run when this file was built. They are not results.
+  not_run: skipped,
   reference,
 };
 writeFileSync("evals/climb-history.json", `${JSON.stringify(history, null, 1)}\n`);

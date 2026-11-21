@@ -200,12 +200,18 @@ async function gradeOnce(c, run) {
   // (our rows label the span; Omar's rows label the row, so there it is "cloud and BRANE detected no PERSON").
   const names = c.spans.filter((s) => s.cat === "PERSON");
   const named = names.length > 0 || (c.labels ?? []).includes("PERSON");
+  // The pre-mask replaces a name before BRANE sees it, so then BRANE reports no PERSON and nothing was missed.
+  const preMasked = findings.some((f) => f.kind === "NAME");
   const nameLeft =
     named &&
     cloud &&
-    (names.length ? names.some((s) => payload.includes(s.text)) : !b.detected.includes("PERSON"));
-  // BRANE answered with no detection and no semantic match although the row is sensitive: its checks did not run.
-  const blank = b.detected.length === 0 && b.semantic.length === 0;
+    (names.length
+      ? names.some((s) => payload.includes(s.text))
+      : !preMasked &&
+        (!b.detected.includes("PERSON") || draftPolicy.categories.PERSON === "allow"));
+  // BRANE answered with no detection and no semantic match on text the pre-mask had not already emptied of
+  // identifiers: on a sensitive row that means its checks did not run.
+  const blank = b.detected.length === 0 && b.semantic.length === 0 && findings.length === 0;
   return {
     got,
     brane,
@@ -227,8 +233,8 @@ const cases = sets.flatMap((set) =>
     .map((l) => ({ ...JSON.parse(l), set })),
 );
 // --per-route N keeps every k-th row per expected route of the large sets (omar-dev, omar-val, mutated): a fixed
-// sample, the same rows for every configuration. --with-identifiers keeps only rows that hold an identifier the gate
-// knows or an IBAN, for the policy-first pass.
+// sample, the same rows for every configuration. --with-identifiers KINDS keeps only rows that hold one of
+// those pre-mask kinds, for the policy-first pass.
 const perRoute = Number(arg("--per-route", 0));
 if (perRoute) {
   const kept = [];
@@ -247,10 +253,11 @@ if (perRoute) {
   }
   cases.splice(0, cases.length, ...kept);
 }
-if (process.argv.includes("--with-identifiers")) {
-  const kept = cases.filter(
-    (c) => findIdentifiers(c.text).length > 0 || /\b[A-Z]{2}\d{2}[A-Z]{4}\d{10}\b/.test(c.text),
-  );
+const onlyKinds = arg("--with-identifiers");
+if (onlyKinds) {
+  // e.g. --with-identifiers BSN,PASSPORT,POLICY_ID,CLAIM_ID,PLATE
+  const kinds = onlyKinds.split(",");
+  const kept = cases.filter((c) => findIdentifiers(c.text).some((f) => kinds.includes(f.kind)));
   cases.splice(0, cases.length, ...kept);
 }
 const started = Date.now();

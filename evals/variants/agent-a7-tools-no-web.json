@@ -1,6 +1,0 @@
-{
-  "name": "a7-tools-no-web",
-  "switches": {
-    "tools": "lookup,consult,request_approval"
-  }
-}

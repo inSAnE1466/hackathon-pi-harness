@@ -1,0 +1,6 @@
+{
+  "name": "a9-tools-no-lookup",
+  "switches": {
+    "tools": "web_read,consult,request_approval"
+  }
+}
