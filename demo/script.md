@@ -11,8 +11,9 @@ Two windows side by side:
 
 - **Left: the app.** `pnpm dev`, open the printed localhost URL, start a session. Paste each prompt into a new
   conversation, so each claim runs alone (one claim per conversation).
-- **Right: a terminal for the decision log.** The client has no decision-log panel yet; the log is served at
-  `GET /api/sessions/<id>/audit`. Run each beat with
+- **In the app, the right panel's Audit log tab** shows every row, the actor and "Chain verified". The same log is
+  served at `GET /api/sessions/<id>/audit`.
+- **Backup: a terminal.** If the panel lags, run each beat with
   `node scripts/drive.mjs http://localhost:5173 "<prompt>"`, which sends the same prompt in a fresh session and
   prints the log rows. Add `--password <team password>` when `TEAM_PASSWORD` is set (always on the deployed Worker).
   Type the password off screen; never show `.dev.vars`.
@@ -27,7 +28,7 @@ a tab: if a live call stalls, read the row from there and say so.
 | 0:00-0:20 | The problem                        |            |
 | 0:20-0:45 | Control claim goes to the cloud    | T1         |
 | 0:45-1:10 | Identifiers, repeated              | T2, T3     |
-| 1:10-1:45 | Health claim, split and handed off | T2, human  |
+| 1:10-1:45 | Health claim, split and decided    | T2, human  |
 | 1:45-2:10 | Planted instruction and a decision | T4         |
 | 2:10-2:35 | BRANE switched off                 | T5         |
 | 2:35-3:00 | The benchmark                      |            |
@@ -86,7 +87,7 @@ handoff request_approval:request_documents
 **Say:** "Our gate masks the claim number before BRANE. BRANE replaces the name, email, phone and IBAN with
 placeholders, every time they occur. The model reasons on placeholders; the handler sees the real values."
 
-### 1:10-1:45 Health claim, split and handed off (T2, human handoff)
+### 1:10-1:45 Health claim, split and decided (T2, human decision)
 
 **Type** [g01]:
 
@@ -125,7 +126,13 @@ handoff request_approval:request_documents
 doubt, it stays inside. The agent still cites the policy and hands a recommendation to the claims handler, who
 decides."
 
-**Point at:** the `handoff` rows. The agent never decides.
+**Do:** on the decision card, click **Approve** as the claims handler.
+
+**Point at:** the decision as a message in the chat, the agent's next reply continuing from it, and the new `human`
+row in the Audit log with the handler as actor, followed by the `request` row that carried it back to the agent.
+
+**Say:** "The handler approves. The decision goes back into the chat, and the agent continues from it, through BRANE
+like every other request. In the audit trail it is a human row, chained to the rest."
 
 ### 1:45-2:10 Planted instruction and a decision (T4)
 
@@ -192,3 +199,4 @@ Source: `evals/compare-latest.json` (`node evals/compare.mjs 3`), `evals/baselin
 | T4 bypass attempt    | 1:45 [g26]             | `refused=semantic:RULE_OVERRIDE_ATTEMPT->refuse`  |
 | T5 check failure     | 2:10                   | `routed=withheld`, `stop: error`                  |
 | Human handoff        | 1:10 [g01], 1:45 [g19] | `consult:medical`, `request_approval:...`         |
+| Human decision       | 1:10 [g01]             | `human` row (actor: handler), linked `request`    |
