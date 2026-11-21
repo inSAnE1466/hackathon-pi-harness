@@ -50,11 +50,11 @@ So the pre-mask, `detect.ts`, replaces these itself, with code and no model, the
 
 | Token                                          | What it replaces                                                                                                                                                                                    |
 | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `<BSN_1>`, `<PASSPORT_1>`, `<PLATE_1>`         | a BSN by its 11-proof, a passport number, a Dutch licence plate                                                                                                                                     |
-| `<POLICY_ID_1>`, `<CLAIM_ID_1>`                | policy and claim numbers                                                                                                                                                                            |
-| `<NAME_1>`                                     | a given name from the bundled list (`names.ts`) with initials, particles and a surname; any capitalized name after a person cue (Mr, mevrouw, claimant, hit by); the surname alone once it is known |
-| `<STREET_1>`                                   | a street word (straat, weg, laan, plein, ...) with a house number, and its postcode and town                                                                                                        |
-| `<MAIL_1>`, `<TEL_1>`, `<BANK_1>`, `<BIRTH_1>` | an email address, a phone number, an IBAN, a date of birth                                                                                                                                          |
+| `[BSN_1]`, `[PASSPORT_1]`, `[PLATE_1]`         | a BSN by its 11-proof, a passport number, a Dutch licence plate                                                                                                                                     |
+| `[POLICY_ID_1]`, `[CLAIM_ID_1]`                | policy and claim numbers                                                                                                                                                                            |
+| `[NAME_1]`                                     | a given name from the bundled list (`names.ts`) with initials, particles and a surname; any capitalized name after a person cue (Mr, mevrouw, claimant, hit by); the surname alone once it is known |
+| `[STREET_1]`                                   | a street word (straat, weg, laan, plein, ...) with a house number, and its postcode and town                                                                                                        |
+| `[MAIL_1]`, `[TEL_1]`, `[BANK_1]`, `[BIRTH_1]` | an email address, a phone number, an IBAN, a date of birth                                                                                                                                          |
 
 The gate's `beforeProviderRequest` hook applies it to every request body, the harness's own housekeeping calls
 included, before BRANE sees it; intake and the classifier apply it to their own calls. Each conversation has one token

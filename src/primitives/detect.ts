@@ -8,7 +8,9 @@ import { GIVEN_NAMES } from "./names.ts";
  *
  * `NAME`, `STREET`, `MAIL`, `TEL`, `BANK` and `BIRTH` are named so on purpose: BRANE's own placeholders are `<PERSON_1>`,
  * `<ADDRESS_1>`, `<EMAIL_1>`, `<PHONE_1>` and `<IBAN_1>`, and it puts the real value back into the answer for those.
- * A token of ours with the same spelling would come back as the wrong value.
+ * A token of ours with the same spelling would come back as the wrong value. Ours are written in square brackets,
+ * `[NAME_1]`: BRANE's prompt-injection guard scores text full of angle-bracket tokens as an injection and keeps the
+ * whole request local, while square brackets pass (measured on /policy/test, evals/decision-log.md).
  */
 export type Finding = {
   readonly kind:
@@ -363,7 +365,7 @@ export function findIdentifiers(text: string): Finding[] {
 
 /**
  * The tokens of one conversation: the same value gets the same token in every request, tool result and message, so
- * `<NAME_1>` never means two people. The harness keeps one per conversation in the session's storage. It holds the
+ * `[NAME_1]` never means two people. The harness keeps one per conversation in the session's storage. It holds the
  * real values and is never sent to a model.
  */
 export class Tokens {
@@ -405,7 +407,7 @@ export class Tokens {
     const key = `${finding.kind}:${finding.key ?? finding.text}`;
     const known = this.#byKey.get(key) ?? this.#samePerson(finding);
     if (known !== undefined) return known.token;
-    const token = `<${finding.kind}_${(this.#count.get(finding.kind) ?? 0) + 1}>`;
+    const token = `[${finding.kind}_${(this.#count.get(finding.kind) ?? 0) + 1}]`;
     this.#remember(key, token, finding.text);
     this.#onAdd(key, token, finding.text);
     return token;
@@ -454,7 +456,7 @@ export function mask(
     if (last.length < 3) continue;
     // The surname as a capitalized word, with its particles when they are there.
     const pattern = new RegExp(
-      `(?<![\\p{L}<_])${words.map((w) => `(?:${w}[ \\t]+)?`).join("")}${last}(?![\\p{L}_>@.]\\p{L}|[\\p{L}_>@])`,
+      `(?<![\\p{L}[_])${words.map((w) => `(?:${w}[ \\t]+)?`).join("")}${last}(?![\\p{L}_\\]@.]\\p{L}|[\\p{L}_\\]@])`,
       "giu",
     );
     out = out.replace(pattern, (match) =>
