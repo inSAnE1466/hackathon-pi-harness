@@ -60,6 +60,7 @@ export function createChatHarnessOptions(
   onDecision: (decision: BraneDecision) => void = () => {},
   onGate: (event: GateEvent) => void = () => {},
   switches: () => Switches = () => DEFAULT_SWITCHES,
+  keptLocal: (conversationId: number) => boolean = () => false,
 ): HarnessOptions {
   const models = createModels();
   models.setProvider(braneProvider(env, onDecision));
@@ -86,7 +87,7 @@ export function createChatHarnessOptions(
       ),
     ],
   });
-  const gate = gateExtension(onGate, switches);
+  const gate = gateExtension(onGate, switches, keptLocal);
   const registry = createRegistry();
   registry.install(claimsExtension);
   registry.install(gate);

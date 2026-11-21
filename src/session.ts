@@ -17,6 +17,7 @@ import { openDurableObjectSqliteStorage } from "@earendil-works/pi-durable/stora
 import { normalizeUsername } from "./identity.ts";
 import { createChatHarnessOptions } from "./chat.ts";
 import { AuditLog, handoffTool, type AuditRow } from "./audit.ts";
+import { classify, type Classification } from "./primitives/classify.ts";
 import { intake, type IntakeResult } from "./primitives/intake.ts";
 import {
   InvalidClientCommand,
@@ -200,6 +201,7 @@ export class Session extends DurableObject<Env> {
           (decision) => this.#audit.brane(decision),
           (event) => this.#audit.gate(event),
           () => this.#switches.current,
+          (conversationId) => this.#switches.isKeptLocal(conversationId),
         ),
         // `kind` says what happened, e.g. `task_faulted` or `task_interrupted`, with the task and extension.
         onReport: ({ error, ...report }) =>
@@ -368,7 +370,7 @@ export class Session extends DurableObject<Env> {
    * Passes a recorded decision back into the conversation the handoff came from, as a message the agent continues
    * from. It is an ordinary input: the model request it starts goes through BRANE like every other, and a refusal
    * fails that turn. Returns the `request` row that links the message to the `human` row, or null when the
-   * conversation is gone or the handoff is a refusal, which is never sent back to a model. The human row stands either way.
+   * conversation is gone, the handoff is a refusal, or the classifier refuses the note: none of those reach a model. The human row stands either way.
    */
   async #returnDecision(decision: AuditRow): Promise<AuditRow | null> {
     const handoff = this.#audit.get(decision.refId);
@@ -379,6 +381,9 @@ export class Session extends DurableObject<Env> {
     const conversationId = (handoff.conversationId || root.id) as ConversationId;
     const conversation = await this.#harness.conversation(conversationId, BACKGROUND_CONTEXT);
     if (conversation === undefined) return null;
+    // The person's note is text a model will read, so it is classified like a prompt.
+    const verdict = await this.#verdict(decision.detail);
+    if (this.#applyVerdict(verdict, conversationId) !== undefined) return null;
     await this.#arm({ ...this.#harness.wake(), active: true });
     const message = this.#audit.request(decision.actor, conversationId, decision.id);
     await conversation.submit(
@@ -392,6 +397,28 @@ export class Session extends DurableObject<Env> {
       BACKGROUND_CONTEXT,
     );
     return message;
+  }
+
+  /** The second classifier's verdict on a person's text, or undefined when it is switched off. */
+  async #verdict(text: string): Promise<Classification | undefined> {
+    if (this.#switches.current.classifier !== "on" || text.trim() === "") return undefined;
+    return classify(this.env, text);
+  }
+
+  /**
+   * Writes a verdict to the audit log and applies it. `local` keeps the conversation on the local model; `refuse`
+   * writes a refusal handoff and returns the reason, and the caller sends nothing to a model.
+   */
+  #applyVerdict(
+    verdict: Classification | undefined,
+    conversationId: ConversationId,
+  ): string | undefined {
+    if (verdict === undefined) return undefined;
+    this.#audit.classify(verdict, conversationId);
+    if (verdict.route === "local") this.#switches.keepLocal(conversationId);
+    if (verdict.route !== "refuse") return undefined;
+    this.#audit.gate({ kind: "handoff", tool: "refusal", detail: "", conversationId });
+    return `Withheld: the classifier refused this request (${verdict.labels.join(", ")}). It needs a person.`;
   }
 
   async #processMessage(socket: WebSocket, message: WSMessage): Promise<void> {
@@ -606,12 +633,20 @@ export class Session extends DurableObject<Env> {
         // medical part to a health-free fact sheet, so the agent's turns can use the frontier model.
         // Both need BRANE's dry run before the turn, so `braneTiming: inline` skips intake too.
         const switches = this.#switches.current;
-        const split: IntakeResult =
+        // The classifier judges the text the agent will get. It starts beside intake on the text as typed; when
+        // intake replaces that text with a fact sheet, the sheet is classified instead.
+        const [split, typed] = await Promise.all([
           switches.intake === "on" && switches.braneTiming === "preflight"
-            ? await intake(this.env, command.content, switches.localModel, (decision) =>
+            ? intake(this.env, command.content, switches.localModel, (decision) =>
                 this.#audit.brane(decision),
               )
-            : { kind: "unchanged" };
+            : ({ kind: "unchanged" } satisfies IntakeResult),
+          this.#verdict(command.content),
+        ]);
+        const refused = this.#applyVerdict(
+          split.kind === "split" ? await this.#verdict(split.content) : typed,
+          conversation.id,
+        );
         this.#audit.gate({
           kind: "intake",
           result:
@@ -623,6 +658,7 @@ export class Session extends DurableObject<Env> {
                   ? "skipped: inline"
                   : split.kind,
         });
+        if (refused !== undefined) throw new Error(refused);
         const submission = await conversation.submit(
           {
             type: "input",

@@ -1,6 +1,7 @@
 import policy from "../policy/brane.json";
 import type { BraneDecision } from "./brane.ts";
 import { normalizeUsername } from "./identity.ts";
+import type { Classification } from "./primitives/classify.ts";
 import type { GateEvent } from "./primitives/gate.ts";
 import { sha256 } from "./sha256.ts";
 
@@ -10,7 +11,8 @@ import { sha256 } from "./sha256.ts";
  * person, the passages a lookup cited, intake), a person's request, a person's decision on a handoff, and a change
  * of the harness switches.
  *
- * Every row names its actor (`brane`, `gate`, `agent`, or the person's display name) and, for automated rows, the
+ * Every row names its actor (`brane`, `pre-mask`, `intake`, `classifier`, `gate`, `agent`, `operator`, or the
+ * person's display name) and, for automated rows, the
  * policy version that decided it. Rows form a hash chain: each stores the previous row's hash and the SHA-256 of
  * that hash plus its own fields, so editing or deleting a row breaks every later hash. It is served to the audit
  * view over HTTP and never written into a conversation, so no model reads it. Rows hold categories, ids and a
@@ -19,7 +21,7 @@ import { sha256 } from "./sha256.ts";
 export type AuditRow = {
   readonly id: number;
   readonly at: string;
-  readonly kind: "brane" | GateEvent["kind"] | "request" | "human" | "config";
+  readonly kind: "brane" | GateEvent["kind"] | "request" | "human" | "config" | "classify";
   readonly status: number;
   readonly routedTo: string;
   readonly action: string;
@@ -203,20 +205,28 @@ export class AuditLog {
           : e.kind === "intake"
             ? e.result
             : e.ids;
-    // A refusal's handoff comes from BRANE's 422: it names that `brane` row and the rule that refused.
+    // A refusal's handoff names the row that refused, BRANE's 422 or the classifier's verdict, and its rule.
     const refusal =
       e.kind === "handoff" && e.tool === "refusal"
         ? this.#sql
             .exec(
-              `SELECT id, refused_by FROM audit_log WHERE kind = 'brane' AND status = 422 ORDER BY id DESC LIMIT 1`,
+              `SELECT id, CASE kind WHEN 'brane' THEN refused_by ELSE 'classifier:' || detail END AS refused_by
+               FROM audit_log
+               WHERE (kind = 'brane' AND status = 422) OR (kind = 'classify' AND action = 'refuse')
+               ORDER BY id DESC LIMIT 1`,
             )
             .toArray()[0]
         : undefined;
     // The agent chose to hand off or to cite passages; the gate masked, split at intake and handed off a refusal.
+    // `pre-mask` is the deterministic identifier masking in detect.ts.
     const actor =
       (e.kind === "handoff" && e.tool !== "refusal") || e.kind === "lookup" || e.kind === "cited"
         ? "agent"
-        : "gate";
+        : e.kind === "masked"
+          ? "pre-mask"
+          : e.kind === "intake"
+            ? "intake"
+            : "gate";
     // A `cited` row names the recommendation it belongs to: the handoff written just before it.
     const handoff =
       e.kind === "cited"
@@ -245,6 +255,24 @@ export class AuditLog {
       actor: username,
       detail: `conversation:${conversationId}`,
       ref_id: answers,
+      conversation_id: conversationId,
+    });
+  }
+
+  /**
+   * The second classifier's verdict on a person's text: `action` is the route it asks for, `detail` the labels it
+   * found, `routed_to` and `model_resolved` where BRANE ran the classifier itself, `local_cause` why it fell back.
+   */
+  classify(c: Classification, conversationId: number): void {
+    this.#insert({
+      kind: "classify",
+      action: c.route,
+      detail: c.labels.join(","),
+      routed_to: c.ranOn === "" ? "withheld" : "local",
+      model_resolved: c.ranOn,
+      local_cause: c.failure,
+      actor: "classifier",
+      policy_version: c.version,
       conversation_id: conversationId,
     });
   }

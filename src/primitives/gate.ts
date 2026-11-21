@@ -31,6 +31,7 @@ export const citedIds = (text: string): string =>
 export function gateExtension(
   onEvent: (event: GateEvent) => void,
   switches: () => Switches = () => DEFAULT_SWITCHES,
+  keptLocal: (conversationId: number) => boolean = () => false,
 ) {
   const switchedOff = (name: string): boolean =>
     TOOL_NAMES.includes(name as ToolName) && !switches().tools.includes(name as ToolName);
@@ -52,7 +53,7 @@ export function gateExtension(
     name: "gate",
     hooks: [
       hook(GenerationTask, {
-        beforeProviderRequest: ({ payload }) => {
+        beforeProviderRequest: ({ payload }, api) => {
           const p = payload as {
             messages?: unknown[];
             tools?: { function?: { name?: string } }[];
@@ -62,7 +63,9 @@ export function gateExtension(
           return {
             payload: {
               ...p,
-              model: switches().cloudModel,
+              // A conversation the classifier kept local asks for the local model by name, which pins BRANE's
+              // local lane.
+              model: keptLocal(api.conversationId) ? switches().localModel : switches().cloudModel,
               messages: maskDeep(p.messages),
               ...(tools === undefined ? {} : { tools }),
             },

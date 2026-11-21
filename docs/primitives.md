@@ -9,6 +9,7 @@ for each is below.
 | `brane`            | `src/brane.ts`                        | model provider        | The only route to any model. OpenAI-compatible chat at BRANE; fails closed                        |
 | `intake`           | `src/primitives/intake.ts`            | runs before the agent | Splits health detail out of a claim on the local model so the agent can use the frontier model    |
 | `gate`             | `src/primitives/gate.ts`, `detect.ts` | Pi hooks              | Masks identifiers BRANE mislabels in every request body; logs handoffs and citations              |
+| `classify`         | `src/primitives/classify.ts`          | runs before the agent | A second classifier on BRANE's local model; the stricter of its route and BRANE's wins            |
 | `lookup`           | `src/primitives/lookup.ts`            | agent tool            | Searches the legal corpus and policy terms; returns citable passage ids                           |
 | `consult`          | `src/primitives/handoff.ts`           | agent tool            | Sends a minimised question to the medical adviser or legal reviewer                               |
 | `request_approval` | `src/primitives/handoff.ts`           | agent tool            | Hands a recommendation to the claims handler, who decides                                         |
@@ -48,6 +49,16 @@ number patterns, passport numbers), and the gate's `beforeProviderRequest` hook 
 the harness's own housekeeping calls included, before BRANE sees it. Measured: the harness's unsafe decisions on the
 golden set go from 3/63 (BRANE alone) to 0/63 ([decision log](../evals/decision-log.md)). Source: GDPR Art. 87;
 national-ID rules (e.g. NL UAVG Art. 46).
+
+### classify: a second opinion that can only tighten
+
+BRANE's semantic categories vary between runs ([decision log](../evals/decision-log.md)). `classify` is Omar
+Shalaby's second classifier as a harness step: one call to BRANE's local model with the labels in
+`policy/classifier.json`, on a person's text (a prompt, or the note of a decision) after pre-masking and before the
+agent's turn. `allow` changes nothing. `local` keeps that conversation on the local model from then on, by asking for
+the local model by name. `refuse` withholds the text, and a refusal handoff goes to a person. The call is
+`POST /policy/test` with a local-only draft policy; a call that did not run locally, an error or an unreadable reply
+counts as `local`. Each verdict is a `classify` audit row. It is off by default (switch `classifier`).
 
 ### lookup: claims need law and policy, cited
 

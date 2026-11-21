@@ -32,7 +32,9 @@ who did what for every decision:
 | ------------------- | ------------------------- | ---------------------------------------------------------------------------------------------- |
 | `request`           | the person's display name | a person sends a request (the conversation id, never the text)                                 |
 | `brane`             | `brane`                   | BRANE decides a model request (status, route, action, categories, rule, resolved model)        |
-| `masked`, `intake`  | `gate`                    | the gate masks identifiers or intake splits health detail out on the local model               |
+| `masked`            | `pre-mask`                | `detect.ts` replaces identifiers BRANE mislabels, before BRANE sees the request                |
+| `intake`            | `intake`                  | intake splits health detail out on the local model                                             |
+| `classify`          | `classifier`              | the second classifier judges a person's text (`action` is its route, `detail` its labels)      |
 | `lookup`, `handoff` | `agent`                   | the assistant cites passages or hands a case to a person                                       |
 | `cited`             | `agent`                   | the passage ids a recommendation's reasons cite (`ref_id` names its handoff)                   |
 | `handoff`           | `gate`                    | BRANE refused a request (`detail` is `refusal:<rule>`, `ref_id` names the refused `brane` row) |
@@ -75,6 +77,7 @@ with the full resolved set, and `GET /audit` returns the current set as `switche
 
 | Switch          | Values (default first)                                     | Effect                                                                                                                   |
 | --------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `classifier`    | `off`, `on`                                                | Run the second classifier on a person's text before the turn; the stricter route wins                                    |
 | `intake`        | `on`, `off`                                                | Split health detail out on the local model before the turn                                                               |
 | `braneTiming`   | `preflight`, `inline`                                      | `preflight` dry-runs the prompt at BRANE before the turn (intake needs it); `inline` relies on the chat call's own check |
 | `cloudModel`    | `policy.models.cloud`, any BRANE model id                  | The model every agent request asks BRANE for                                                                             |

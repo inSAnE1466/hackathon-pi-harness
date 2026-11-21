@@ -8,6 +8,8 @@ import { sha256 } from "./sha256.ts";
  * route around BRANE: every model request still goes through the gated provider.
  */
 export type Switches = {
+  /** Run the second classifier on a person's text before the turn; the stricter route wins. */
+  readonly classifier: "off" | "on";
   /** Split health detail out on the local model before the agent's turn. */
   readonly intake: "on" | "off";
   /** `preflight`: a BRANE dry run of the prompt before the turn (intake needs it). `inline`: the chat call only. */
@@ -29,6 +31,7 @@ export const PROMPT_VARIANTS = ["default", "minimal", "strict"] as const;
 export type PromptVariant = (typeof PROMPT_VARIANTS)[number];
 
 export const DEFAULT_SWITCHES: Switches = {
+  classifier: "off",
   intake: "on",
   braneTiming: "preflight",
   cloudModel: BRANE_CLOUD_MODEL,
@@ -61,6 +64,12 @@ export function applySwitches(current: Switches, change: unknown): SwitchesResul
   const next: { -readonly [K in keyof Switches]: Switches[K] } = { ...current };
   for (const [key, value] of Object.entries(change)) {
     switch (key) {
+      case "classifier": {
+        const v = oneOf(key, value, ["off", "on"] as const);
+        if (typeof v === "object") return { ok: false, ...v };
+        next.classifier = v;
+        break;
+      }
       case "intake": {
         const v = oneOf(key, value, ["on", "off"] as const);
         if (typeof v === "object") return { ok: false, ...v };
@@ -135,9 +144,13 @@ export const switchesForAudit = (s: Switches): string =>
 export class SwitchStore {
   readonly #sql: SqlStorage;
   #current: Switches;
+  readonly #keptLocal = new Set<number>();
 
   constructor(sql: SqlStorage) {
     this.#sql = sql;
+    sql.exec(`CREATE TABLE IF NOT EXISTS harness_kept_local (conversation_id INTEGER PRIMARY KEY)`);
+    for (const row of sql.exec(`SELECT conversation_id FROM harness_kept_local`).toArray())
+      this.#keptLocal.add(Number(row.conversation_id));
     sql.exec(
       `CREATE TABLE IF NOT EXISTS harness_switches (id INTEGER PRIMARY KEY CHECK (id = 1), json TEXT NOT NULL)`,
     );
@@ -154,6 +167,22 @@ export class SwitchStore {
 
   get current(): Switches {
     return this.#current;
+  }
+
+  /**
+   * Keeps a conversation on the local model from now on. It is stored, so it survives a restart, and it is never
+   * undone: the text that caused it stays in the conversation and travels with every later request.
+   */
+  keepLocal(conversationId: number): void {
+    this.#sql.exec(
+      `INSERT OR IGNORE INTO harness_kept_local (conversation_id) VALUES (?)`,
+      conversationId,
+    );
+    this.#keptLocal.add(conversationId);
+  }
+
+  isKeptLocal(conversationId: number): boolean {
+    return this.#keptLocal.has(conversationId);
   }
 
   set(change: unknown): SwitchesResult {
