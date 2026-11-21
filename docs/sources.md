@@ -9,10 +9,10 @@ passage still needs reading; **check** means the claim is ours and needs a sourc
 
 ## The track
 
-| Source                                              | Supports                                                                                                 | Status |
-| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------ |
-| Organizers' brief, "AI-Z Challenge Track", 11 pages | Task, deliverables, minimums, five security tests, the four actions, human approvals ([track](track.md)) | read   |
-| Organizers' scoring sheet, eight criteria           | Weights in [track](track.md#judging)                                                                     | read   |
+| Source                                                                          | Supports                                                                                                 | Status |
+| ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------ |
+| Organizers' brief, "AI-Z Challenge Track", 11 pages                             | Task, deliverables, minimums, five security tests, the four actions, human approvals ([track](track.md)) | read   |
+| Kit brief (2 pages) and starter kit (README, starter script, two CSV templates) | Judging categories, the T1 to T5 headers, the 25 categories and four actions ([track](track.md))         | read   |
 
 ## EU law
 
