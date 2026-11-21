@@ -30,7 +30,10 @@ BRANE applies the strictest category to the whole request. One word of health de
 local model, and the frontier model never helps with coverage reasoning or drafting. Intake runs a BRANE dry run
 first. Identifiers are masked before either call, the extraction is pinned to a `vllm:` model id (BRANE runs an
 explicitly requested local model on its local lane, cause `explicit_local_model`), and it goes through `braneFetch`, so
-it is a `brane` audit row and fails closed. Only when health would send the claim local, BRANE's local model rewrites the medical part as a fact sheet
+it is a `brane` audit row and fails closed. The two dry runs (`/policy/test`, no completion) use a plain fetch to BRANE's
+origin and write no audit row: no model runs on them, and their result is the `intake` row. BRANE has no
+request-level local-only flag, so the pin rests on the explicit local model id; the check after the response is the
+backstop. Only when health would send the claim local, BRANE's local model rewrites the medical part as a fact sheet
 with coded invoice lines ("Invoice A: treatment, EUR 1,240"), amounts, whether a referral is present, and whether the
 medical adviser is needed. BRANE re-checks the sheet; only a clean sheet replaces the claim. A failed check keeps the
 claim local, as before. Measured: a ski-fracture claim that went local on every turn now reasons on
