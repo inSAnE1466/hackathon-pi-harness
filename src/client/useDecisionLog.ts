@@ -1,21 +1,30 @@
-import { useEffect, useRef, useState } from "react";
-import type { AuditRow } from "./decision-log.ts";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { AuditRow, ChainCheck } from "./decision-log.ts";
 
 const POLL_MS = 2_000;
 
 export interface DecisionLogState {
   /** Newest first, as the server sends them. */
   readonly rows: readonly AuditRow[];
+  /** The server's check of the hash chain, when the log has loaded. */
+  readonly chain?: ChainCheck;
   readonly loaded: boolean;
   readonly error?: string;
+  /** Reads the log again now, e.g. after a person records a decision. */
+  readonly reload: () => void;
 }
 
+type Loaded = Omit<DecisionLogState, "reload">;
+
 /**
- * Reads the session's decision log. Fetches once on open, every 2 s while a turn runs, and once more when it ends.
+ * Reads the session's decision log. Fetches once on open, every 2 s while a turn runs, once more when it ends, and
+ * whenever `reload` is called.
  */
 export function useDecisionLog(sessionId: string, running: boolean): DecisionLogState {
-  const [state, setState] = useState<DecisionLogState>({ rows: [], loaded: false });
+  const [state, setState] = useState<Loaded>({ rows: [], loaded: false });
+  const [nonce, setNonce] = useState(0);
   const wasRunning = useRef(running);
+  const reload = useCallback(() => setNonce((n) => n + 1), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -23,8 +32,16 @@ export function useDecisionLog(sessionId: string, running: boolean): DecisionLog
       try {
         const response = await fetch(`/api/sessions/${sessionId}/audit`);
         if (!response.ok) throw new Error(`Decision log unavailable (${response.status})`);
-        const body = (await response.json()) as { readonly decisions?: AuditRow[] };
-        if (!cancelled) setState({ rows: body.decisions ?? [], loaded: true });
+        const body = (await response.json()) as {
+          readonly decisions?: AuditRow[];
+          readonly chain?: ChainCheck;
+        };
+        if (!cancelled)
+          setState({
+            rows: body.decisions ?? [],
+            loaded: true,
+            ...(body.chain === undefined ? {} : { chain: body.chain }),
+          });
       } catch (error) {
         if (!cancelled)
           setState((current) => ({
@@ -51,7 +68,7 @@ export function useDecisionLog(sessionId: string, running: boolean): DecisionLog
       cancelled = true;
       clearInterval(timer);
     };
-  }, [sessionId, running]);
+  }, [sessionId, running, nonce]);
 
-  return state;
+  return { ...state, reload };
 }

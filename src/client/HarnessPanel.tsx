@@ -11,7 +11,6 @@ import {
   ROUTES,
   routeOf,
   ruleName,
-  toCsv,
 } from "./decision-log.ts";
 import { type Step, traceOf } from "./trace.ts";
 
@@ -183,13 +182,11 @@ function AuditLog({
   readonly loaded: boolean;
 }) {
   const exportCsv = (): void => {
-    const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
+    // The server's export: the whole trail with actors and the hash chain.
     const link = document.createElement("a");
-    link.href = url;
-    link.download = `audit-log-${sessionId.slice(0, 8)}.csv`;
+    link.href = `/api/sessions/${sessionId}/audit?format=csv`;
+    link.download = `audit-trail-${sessionId.slice(0, 8)}.csv`;
     link.click();
-    URL.revokeObjectURL(url);
   };
 
   return (
@@ -293,6 +290,8 @@ const KIND_LABEL: Record<AuditRow["kind"], string> = {
   lookup: "Lookup",
   handoff: "Handoff",
   intake: "Intake",
+  request: "Request",
+  human: "Person",
 };
 
 const EMPTY = <span className="audit-empty">None</span>;
