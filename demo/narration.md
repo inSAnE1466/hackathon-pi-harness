@@ -48,13 +48,13 @@ claims-v5 runs it split once and kept the claim local twice, which is the safe f
 
 ## Where each number comes from
 
-| Spoken                                         | File                                                                                       |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| three tools: lookup, consult, request approval | `src/tools.ts`, `src/primitives/lookup.ts`, `src/primitives/handoff.ts`                    |
-| a row in the audit log; categories and ids     | `src/audit.ts`; `docs/research.md` section 6; `submission/MAIN_Policy_Matrix.csv` R18      |
-| twenty-one claims, three runs each             | `evals/compare-latest.json` `common` (21 ids), `runs: 3`                                   |
-| zero unsafe decisions in sixty-three           | `evals/compare-latest.json` `summary.harness` (unsafe 0, decisions 63)                     |
-| an LLM filter made six                         | `evals/compare-latest.json` `summary["ask-llm"]` (unsafe 6)                                |
+| Spoken                                         | File                                                                                              |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| three tools: lookup, consult, request approval | `src/tools.ts`, `src/primitives/lookup.ts`, `src/primitives/handoff.ts`                           |
+| a row in the audit log; categories and ids     | `src/audit.ts`; `docs/research.md` section 6; `submission/MAIN_Policy_Matrix.csv` R18             |
+| twenty-one claims, three runs each             | `evals/compare-latest.json` `common` (21 ids), `runs: 3`                                          |
+| zero unsafe decisions in sixty-three           | `evals/compare-latest.json` `summary.harness` (unsafe 0, decisions 63)                            |
+| an LLM filter made six                         | `evals/compare-latest.json` `summary["ask-llm"]` (unsafe 6)                                       |
 | twenty of twenty held-out claims, no leak      | `evals/decision-log.md` claims-v5 row (held-out 20/20, 0/33 leaked); `evals/golden/heldout.jsonl` |
 
 The benchmark compares PII handling only: for each claim, may the text go to the cloud and how protected, decided by

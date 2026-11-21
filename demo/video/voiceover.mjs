@@ -36,14 +36,19 @@ const VOICES = [
   { id: "nPczCjzI2devNBz1zQrb", name: "Brian" }, // stock voice, fallback if Daniel fails
 ];
 const TEMPO = Number(args0("tempo") ?? process.env.VO_TEMPO ?? 1.07); // 1 = as generated
-const VOICE_SETTINGS = { stability: 0.55, similarity_boost: 0.75, style: 0, use_speaker_boost: true, speed: 1 };
+const VOICE_SETTINGS = {
+  stability: 0.55,
+  similarity_boost: 0.75,
+  style: 0,
+  use_speaker_boost: true,
+  speed: 1,
+};
 
 // Spacing of the voiced cut, in seconds.
 const LEAD = 0.4; // first beat: picture before the first word
 const PRE = 0.25; // every later beat: scene enters before its voice
 const GAP = 0.3; // after each clip
 const TAIL = 2.2; // after the last clip: the closing line holds
-
 
 const flag = (name) => args.some((a) => a === `--${name}`);
 const only = args.find((a) => a.startsWith("--only="))?.slice(7);
@@ -69,7 +74,10 @@ function parseNarration() {
 }
 
 function slug(s) {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 function readKey() {
@@ -126,7 +134,8 @@ function wordsFromAlignment(al) {
 /** Word times for the silent cut: spread over the beat window by word length, with a pause after each sentence. */
 function estimateWords(text, window) {
   const toks = text.split(/\s+/).filter(Boolean);
-  const weight = (t) => t.replace(/[^\w]/g, "").length + 2 + (/[.?!]$/.test(t) ? 4 : /[,:;]$/.test(t) ? 2 : 0);
+  const weight = (t) =>
+    t.replace(/[^\w]/g, "").length + 2 + (/[.?!]$/.test(t) ? 4 : /[,:;]$/.test(t) ? 2 : 0);
   const total = toks.reduce((a, t) => a + weight(t), 0);
   const start = 0.3;
   const span = Math.max(1, window - 0.8);
@@ -144,14 +153,23 @@ function round(n) {
 }
 
 async function tts(key, voice, beat) {
-  const res = await fetch(`${API}/text-to-speech/${voice.id}/with-timestamps?output_format=mp3_44100_128`, {
-    method: "POST",
-    headers: { "xi-api-key": key, "content-type": "application/json", accept: "application/json" },
-    body: JSON.stringify({ text: beat.text, model_id: MODEL, voice_settings: VOICE_SETTINGS }),
-  });
+  const res = await fetch(
+    `${API}/text-to-speech/${voice.id}/with-timestamps?output_format=mp3_44100_128`,
+    {
+      method: "POST",
+      headers: {
+        "xi-api-key": key,
+        "content-type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({ text: beat.text, model_id: MODEL, voice_settings: VOICE_SETTINGS }),
+    },
+  );
   if (!res.ok) {
     const body = (await res.text()).slice(0, 300);
-    const err = new Error(`ElevenLabs ${res.status} for beat "${beat.id}" with ${voice.name}: ${body}`);
+    const err = new Error(
+      `ElevenLabs ${res.status} for beat "${beat.id}" with ${voice.name}: ${body}`,
+    );
     err.status = res.status;
     throw err;
   }
@@ -173,7 +191,11 @@ function layoutVoiced(beats, clips) {
       start: round(t),
       duration: dur,
       audio: { src: `assets/vo-${b.id}.mp3`, offset, duration: round(c.duration), voice: c.voice },
-      words: c.words.map((w) => ({ w: w.w, s: round(w.s / TEMPO + offset), e: round(w.e / TEMPO + offset) })),
+      words: c.words.map((w) => ({
+        w: w.w,
+        s: round(w.s / TEMPO + offset),
+        e: round(w.e / TEMPO + offset),
+      })),
       clipWords: c.words,
     };
     t += dur;
@@ -224,7 +246,12 @@ function apply(timing) {
         `data-duration="${b.audio.duration}" data-track-index="9" data-volume="1"></audio>`,
     )
     .join("\n");
-  html = replaceBetween(html, "<!-- vo:begin -->", "<!-- vo:end -->", `\n${audio}${audio ? "\n" : ""}      `);
+  html = replaceBetween(
+    html,
+    "<!-- vo:begin -->",
+    "<!-- vo:end -->",
+    `\n${audio}${audio ? "\n" : ""}      `,
+  );
 
   for (const b of timing.beats) {
     const re = new RegExp(`(<[^>]*data-beat="${b.id}"[^>]*>)`);
@@ -233,7 +260,9 @@ function apply(timing) {
     html = html.replace(m[1], setWindow(m[1], b.start, b.duration));
   }
   html = html.replace(/(<[^>]*data-span="total"[^>]*>)/g, (tag) => setWindow(tag, 0, timing.total));
-  html = html.replace(/(<div[^>]*data-composition-id="main"[^>]*>)/, (tag) => setWindow(tag, 0, timing.total));
+  html = html.replace(/(<div[^>]*data-composition-id="main"[^>]*>)/, (tag) =>
+    setWindow(tag, 0, timing.total),
+  );
   writeFileSync(htmlPath, html);
 }
 
@@ -253,7 +282,9 @@ function replaceBetween(s, a, b, body) {
 function summary(timing) {
   for (const b of timing.beats) {
     const a = b.audio ? `voice ${b.audio.duration.toFixed(2)} s` : "silent";
-    console.log(`${b.id.padEnd(13)} ${b.start.toFixed(2).padStart(6)} s  +${b.duration.toFixed(2)} s  ${a}`);
+    console.log(
+      `${b.id.padEnd(13)} ${b.start.toFixed(2).padStart(6)} s  +${b.duration.toFixed(2)} s  ${a}`,
+    );
   }
   console.log(`total ${timing.total.toFixed(2)} s (${timing.source})`);
 }
@@ -288,7 +319,8 @@ async function main() {
   for (const b of beats) {
     const mp3 = join(assets, `vo-${b.id}.mp3`);
     const raw = join(assets, "raw", `vo-${b.id}.mp3`);
-    const old = previous?.source === "elevenlabs" ? previous.beats.find((x) => x.id === b.id) : null;
+    const old =
+      previous?.source === "elevenlabs" ? previous.beats.find((x) => x.id === b.id) : null;
     const forced = flag("all") || only === b.id;
     if (!forced && old?.clipWords && old.text === b.text && existsSync(raw)) {
       speedUp(raw, mp3);
@@ -298,7 +330,9 @@ async function main() {
     }
     let res;
     let voice;
-    for (const v of process.env.ELEVENLABS_VOICE_ID ? [{ id: process.env.ELEVENLABS_VOICE_ID, name: "custom" }] : VOICES) {
+    for (const v of process.env.ELEVENLABS_VOICE_ID
+      ? [{ id: process.env.ELEVENLABS_VOICE_ID, name: "custom" }]
+      : VOICES) {
       try {
         res = await tts(key, v, b);
         voice = v;
@@ -314,7 +348,9 @@ async function main() {
     speedUp(raw, mp3);
     const words = wordsFromAlignment(res.alignment);
     clips[b.id] = { duration: duration(mp3), words, voice: voice.name };
-    console.log(`vo-${b.id}.mp3  ${clips[b.id].duration.toFixed(2)} s  ${b.text.length} chars  ${voice.name}`);
+    console.log(
+      `vo-${b.id}.mp3  ${clips[b.id].duration.toFixed(2)} s  ${b.text.length} chars  ${voice.name}`,
+    );
   }
 
   const timing = writeTiming("elevenlabs", layoutVoiced(beats, clips));

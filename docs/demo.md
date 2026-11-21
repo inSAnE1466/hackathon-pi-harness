@@ -78,15 +78,15 @@ The video is one node graph that grows. People are outlined pills, machines are 
 marks what moves or matters. Each part appears when the voice names it, and a small label travels along each edge to
 show what flows.
 
-| Beat         | On screen                                                                                                   |
-| ------------ | ----------------------------------------------------------------------------------------------------------- |
-| Hook         | The people: a claimant sends a claim to the AI assistant; the medical adviser and claims handler join       |
-| Architecture | The assistant opens into its Durable Object: Pi Durable agent, lookup, consult, request_approval, the audit log; every model call goes through the gate and BRANE to the frontier or local model |
+| Beat         | On screen                                                                                                                                                                                                                                            |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hook         | The people: a claimant sends a claim to the AI assistant; the medical adviser and claims handler join                                                                                                                                                |
+| Architecture | The assistant opens into its Durable Object: Pi Durable agent, lookup, consult, request_approval, the audit log; every model call goes through the gate and BRANE to the frontier or local model                                                     |
 | One claim    | Claim g01: injury and hospital go to intake on the local model and come back as a fact sheet; placeholders go to the frontier model; a citation, a consult to the adviser, a recommendation to the handler; each step drops a row into the audit log |
-| Attack       | Letter g26: its planted note reaches BRANE and stops (422, nothing sent); the model edges fade             |
-| Audit        | The camera rests on the audit log: categories and ids, never claim text; AI Act Art. 12, GDPR Art. 5(2)    |
-| Evals        | One square per decision: BRANE with our policy and gate, 0 of 63 unsafe; an LLM asked what is sensitive, 6; then the QC loop and the held-out 20/20 |
-| Close        | The whole graph again; the claims handler lights up                                                         |
+| Attack       | Letter g26: its planted note reaches BRANE and stops (422, nothing sent); the model edges fade                                                                                                                                                       |
+| Audit        | The camera rests on the audit log: categories and ids, never claim text; AI Act Art. 12, GDPR Art. 5(2)                                                                                                                                              |
+| Evals        | One square per decision: BRANE with our policy and gate, 0 of 63 unsafe; an LLM asked what is sensitive, 6; then the QC loop and the held-out 20/20                                                                                                  |
+| Close        | The whole graph again; the claims handler lights up                                                                                                                                                                                                  |
 
 The benchmark compares PII handling only (who decides what may leave, and how protected), not answer quality.
 
@@ -98,14 +98,14 @@ ease both ways, landed headlines stay still, nothing loops. One headline per bea
 Everything the jury sees besides the live app lives in `demo/`. Every number in it traces to a file in `evals/` or
 `submission/`, cited where it appears.
 
-| Asset                  | File                                                                                     |
-| ---------------------- | ---------------------------------------------------------------------------------------- |
-| 3-minute live script   | [demo/script.md](../demo/script.md): prompts, clicks, decision log rows, lines, T1 to T5 |
-| Video narration        | [demo/narration.md](../demo/narration.md): 197 words in seven beats, voiced by ElevenLabs |
+| Asset                  | File                                                                                                |
+| ---------------------- | --------------------------------------------------------------------------------------------------- |
+| 3-minute live script   | [demo/script.md](../demo/script.md): prompts, clicks, decision log rows, lines, T1 to T5            |
+| Video narration        | [demo/narration.md](../demo/narration.md): 197 words in seven beats, voiced by ElevenLabs           |
 | Slide deck             | [demo/deck/index.html](../demo/deck/index.html): 8 diagram slides, rendered to `demo/deck/deck.pdf` |
-| Video                  | [demo/video/](../demo/video/): HyperFrames composition, rendered to `demo/video/out.mp4` |
-| Live decision log rows | [demo/evidence/drive-2026-11-20.md](../demo/evidence/drive-2026-11-20.md)                |
-| QC gate run            | [demo/evidence/qc-2026-11-20.txt](../demo/evidence/qc-2026-11-20.txt)                    |
+| Video                  | [demo/video/](../demo/video/): HyperFrames composition, rendered to `demo/video/out.mp4`            |
+| Live decision log rows | [demo/evidence/drive-2026-11-20.md](../demo/evidence/drive-2026-11-20.md)                           |
+| QC gate run            | [demo/evidence/qc-2026-11-20.txt](../demo/evidence/qc-2026-11-20.txt)                               |
 
 The voiceover clips are `demo/video/assets/vo-<beat>.mp3`, made by `demo/video/voiceover.mjs`;
 [demo/video/render.md](../demo/video/render.md) has the commands.
