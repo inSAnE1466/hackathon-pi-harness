@@ -95,7 +95,8 @@ The one rule that wins the security tests: **the agent has no model transport ex
 
 - `src/brane.ts` is the only model provider. Its fetch reaches BRANE's origin only, records each decision, and fails
   when a response carries no `X-Brane-Routed-To` header. A 422 refusal ends the turn as a failed model call. Retries
-  are off, so a failure is never resent elsewhere. `src/chat.ts` registers it as the only provider. The upstream
+  are off in the provider (`maxRetries: 0`) and in the harness (`settings.retry`), so a failure is never resent, to
+  BRANE or elsewhere. `src/chat.ts` registers it as the only provider. The upstream
   `openaiProvider()` and any direct OpenAI key are removed. A bypass is then not a missed check but a missing
   network path.
 - The BRANE provider throws on any non-success from BRANE (timeout, 5xx, malformed verdict, a verdict of `block`).

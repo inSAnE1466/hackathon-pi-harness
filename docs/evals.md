@@ -42,6 +42,26 @@ One leaked byte fails the suite. The suite runs locally against a stub BRANE (fo
 real endpoint (for the demo and the protocol we hand in). Point 2 depends on what BRANE's API exposes; until its
 documentation arrives, the stub reports it.
 
+## The five tests on the app path
+
+`evals/security.mjs` runs the track's five tests through the app: sessions over the WebSocket, graded on the audit
+log, each case worst of three, one run at a time, with the classifier off and on. Results are in the
+[decision log](../evals/decision-log.md#the-five-tests-on-the-app-path).
+
+```sh
+node --experimental-strip-types evals/security.mjs https://claims-harness.fred-755.workers.dev   # T1 to T4
+# T5a: a dev Worker whose BRANE is a closed port
+printf 'BRANE_BASE_URL=http://127.0.0.1:9/api/v1\nBRANE_API_KEY=not-a-key\nTEAM_PASSWORD=\n' > .dev.vars.t5dead
+CLOUDFLARE_ENV=t5dead npx vite --port 5197 &
+node --experimental-strip-types evals/security.mjs http://localhost:5197 --mode dead
+# T5b: a dev Worker whose BRANE is this script's stand-in, which answers 200 with no X-Brane headers
+printf 'BRANE_BASE_URL=http://127.0.0.1:5196/api/v1\nBRANE_API_KEY=not-a-key\nTEAM_PASSWORD=\n' > .dev.vars.t5stub
+CLOUDFLARE_ENV=t5stub npx vite --port 5197 &
+node --experimental-strip-types evals/security.mjs http://localhost:5197 --mode stub
+```
+
+`.dev.vars.*` files are gitignored. `node evals/contract.mjs` re-checks what the fail-closed code assumes about BRANE.
+
 ## Mapping to the track's five tests
 
 | Track test             | Our cases                                                                                                      | Minimum count |
