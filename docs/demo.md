@@ -88,31 +88,26 @@ decision wording, refusal parsing) in `src/client/decision-log.ts`, the trace in
 5. BRANE switched off: nothing sent, the claim waits (check failure).
 6. The eval board: our run against the baseline on the same cases.
 
-## The video (92 seconds, pitch and backup)
+## The video (about 2 minutes, pitch and backup)
 
 <a id="the-video-90-seconds-backup-and-opener"></a>
 <a id="the-video-95-seconds-backup-and-opener"></a>
+<a id="the-video-92-seconds-pitch-and-backup"></a>
 
-Made with HyperFrames (Apache-2.0, HTML and CSS rendered to MP4) in [demo/video/](../demo/video/). Narration by
-ElevenLabs from [demo/narration.md](../demo/narration.md); captions come from the voice's word times.
+Made with HyperFrames (Apache-2.0, HTML and CSS rendered to MP4) in [demo/video/](../demo/video/). One American voice
+(ElevenLabs, Brian) reads [demo/narration.md](../demo/narration.md); captions come from the voice's word times.
 
-The video stands alone. It is one node graph that draws itself: each node's outline draws round it and then it fills,
-each edge draws along its path, and a yellow label travels an edge to show what flows. People are outlined pills,
-machines grey tiles, BRANE ink. No full-screen cards; the only screens are real crops of the app, laid over the graph.
+The video stands alone. Diagrams draw themselves: each node's outline draws round it and then it fills, and each edge
+draws along its path. When the voice reaches a key line, the scene blurs back and a large centered serif line (EB
+Garamond) holds a few words of it, then the scene returns. The only screens are real crops of the app.
 
-| Beat    | On screen                                                                                                                                                                  |
-| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Cast    | The ski claim as the app shows it; then the six actors: claimant, agent, BRANE, medical adviser, legal reviewer, claims handler                                            |
-| Harness | The agent opens into its Durable Object; intake, local model, gate, BRANE, frontier model, lookup, consult, request_approval and the audit log grow as each is named       |
-| Claim   | The discharge note goes to the local model, placeholders through the gate and BRANE to the frontier model, a citation, a consult to the adviser; each step drops a log row |
-| Decide  | The app's decision card; Approve; the decision travels back to the agent and appears in the chat; the human row (#17) and its request row (#18) land in the audit log      |
-| Attack  | A claim letter's planted order reaches BRANE and stops; the app's refusal card (`RULE_OVERRIDE_ATTEMPT`, nothing sent)                                                     |
-| Climb   | One small line graph per criterion from `evals/climb-history.json`, drawn iteration by iteration; reverted changes are hollow points; the current change is named below    |
-| Close   | The graphs stay; the closing line                                                                                                                                          |
-
-The decide beat uses the gz-web screenshots of the therapy-for-burnout claim, because that run ends in an approval;
-the ski claim's graph rows come from its own live run. Motion rules: a part appears when it is named, arrivals on long
-ease-outs, camera moves ease both ways, nothing loops.
+| Beat      | On screen                                                                                                                                                                                                                   |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Situation | A claims handler, a claim file with health detail, the frontier and local models; the edge to the frontier model is struck through. Key line: health data may not leave                                                     |
+| Harness   | The Pi agent, then three checks in a row: pre-mask (regex, no model), the second classifier (local model, switched on per run), BRANE the gate; then frontier, local or refused. Key lines: three checks; BRANE is the gate |
+| Evals     | Four slopes from `evals/climb-summary.json`, drawn one after another: leak rate, route F1, over-block, mandatory tests passed, with start and end values. Key line: a change stays only if the scores improve               |
+| Demo      | The burnout claim in the app: the message box, the trace (BRANE: 1 cloud protected, 7 local), the decision card, Approve, the decision message in the chat, the audit log's human row #22. Key line: a person decides       |
+| Close     | The live address, https://claims-harness.fred-755.workers.dev                                                                                                                                                               |
 
 ## Assets
 

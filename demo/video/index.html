@@ -793,6 +793,8 @@ if (decision.routedTo === "" &amp;&amp; response.status !== 422)
         gsap.set(path, { strokeDasharray: L, strokeDashoffset: L });
         const [c0, c1] = svg.querySelectorAll("circle");
         gsap.set([c0, c1], { opacity: 0 });
+        gsap.set(svg, { opacity: 0 });
+        tl.to(svg, { opacity: 1, duration: 0.2 }, t + 0.2);
         tl.fromTo(el.querySelector(".lb"), { opacity: 0 }, { opacity: 1, duration: 0.3 }, t);
         tl.fromTo(el.querySelector(".bt"), { opacity: 0 }, { opacity: 1, duration: 0.3 }, t + 0.1);
         tl.to(c0, { opacity: 1, duration: 0.2 }, t + 0.2);

@@ -1,6 +1,6 @@
 # Render the video
 
-A HyperFrames 0.9.72 project, 1920x1080 at 30 fps, about 92 seconds. The beats are in
+A HyperFrames 0.9.72 project, 1920x1080 at 30 fps, about 2 minutes 28 seconds. The beats are in
 [the video plan](../../docs/demo.md#the-video-92-seconds-pitch-and-backup), the spoken text in
 [narration.md](../narration.md), and the styles in `assets/tokens.css`, which the deck shares. Inter is bundled in
 `assets/fonts/`. [REVIEW.md](REVIEW.md) records the last frame review.
@@ -9,12 +9,11 @@ A HyperFrames 0.9.72 project, 1920x1080 at 30 fps, about 92 seconds. The beats a
 
 | File                            | What                                                                                                      | Made by                    |
 | ------------------------------- | --------------------------------------------------------------------------------------------------------- | -------------------------- |
-| `assets/vo-<beat>.mp3`          | the voice per beat, sped to 1.07                                                                          | `node voiceover.mjs`       |
+| `assets/vo-<beat>.mp3`          | the voice per beat, sped to 1.05                                                                          | `node voiceover.mjs`       |
 | `assets/timing.json`            | each beat's start and every word's time; inlined into `index.html` as `TIMING`                            | `node voiceover.mjs`       |
-| `evals/climb-history.json`      | the climb, one row per iteration; inlined as `CLIMB`                                                      | gz-climb; `node climb.mjs` |
+| `evals/climb-summary.json`      | start and end of leak rate, route F1, over-block, mandatory tests; inlined as `CLIMB`                    | gz-climb; `node climb.mjs` |
 | `assets/climb-placeholder.json` | stand-in with the same shape, used only when the real file is missing; shows "placeholder data"           | by hand                    |
-| `assets/ui/*.png`               | crops of the real app: the claim, the decision card, the decision in the chat, the audit log, the refusal | headless Playwright runs   |
-| `assets/ui/*-audit.json`        | the audit rows of the ski and hidden-note runs that the graph's log rows follow                           | the same runs              |
+| `assets/ui/*.png`               | crops of a burnout run: message box, trace, decision card, decision in the chat, audit log            | headless Playwright runs   |
 
 ## Tools
 
@@ -42,16 +41,16 @@ node voiceover.mjs --apply    # re-time index.html from assets/timing.json, no A
 
 `voiceover.mjs` reads `ELEVENLABS_API_KEY` from the environment or from `.dev.vars` at the repository root and never
 prints it. It reads the `## Name, A to B seconds` headings and quoted lines of `../narration.md`, one ElevenLabs
-request per changed beat (`eleven_multilingual_v2`, voice Daniel), keeps the raw clip in `assets/raw/`, writes the
-clip at 1.07 times the speed, and rewrites the timing block, the `<audio>` tags and every `data-beat` window in
-`index.html`. The climb beat holds 4.5 s after its voice so the graphs finish (`HOLD` in the script). Every animation
+request per changed beat (`eleven_multilingual_v2`, voice Brian), keeps the raw clip in `assets/raw/`, writes the
+clip at 1.05 times the speed, and rewrites the timing block, the `<audio>` tags and every `data-beat` window in
+`index.html`. The evals beat holds 3.5 s after its voice so the slopes finish (`HOLD` in the script). Every animation
 is keyed to a spoken word, so a new voice re-times the whole video.
 
 ## Render
 
 ```sh
 cd demo/video
-node climb.mjs                                                 # inline evals/climb-history.json
+node climb.mjs                                                 # inline evals/climb-summary.json  
 npx -y hyperframes@0.9.72 check                                # lint, layout, contrast, audio
-npx -y hyperframes@0.9.72 render -o out.mp4 --quality standard # about 2 minutes, about 8 MB
+npx -y hyperframes@0.9.72 render -o out.mp4 --quality standard # about 2 minutes, about 9 MB
 ```
