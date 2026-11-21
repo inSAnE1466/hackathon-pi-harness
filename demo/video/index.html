@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=1920, height=1080" />
-    <!-- The pitch video. One node graph that draws itself: the six actors around one synthetic ski claim, the Pi
-         harness and its primitives, the claim's two branches, the claims handler's decision coming back into the chat
-         and landing in the audit trail, a refused attack, then one graph per criterion of the harness climb.
-         Spoken text: demo/narration.md. Every move is keyed to a spoken word through TIMING, which voiceover.mjs
-         writes. The climb data is CLIMB, which climb.mjs writes from evals/climb-history.json.
-         Graph facts: src/session.ts (intake before the agent; POST /audit/human passes the decision back into the
-         conversation through the gate), src/primitives/intake.ts, gate.ts, lookup.ts, handoff.ts, src/brane.ts,
-         src/audit.ts (hash-chained rows, never read by a model). Rows and refusal: assets/ui/*.json, live runs on
-         the deployed site, 2026-11-21, policy claims-v6.1. -->
+    <!-- The pitch video, one speaker explaining one thing. Situation: a claims handler, a claim full of health data,
+         and the line it may not cross. Harness: every model request passes three checks (regex pre-mask, a second
+         classifier on BRANE's local model, BRANE as the gate) on the way to the frontier or the local model. Evals:
+         four slopes from start to end of the climb. Demo: the burnout claim in the real app, the handler's decision
+         back in the chat and in the audit trail. Close: the live address.
+         Spoken text: demo/narration.md. TIMING is written by voiceover.mjs, CLIMB by climb.mjs.
+         Facts: src/primitives/detect.ts (pre-mask), classify.ts and src/switches.ts (classifier, default off),
+         src/brane.ts (the only transport), src/session.ts and src/audit.ts (decision back, human row, hash chain).
+         Screens: assets/ui/, a burnout run on main 4479b9b, 2026-11-21. -->
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
     <link rel="stylesheet" href="assets/tokens.css" />
     <style>
@@ -71,17 +71,13 @@
       }
       .edge.soft {
         stroke: #b4b4ba;
+        stroke-dasharray: 8 8;
       }
       .thru {
         fill: none;
         stroke: none;
       }
       .outline {
-        fill: none;
-        stroke: var(--ink);
-        stroke-width: 2.5;
-      }
-      #do {
         fill: none;
         stroke: var(--ink);
         stroke-width: 2.5;
@@ -93,7 +89,7 @@
         justify-content: center;
         border-radius: 18px;
         background: var(--tile);
-        font-size: 28px;
+        font-size: 30px;
         font-weight: 600;
         letter-spacing: -0.01em;
         white-space: nowrap;
@@ -107,17 +103,25 @@
         background: var(--ink);
         color: var(--paper);
       }
-      .node.tool {
-        font-size: 26px;
-        font-weight: 500;
-        font-family: var(--mono);
+      .node.check {
+        flex-direction: column;
+        gap: 4px;
       }
-      .node.bare {
-        background: transparent;
+      .node.check small {
+        font-size: 21px;
+        font-weight: 500;
+        color: #6e6e73;
+      }
+      .node.ink small {
+        color: #c8c8cc;
+      }
+      .node.off {
+        background: var(--paper);
+        box-shadow: inset 0 0 0 2.5px #b4b4ba;
       }
       .sub {
         position: absolute;
-        font-size: 22px;
+        font-size: 24px;
         font-weight: 500;
         color: #6e6e73;
         white-space: nowrap;
@@ -126,7 +130,7 @@
         position: absolute;
         left: 0;
         top: 0;
-        padding: 6px 14px;
+        padding: 6px 16px;
         border-radius: 999px;
         background: var(--mark);
         color: var(--ink);
@@ -140,250 +144,213 @@
         font-family: var(--mono);
         font-weight: 500;
       }
-      .dot {
+      /* the large centered serif line the voice lands on */
+      .key {
         position: absolute;
-        left: 0;
+        left: 160px;
+        right: 160px;
         top: 0;
-        width: 14px;
-        height: 14px;
-        margin: -7px 0 0 -7px;
-        border-radius: 50%;
-        background: var(--mark);
-        box-shadow: 0 0 0 2px var(--ink);
-        opacity: 0;
-      }
-      /* the audit log: a window onto its newest rows */
-      #n-log {
-        position: absolute;
-        left: 440px;
-        top: 760px;
-        width: 700px;
-        height: 150px;
-        border-radius: 18px;
-        background: var(--paper);
-        box-shadow: inset 0 0 0 2.5px var(--ink);
-        padding: 12px 22px;
-        overflow: hidden;
-      }
-      #n-log .hd {
-        font-size: 24px;
-        font-weight: 600;
-        height: 34px;
+        height: 1080px;
         display: flex;
-        justify-content: space-between;
-      }
-      #n-log .hd span {
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-family: "EB Garamond", Georgia, serif;
+        font-size: 92px;
         font-weight: 500;
-        color: #6e6e73;
-      }
-      #rows-win {
-        position: relative;
-        height: 96px;
-        overflow: hidden;
-      }
-      #rows {
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 0;
-      }
-      .row {
-        height: 32px;
-        font-family: var(--mono);
-        font-size: 21px;
-        line-height: 32px;
-        color: var(--ink-2);
-        white-space: nowrap;
-        border-top: 1px solid var(--hair);
+        line-height: 1.08;
+        letter-spacing: -0.015em;
+        color: var(--ink);
         opacity: 0;
       }
-      .row i {
-        display: inline-block;
-        width: 108px;
-        font-style: normal;
-        color: #6e6e73;
-      }
-      .row b {
-        font-weight: 600;
-        color: var(--ink);
-      }
-      .row.human {
-        background: var(--mark);
-        color: var(--ink);
-      }
-      .row.human i {
-        color: var(--ink);
+      .key em {
+        font-style: italic;
       }
       .ui {
         position: absolute;
         opacity: 0;
         border-radius: 16px;
+        background: #fff;
         box-shadow:
           0 0 0 2px var(--hair),
           0 24px 60px rgba(0, 0, 0, 0.1);
       }
-      #ui-card {
-        left: 80px;
-        top: 110px;
-        width: 960px;
-      }
-      #ui-msg {
-        left: 80px;
-        top: 660px;
-        width: 960px;
-      }
-      #ui-audit {
-        left: 1100px;
-        top: 160px;
-        width: 720px;
-        background: #fff;
-      }
-      #ring {
+      .ring {
         position: absolute;
-        left: 94px;
-        top: 528px;
-        width: 140px;
-        height: 64px;
-        border-radius: 999px;
+        border-radius: 12px;
         box-shadow: 0 0 0 5px var(--mark);
         opacity: 0;
       }
-      #hl17 {
+      /* real code, typeset short */
+      .code {
         position: absolute;
-        left: 1092px;
-        top: 590px;
-        width: 736px;
-        height: 100px;
-        border-radius: 10px;
-        box-shadow: 0 0 0 5px var(--mark);
+        padding: 22px 28px;
+        border-radius: 16px;
+        background: #fafafa;
+        box-shadow: inset 0 0 0 2px var(--hair);
+        font-family: var(--mono);
+        font-size: 30px;
+        line-height: 1.5;
+        color: #333;
+        white-space: pre;
         opacity: 0;
       }
-      #ui-claim {
-        position: absolute;
-        left: 400px;
-        top: 150px;
-        width: 1120px;
-        opacity: 0;
-        border-radius: 14px;
-      }
-      #ui-refusal {
-        position: absolute;
-        left: 1140px;
-        top: 450px;
-        width: 740px;
-        opacity: 0;
-        border-radius: 14px;
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.1);
-      }
-      /* the climb: one small graph per criterion */
-      #climb {
-        opacity: 0;
-      }
-      .chart {
-        position: absolute;
-        width: 320px;
-        height: 330px;
-      }
-      .chart .lb {
+      .code .f {
+        display: block;
+        font-family: var(--font);
         font-size: 24px;
         font-weight: 600;
-        line-height: 1.2;
-        height: 62px;
+        color: #6e6e73;
+        margin-bottom: 10px;
+      }
+      .code b {
+        font-weight: 600;
+        color: var(--ink);
+        background: linear-gradient(transparent 55%, var(--mark) 55%);
+      }
+      .code i {
+        font-style: normal;
+        color: #6e6e73;
+      }
+      /* the loop */
+      #loop {
         opacity: 0;
       }
-      .chart .bt {
-        font-size: 20px;
+      .lnode {
+        position: absolute;
+        width: 300px;
+        height: 84px;
+        margin: -42px 0 0 -150px;
+        border-radius: 18px;
+        background: var(--tile);
+        font-size: 28px;
+        font-weight: 600;
+        opacity: 0;
+      }
+      .lnode span {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .lnode .b {
+        opacity: 0;
+      }
+      #loop-mid {
+        position: absolute;
+        left: 460px;
+        top: 520px;
+        width: 600px;
+        text-align: center;
+        font-size: 30px;
+        font-weight: 600;
+        opacity: 0;
+      }
+      #loop-mid span {
+        position: absolute;
+        left: 0;
+        right: 0;
+      }
+      /* slopes */
+      #slopes {
+        opacity: 0;
+      }
+      .slope {
+        position: absolute;
+        top: 250px;
+        height: 620px;
+      }
+      .slope .lb {
+        font-size: 30px;
+        font-weight: 600;
+        opacity: 0;
+      }
+      .slope .bt {
+        margin-top: 6px;
+        font-size: 22px;
         font-weight: 500;
         color: #6e6e73;
         opacity: 0;
       }
-      .chart .val {
-        position: absolute;
-        right: 0;
-        top: 64px;
-        font-size: 40px;
-        font-weight: 600;
-        letter-spacing: -0.02em;
-        font-variant-numeric: tabular-nums;
-        opacity: 0;
-      }
-      .chart svg {
+      .slope svg {
         position: absolute;
         left: 0;
         top: 120px;
         overflow: visible;
       }
-      .axis {
-        stroke: var(--hair);
-        stroke-width: 2;
+      .slope .v {
+        position: absolute;
+        font-size: 44px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        opacity: 0;
+      }
+      .slope .v.s {
+        font-size: 30px;
+        font-weight: 500;
+        color: #6e6e73;
+      }
+      .slope .st {
+        position: absolute;
+        top: 560px;
+        font-size: 22px;
+        font-weight: 500;
+        color: #6e6e73;
+        opacity: 0;
       }
       .ln {
         fill: none;
         stroke: var(--ink);
-        stroke-width: 3;
-        stroke-linejoin: round;
+        stroke-width: 4;
+        stroke-linecap: round;
       }
-      .pt {
-        fill: var(--ink);
-      }
-      .pt.rv {
-        fill: var(--paper);
-        stroke: #b4b4ba;
-        stroke-width: 2.5;
-      }
-      .pt.end {
-        fill: var(--mark);
-        stroke: var(--ink);
-        stroke-width: 2.5;
-      }
-      #ticker {
-        position: absolute;
-        left: 96px;
-        top: 960px;
-        font-size: 24px;
-        font-weight: 500;
-        color: var(--ink-2);
-        opacity: 0;
-        white-space: nowrap;
-      }
-      #ticker b {
-        font-weight: 600;
-        color: var(--ink);
+      .tick {
+        stroke: var(--hair);
+        stroke-width: 2;
       }
       #ph {
         position: absolute;
         right: 96px;
-        top: 66px;
+        top: 80px;
         padding: 4px 14px;
         border-radius: 999px;
         background: #fcebeb;
         color: #c62828;
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 600;
         display: none;
       }
-      .head {
+      #url {
         position: absolute;
-        left: 96px;
-        top: 56px;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 34px;
+        opacity: 0;
       }
-      .head h1 {
-        font-size: 44px;
-        font-weight: 600;
-        letter-spacing: -0.025em;
-        line-height: 1.1;
+      #url .u {
+        font-family: var(--mono);
+        font-size: 56px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        padding: 18px 40px;
+        border-radius: 999px;
+        box-shadow: inset 0 0 0 3px var(--ink);
       }
-      .head p {
-        margin-top: 10px;
-        font-size: 24px;
+      #url .t {
+        font-family: "EB Garamond", Georgia, serif;
+        font-size: 64px;
+        font-weight: 500;
+      }
+      #url .m {
+        font-size: 26px;
         font-weight: 500;
         color: #6e6e73;
-      }
-      /* captions */
-      .cg span {
-        background: rgba(255, 255, 255, 0.94);
-        padding: 2px 12px;
-        border-radius: 8px;
       }
       .cg {
         position: absolute;
@@ -391,11 +358,16 @@
         right: 240px;
         bottom: 34px;
         text-align: center;
-        font-size: 26px;
+        font-size: 28px;
         font-weight: 500;
         line-height: 1.3;
         color: var(--ink-2);
         opacity: 0;
+      }
+      .cg span {
+        background: rgba(255, 255, 255, 0.94);
+        padding: 2px 12px;
+        border-radius: 8px;
       }
     </style>
   </head>
@@ -404,68 +376,17 @@
       id="root"
       data-composition-id="main"
       data-start="0"
-      data-duration="92.001"
+      data-duration="148.281"
       data-width="1920"
       data-height="1080"
     >
-      <!-- Voiceover clips, one per beat, written by voiceover.mjs. -->
       <!-- vo:begin -->
-      <audio
-        id="vo-cast"
-        src="assets/vo-cast.mp3"
-        data-start="0.4"
-        data-duration="14.446"
-        data-track-index="9"
-        data-volume="1"
-      ></audio>
-      <audio
-        id="vo-harness"
-        src="assets/vo-harness.mp3"
-        data-start="15.396"
-        data-duration="19.096"
-        data-track-index="9"
-        data-volume="1"
-      ></audio>
-      <audio
-        id="vo-claim"
-        src="assets/vo-claim.mp3"
-        data-start="35.042"
-        data-duration="8.385"
-        data-track-index="9"
-        data-volume="1"
-      ></audio>
-      <audio
-        id="vo-decide"
-        src="assets/vo-decide.mp3"
-        data-start="43.977"
-        data-duration="11.546"
-        data-track-index="9"
-        data-volume="1"
-      ></audio>
-      <audio
-        id="vo-attack"
-        src="assets/vo-attack.mp3"
-        data-start="56.073"
-        data-duration="8.516"
-        data-track-index="9"
-        data-volume="1"
-      ></audio>
-      <audio
-        id="vo-climb"
-        src="assets/vo-climb.mp3"
-        data-start="65.139"
-        data-duration="12.8"
-        data-track-index="9"
-        data-volume="1"
-      ></audio>
-      <audio
-        id="vo-close"
-        src="assets/vo-close.mp3"
-        data-start="82.989"
-        data-duration="5.512"
-        data-track-index="9"
-        data-volume="1"
-      ></audio>
+      <audio id="vo-situation" src="assets/vo-situation.mp3" data-start="0.4" data-duration="22.021" data-track-index="9" data-volume="1"></audio>
+      <audio id="vo-harness" src="assets/vo-harness.mp3" data-start="22.971" data-duration="32.679" data-track-index="9" data-volume="1"></audio>
+      <audio id="vo-loop" src="assets/vo-loop.mp3" data-start="56.2" data-duration="20.976" data-track-index="9" data-volume="1"></audio>
+      <audio id="vo-evals" src="assets/vo-evals.mp3" data-start="78.726" data-duration="16.771" data-track-index="9" data-volume="1"></audio>
+      <audio id="vo-demo" src="assets/vo-demo.mp3" data-start="99.547" data-duration="37.068" data-track-index="9" data-volume="1"></audio>
+      <audio id="vo-close" src="assets/vo-close.mp3" data-start="137.165" data-duration="5.616" data-track-index="9" data-volume="1"></audio>
       <!-- vo:end -->
 
       <div
@@ -473,690 +394,170 @@
         class="clip"
         data-span="total"
         data-start="0"
-        data-duration="92.001"
+        data-duration="148.281"
         data-track-index="0"
         data-layout-allow-overflow
         data-layout-allow-overlap
       >
         <div id="world" data-layout-allow-overlap>
           <svg class="layer" width="1920" height="1080" viewBox="0 0 1920 1080">
-            <!-- the agent: a pill in the cast, the harness's Durable Object after -->
-            <rect id="do" x="660" y="498" width="260" height="84" rx="42" />
-            <!-- cast edges, replaced when the agent opens -->
-            <path id="c-claim" class="edge" d="M280 540 L660 540" />
-            <path id="c-brane" class="edge" d="M920 540 C1100 540 1150 330 1300 330" />
-            <path id="c-adv" class="edge soft" d="M920 540 C1250 540 1300 586 1590 586" />
-            <path id="c-rev" class="edge soft" d="M920 540 C1250 540 1300 706 1590 706" />
-            <path id="c-hand" class="edge soft" d="M920 540 C1250 540 1300 838 1590 838" />
-            <!-- harness edges -->
-            <path id="e-claim" class="edge" d="M280 540 C350 540 360 330 440 330" />
-            <path id="e-ia" class="edge" d="M530 364 C530 440 680 430 680 500" />
-            <path id="e-ib" class="edge" d="M530 296 C620 130 1290 130 1400 282" />
-            <path id="e-ag" class="edge" d="M800 548 C890 548 880 330 960 330" />
-            <path id="e-gb" class="edge" d="M1100 330 L1300 330" />
-            <path id="e-bf" class="edge" d="M1500 330 C1545 330 1545 218 1590 218" />
-            <path id="e-bl" class="edge" d="M1500 330 C1545 330 1545 398 1590 398" />
-            <path id="e-tl" class="edge" d="M800 548 C850 548 850 500 900 500" />
-            <path id="e-tc" class="edge" d="M800 548 C850 548 850 590 900 590" />
-            <path id="e-tr" class="edge" d="M800 548 C850 548 850 680 900 680" />
-            <path id="e-adv" class="edge" d="M1150 590 C1370 590 1370 586 1590 586" />
-            <path id="e-rev" class="edge" d="M1150 590 C1370 590 1370 706 1590 706" />
-            <path id="e-hand" class="edge" d="M1150 680 C1370 680 1370 838 1590 838" />
-            <!-- paths through nodes, so a token crosses the node that handles it -->
-            <path id="t-int" class="thru" d="M440 330 L620 330" />
-            <path id="t-agent" class="thru" d="M560 548 L800 548" />
-            <path id="t-gate" class="thru" d="M960 330 L1100 330" />
-            <path id="t-brane" class="thru" d="M1300 330 L1500 330" />
-            <path id="t-bd" class="thru" d="M1400 282 L1500 330" />
+            <!-- situation -->
+            <path id="e-hc" class="edge" d="M380 540 L700 540" />
+            <path id="e-cf" class="edge" d="M1060 540 C1260 540 1300 300 1500 300" />
+            <path id="e-cl" class="edge" d="M1060 540 C1260 540 1300 780 1500 780" />
+            <!-- harness: the chain of checks -->
+            <path id="e-ap" class="edge" d="M380 540 L470 540" />
+            <path id="e-pc" class="edge" d="M730 540 L830 540" />
+            <path id="e-cb" class="edge" d="M1110 540 L1210 540" />
+            <path id="e-bf" class="edge" d="M1450 540 C1520 540 1520 330 1590 330" />
+            <path id="e-bl" class="edge" d="M1450 540 C1520 540 1520 750 1590 750" />
+            <path id="e-cbl" class="edge soft" d="M970 600 C970 760 1300 760 1330 600" />
+            <path id="t-chain" class="thru" d="M380 440 L1450 440" />
           </svg>
-          <!-- node outlines draw themselves before each node fills; written by script from the nodes' boxes -->
           <svg id="outlines" class="layer" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
 
-          <!-- the six actors: people outlined, machines grey, BRANE in ink -->
-          <div
-            class="node person"
-            id="n-claimant"
-            style="left: 60px; top: 498px; width: 220px; height: 84px"
-          >
-            Claimant
+          <!-- situation -->
+          <div class="node person" id="n-hand" style="left: 80px; top: 498px; width: 300px; height: 84px">Claims handler</div>
+          <div class="node" id="n-claim" style="left: 700px; top: 470px; width: 360px; height: 140px; flex-direction: column; gap: 6px">
+            Claim file<small style="font-size: 22px; font-weight: 500; color: #6e6e73">diagnosis · prescription · hospital note</small>
           </div>
-          <div class="sub" id="s-claimant" style="left: 120px; top: 596px">Daan Mulder</div>
-          <div
-            class="node bare"
-            data-layout-allow-occlusion
-            id="n-agent0"
-            style="left: 660px; top: 498px; width: 260px; height: 84px"
-          >
-            Agent
-          </div>
-          <div
-            class="node ink"
-            id="n-brane"
-            style="left: 1300px; top: 282px; width: 200px; height: 96px"
-          >
-            BRANE
-          </div>
-          <div
-            class="node person"
-            id="n-adv"
-            style="left: 1590px; top: 548px; width: 280px; height: 76px"
-          >
-            Medical adviser
-          </div>
-          <div
-            class="node person"
-            id="n-rev"
-            style="left: 1590px; top: 668px; width: 280px; height: 76px"
-          >
-            Legal reviewer
-          </div>
-          <div
-            class="node person"
-            id="n-hand"
-            style="left: 1590px; top: 800px; width: 280px; height: 76px"
-          >
-            Claims handler
-          </div>
-          <div class="sub" id="s-adv" style="left: 1606px; top: 510px">health</div>
-          <div class="sub" id="s-rev" style="left: 1606px; top: 630px">law</div>
-          <div class="sub" id="s-hand" style="left: 1606px; top: 762px">decides</div>
+          <div class="node" id="n-front0" style="left: 1500px; top: 258px; width: 320px; height: 84px">Frontier model</div>
+          <div class="node" id="n-local0" style="left: 1500px; top: 738px; width: 320px; height: 84px">Local model</div>
+          <div class="sub" id="s-front0" style="left: 1500px; top: 356px">outside the EU perimeter</div>
+          <div class="sub" id="s-local0" style="left: 1500px; top: 836px">health data may stay here</div>
+          <svg class="layer" id="bar" width="1920" height="1080" viewBox="0 0 1920 1080">
+            <path id="x1" class="edge" d="M1250 380 L1310 440" style="stroke: #c62828; stroke-width: 6" />
+            <path id="x2" class="edge" d="M1310 380 L1250 440" style="stroke: #c62828; stroke-width: 6" />
+          </svg>
 
-          <!-- the harness -->
-          <div class="sub" id="s-do" style="left: 400px; top: 940px">
-            Pi harness · one Durable Object per claim
-          </div>
-          <div
-            class="node tool"
-            id="n-intake"
-            style="left: 440px; top: 296px; width: 180px; height: 68px"
-          >
-            intake
-          </div>
-          <div
-            class="node"
-            id="n-agent"
-            style="left: 560px; top: 500px; width: 240px; height: 96px"
-          >
-            Pi agent
-          </div>
-          <div
-            class="node tool"
-            id="n-gate"
-            style="left: 960px; top: 296px; width: 140px; height: 68px"
-          >
-            gate
-          </div>
-          <div
-            class="node tool"
-            id="n-lookup"
-            style="left: 900px; top: 470px; width: 250px; height: 60px"
-          >
-            lookup
-          </div>
-          <div
-            class="node tool"
-            id="n-consult"
-            style="left: 900px; top: 560px; width: 250px; height: 60px"
-          >
-            consult
-          </div>
-          <div
-            class="node tool"
-            id="n-appr"
-            style="left: 900px; top: 650px; width: 250px; height: 60px"
-          >
-            request_approval
-          </div>
-          <div
-            class="node"
-            id="n-front"
-            style="left: 1590px; top: 180px; width: 280px; height: 76px"
-          >
-            Frontier model
-          </div>
-          <div
-            class="node"
-            id="n-local"
-            style="left: 1590px; top: 360px; width: 280px; height: 76px"
-          >
-            Local model
-          </div>
+          <!-- harness -->
+          <div class="node" id="n-asst" style="left: 100px; top: 492px; width: 280px; height: 96px">Pi agent</div>
+          <div class="sub" id="s-asst" style="left: 100px; top: 604px">one Durable Object per claim</div>
+          <div class="node check" id="n-pre" style="left: 470px; top: 470px; width: 260px; height: 140px">Pre-mask<small>regex, no model</small></div>
+          <div class="node check off" id="n-cls" style="left: 830px; top: 470px; width: 280px; height: 140px">Classifier<small>local model, per run</small></div>
+          <div class="node check ink" id="n-brane" style="left: 1210px; top: 470px; width: 240px; height: 140px">BRANE<small>the gate</small></div>
+          <div class="node" id="n-front" style="left: 1590px; top: 288px; width: 280px; height: 84px">Frontier model</div>
+          <div class="node" id="n-local" style="left: 1590px; top: 708px; width: 280px; height: 84px">Local model</div>
+          <div class="sub" id="s-front" style="left: 1590px; top: 386px">placeholders only</div>
+          <div class="sub" id="s-local" style="left: 1590px; top: 806px">health detail</div>
+          <div class="node" id="n-ref" style="left: 1210px; top: 250px; width: 240px; height: 70px; background: var(--paper); box-shadow: inset 0 0 0 2.5px #c62828; color: #c62828; font-size: 26px">refused</div>
+          <div class="sub" id="s-only" style="left: 470px; top: 860px">no other path to a model</div>
 
-          <!-- Rows from the live ski run (assets/ui/ski-audit.json), the decision, and the hidden-note refusal
-               (assets/ui/hidden-note-audit.json). -->
-          <div id="n-log" data-layout-allow-overlap>
-            <div class="hd">audit log <span id="chain">hash-chained</span></div>
-            <div id="rows-win">
-              <div id="rows">
-                <div class="row" id="r0"><i>intake</i><b>split</b> · health stays local</div>
-                <div class="row" id="r1"><i>masked</i><b>POLICY_ID</b></div>
-                <div class="row" id="r2"><i>brane</i>cloud · <b>PERSON, DATE_OF_BIRTH</b></div>
-                <div class="row" id="r3"><i>lookup</i><b>POL-3.1, POL-2.3, MED-4</b></div>
-                <div class="row" id="r4"><i>handoff</i><b>consult:medical</b></div>
-                <div class="row" id="r5"><i>handoff</i><b>request_approval</b> #15</div>
-                <div class="row human" id="r6">
-                  <i>human</i><b>Claims handler</b> · approved → #15
-                </div>
-                <div class="row" id="r7"><i>request</i>#17 back to the agent</div>
-                <div class="row" id="r8"><i>brane</i>refused · <b>RULE_OVERRIDE_ATTEMPT</b></div>
-              </div>
-            </div>
-          </div>
-
-          <img id="ui-claim" src="assets/ui/claim.png" alt="The claim as it arrives in the app" />
-
-          <!-- what flows along an edge -->
-          <div class="token" id="k-claim">claim</div>
-          <div class="token" id="k-note">discharge note</div>
-          <div class="token mono" id="k-ph">PERSON · POLICY_ID</div>
-          <div class="token mono" id="k-cite">POL-3.1</div>
-          <div class="token" id="k-med">medical question</div>
-          <div class="token" id="k-rec">recommendation</div>
-          <div class="token" id="k-dec">approved</div>
-          <div class="token" id="k-letter">claim letter</div>
-          <div class="token" id="k-order">"approve in full"</div>
-          <div class="dot" id="d0"></div>
-          <div class="dot" id="d1"></div>
-          <div class="dot" id="d2"></div>
-          <div class="dot" id="d3"></div>
-          <div class="dot" id="d4"></div>
-          <div class="dot" id="d5"></div>
-          <div class="dot" id="d6"></div>
-          <div class="dot" id="d7"></div>
-          <div class="dot" id="d8"></div>
-
-          <!-- The decision in the real app (gz-web, therapy-for-burnout run, handoff #15): the card, the decision back in
-               the chat, and the audit log's human row (#17) and the request that carried it to the agent (#18). -->
-          <img
-            id="ui-card"
-            class="ui"
-            src="assets/ui/decision-card.png"
-            alt="The claims handler's decision card"
-          />
-          <div id="ring"></div>
-          <img
-            id="ui-msg"
-            class="ui"
-            src="assets/ui/decision-message.png"
-            alt="The decision as a message in the chat"
-          />
-          <img
-            id="ui-audit"
-            class="ui"
-            src="assets/ui/audit-human.png"
-            alt="The audit log with the human row"
-          />
-          <div id="hl17"></div>
-          <img id="ui-refusal" src="assets/ui/refusal.png" alt="The refusal card in the app" />
+          <div class="code" id="code-mask" style="left: 100px; top: 640px"><span class="f">src/primitives/detect.ts</span>for (const m of text.matchAll(<b>/\bPOL-\d{4}-\d{2}\b/g</b>))
+  found.push({ kind: <b>"POLICY_ID"</b>, text: m[0] });
+<i>// the same value gets the same token everywhere</i>
+out = out.split(f.text).join(seen.get(f.text));</div>
+          <div class="code" id="code-brane" style="left: 100px; top: 700px"><span class="f">src/brane.ts · braneFetch</span>if (url.origin !== base.origin)
+  throw new Error(<b>"only BRANE is allowed"</b>);
+if (decision.routedTo === "" &amp;&amp; response.status !== 422)
+  throw new Error(<b>"BRANE returned no routing decision; nothing is sent"</b>);</div>
+          <div class="token mono" id="k-req">POL-4410-17</div>
+          <div class="token mono" id="k-tok">[POLICY_ID]</div>
         </div>
       </div>
 
-      <!-- The climb: one graph per criterion from CLIMB; built by script from the data. -->
+      <!-- the loop: the agent's loop, then the same loop run on the harness -->
       <div
-        id="climb"
+        id="loop"
         class="clip"
         data-span="total"
         data-start="0"
-        data-duration="92.001"
+        data-duration="148.281"
+        data-track-index="7"
+        data-layout-allow-overlap
+      >
+        <svg class="layer" width="1920" height="1080" viewBox="0 0 1920 1080">
+          <circle id="ring" cx="760" cy="540" r="250" fill="none" stroke="#111" stroke-width="2.5" />
+          <path id="ring-path" class="thru" d="M760 290 A250 250 0 1 1 759.9 290" />
+        </svg>
+        <div class="lnode" id="l1" style="left: 760px; top: 290px"><span class="a">model call</span><span class="b">change one part</span></div>
+        <div class="lnode" id="l2" style="left: 977px; top: 665px"><span class="a">tool</span><span class="b">run the evals</span></div>
+        <div class="lnode" id="l3" style="left: 543px; top: 665px"><span class="a">result</span><span class="b">keep if better</span></div>
+        <div id="loop-mid"><span class="a">the agent</span><span class="b" style="opacity: 0">the harness</span></div>
+        <div class="token" id="k-loop">claim</div>
+        <div class="code" id="code-climb" style="left: 1280px; top: 120px"><span class="f">evals/climb-latest.md · one kept change</span>CLAIM_HEALTH_CONTEXT keywords:
+  ent specialist, hearing aids
+<b>kept</b>  mutated leaked 6 → 3</div>
+      </div>
+
+      <!-- the evals: four slopes, start to end; built by script from CLIMB -->
+      <div
+        id="slopes"
+        class="clip"
+        data-span="total"
+        data-start="0"
+        data-duration="148.281"
         data-track-index="2"
         data-layout-allow-overlap
       >
-        <div id="charts" data-layout-ignore></div>
-        <div id="ticker"></div>
+        <div id="slope-host" data-layout-ignore></div>
         <div id="ph">placeholder data</div>
       </div>
 
-      <!-- One host per beat; voiceover.mjs sets their windows. Only the climb and the close carry a line. -->
+      <!-- the demo, in the real app -->
       <div
-        class="clip"
-        id="beat-cast"
-        data-beat="cast"
-        data-start="0"
-        data-duration="15.146"
-        data-track-index="1"
-      ></div>
-      <div
-        class="clip"
-        id="beat-harness"
-        data-beat="harness"
-        data-start="15.146"
-        data-duration="19.646"
-        data-track-index="1"
-      ></div>
-      <div
-        class="clip"
-        id="beat-claim"
-        data-beat="claim"
-        data-start="34.792"
-        data-duration="8.935"
-        data-track-index="1"
-      ></div>
-      <div
-        class="clip"
-        id="beat-decide"
-        data-beat="decide"
-        data-start="43.727"
-        data-duration="12.096"
-        data-track-index="1"
-      ></div>
-      <div
-        class="clip"
-        id="beat-attack"
-        data-beat="attack"
-        data-start="55.823"
-        data-duration="9.066"
-        data-track-index="1"
-      ></div>
-      <div
-        class="clip"
-        id="beat-climb"
-        data-beat="climb"
-        data-start="64.889"
-        data-duration="17.85"
-        data-track-index="1"
-      >
-        <div class="head" id="hd-climb"><h1>Each criterion, iteration by iteration</h1></div>
-      </div>
-      <div
-        class="clip"
-        id="beat-close"
-        data-beat="close"
-        data-start="82.739"
-        data-duration="9.262"
-        data-track-index="1"
-      >
-        <div class="head" id="hd-close">
-          <h1>Frontier quality, local privacy, and a person decides</h1>
-          <p>Team Gezira · AI-Z Challenge Track · MAIN Summit 2026</p>
-        </div>
-      </div>
-
-      <div
-        id="cap"
+        id="demo"
         class="clip"
         data-span="total"
         data-start="0"
-        data-duration="92.001"
-        data-track-index="3"
+        data-duration="148.281"
+        data-track-index="4"
         data-layout-allow-overlap
-      ></div>
+      >
+        <img id="ui-composer" class="ui" src="assets/ui/composer.png" alt="The burnout claim in the message box" style="left: 160px; top: 380px; width: 1600px" />
+        <img id="ui-trace" class="ui" src="assets/ui/trace.png" alt="The trace: pre-mask, intake, BRANE, tools, person" style="left: 1180px; top: 70px; width: 560px" />
+        <img id="ui-card" class="ui" src="assets/ui/decision-card.png" alt="The claims handler's decision card" style="left: 120px; top: 120px; width: 960px" />
+        <div class="ring" id="ring-brane" style="left: 1170px; top: 360px; width: 580px; height: 110px"></div>
+        <div class="ring" id="ring-approve" style="left: 140px; top: 572px; width: 140px; height: 64px; border-radius: 999px"></div>
+        <img id="ui-msg" class="ui" src="assets/ui/decision-message.png" alt="The decision as a message in the chat" style="left: 120px; top: 720px; width: 960px" />
+        <img id="ui-audit" class="ui" src="assets/ui/audit-human.png" alt="The audit log with the human row" style="left: 1140px; top: 300px; width: 680px" />
+        <div class="ring" id="ring-row" style="left: 1132px; top: 616px; width: 696px; height: 82px"></div>
+      </div>
+
+      <!-- key lines -->
+      <div
+        id="keys"
+        class="clip"
+        data-span="total"
+        data-start="0"
+        data-duration="148.281"
+        data-track-index="5"
+        data-layout-allow-overlap
+      >
+        <div class="key" id="key-1"><span>Health data may not<br />leave for a frontier model.</span></div>
+        <div class="key" id="key-2"><span>Every request passes<br /><em>three checks.</em></span></div>
+        <div class="key" id="key-3"><span>BRANE is the gate.</span></div>
+        <div class="key" id="key-4"><span>The same loop<br />improves the harness.</span></div>
+        <div class="key" id="key-5"><span>A person decides.</span></div>
+      </div>
+
+      <div id="url-host" class="clip" data-span="total" data-start="0" data-duration="148.281" data-track-index="6">
+        <div id="url">
+          <div class="t">Run the claim yourself</div>
+          <div class="u">claims-harness.fred-755.workers.dev</div>
+          <div class="m">Team Gezira · AI-Z Challenge Track · MAIN Summit 2026 · synthetic claims only</div>
+        </div>
+      </div>
+
+      <!-- one host per beat; voiceover.mjs sets their windows -->
+      <div class="clip" id="beat-situation" data-beat="situation" data-start="0" data-duration="22.721" data-track-index="1"></div>
+      <div class="clip" id="beat-harness" data-beat="harness" data-start="22.721" data-duration="33.229" data-track-index="1"></div>
+      <div class="clip" id="beat-loop" data-beat="loop" data-start="55.95" data-duration="22.526" data-track-index="1"></div>
+      <div class="clip" id="beat-evals" data-beat="evals" data-start="78.476" data-duration="20.821" data-track-index="1"></div>
+      <div class="clip" id="beat-demo" data-beat="demo" data-start="99.297" data-duration="37.618" data-track-index="1"></div>
+      <div class="clip" id="beat-close" data-beat="close" data-start="136.915" data-duration="11.366" data-track-index="1"></div>
+
+      <div id="cap" class="clip" data-span="total" data-start="0" data-duration="148.281" data-track-index="3" data-layout-allow-overlap></div>
     </div>
 
     <script>
       // Written by voiceover.mjs; do not edit by hand.
-      const TIMING = /* timing:begin */ {
-        source: "elevenlabs",
-        total: 92.001,
-        beats: [
-          {
-            id: "cast",
-            start: 0,
-            duration: 15.146,
-            words: [
-              { w: "Daan,", s: 0.4, e: 0.953 },
-              { w: "the", s: 1.062, e: 1.16 },
-              { w: "claimant,", s: 1.203, e: 1.723 },
-              { w: "breaks", s: 1.887, e: 2.201 },
-              { w: "his", s: 2.234, e: 2.353 },
-              { w: "leg", s: 2.418, e: 2.603 },
-              { w: "skiing", s: 2.657, e: 3.069 },
-              { w: "in", s: 3.178, e: 3.286 },
-              { w: "Austria.", s: 3.351, e: 4.024 },
-              { w: "The", s: 4.588, e: 4.707 },
-              { w: "agent", s: 4.783, e: 5.142 },
-              { w: "prepares", s: 5.196, e: 5.608 },
-              { w: "his", s: 5.651, e: 5.76 },
-              { w: "claim.", s: 5.814, e: 6.357 },
-              { w: "BRANE", s: 6.835, e: 7.214 },
-              { w: "checks", s: 7.258, e: 7.55 },
-              { w: "every", s: 7.692, e: 8.028 },
-              { w: "model", s: 8.093, e: 8.332 },
-              { w: "request.", s: 8.386, e: 9.015 },
-              { w: "The", s: 9.427, e: 9.547 },
-              { w: "adviser", s: 9.591, e: 10.09 },
-              { w: "judges", s: 10.393, e: 10.74 },
-              { w: "health,", s: 10.794, e: 11.25 },
-              { w: "the", s: 11.511, e: 11.608 },
-              { w: "reviewer", s: 11.674, e: 12.021 },
-              { w: "judges", s: 12.075, e: 12.379 },
-              { w: "law,", s: 12.455, e: 12.921 },
-              { w: "and", s: 13.225, e: 13.355 },
-              { w: "the", s: 13.399, e: 13.464 },
-              { w: "handler", s: 13.518, e: 13.844 },
-              { w: "decides.", s: 13.887, e: 14.809 },
-            ],
-          },
-          {
-            id: "harness",
-            start: 15.146,
-            duration: 19.646,
-            words: [
-              { w: "The", s: 0.25, e: 0.413 },
-              { w: "agent", s: 0.478, e: 0.869 },
-              { w: "is", s: 1.097, e: 1.248 },
-              { w: "a", s: 1.292, e: 1.314 },
-              { w: "Pi", s: 1.368, e: 1.617 },
-              { w: "harness", s: 1.683, e: 2.095 },
-              { w: "in", s: 2.236, e: 2.377 },
-              { w: "one", s: 2.453, e: 2.681 },
-              { w: "Durable", s: 2.745, e: 3.234 },
-              { w: "Object.", s: 3.288, e: 3.939 },
-              { w: "Its", s: 4.298, e: 4.482 },
-              { w: "intake", s: 4.536, e: 5.143 },
-              { w: "keeps", s: 5.306, e: 5.577 },
-              { w: "health", s: 5.643, e: 5.882 },
-              { w: "detail", s: 5.936, e: 6.294 },
-              { w: "local.", s: 6.37, e: 6.88 },
-              { w: "The", s: 7.443, e: 7.542 },
-              { w: "gate", s: 7.585, e: 7.78 },
-              { w: "masks", s: 7.813, e: 8.269 },
-              { w: "numbers", s: 8.387, e: 8.822 },
-              { w: "BRANE", s: 9.18, e: 9.549 },
-              { w: "misses.", s: 9.603, e: 10.298 },
-              { w: "BRANE", s: 10.775, e: 11.133 },
-              { w: "is", s: 11.176, e: 11.263 },
-              { w: "the", s: 11.317, e: 11.393 },
-              { w: "only", s: 11.47, e: 11.708 },
-              { w: "road", s: 11.784, e: 12.056 },
-              { w: "to", s: 12.11, e: 12.186 },
-              { w: "a", s: 12.261, e: 12.283 },
-              { w: "model.", s: 12.348, e: 12.826 },
-              { w: "A", s: 13.39, e: 13.455 },
-              { w: "lookup", s: 13.52, e: 13.813 },
-              { w: "cites", s: 13.878, e: 14.16 },
-              { w: "the", s: 14.203, e: 14.269 },
-              { w: "policy,", s: 14.313, e: 14.92 },
-              { w: "consult", s: 15.147, e: 15.614 },
-              { w: "and", s: 15.657, e: 15.723 },
-              { w: "approval", s: 15.756, e: 16.135 },
-              { w: "go", s: 16.2, e: 16.33 },
-              { w: "to", s: 16.385, e: 16.45 },
-              { w: "people,", s: 16.514, e: 17.003 },
-              { w: "and", s: 17.199, e: 17.35 },
-              { w: "audit", s: 17.427, e: 17.708 },
-              { w: "records", s: 17.763, e: 18.218 },
-              { w: "each", s: 18.381, e: 18.598 },
-              { w: "step.", s: 18.653, e: 19.303 },
-            ],
-          },
-          {
-            id: "claim",
-            start: 34.792,
-            duration: 8.935,
-            words: [
-              { w: "The", s: 0.25, e: 0.391 },
-              { w: "discharge", s: 0.434, e: 0.869 },
-              { w: "note", s: 0.923, e: 1.118 },
-              { w: "stays", s: 1.183, e: 1.476 },
-              { w: "local.", s: 1.542, e: 1.997 },
-              { w: "The", s: 2.409, e: 2.507 },
-              { w: "frontier", s: 2.561, e: 2.952 },
-              { w: "model", s: 3.017, e: 3.234 },
-              { w: "sees", s: 3.31, e: 3.538 },
-              { w: "placeholders,", s: 3.592, e: 4.46 },
-              { w: "checks", s: 4.72, e: 5.014 },
-              { w: "the", s: 5.057, e: 5.122 },
-              { w: "invoices", s: 5.198, e: 5.729 },
-              { w: "against", s: 5.772, e: 6.055 },
-              { w: "the", s: 6.087, e: 6.153 },
-              { w: "policy,", s: 6.186, e: 6.771 },
-              { w: "and", s: 6.999, e: 7.14 },
-              { w: "asks", s: 7.205, e: 7.509 },
-              { w: "the", s: 7.563, e: 7.65 },
-              { w: "adviser.", s: 7.704, e: 8.583 },
-            ],
-          },
-          {
-            id: "decide",
-            start: 43.727,
-            duration: 12.096,
-            words: [
-              { w: "The", s: 0.25, e: 0.402 },
-              { w: "handler", s: 0.457, e: 0.814 },
-              { w: "reads", s: 0.879, e: 1.14 },
-              { w: "the", s: 1.183, e: 1.248 },
-              { w: "recommendation", s: 1.292, e: 1.975 },
-              { w: "and", s: 2.279, e: 2.463 },
-              { w: "approves.", s: 2.517, e: 3.277 },
-              { w: "The", s: 3.581, e: 3.7 },
-              { w: "decision", s: 3.743, e: 4.091 },
-              { w: "comes", s: 4.157, e: 4.384 },
-              { w: "back", s: 4.428, e: 4.59 },
-              { w: "into", s: 4.633, e: 4.764 },
-              { w: "the", s: 4.818, e: 4.883 },
-              { w: "chat", s: 4.915, e: 5.165 },
-              { w: "as", s: 5.426, e: 5.577 },
-              { w: "a", s: 5.632, e: 5.664 },
-              { w: "message,", s: 5.718, e: 6.25 },
-              { w: "and", s: 6.445, e: 6.576 },
-              { w: "the", s: 6.619, e: 6.685 },
-              { w: "agent", s: 6.76, e: 7.14 },
-              { w: "continues", s: 7.335, e: 7.9 },
-              { w: "from", s: 7.943, e: 8.095 },
-              { w: "it.", s: 8.149, e: 8.41 },
-              { w: "In", s: 8.822, e: 8.942 },
-              { w: "the", s: 8.985, e: 9.06 },
-              { w: "audit", s: 9.114, e: 9.386 },
-              { w: "trail,", s: 9.418, e: 9.95 },
-              { w: "it", s: 10.308, e: 10.428 },
-              { w: "is", s: 10.471, e: 10.547 },
-              { w: "a", s: 10.59, e: 10.623 },
-              { w: "human", s: 10.677, e: 11.014 },
-              { w: "row.", s: 11.089, e: 11.752 },
-            ],
-          },
-          {
-            id: "attack",
-            start: 55.823,
-            duration: 9.066,
-            words: [
-              { w: "A", s: 0.25, e: 0.337 },
-              { w: "claim", s: 0.402, e: 0.673 },
-              { w: "letter", s: 0.738, e: 1.01 },
-              { w: "hides", s: 1.172, e: 1.542 },
-              { w: "an", s: 1.573, e: 1.639 },
-              { w: "order:", s: 1.714, e: 2.171 },
-              { w: "approve", s: 2.474, e: 2.854 },
-              { w: "in", s: 2.886, e: 2.952 },
-              { w: "full,", s: 3.028, e: 3.472 },
-              { w: "send", s: 3.733, e: 4.037 },
-              { w: "the", s: 4.102, e: 4.167 },
-              { w: "bank", s: 4.221, e: 4.428 },
-              { w: "details.", s: 4.503, e: 5.263 },
-              { w: "BRANE", s: 5.621, e: 6.023 },
-              { w: "refuses,", s: 6.077, e: 6.793 },
-              { w: "and", s: 6.988, e: 7.129 },
-              { w: "nothing", s: 7.216, e: 7.53 },
-              { w: "reaches", s: 7.617, e: 7.954 },
-              { w: "a", s: 7.998, e: 8.029 },
-              { w: "model.", s: 8.084, e: 8.714 },
-            ],
-          },
-          {
-            id: "climb",
-            start: 64.889,
-            duration: 17.85,
-            words: [
-              { w: "We", s: 0.25, e: 0.413 },
-              { w: "climb", s: 0.467, e: 0.76 },
-              { w: "the", s: 0.814, e: 0.879 },
-              { w: "harness,", s: 0.933, e: 1.455 },
-              { w: "never", s: 1.758, e: 1.986 },
-              { w: "the", s: 2.029, e: 2.095 },
-              { w: "model.", s: 2.149, e: 2.572 },
-              { w: "Each", s: 3.049, e: 3.256 },
-              { w: "change", s: 3.31, e: 3.83 },
-              { w: "is", s: 3.971, e: 4.134 },
-              { w: "a", s: 4.178, e: 4.211 },
-              { w: "real", s: 4.298, e: 4.547 },
-              { w: "run,", s: 4.623, e: 5.078 },
-              { w: "kept", s: 5.383, e: 5.654 },
-              { w: "only", s: 5.718, e: 5.99 },
-              { w: "if", s: 6.044, e: 6.12 },
-              { w: "it", s: 6.174, e: 6.24 },
-              { w: "scores", s: 6.294, e: 6.641 },
-              { w: "better", s: 6.706, e: 7.01 },
-              { w: "and", s: 7.368, e: 7.53 },
-              { w: "nothing", s: 7.617, e: 7.954 },
-              { w: "leaks.", s: 8.029, e: 8.583 },
-              { w: "Here", s: 9.06, e: 9.364 },
-              { w: "is", s: 9.429, e: 9.538 },
-              { w: "each", s: 9.603, e: 9.755 },
-              { w: "criterion,", s: 9.809, e: 10.644 },
-              { w: "iteration", s: 10.905, e: 11.534 },
-              { w: "by", s: 11.795, e: 11.969 },
-              { w: "iteration.", s: 12.044, e: 13.01 },
-            ],
-          },
-          {
-            id: "close",
-            start: 82.739,
-            duration: 9.262,
-            words: [
-              { w: "Frontier", s: 0.25, e: 0.684 },
-              { w: "quality,", s: 0.738, e: 1.27 },
-              { w: "local", s: 1.432, e: 1.704 },
-              { w: "privacy,", s: 1.747, e: 2.377 },
-              { w: "and", s: 2.54, e: 2.691 },
-              { w: "a", s: 2.745, e: 2.768 },
-              { w: "person", s: 2.822, e: 3.169 },
-              { w: "decides.", s: 3.223, e: 3.939 },
-              { w: "Team", s: 4.243, e: 4.633 },
-              { w: "Gezira.", s: 4.829, e: 5.718 },
-            ],
-          },
-        ],
-      }; /* timing:end */
-      // Written by climb.mjs from evals/climb-history.json; do not edit by hand.
-      const CLIMB = /* climb:begin */ {
-        source: "placeholder",
-        criteria: {
-          leak_rate: { label: "Leak rate", unit: "%", better: "down" },
-          macro_f1: { label: "Macro-F1", unit: "", better: "up" },
-          robustness: { label: "Adversarial variants passed", unit: "%", better: "up" },
-          gate_pass: { label: "Gate tests passed", unit: "%", better: "up" },
-          over_block: { label: "Permitted requests kept off cloud", unit: "%", better: "down" },
-          stability: { label: "Same route on rerun", unit: "%", better: "up" },
-          agent_pass: { label: "Agent runs completed", unit: "%", better: "up" },
-          audit_completeness: { label: "Handoffs with a human row", unit: "%", better: "up" },
-          latency_ms: { label: "Median latency", unit: "ms", better: "down" },
-          calls_per_request: { label: "BRANE calls per request", unit: "", better: "down" },
-        },
-        rows: [
-          {
-            iter: 0,
-            change: "BRANE default, no harness",
-            layer: "policy",
-            kept: true,
-            scores: {
-              leak_rate: 21.6,
-              macro_f1: 0.61,
-              robustness: 70,
-              gate_pass: 60,
-              over_block: 30,
-              stability: 88,
-              agent_pass: null,
-              audit_completeness: null,
-              latency_ms: 2400,
-              calls_per_request: 1,
-            },
-          },
-          {
-            iter: 1,
-            change: "policy v1",
-            layer: "policy",
-            kept: true,
-            scores: {
-              leak_rate: 9.5,
-              macro_f1: 0.72,
-              robustness: 80,
-              gate_pass: 75,
-              over_block: 22,
-              stability: 90,
-              agent_pass: 60,
-              audit_completeness: 50,
-              latency_ms: 2500,
-              calls_per_request: 1,
-            },
-          },
-          {
-            iter: 2,
-            change: "gate masks ids",
-            layer: "gate",
-            kept: true,
-            scores: {
-              leak_rate: 3.2,
-              macro_f1: 0.8,
-              robustness: 88,
-              gate_pass: 85,
-              over_block: 20,
-              stability: 93,
-              agent_pass: null,
-              audit_completeness: null,
-              latency_ms: 2550,
-              calls_per_request: 1,
-            },
-          },
-          {
-            iter: 3,
-            change: "looser health rule",
-            layer: "policy",
-            kept: false,
-            scores: {
-              leak_rate: 6,
-              macro_f1: 0.78,
-              robustness: 84,
-              gate_pass: 80,
-              over_block: 12,
-              stability: 92,
-              agent_pass: null,
-              audit_completeness: null,
-              latency_ms: 2500,
-              calls_per_request: 1,
-            },
-          },
-          {
-            iter: 4,
-            change: "intake split",
-            layer: "routing",
-            kept: true,
-            scores: {
-              leak_rate: 1.1,
-              macro_f1: 0.86,
-              robustness: 93,
-              gate_pass: 95,
-              over_block: 9,
-              stability: 96,
-              agent_pass: 85,
-              audit_completeness: 90,
-              latency_ms: 3100,
-              calls_per_request: 2,
-            },
-          },
-          {
-            iter: 5,
-            change: "second classifier",
-            layer: "model",
-            kept: true,
-            scores: {
-              leak_rate: 0,
-              macro_f1: 0.9,
-              robustness: 97,
-              gate_pass: 100,
-              over_block: 8,
-              stability: 97,
-              agent_pass: 95,
-              audit_completeness: 100,
-              latency_ms: 3300,
-              calls_per_request: 2,
-            },
-          },
-        ],
-      }; /* climb:end */
+      const TIMING = /* timing:begin */{"source":"elevenlabs","total":148.281,"beats":[{"id":"situation","start":0,"duration":22.721,"words":[{"w":"Claims","s":0.4,"e":0.831},{"w":"handlers","s":0.875,"e":1.295},{"w":"at","s":1.34,"e":1.407},{"w":"an","s":1.45,"e":1.506},{"w":"EU","s":1.572,"e":1.827},{"w":"health","s":1.892,"e":2.081},{"w":"insurer","s":2.125,"e":2.501},{"w":"work","s":2.921,"e":3.153},{"w":"through","s":3.187,"e":3.386},{"w":"files","s":3.43,"e":3.784},{"w":"full","s":3.839,"e":4.005},{"w":"of","s":4.049,"e":4.093},{"w":"diagnoses,","s":4.149,"e":5.066},{"w":"prescriptions","s":5.177,"e":5.895},{"w":"and","s":6.039,"e":6.205},{"w":"hospital","s":6.271,"e":6.648},{"w":"notes.","s":6.691,"e":7.078},{"w":"A","s":7.653,"e":7.72},{"w":"frontier","s":7.809,"e":8.262},{"w":"model","s":8.339,"e":8.627},{"w":"would","s":8.67,"e":8.804},{"w":"help","s":8.848,"e":8.991},{"w":"them","s":9.035,"e":9.157},{"w":"check","s":9.202,"e":9.423},{"w":"each","s":9.533,"e":9.766},{"w":"invoice","s":9.81,"e":10.219},{"w":"against","s":10.251,"e":10.484},{"w":"the","s":10.517,"e":10.584},{"w":"policy,","s":10.617,"e":11.258},{"w":"but","s":11.568,"e":11.733},{"w":"health","s":11.789,"e":12.021},{"w":"data","s":12.076,"e":12.375},{"w":"is","s":12.441,"e":12.541},{"w":"a","s":12.585,"e":12.607},{"w":"special","s":12.662,"e":13.028},{"w":"category","s":13.093,"e":13.613},{"w":"under","s":13.657,"e":13.801},{"w":"the","s":13.845,"e":13.911},{"w":"GDPR","s":13.945,"e":14.609},{"w":"and","s":14.918,"e":15.117},{"w":"may","s":15.194,"e":15.327},{"w":"not","s":15.393,"e":15.526},{"w":"go","s":15.57,"e":15.67},{"w":"to","s":15.714,"e":15.758},{"w":"an","s":15.825,"e":15.88},{"w":"outside","s":15.913,"e":16.267},{"w":"model.","s":16.3,"e":16.687},{"w":"We","s":17.173,"e":17.295},{"w":"built","s":17.339,"e":17.505},{"w":"an","s":17.538,"e":17.593},{"w":"assistant","s":17.638,"e":18.036},{"w":"that","s":18.069,"e":18.18},{"w":"prepares","s":18.212,"e":18.589},{"w":"each","s":18.699,"e":18.91},{"w":"claim","s":18.965,"e":19.219},{"w":"for","s":19.286,"e":19.373},{"w":"the","s":19.407,"e":19.473},{"w":"handler","s":19.517,"e":19.871},{"w":"while","s":20.137,"e":20.347},{"w":"the","s":20.369,"e":20.435},{"w":"health","s":20.502,"e":20.733},{"w":"data","s":20.8,"e":21.032},{"w":"stays","s":21.099,"e":21.33},{"w":"on","s":21.364,"e":21.419},{"w":"a","s":21.464,"e":21.486},{"w":"local","s":21.541,"e":21.762},{"w":"model.","s":21.807,"e":22.381}]},{"id":"harness","start":22.721,"duration":33.229,"words":[{"w":"The","s":0.25,"e":0.394},{"w":"assistant","s":0.449,"e":0.902},{"w":"is","s":0.958,"e":1.035},{"w":"a","s":1.08,"e":1.101},{"w":"custom","s":1.168,"e":1.521},{"w":"harness","s":1.588,"e":1.908},{"w":"built","s":1.953,"e":2.14},{"w":"on","s":2.185,"e":2.251},{"w":"Pi,","s":2.318,"e":2.871},{"w":"and","s":3.037,"e":3.191},{"w":"every","s":3.258,"e":3.445},{"w":"request","s":3.512,"e":3.91},{"w":"it","s":3.954,"e":4.032},{"w":"makes","s":4.087,"e":4.286},{"w":"to","s":4.319,"e":4.385},{"w":"a","s":4.462,"e":4.485},{"w":"model","s":4.551,"e":4.872},{"w":"passes","s":4.949,"e":5.303},{"w":"a","s":5.347,"e":5.38},{"w":"fixed","s":5.447,"e":5.701},{"w":"series","s":5.723,"e":6.021},{"w":"of","s":6.055,"e":6.11},{"w":"checks","s":6.165,"e":6.563},{"w":"that","s":6.796,"e":6.961},{"w":"we","s":6.995,"e":7.061},{"w":"can","s":7.095,"e":7.205},{"w":"test","s":7.239,"e":7.437},{"w":"one","s":7.493,"e":7.603},{"w":"at","s":7.625,"e":7.68},{"w":"a","s":7.724,"e":7.758},{"w":"time.","s":7.813,"e":8.211},{"w":"A","s":8.786,"e":8.875},{"w":"regular-expression","s":9.019,"e":9.925},{"w":"pre-mask","s":10.002,"e":10.633},{"w":"replaces","s":10.699,"e":11.152},{"w":"policy","s":11.219,"e":11.639},{"w":"numbers","s":11.705,"e":12.081},{"w":"and","s":12.17,"e":12.324},{"w":"other","s":12.391,"e":12.545},{"w":"identifiers","s":12.59,"e":13.176},{"w":"with","s":13.209,"e":13.331},{"w":"tokens.","s":13.364,"e":13.906},{"w":"A","s":14.48,"e":14.559},{"w":"second","s":14.702,"e":15.012},{"w":"classifier","s":15.067,"e":15.698},{"w":"on","s":15.763,"e":15.874},{"w":"BRANE's","s":15.929,"e":16.217},{"w":"local","s":16.261,"e":16.482},{"w":"model,","s":16.526,"e":16.98},{"w":"which","s":17.245,"e":17.433},{"w":"we","s":17.478,"e":17.555},{"w":"switch","s":17.61,"e":17.909},{"w":"on","s":17.986,"e":18.219},{"w":"per","s":18.296,"e":18.45},{"w":"run,","s":18.517,"e":19.003},{"w":"labels","s":19.368,"e":19.766},{"w":"the","s":19.8,"e":19.865},{"w":"request","s":19.932,"e":20.363},{"w":"and","s":20.419,"e":20.496},{"w":"can","s":20.54,"e":20.661},{"w":"only","s":20.75,"e":21.027},{"w":"make","s":21.082,"e":21.237},{"w":"the","s":21.27,"e":21.337},{"w":"route","s":21.38,"e":21.58},{"w":"stricter.","s":21.613,"e":22.143},{"w":"BRANE","s":22.807,"e":23.227},{"w":"is","s":23.26,"e":23.326},{"w":"the","s":23.381,"e":23.448},{"w":"gate.","s":23.493,"e":23.901},{"w":"It","s":24.266,"e":24.4},{"w":"sends","s":24.477,"e":24.786},{"w":"the","s":24.841,"e":24.908},{"w":"request","s":24.985,"e":25.361},{"w":"to","s":25.394,"e":25.45},{"w":"the","s":25.505,"e":25.571},{"w":"frontier","s":25.616,"e":26.058},{"w":"model","s":26.135,"e":26.422},{"w":"with","s":26.478,"e":26.611},{"w":"placeholders,","s":26.655,"e":27.451},{"w":"keeps","s":27.871,"e":28.125},{"w":"it","s":28.17,"e":28.237},{"w":"on","s":28.269,"e":28.324},{"w":"the","s":28.358,"e":28.424},{"w":"local","s":28.458,"e":28.679},{"w":"model,","s":28.734,"e":29.065},{"w":"or","s":29.099,"e":29.254},{"w":"refuses","s":29.331,"e":29.828},{"w":"it,","s":29.883,"e":30.06},{"w":"and","s":30.37,"e":30.514},{"w":"the","s":30.559,"e":30.624},{"w":"harness","s":30.68,"e":30.989},{"w":"has","s":31.034,"e":31.2},{"w":"no","s":31.31,"e":31.465},{"w":"other","s":31.531,"e":31.697},{"w":"path","s":31.741,"e":31.984},{"w":"to","s":32.029,"e":32.095},{"w":"a","s":32.173,"e":32.195},{"w":"model.","s":32.25,"e":32.891}]},{"id":"loop","start":55.95,"duration":22.526,"words":[{"w":"The","s":0.25,"e":0.405},{"w":"agent","s":0.46,"e":0.715},{"w":"itself","s":0.747,"e":1.08},{"w":"runs","s":1.157,"e":1.367},{"w":"in","s":1.411,"e":1.466},{"w":"a","s":1.511,"e":1.533},{"w":"loop.","s":1.577,"e":1.886},{"w":"It","s":2.251,"e":2.384},{"w":"calls","s":2.428,"e":2.704},{"w":"the","s":2.749,"e":2.816},{"w":"model,","s":2.871,"e":3.357},{"w":"runs","s":3.589,"e":3.843},{"w":"the","s":3.899,"e":3.965},{"w":"tool","s":4.02,"e":4.231},{"w":"the","s":4.286,"e":4.352},{"w":"model","s":4.385,"e":4.584},{"w":"asks","s":4.651,"e":4.85},{"w":"for,","s":4.894,"e":5.259},{"w":"and","s":5.458,"e":5.601},{"w":"calls","s":5.657,"e":5.9},{"w":"the","s":5.944,"e":6.011},{"w":"model","s":6.055,"e":6.276},{"w":"again","s":6.331,"e":6.541},{"w":"with","s":6.597,"e":6.707},{"w":"the","s":6.74,"e":6.807},{"w":"result","s":6.873,"e":7.36},{"w":"until","s":7.481,"e":7.769},{"w":"the","s":7.813,"e":7.88},{"w":"claim","s":7.913,"e":8.1},{"w":"is","s":8.145,"e":8.211},{"w":"ready.","s":8.266,"e":8.62},{"w":"While","s":9.107,"e":9.339},{"w":"building","s":9.383,"e":9.671},{"w":"it","s":9.715,"e":9.77},{"w":"we","s":9.815,"e":9.892},{"w":"found","s":9.969,"e":10.146},{"w":"that","s":10.168,"e":10.268},{"w":"the","s":10.3,"e":10.367},{"w":"same","s":10.434,"e":10.699},{"w":"loop","s":10.743,"e":10.92},{"w":"improves","s":10.976,"e":11.319},{"w":"the","s":11.34,"e":11.406},{"w":"harness.","s":11.451,"e":11.926},{"w":"We","s":12.346,"e":12.457},{"w":"change","s":12.5,"e":12.778},{"w":"one","s":12.821,"e":12.977},{"w":"part,","s":13.02,"e":13.32},{"w":"such","s":13.463,"e":13.673},{"w":"as","s":13.718,"e":13.795},{"w":"a","s":13.85,"e":13.883},{"w":"pre-mask","s":13.949,"e":14.458},{"w":"pattern","s":14.491,"e":14.8},{"w":"or","s":14.834,"e":14.9},{"w":"a","s":14.944,"e":14.966},{"w":"policy","s":15.011,"e":15.376},{"w":"rule,","s":15.431,"e":15.796},{"w":"run","s":16.282,"e":16.448},{"w":"the","s":16.493,"e":16.559},{"w":"evals,","s":16.614,"e":17.156},{"w":"keep","s":17.576,"e":17.798},{"w":"the","s":17.853,"e":17.919},{"w":"change","s":17.974,"e":18.372},{"w":"only","s":18.439,"e":18.748},{"w":"if","s":18.793,"e":18.859},{"w":"the","s":18.903,"e":18.969},{"w":"scores","s":19.002,"e":19.29},{"w":"improve,","s":19.334,"e":19.909},{"w":"and","s":19.976,"e":20.12},{"w":"go","s":20.175,"e":20.263},{"w":"round","s":20.329,"e":20.528},{"w":"again.","s":20.573,"e":21.17}]},{"id":"evals","start":78.476,"duration":20.821,"words":[{"w":"Each","s":0.25,"e":0.504},{"w":"check","s":0.548,"e":0.725},{"w":"is","s":0.77,"e":0.825},{"w":"scored","s":0.847,"e":1.09},{"w":"on","s":1.113,"e":1.168},{"w":"its","s":1.2,"e":1.3},{"w":"own.","s":1.344,"e":1.654},{"w":"On","s":2.075,"e":2.219},{"w":"Omar","s":2.284,"e":2.56},{"w":"Shalaby's","s":2.639,"e":3.047},{"w":"split","s":3.07,"e":3.346},{"w":"we","s":3.39,"e":3.479},{"w":"tuned","s":3.523,"e":3.744},{"w":"on","s":3.778,"e":3.855},{"w":"eight","s":3.965,"e":4.164},{"w":"hundred","s":4.208,"e":4.44},{"w":"labelled","s":4.496,"e":4.772},{"w":"requests,","s":4.817,"e":5.436},{"w":"chose","s":5.668,"e":5.944},{"w":"between","s":5.989,"e":6.254},{"w":"versions","s":6.309,"e":6.652},{"w":"on","s":6.697,"e":6.774},{"w":"five","s":6.829,"e":7.04},{"w":"hundred,","s":7.072,"e":7.448},{"w":"and","s":7.714,"e":7.858},{"w":"ran","s":7.923,"e":8.089},{"w":"a","s":8.134,"e":8.156},{"w":"hash-locked","s":8.233,"e":8.741},{"w":"set","s":8.764,"e":8.897},{"w":"of","s":8.93,"e":8.974},{"w":"two","s":9.019,"e":9.129},{"w":"hundred","s":9.173,"e":9.383},{"w":"once,","s":9.449,"e":9.837},{"w":"at","s":10.146,"e":10.3},{"w":"the","s":10.345,"e":10.422},{"w":"end.","s":10.489,"e":10.832},{"w":"BRANE's","s":11.495,"e":11.86},{"w":"answers","s":11.893,"e":12.202},{"w":"vary,","s":12.258,"e":12.756},{"w":"so","s":12.9,"e":13.043},{"w":"each","s":13.154,"e":13.341},{"w":"case","s":13.397,"e":13.651},{"w":"counts","s":13.696,"e":14.005},{"w":"at","s":14.049,"e":14.127},{"w":"its","s":14.16,"e":14.26},{"w":"worst","s":14.303,"e":14.547},{"w":"run,","s":14.613,"e":15.044},{"w":"and","s":15.354,"e":15.509},{"w":"no","s":15.598,"e":15.719},{"w":"kept","s":15.797,"e":15.996},{"w":"change","s":16.028,"e":16.316},{"w":"leaked.","s":16.371,"e":16.968}]},{"id":"demo","start":99.297,"duration":37.618,"words":[{"w":"Here","s":0.25,"e":0.46},{"w":"is","s":0.493,"e":0.56},{"w":"one","s":0.626,"e":0.792},{"w":"claim","s":0.825,"e":1.035},{"w":"from","s":1.08,"e":1.19},{"w":"the","s":1.234,"e":1.3},{"w":"queue.","s":1.334,"e":1.732},{"w":"Sanne","s":2.152,"e":2.517},{"w":"Bakker","s":2.572,"e":2.893},{"w":"asks","s":2.97,"e":3.423},{"w":"whether","s":3.534,"e":3.8},{"w":"her","s":3.865,"e":3.943},{"w":"weekly","s":4.009,"e":4.319},{"w":"therapy","s":4.375,"e":4.695},{"w":"for","s":4.74,"e":4.839},{"w":"burnout","s":4.894,"e":5.193},{"w":"is","s":5.237,"e":5.314},{"w":"covered,","s":5.369,"e":5.79},{"w":"and","s":6.1,"e":6.243},{"w":"her","s":6.299,"e":6.364},{"w":"GP's","s":6.431,"e":6.896},{"w":"letter","s":6.961,"e":7.205},{"w":"names","s":7.26,"e":7.46},{"w":"the","s":7.481,"e":7.548},{"w":"diagnosis","s":7.592,"e":8.178},{"w":"and","s":8.222,"e":8.288},{"w":"the","s":8.311,"e":8.377},{"w":"medication.","s":8.4,"e":9.029},{"w":"BRANE","s":9.693,"e":10.002},{"w":"keeps","s":10.046,"e":10.268},{"w":"the","s":10.3,"e":10.379},{"w":"seven","s":10.467,"e":10.754},{"w":"requests","s":10.82,"e":11.263},{"w":"that","s":11.296,"e":11.418},{"w":"carry","s":11.462,"e":11.683},{"w":"those","s":11.739,"e":11.904},{"w":"details","s":11.938,"e":12.369},{"w":"on","s":12.413,"e":12.48},{"w":"the","s":12.512,"e":12.579},{"w":"local","s":12.612,"e":12.844},{"w":"model,","s":12.889,"e":13.286},{"w":"and","s":13.597,"e":13.74},{"w":"the","s":13.784,"e":13.851},{"w":"one","s":13.928,"e":14.105},{"w":"request","s":14.16,"e":14.658},{"w":"that","s":14.735,"e":14.901},{"w":"goes","s":14.945,"e":15.144},{"w":"to","s":15.178,"e":15.233},{"w":"the","s":15.288,"e":15.355},{"w":"frontier","s":15.399,"e":15.819},{"w":"model","s":15.885,"e":16.14},{"w":"has","s":16.195,"e":16.327},{"w":"her","s":16.382,"e":16.471},{"w":"name","s":16.516,"e":16.67},{"w":"replaced.","s":16.703,"e":17.267},{"w":"The","s":17.632,"e":17.754},{"w":"agent","s":17.831,"e":18.14},{"w":"cites","s":18.196,"e":18.473},{"w":"the","s":18.505,"e":18.572},{"w":"policy","s":18.627,"e":19.037},{"w":"terms,","s":19.092,"e":19.567},{"w":"asks","s":19.833,"e":20.142},{"w":"the","s":20.208,"e":20.275},{"w":"medical","s":20.319,"e":20.584},{"w":"adviser","s":20.628,"e":21.026},{"w":"whether","s":21.082,"e":21.303},{"w":"the","s":21.369,"e":21.436},{"w":"therapy","s":21.48,"e":21.812},{"w":"is","s":21.845,"e":21.911},{"w":"necessary,","s":21.966,"e":22.641},{"w":"and","s":22.807,"e":22.951},{"w":"recommends","s":23.028,"e":23.481},{"w":"paying","s":23.548,"e":23.858},{"w":"once","s":23.935,"e":24.089},{"w":"the","s":24.122,"e":24.189},{"w":"adviser","s":24.233,"e":24.587},{"w":"answers.","s":24.654,"e":25.14},{"w":"The","s":25.505,"e":25.616},{"w":"claims","s":25.671,"e":25.992},{"w":"handler","s":26.047,"e":26.379},{"w":"approves.","s":26.434,"e":27.009},{"w":"The","s":27.374,"e":27.496},{"w":"decision","s":27.551,"e":27.971},{"w":"comes","s":28.026,"e":28.225},{"w":"back","s":28.28,"e":28.468},{"w":"into","s":28.513,"e":28.645},{"w":"the","s":28.7,"e":28.767},{"w":"chat","s":28.8,"e":29.065},{"w":"as","s":29.12,"e":29.22},{"w":"a","s":29.264,"e":29.298},{"w":"message","s":29.375,"e":29.707},{"w":"the","s":29.751,"e":29.828},{"w":"agent","s":29.883,"e":30.149},{"w":"continues","s":30.182,"e":30.658},{"w":"from,","s":30.702,"e":31.1},{"w":"and","s":31.41,"e":31.553},{"w":"the","s":31.598,"e":31.664},{"w":"audit","s":31.72,"e":31.996},{"w":"trail","s":32.029,"e":32.317},{"w":"stores","s":32.394,"e":32.703},{"w":"it","s":32.747,"e":32.825},{"w":"as","s":32.88,"e":32.991},{"w":"a","s":33.035,"e":33.057},{"w":"human","s":33.112,"e":33.356},{"w":"row,","s":33.411,"e":33.831},{"w":"linked","s":34.14,"e":34.384},{"w":"to","s":34.406,"e":34.461},{"w":"the","s":34.505,"e":34.572},{"w":"handoff","s":34.627,"e":35.037},{"w":"it","s":35.08,"e":35.147},{"w":"answers,","s":35.191,"e":35.678},{"w":"in","s":35.755,"e":35.888},{"w":"a","s":35.932,"e":35.965},{"w":"hash-chained","s":36.032,"e":36.562},{"w":"log.","s":36.596,"e":37.27}]},{"id":"close","start":136.915,"duration":11.366,"words":[{"w":"The","s":0.25,"e":0.405},{"w":"app","s":0.493,"e":0.692},{"w":"is","s":0.737,"e":0.814},{"w":"live","s":0.902,"e":1.157},{"w":"with","s":1.19,"e":1.3},{"w":"synthetic","s":1.334,"e":1.798},{"w":"claims,","s":1.842,"e":2.318},{"w":"so","s":2.384,"e":2.505},{"w":"you","s":2.583,"e":2.672},{"w":"can","s":2.716,"e":2.826},{"w":"run","s":2.893,"e":3.047},{"w":"this","s":3.08,"e":3.202},{"w":"claim","s":3.246,"e":3.445},{"w":"yourself.","s":3.5,"e":4.032},{"w":"We","s":4.452,"e":4.574},{"w":"are","s":4.618,"e":4.717},{"w":"Team","s":4.772,"e":4.971},{"w":"Gezira.","s":5.038,"e":5.822}]}]}/* timing:end */;
+      // Written by climb.mjs from evals/climb-summary.json; do not edit by hand.
+      const CLIMB = /* climb:begin */ {"source":"placeholder","metrics":[{"key":"leak_rate","label":"Leak rate","unit":"%","better":"down","start":21.6,"end":1,"steps":4},{"key":"route_f1","label":"Route F1","unit":"","better":"up","start":0.68,"end":0.81,"steps":2},{"key":"over_block","label":"Over-block","unit":"%","better":"down","start":30,"end":8,"steps":2},{"key":"mandatory_tests","label":"Mandatory tests passed","unit":"of 5","better":"up","start":3,"end":5,"steps":2}]} /* climb:end */;
 
       const beat = Object.fromEntries(TIMING.beats.map((b) => [b.id, b]));
       const norm = (s) => s.toLowerCase().replace(/[^a-z0-9-]/g, "");
-      // Absolute time of the first word of `phrase` in a beat.
       function at(id, phrase) {
         const b = beat[id];
         const want = phrase.split(/\s+/).map(norm);
@@ -1173,85 +574,41 @@
       const $ = (s) => document.querySelector(s);
       const NS = "http://www.w3.org/2000/svg";
 
-      // Edges start undrawn; their dash length is their real length.
       const len = {};
       document.querySelectorAll("#world path.edge").forEach((p) => {
-        len[p.id] = p.getTotalLength();
-        gsap.set(p, {
-          strokeDasharray: `${len[p.id]} ${len[p.id] + 20}`,
-          strokeDashoffset: len[p.id] + 2,
-        });
+        len[p.id] = p.getTotalLength() + 2;
+        if (p.classList.contains("soft")) return;
+        gsap.set(p, { strokeDasharray: `${len[p.id]} ${len[p.id] + 20}`, strokeDashoffset: len[p.id] });
       });
-      gsap.set("#world .node, #world .sub, #n-log", { opacity: 0 });
-      gsap.set("#world", { x: 0, y: 0, scale: 1 });
-      const doLen = 2 * (260 + 84);
-      gsap.set("#do", { strokeDasharray: `${doLen} ${doLen + 20}`, strokeDashoffset: doLen + 2 });
+      gsap.set("#world .node, #world .sub, #e-cbl", { opacity: 0 });
 
-      // Vocabulary. Shapes draw their outline, then fill; arrivals on long ease-outs; camera eases both ways.
       const draw = (id, t, d = 0.7) =>
-        tl.fromTo(
-          `#${id}`,
-          { strokeDashoffset: len[id] + 2 },
-          { strokeDashoffset: 0, duration: d, ease: "power2.inOut" },
-          t,
-        );
+        tl.fromTo(`#${id}`, { strokeDashoffset: len[id] }, { strokeDashoffset: 0, duration: d, ease: "power2.inOut" }, t);
       const fadeIn = (s, t, d = 0.35) =>
-        tl.fromTo(
-          s,
-          { opacity: 0, filter: "blur(6px)" },
-          { opacity: 1, filter: "blur(0px)", duration: d, ease: "power3.out" },
-          t,
-        );
-      const fadeOut = (s, t, d = 0.25) =>
-        tl.to(s, { opacity: 0, duration: d, ease: "power2.in" }, t);
-      const dim = (s, t, v = 0.15, d = 0.4) =>
-        tl.to(s, { opacity: v, duration: d, ease: "power2.out" }, t);
-      const cam = (cx, cy, s, t, d = 1.1) =>
-        tl.to(
-          "#world",
-          { x: 960 - cx * s, y: 540 - cy * s, scale: s, duration: d, ease: "power2.inOut" },
-          t,
-        );
-      const camHome = (t, d = 1.1) =>
-        tl.to("#world", { x: 0, y: 0, scale: 1, duration: d, ease: "power2.inOut" }, t);
-      const mark = (s, t) =>
-        tl.to(s, { backgroundColor: "#ffe14a", duration: 0.35, ease: "power2.out" }, t);
-      const unmark = (s, t, c = "#ffffff") =>
-        tl.to(s, { backgroundColor: c, duration: 0.3, ease: "power2.in" }, t);
+        tl.fromTo(s, { opacity: 0 }, { opacity: 1, duration: d, ease: "power2.out" }, t);
+      const fadeOut = (s, t, d = 0.3) => tl.to(s, { opacity: 0, duration: d, ease: "power2.in" }, t);
+      const rise = (s, t, d = 0.7) =>
+        tl.fromTo(s, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: d, ease: "expo.out" }, t);
+      const mark = (s, t) => tl.to(s, { backgroundColor: "#ffe14a", duration: 0.35, ease: "power2.out" }, t);
+      const unmark = (s, t, c = "#f3f3f4") => tl.to(s, { backgroundColor: c, duration: 0.3 }, t);
 
-      // A node grows: its outline draws round the box, then the node fills in and the outline lets go.
+      // A node grows: its outline draws round the box, then it fills and the outline lets go.
       const outlines = document.getElementById("outlines");
       function grow(sel, t, d = 0.6) {
         const el = $(sel);
-        const x = el.offsetLeft,
-          y = el.offsetTop,
-          w = el.offsetWidth,
-          h = el.offsetHeight;
+        const x = el.offsetLeft, y = el.offsetTop, w = el.offsetWidth, h = el.offsetHeight;
         const r = el.classList.contains("person") ? h / 2 : 18;
         const rect = document.createElementNS(NS, "rect");
-        Object.entries({ x, y, width: w, height: h, rx: r, class: "outline" }).forEach(([k, v]) =>
-          rect.setAttribute(k, v),
-        );
+        Object.entries({ x, y, width: w, height: h, rx: r, class: "outline" }).forEach(([k, v]) => rect.setAttribute(k, v));
         outlines.appendChild(rect);
         const L = rect.getTotalLength() + 2;
-        gsap.set(rect, { strokeDasharray: `${L} ${L + 20}`, strokeDashoffset: L });
-        tl.fromTo(
-          rect,
-          { strokeDashoffset: L },
-          { strokeDashoffset: 0, duration: d, ease: "power2.inOut" },
-          t,
-        );
-        tl.fromTo(
-          el,
-          { opacity: 0 },
-          { opacity: 1, duration: 0.35, ease: "power2.out" },
-          t + d * 0.7,
-        );
+        gsap.set(rect, { strokeDasharray: `${L} ${L + 20}`, strokeDashoffset: L, opacity: 1 });
+        tl.fromTo(rect, { strokeDashoffset: L, opacity: 1 }, { strokeDashoffset: 0, duration: d, ease: "power2.inOut" }, t);
+        tl.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power2.out" }, t + d * 0.7);
         tl.to(rect, { opacity: 0, duration: 0.3 }, t + d + 0.1);
       }
 
-      // A token travels along a chain of paths ([id, reversed]); sampled once, so frames only interpolate numbers.
-      function travel(tok, segs, t, d, ease = "power2.inOut") {
+      function travel(tok, segs, t, d, ease = "power2.inOut", from = 0, to = 1) {
         const pts = [];
         for (const [id, rev] of segs) {
           const p = document.getElementById(id);
@@ -1282,494 +639,195 @@
             yPercent: -50,
           });
         };
-        place(0);
-        const o = { v: 0 };
-        tl.fromTo(o, { v: 0 }, { v: total, duration: d, ease, onUpdate: () => place(o.v) }, t);
-      }
-      const show = (tok, t) => fadeIn(tok, t, 0.2);
-
-      // A step drops into the audit log: a dot falls from the node that acted, its row lands, older rows scroll up.
-      const ROW = 32;
-      const VISIBLE = 3;
-      let landed = 0;
-      function drop(i, x, y, t) {
-        const slot = Math.min(landed, VISIBLE - 1);
-        tl.fromTo(`#d${i}`, { x, y, opacity: 0 }, { opacity: 1, duration: 0.1 }, t);
-        tl.to(
-          `#d${i}`,
-          { x: 470, y: 760 + 12 + 34 + slot * ROW + ROW / 2, duration: 0.6, ease: "power2.inOut" },
-          t + 0.05,
-        );
-        tl.to(`#d${i}`, { opacity: 0, duration: 0.12 }, t + 0.65);
-        if (landed >= VISIBLE)
-          tl.to(
-            "#rows",
-            { y: -(landed - VISIBLE + 1) * ROW, duration: 0.4, ease: "power2.inOut" },
-            t + 0.4,
-          );
-        tl.fromTo(
-          `#r${i}`,
-          { opacity: 0, x: -12 },
-          { opacity: 1, x: 0, duration: 0.5, ease: "expo.out" },
-          t + 0.6,
-        );
-        landed++;
+        place(from * total);
+        const o = { v: from * total };
+        tl.fromTo(o, { v: from * total }, { v: to * total, duration: d, ease, onUpdate: () => place(o.v) }, t);
       }
 
-      // 1 Cast: the claim and the six actors.
-      grow("#n-claimant", 0.05, 0.5);
-      fadeIn("#s-claimant", 0.4);
-      fadeIn("#ui-claim", at("cast", "breaks"), 0.5);
-      tl.fromTo(
-        "#ui-claim",
-        { y: 12 },
-        { y: 0, duration: 0.8, ease: "expo.out" },
-        at("cast", "breaks"),
-      );
-      fadeOut("#ui-claim", at("cast", "the agent") - 0.2, 0.3);
-      tl.to(
-        "#do",
-        { strokeDashoffset: 0, duration: 0.7, ease: "power2.inOut" },
-        at("cast", "the agent"),
-      );
-      fadeIn("#n-agent0", at("cast", "agent") + 0.3);
-      tl.set("#n-agent0", { opacity: 1 }, at("cast", "agent") + 0.7);
-      draw("c-claim", at("cast", "prepares"), 0.8);
-      show("#k-claim", at("cast", "prepares"));
-      travel("#k-claim", [["c-claim", false]], at("cast", "prepares"), 1.0);
-      fadeOut("#k-claim", at("cast", "brane checks") - 0.1, 0.2);
-      draw("c-brane", at("cast", "brane checks"), 0.7);
-      grow("#n-brane", at("cast", "brane checks") + 0.4);
-      draw("c-adv", at("cast", "the adviser"), 0.7);
-      grow("#n-adv", at("cast", "adviser") + 0.2);
-      fadeIn("#s-adv", at("cast", "health"));
-      draw("c-rev", at("cast", "the reviewer"), 0.7);
-      grow("#n-rev", at("cast", "reviewer") + 0.2);
-      fadeIn("#s-rev", at("cast", "law"));
-      draw("c-hand", at("cast", "and the handler"), 0.7);
-      grow("#n-hand", at("cast", "handler") + 0.1);
-      fadeIn("#s-hand", at("cast", "decides"));
-      mark("#n-hand", at("cast", "decides"));
-      unmark("#n-hand", end("cast"));
+      // A key line: the scene steps back, the serif line holds while the voice says it, then the scene returns.
+      function key(id, t, hold, behind) {
+        tl.to(behind, { opacity: 0.06, filter: "blur(4px)", duration: 0.45, ease: "power2.inOut" }, t - 0.25);
+        tl.fromTo(`#${id}`, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" }, t - 0.1);
+        tl.to(`#${id}`, { opacity: 0, y: -12, duration: 0.4, ease: "power2.in" }, t + hold);
+        tl.to(behind, { opacity: 1, filter: "blur(0px)", duration: 0.6, ease: "power2.out" }, t + hold + 0.2);
+      }
 
-      // 2 Harness: the agent opens into its Durable Object; each primitive grows when it is named.
-      const opens = at("harness", "pi harness");
-      fadeOut("#n-agent0", opens - 0.2, 0.2);
-      tl.set("#n-agent0", { visibility: "hidden" }, opens + 0.05);
-      tl.to(
-        ["#c-claim", "#c-brane", "#c-adv", "#c-rev", "#c-hand"],
-        { opacity: 0, duration: 0.3 },
-        opens - 0.1,
-      );
-      tl.set("#do", { strokeDasharray: "none" }, opens - 0.05);
-      tl.to(
-        "#do",
-        {
-          attr: { x: 380, y: 210, width: 820, height: 720, rx: 28 },
-          duration: 1.0,
-          ease: "power3.inOut",
-        },
-        opens,
-      );
-      tl.to(
-        "#do",
-        { fill: "#fafafa", stroke: "#b4b4ba", strokeDasharray: "10 10", duration: 0.5 },
-        opens + 0.8,
-      );
-      grow("#n-agent", opens + 0.7);
-      fadeIn("#s-do", at("harness", "durable object"));
-      draw("e-claim", at("harness", "its intake") - 0.3, 0.6);
-      grow("#n-intake", at("harness", "intake"));
-      draw("e-ia", at("harness", "intake") + 0.4, 0.5);
-      draw("e-ib", at("harness", "keeps"), 0.9);
-      grow("#n-local", at("harness", "local") - 0.2);
-      draw("e-bl", at("harness", "local") - 0.4, 0.4);
-      draw("e-ag", at("harness", "the gate") - 0.2, 0.5);
-      grow("#n-gate", at("harness", "gate"));
-      draw("e-gb", at("harness", "masks"), 0.4);
-      draw("e-bf", at("harness", "only road"), 0.5);
-      grow("#n-front", at("harness", "only road") + 0.2);
-      tl.to(
-        "#n-brane",
-        { scale: 1.08, duration: 0.25, yoyo: true, repeat: 1, ease: "power2.out" },
-        at("harness", "only road"),
-      );
-      draw("e-tl", at("harness", "a lookup") - 0.2, 0.4);
-      grow("#n-lookup", at("harness", "lookup"));
-      draw("e-tc", at("harness", "consult") - 0.2, 0.4);
-      grow("#n-consult", at("harness", "consult"));
-      draw("e-tr", at("harness", "approval") - 0.2, 0.4);
-      grow("#n-appr", at("harness", "approval"));
-      draw("e-adv", at("harness", "go to"), 0.6);
-      draw("e-rev", at("harness", "go to") + 0.1, 0.6);
-      draw("e-hand", at("harness", "people"), 0.6);
-      grow("#n-log", at("harness", "audit") - 0.2, 0.7);
+      // 1 Situation: the handler, the claim, and the line it may not cross.
+      const S = (p) => at("situation", p);
+      grow("#n-hand", S("claims handlers"), 0.6);
+      draw("e-hc", S("work through"), 0.6);
+      grow("#n-claim", S("files"), 0.7);
+      grow("#n-front0", S("a frontier"), 0.6);
+      draw("e-cf", S("would help"), 0.7);
+      fadeIn("#s-front0", S("check each"));
+      grow("#n-local0", S("but health"), 0.6);
+      draw("e-cl", S("but health") + 0.2, 0.7);
+      fadeIn("#s-local0", S("special category"));
+      draw("x1", S("may not"), 0.25);
+      draw("x2", S("may not") + 0.15, 0.25);
+      tl.to("#e-cf", { stroke: "#c62828", duration: 0.3 }, S("may not"));
+      key("key-1", S("may not") + 0.6, 2.6, "#world");
+      mark("#n-local0", S("stays on"));
 
-      // 3 Claim: the health part goes local; placeholders go to the frontier model; a citation; the adviser.
-      const C = (p) => at("claim", p);
-      drop(0, 530, 330, start("claim") + 0.1);
-      show("#k-note", C("discharge"));
-      travel(
-        "#k-note",
-        [
-          ["e-claim", false],
-          ["t-int", false],
-          ["e-ib", false],
-          ["t-bd", false],
-          ["e-bl", false],
-        ],
-        C("discharge"),
-        2.0,
-      );
-      mark("#n-local", C("local"));
-      fadeOut("#k-note", C("local") + 0.5);
-      unmark("#n-local", C("the frontier") + 0.4, "#f3f3f4");
-      show("#k-ph", C("the frontier"));
-      travel(
-        "#k-ph",
-        [
-          ["t-agent", false],
-          ["e-ag", false],
-          ["t-gate", false],
-          ["e-gb", false],
-          ["t-brane", false],
-          ["e-bf", false],
-        ],
-        C("the frontier"),
-        2.0,
-      );
-      drop(1, 1030, 330, C("frontier") + 0.4);
-      drop(2, 1400, 330, C("sees"));
-      mark("#n-front", C("placeholders"));
-      fadeOut("#k-ph", C("checks") + 0.2);
-      unmark("#n-front", C("against"), "#f3f3f4");
-      show("#k-cite", C("checks"));
-      travel("#k-cite", [["e-tl", true]], C("checks"), 0.9);
-      drop(3, 1020, 500, C("invoices"));
-      fadeOut("#k-cite", C("and asks") - 0.1);
-      show("#k-med", C("and asks"));
-      travel(
-        "#k-med",
-        [
-          ["e-tc", false],
-          ["e-adv", false],
-        ],
-        C("and asks"),
-        1.4,
-      );
-      drop(4, 1020, 590, C("asks"));
-      mark("#n-adv", C("adviser"));
-      fadeOut("#k-med", end("claim") - 0.3);
-      unmark("#n-adv", end("claim"));
+      // 2 Harness: the situation clears; the agent and its chain of checks grow when named.
+      const H = (p) => at("harness", p);
+      const sit = ["#n-hand", "#n-claim", "#n-front0", "#n-local0", "#s-front0", "#s-local0", "#e-hc", "#e-cf", "#e-cl", "#x1", "#x2"];
+      fadeOut(sit, start("harness") - 0.1, 0.5);
+      grow("#n-asst", H("the assistant"), 0.6);
+      fadeIn("#s-asst", H("built on pi"));
+      key("key-2", H("fixed series"), 2.0, "#world");
+      draw("e-ap", H("a regular-expression") - 0.3, 0.4);
+      grow("#n-pre", H("a regular-expression"));
+      rise("#code-mask", H("pre-mask"));
+      fadeOut("#code-mask", H("brane is") - 0.3);
+      fadeIn("#k-req", H("replaces"), 0.2);
+      travel("#k-req", [["t-chain", false]], H("replaces"), 1.1, "power2.out", 0.02, 0.2);
+      tl.to("#k-req", { opacity: 0, duration: 0.15 }, H("identifiers") - 0.05);
+      fadeIn("#k-tok", H("identifiers") - 0.05, 0.15);
+      travel("#k-tok", [["t-chain", false]], H("identifiers") - 0.05, 1.0, "power2.out", 0.2, 0.32);
+      fadeOut("#k-tok", H("a second") - 0.2, 0.2);
+      draw("e-pc", H("a second") - 0.3, 0.4);
+      grow("#n-cls", H("a second"));
+      tl.to("#e-cbl", { opacity: 1, duration: 0.5 }, H("local model"));
+      tl.to("#n-cls", { backgroundColor: "#f3f3f4", boxShadow: "inset 0 0 0 2.5px #f3f3f4", duration: 0.4 }, H("switch on"));
+      draw("e-cb", H("brane is") - 0.3, 0.4);
+      grow("#n-brane", H("brane is"));
+      key("key-3", H("the gate") + 0.4, 1.6, "#world");
+      draw("e-bf", H("frontier model"), 0.5);
+      grow("#n-front", H("frontier model") + 0.1);
+      fadeIn("#s-front", H("placeholders"));
+      draw("e-bl", H("keeps it"), 0.5);
+      grow("#n-local", H("keeps it") + 0.1);
+      fadeIn("#s-local", H("keeps it") + 0.5);
+      grow("#n-ref", H("refuses it"), 0.5);
+      fadeIn("#s-only", H("no other"));
+      rise("#code-brane", H("refuses it") + 0.4);
+      tl.to("#n-brane", { scale: 1.06, duration: 0.25, yoyo: true, repeat: 1 }, H("no other"));
 
-      // 4 Decide: the recommendation reaches the handler, who approves in the app; the decision comes back into the
-      // chat and lands in the audit trail as a human row.
-      const D = (p) => at("decide", p);
-      show("#k-rec", start("decide") + 0.1);
-      travel(
-        "#k-rec",
-        [
-          ["e-tr", false],
-          ["e-hand", false],
-        ],
-        start("decide") + 0.1,
-        1.4,
-      );
-      drop(5, 1020, 680, start("decide") + 0.6);
-      mark("#n-hand", D("reads"));
-      fadeOut("#k-rec", D("reads") + 0.3);
-      const others = "#world .node, #world .sub, #world path.edge:not([id^=c-]), #do, #n-log";
-      const keep = ["n-hand", "s-hand"];
-      dim(
-        [...document.querySelectorAll(others)].filter((e) => !keep.includes(e.id)),
-        D("reads"),
-        0.06,
-      );
-      tl.fromTo(
-        "#ui-card",
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" },
-        D("reads"),
-      );
-      tl.fromTo(
-        "#ring",
-        { opacity: 0, scale: 1.3 },
-        { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" },
-        D("approves") - 0.2,
-      );
-      tl.to("#ring", { opacity: 0, duration: 0.3 }, D("approves") + 0.6);
-      show("#k-dec", D("the decision"));
-      travel(
-        "#k-dec",
-        [
-          ["e-hand", true],
-          ["e-tr", true],
-          ["t-agent", true],
-        ],
-        D("the decision"),
-        1.3,
-      );
-      tl.to("#ui-card", { opacity: 0, duration: 0.4 }, D("comes back"));
-      tl.fromTo(
-        "#ui-msg",
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" },
-        D("chat") - 0.1,
-      );
-      tl.to("#n-agent", { opacity: 1, duration: 0.3 }, D("agent continues") - 0.2);
-      mark("#n-agent", D("continues"));
-      fadeOut("#k-dec", D("continues"), 0.2);
-      unmark("#n-agent", D("in the audit"), "#f3f3f4");
-      tl.to("#n-log", { opacity: 1, duration: 0.3 }, D("in the audit") - 0.3);
-      drop(6, 1730, 838, D("in the audit") - 0.3);
-      drop(7, 680, 548, D("audit trail"));
-      tl.fromTo(
-        "#ui-audit",
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" },
-        D("audit trail"),
-      );
-      tl.fromTo(
-        "#hl17",
-        { opacity: 0, scale: 1.04 },
-        { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" },
-        D("human"),
-      );
-      fadeOut(["#ui-card", "#ui-msg", "#ui-audit", "#hl17"], end("decide") - 0.5, 0.35);
-      tl.to(others, { opacity: 1, duration: 0.4 }, end("decide") - 0.4);
-      unmark("#n-hand", end("decide") - 0.4);
-
-      // 5 Attack: a letter's planted order reaches BRANE and stops there.
-      const A = (p) => at("attack", p);
-      show("#k-letter", A("claim letter"));
-      travel(
-        "#k-letter",
-        [
-          ["e-claim", false],
-          ["t-int", false],
-          ["e-ia", false],
-        ],
-        A("claim letter"),
-        1.6,
-      );
-      fadeOut("#k-letter", A("an order") - 0.1, 0.2);
-      show("#k-order", A("an order"));
-      cam(1180, 360, 1.12, A("approve in"), 1.0);
-      travel(
-        "#k-order",
-        [
-          ["t-agent", false],
-          ["e-ag", false],
-          ["t-gate", false],
-          ["e-gb", false],
-        ],
-        A("approve in"),
-        2.4,
-      );
-      tl.to("#n-brane", { scale: 1.1, duration: 0.2, yoyo: true, repeat: 1 }, A("refuses"));
-      fadeOut("#k-order", A("refuses") + 0.1, 0.15);
-      dim(
-        ["#e-bf", "#e-bl", "#n-front", "#n-local", "#n-adv", "#n-rev", "#s-adv", "#s-rev"],
-        A("refuses"),
-        0.12,
-      );
-      tl.fromTo(
-        "#ui-refusal",
-        { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 0.5, ease: "expo.out" },
-        A("refuses") + 0.1,
-      );
-      drop(8, 1400, 330, A("nothing"));
-      camHome(end("attack") - 0.9, 0.8);
-      fadeOut("#ui-refusal", end("attack") - 0.4);
-      tl.to(
-        ["#e-bf", "#e-bl", "#n-front", "#n-local", "#n-adv", "#n-rev", "#s-adv", "#s-rev"],
-        { opacity: 1, duration: 0.3 },
-        end("attack") - 0.3,
-      );
-
-      // 6 Climb: the graph steps back and every criterion gets its own small graph over the iterations.
-      tl.to(
-        "#world",
-        {
-          opacity: 0,
-          scale: 0.94,
-          x: 58,
-          y: 32,
-          filter: "blur(6px)",
-          duration: 0.6,
-          ease: "power2.in",
-        },
-        at("climb", "never") - 0.2,
-      );
-      tl.to("#climb", { opacity: 1, duration: 0.3 }, at("climb", "never") + 0.3);
-      tl.fromTo(
-        "#hd-climb h1",
-        { opacity: 0, y: 10 },
-        { opacity: 1, y: 0, duration: 0.5, ease: "expo.out" },
-        at("climb", "never") + 0.3,
-      );
-
-      const rows = CLIMB.rows;
-      const keys = Object.keys(CLIMB.criteria).filter((k) => rows.some((r) => r.scores[k] != null));
-      if (CLIMB.source === "placeholder") document.getElementById("ph").style.display = "block";
-      const cols = Math.min(5, keys.length);
-      const nrows = Math.ceil(keys.length / cols);
-      const GW = 1728,
-        GAP = 32;
-      const CW = (GW - GAP * (cols - 1)) / cols;
-      const PW = CW,
-        PH = nrows > 1 ? 150 : 300;
-      const top0 = 196,
-        rowH = nrows > 1 ? 380 : 600;
-      const fmt = (v, unit) => {
-        if (v == null) return "–";
-        if (unit === "ms") return `${(v / 1000).toFixed(1)} s`;
-        if (unit === "%") return `${+v.toFixed(1)}%`;
-        return Math.abs(v) < 10 ? v.toFixed(2) : `${Math.round(v)}`;
+      // 3 Loop: the agent's loop, then the same loop run on the harness.
+      const Lp = (p) => at("loop", p);
+      tl.to("#world", { opacity: 0, filter: "blur(6px)", duration: 0.6, ease: "power2.in" }, start("loop"));
+      tl.to("#loop", { opacity: 1, duration: 0.3 }, start("loop") + 0.3);
+      const RL = 2 * Math.PI * 250 + 2;
+      gsap.set("#ring", { strokeDasharray: `${RL} ${RL + 20}`, strokeDashoffset: RL });
+      tl.to("#ring", { strokeDashoffset: 0, duration: 1.2, ease: "power2.inOut" }, Lp("runs in"));
+      fadeIn("#loop-mid", Lp("loop."), 0.4);
+      rise("#l1", Lp("calls the"), 0.5);
+      rise("#l2", Lp("runs the"), 0.5);
+      rise("#l3", Lp("with the"), 0.5);
+      fadeIn("#k-loop", Lp("calls the"), 0.2);
+      travel("#k-loop", [["ring-path", false]], Lp("calls the"), Lp("ready.") - Lp("calls the") + 0.4, "none");
+      fadeOut("#k-loop", Lp("ready.") + 0.4, 0.2);
+      key("key-4", Lp("same loop") - 0.2, 1.8, "#loop");
+      const swap = (sel, t) => {
+        tl.to(`${sel} .a`, { opacity: 0, duration: 0.3 }, t);
+        tl.fromTo(`${sel} .b`, { opacity: 0 }, { opacity: 1, duration: 0.4 }, t + 0.2);
       };
-      const n = rows.length;
-      const sweepStart = at("climb", "each change");
-      const sweepEnd = end("climb") - 1.0;
-      const step = (sweepEnd - sweepStart) / Math.max(1, n - 1);
-      const tAt = (i) => sweepStart + i * step;
-      const host = document.getElementById("charts");
-      keys.forEach((k, ci) => {
-        const c = CLIMB.criteria[k];
+      swap("#loop-mid", Lp("we change") - 0.3);
+      swap("#l1", Lp("change one"));
+      swap("#l2", Lp("run the"));
+      swap("#l3", Lp("keep the"));
+      tl.set("#k-loop", { textContent: "harness change" }, Lp("we change") - 0.1);
+      fadeIn("#k-loop", Lp("change one"), 0.2);
+      travel("#k-loop", [["ring-path", false]], Lp("change one"), end("loop") - 0.6 - Lp("change one"), "none");
+      rise("#code-climb", Lp("keep the"));
+      tl.to("#loop", { opacity: 0, duration: 0.4 }, end("loop") - 0.4);
+
+      // 4 Evals: four slopes draw one after another, start to end, as the outcome of that loop.
+      const E = (p) => at("evals", p);
+      tl.to("#slopes", { opacity: 1, duration: 0.3 }, start("evals"));
+      if (CLIMB.source === "placeholder") document.getElementById("ph").style.display = "block";
+      const fmt = (v, unit) =>
+        unit === "%" ? `${+v.toFixed(1)}%` : unit === "" ? (Math.abs(v) < 10 ? v.toFixed(2) : `${Math.round(v)}`) : `${+v.toFixed(1)} ${unit}`;
+      const ms = CLIMB.metrics;
+      const W = 380, GAP = (1728 - ms.length * W) / Math.max(1, ms.length - 1);
+      const PH = 380;
+      const host = document.getElementById("slope-host");
+      const slot0 = start("evals") + 0.3;
+      const slotEnd = end("evals") - 3.0;
+      const per = (slotEnd - slot0) / ms.length;
+      ms.forEach((m, i) => {
         const el = document.createElement("div");
-        el.className = "chart";
-        el.style.left = `${96 + (ci % cols) * (CW + GAP)}px`;
-        el.style.top = `${top0 + Math.floor(ci / cols) * rowH}px`;
-        el.style.width = `${CW}px`;
-        el.innerHTML = `<div class="lb">${c.label}</div><div class="bt">${c.better === "down" ? "lower is better" : "higher is better"}</div><div class="val"></div>`;
-        const vals = rows.map((r) => r.scores[k]);
-        const have = vals.filter((v) => v != null);
-        let lo = Math.min(...have),
-          hi = Math.max(...have);
-        if (c.unit === "%" && hi <= 100) {
-          lo = Math.min(lo, 0);
-          hi = Math.max(hi, lo + 1);
-        }
-        if (hi === lo) {
-          hi += 1;
-          lo -= 1;
-        }
-        const X = (i) => (n === 1 ? PW / 2 : (i / (n - 1)) * PW);
+        el.className = "slope";
+        el.style.left = `${96 + i * (W + GAP)}px`;
+        el.style.width = `${W}px`;
+        const good = m.better === "down" ? m.end <= m.start : m.end >= m.start;
+        el.innerHTML = `<div class="lb">${m.label}</div><div class="bt">${m.better === "down" ? "lower is better" : "higher is better"}</div>`;
+        let lo = Math.min(m.start, m.end), hi = Math.max(m.start, m.end);
+        if (m.unit === "%") { lo = 0; hi = Math.max(hi, 1); }
+        if (m.unit === "of 5") { lo = 0; hi = 5; }
+        if (m.unit === "") { lo = Math.min(lo, 0.5); hi = Math.max(hi, 1); }
+        if (hi === lo) hi = lo + 1;
         const Y = (v) => PH - ((v - lo) / (hi - lo)) * PH;
+        const x0 = 100, x1 = W - 120, y0 = Y(m.start), y1 = Y(m.end);
         const svg = document.createElementNS(NS, "svg");
-        svg.setAttribute("width", PW);
+        svg.setAttribute("width", W);
         svg.setAttribute("height", PH);
-        const axis = document.createElementNS(NS, "line");
-        Object.entries({ x1: 0, y1: PH, x2: PW, y2: PH, class: "axis" }).forEach(([a, v]) =>
-          axis.setAttribute(a, v),
-        );
-        svg.appendChild(axis);
-        // The line follows the harness as kept: kept iterations only, broken where the criterion was not measured.
-        let d = "",
-          pen = false;
-        rows.forEach((r, i) => {
-          const v = r.scores[k];
-          if (!r.kept) return;
-          if (v == null) {
-            pen = false;
-            return;
-          }
-          d += `${pen ? "L" : "M"}${X(i).toFixed(1)} ${Y(v).toFixed(1)} `;
-          pen = true;
-        });
-        const clipId = `cl-${k}`;
-        svg.innerHTML += `<defs><clipPath id="${clipId}"><rect id="${clipId}-r" x="-10" y="-20" width="0" height="${PH + 40}"/></clipPath></defs>`;
-        const path = document.createElementNS(NS, "path");
-        path.setAttribute("d", d);
-        path.setAttribute("class", "ln");
-        path.setAttribute("clip-path", `url(#${clipId})`);
-        svg.appendChild(path);
-        const lastKept = rows.reduce((a, r, i) => (r.kept && r.scores[k] != null ? i : a), -1);
-        rows.forEach((r, i) => {
-          const v = r.scores[k];
-          if (v == null) return;
-          const p = document.createElementNS(NS, "circle");
-          p.setAttribute("cx", X(i));
-          p.setAttribute("cy", Y(v));
-          p.setAttribute("r", i === lastKept ? 8 : 5.5);
-          p.setAttribute("class", `pt ${r.kept ? "" : "rv"} ${i === lastKept ? "end" : ""}`);
-          p.setAttribute("opacity", 0);
-          svg.appendChild(p);
-          tl.fromTo(
-            p,
-            { opacity: 0, scale: 0, transformOrigin: "50% 50%" },
-            { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" },
-            tAt(i),
-          );
-        });
+        svg.innerHTML =
+          `<line class="tick" x1="${x0}" y1="-10" x2="${x0}" y2="${PH + 10}"/>` +
+          `<line class="tick" x1="${x1}" y1="-10" x2="${x1}" y2="${PH + 10}"/>` +
+          `<path class="ln" d="M${x0} ${y0} L${x1} ${y1}"/>` +
+          `<circle cx="${x0}" cy="${y0}" r="8" fill="#111"/>` +
+          `<circle cx="${x1}" cy="${y1}" r="11" fill="${good ? "#ffe14a" : "#fff"}" stroke="#111" stroke-width="3"/>`;
         el.appendChild(svg);
+        const vs = document.createElement("div");
+        vs.className = "v s";
+        vs.textContent = fmt(m.start, m.unit);
+        vs.style.left = `0px`;
+        vs.style.width = `${x0 - 16}px`;
+        vs.style.textAlign = "right";
+        vs.style.top = `${120 + y0 - 20}px`;
+        const ve = document.createElement("div");
+        ve.className = "v";
+        ve.textContent = fmt(m.end, m.unit);
+        ve.style.left = `${x1 + 20}px`;
+        ve.style.top = `${120 + y1 - 28}px`;
+        const st = document.createElement("div");
+        st.className = "st";
+        st.textContent = `start → end · ${m.steps} kept change${m.steps === 1 ? "" : "s"}`;
+        el.append(vs, ve, st);
         host.appendChild(el);
-        const t0 = at("climb", "never") + 0.5 + ci * 0.06;
-        tl.fromTo(
-          axis,
-          { attr: { x2: 0 } },
-          { attr: { x2: PW }, duration: 0.6, ease: "power2.out" },
-          t0,
-        );
-        tl.fromTo(el.querySelector(".lb"), { opacity: 0 }, { opacity: 1, duration: 0.3 }, t0);
-        tl.fromTo(el.querySelector(".bt"), { opacity: 0 }, { opacity: 1, duration: 0.3 }, t0 + 0.1);
-        tl.to(
-          `#${clipId}-r`,
-          { attr: { width: PW + 20 }, duration: sweepEnd - sweepStart, ease: "none" },
-          sweepStart,
-        );
-        const valEl = el.querySelector(".val");
-        tl.fromTo(valEl, { opacity: 0 }, { opacity: 1, duration: 0.3 }, sweepStart);
-        // The number shows the harness's current score: the last kept value at or before the cursor.
-        const cur = { i: 0 };
-        tl.fromTo(
-          cur,
-          { i: 0 },
-          {
-            i: n - 1,
-            duration: sweepEnd - sweepStart,
-            ease: "none",
-            onUpdate: () => {
-              let v = null;
-              for (let j = 0; j <= Math.round(cur.i); j++)
-                if (rows[j].kept && rows[j].scores[k] != null) v = rows[j].scores[k];
-              valEl.textContent = fmt(v, c.unit);
-            },
-          },
-          sweepStart,
-        );
+        const t = slot0 + i * per;
+        const path = svg.querySelector(".ln");
+        const L = Math.hypot(x1 - x0, y1 - y0);
+        gsap.set(path, { strokeDasharray: L, strokeDashoffset: L });
+        const [c0, c1] = svg.querySelectorAll("circle");
+        gsap.set([c0, c1], { opacity: 0 });
+        tl.fromTo(el.querySelector(".lb"), { opacity: 0 }, { opacity: 1, duration: 0.3 }, t);
+        tl.fromTo(el.querySelector(".bt"), { opacity: 0 }, { opacity: 1, duration: 0.3 }, t + 0.1);
+        tl.to(c0, { opacity: 1, duration: 0.2 }, t + 0.2);
+        tl.fromTo(vs, { opacity: 0 }, { opacity: 1, duration: 0.3 }, t + 0.2);
+        tl.to(path, { strokeDashoffset: 0, duration: Math.min(1.4, per * 0.6), ease: "power2.inOut" }, t + 0.35);
+        tl.fromTo(c1, { opacity: 0, scale: 0, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, t + 0.35 + Math.min(1.4, per * 0.6));
+        tl.fromTo(ve, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, t + 0.45 + Math.min(1.4, per * 0.6));
+        tl.fromTo(st, { opacity: 0 }, { opacity: 1, duration: 0.3 }, t + 0.6 + Math.min(1.4, per * 0.6));
       });
-      // The ticker names the change being tried.
-      const tick = document.getElementById("ticker");
-      const tk = { i: 0 };
-      tl.fromTo("#ticker", { opacity: 0 }, { opacity: 1, duration: 0.3 }, sweepStart);
-      tl.fromTo(
-        tk,
-        { i: 0 },
-        {
-          i: n - 1,
-          duration: sweepEnd - sweepStart,
-          ease: "none",
-          onUpdate: () => {
-            const r = rows[Math.round(tk.i)];
-            tick.innerHTML = `Iteration ${r.iter} · ${r.layer} · <b>${r.change}</b> · ${r.kept ? "kept" : "reverted"}`;
-          },
-        },
-        sweepStart,
-      );
+      tl.to("#slopes", { opacity: 0, duration: 0.4 }, end("evals") - 0.4);
 
-      // 7 Close: the graphs stay; the closing line replaces the climb heading.
-      tl.to("#hd-climb", { opacity: 0, duration: 0.25 }, start("close") - 0.1);
-      fadeOut("#ticker", start("close") - 0.1);
-      tl.fromTo(
-        "#hd-close h1",
-        { opacity: 0, y: 10 },
-        { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" },
-        start("close") + 0.1,
-      );
-      tl.fromTo("#hd-close p", { opacity: 0 }, { opacity: 1, duration: 0.4 }, at("close", "team"));
+      // 5 Demo: the burnout claim in the real app.
+      const D = (p) => at("demo", p);
+      rise("#ui-composer", D("here is"));
+      tl.to("#ui-composer", { opacity: 0, y: -16, duration: 0.4 }, D("brane keeps") - 0.6);
+      rise("#ui-trace", D("brane keeps") - 0.4);
+      tl.fromTo("#ring-brane", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.4, ease: "expo.out" }, D("seven requests"));
+      tl.to("#ring-brane", { opacity: 0, duration: 0.3 }, D("the agent cites"));
+      rise("#ui-card", D("the agent cites"));
+      tl.to("#ui-trace", { opacity: 0, duration: 0.4 }, D("the claims handler") - 0.4);
+      key("key-5", D("the claims handler"), 1.4, ["#ui-card"]);
+      tl.fromTo("#ring-approve", { opacity: 0, scale: 1.3 }, { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" }, D("approves") + 1.2);
+      tl.to("#ring-approve", { opacity: 0, duration: 0.3 }, D("the decision") + 0.4);
+      tl.to("#ui-card", { opacity: 0.25, duration: 0.4 }, D("comes back"));
+      rise("#ui-msg", D("chat"));
+      rise("#ui-audit", D("audit trail"));
+      tl.fromTo("#ring-row", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.4, ease: "expo.out" }, D("human row"));
+      fadeOut(["#ui-card", "#ui-msg", "#ui-audit", "#ring-row"], end("demo") - 0.4, 0.35);
 
-      // Captions: groups of up to 7 words, split at sentence ends and pauses of 0.3 s or more.
+      // 6 Close: the address.
+      tl.fromTo("#url", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" }, start("close") + 0.1);
+      const u = document.querySelector("#url .u");
+      tl.fromTo(u, { boxShadow: "inset 0 0 0 3px #111" }, { boxShadow: "inset 0 0 0 3px #111, 0 0 0 8px #ffe14a", duration: 0.5 }, at("close", "run this"));
+
+      // Captions: groups of up to 8 words, split at sentence ends and pauses of 0.3 s or more.
       const cap = document.getElementById("cap");
       let cn = 0;
       for (const b of TIMING.beats) {
@@ -1779,9 +837,7 @@
           const el = document.createElement("div");
           el.className = "cg";
           el.id = `cg${cn++}`;
-          el.appendChild(document.createElement("span")).textContent = group
-            .map((w) => w.w)
-            .join(" ");
+          el.appendChild(document.createElement("span")).textContent = group.map((w) => w.w).join(" ");
           cap.appendChild(el);
           const s = b.start + group[0].s - 0.05;
           const next = b.words[b.words.indexOf(group.at(-1)) + 1];
@@ -1798,7 +854,7 @@
           const sentence = /[.?!]$/.test(w.w);
           const pause = next && next.s - w.e >= 0.3;
           const clause = /[,:;]$/.test(w.w) && group.length >= 5;
-          if (!next || sentence || pause || clause || group.length >= 7) flush();
+          if (!next || sentence || pause || clause || group.length >= 8) flush();
         });
       }
 

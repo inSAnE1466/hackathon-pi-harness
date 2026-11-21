@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// Writes the climb graphs' data into index.html (between the climb:begin and climb:end markers).
+// Writes the climb slopes' data into index.html (between the climb:begin and climb:end markers).
 //
-//   node climb.mjs     reads ../../evals/climb-history.json, or assets/climb-placeholder.json when it does not exist
+//   node climb.mjs     reads ../../evals/climb-summary.json (written by evals/slopes.mjs), or
+//                      assets/climb-placeholder.json, same shape, when it does not exist
 //
 // The data is inlined because a composition may not fetch at render time. A placeholder shows "placeholder data" on
 // screen, so it cannot ship unnoticed.
@@ -10,28 +11,27 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const real = join(here, "..", "..", "evals", "climb-history.json");
+const real = join(here, "..", "..", "evals", "climb-summary.json");
 const src = existsSync(real) ? real : join(here, "assets", "climb-placeholder.json");
 const raw = JSON.parse(readFileSync(src, "utf8"));
-const rows = Array.isArray(raw) ? raw : raw.rows;
-if (!Array.isArray(rows) || rows.length === 0) throw new Error(`${src} has no rows`);
-const criteria =
-  raw.criteria ??
-  Object.fromEntries(
-    Object.keys(rows[0].scores).map((k) => [k, { label: k, unit: "", better: "up" }]),
-  );
+const want = ["leak_rate", "route_f1", "over_block", "mandatory_tests"];
+const all = Array.isArray(raw.metrics) ? raw.metrics : [];
+const metrics = want.map((k) => all.find((m) => m.key === k)).filter(Boolean);
+if (metrics.length === 0) throw new Error(`${src} has none of ${want.join(", ")}`);
+for (const m of metrics)
+  if (typeof m.start !== "number" || typeof m.end !== "number")
+    throw new Error(`${m.key} needs numeric start and end`);
 const data = {
-  source: src === real ? "evals/climb-history.json" : "placeholder",
-  criteria,
-  rows: rows
-    .map((r) => ({
-      iter: r.iter,
-      change: r.change,
-      layer: r.layer,
-      kept: Boolean(r.kept),
-      scores: r.scores,
-    }))
-    .sort((a, b) => a.iter - b.iter),
+  source: src === real ? "evals/climb-summary.json" : "placeholder",
+  metrics: metrics.map(({ key, label, unit, better, start, end, steps }) => ({
+    key,
+    label,
+    unit: unit ?? "",
+    better: better ?? "up",
+    start,
+    end,
+    steps: Array.isArray(steps) ? steps.length : Number(steps ?? 0),
+  })),
 };
 const html = join(here, "index.html");
 const s = readFileSync(html, "utf8");
@@ -41,6 +41,4 @@ const i = s.indexOf(a);
 const j = s.indexOf(b, i);
 if (i < 0 || j < 0) throw new Error("index.html is missing the climb markers");
 writeFileSync(html, s.slice(0, i + a.length) + " " + JSON.stringify(data) + " " + s.slice(j));
-console.log(
-  `${data.rows.length} iterations, ${Object.keys(criteria).length} criteria, from ${data.source}`,
-);
+console.log(`${data.metrics.length} metrics from ${data.source}`);

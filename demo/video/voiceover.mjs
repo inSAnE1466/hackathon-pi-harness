@@ -32,10 +32,10 @@ function args0(name) {
 const API = "https://api.elevenlabs.io/v1";
 const MODEL = process.env.ELEVENLABS_MODEL || "eleven_multilingual_v2";
 const VOICES = [
-  { id: "onwK4e9ZLuTAKqWW03F9", name: "Daniel" }, // stock voice, male, steady broadcaster
-  { id: "nPczCjzI2devNBz1zQrb", name: "Brian" }, // stock voice, fallback if Daniel fails
+  { id: "nPczCjzI2devNBz1zQrb", name: "Brian" }, // stock voice, American male, deep and even
+  { id: "TX3LPaxmHKxFdv7VOQHJ", name: "Liam" }, // stock voice, American male, fallback if Brian fails
 ];
-const TEMPO = Number(args0("tempo") ?? process.env.VO_TEMPO ?? 1.07); // 1 = as generated
+const TEMPO = Number(args0("tempo") ?? process.env.VO_TEMPO ?? 1.05); // 1 = as generated
 const VOICE_SETTINGS = {
   stability: 0.55,
   similarity_boost: 0.75,
@@ -50,7 +50,7 @@ const PRE = 0.25; // every later beat: scene enters before its voice
 const GAP = 0.3; // after each clip
 const TAIL = 3.5; // after the last clip: the closing line and the graphs hold
 // Extra silence after a beat's clip, so its picture can finish (the climb graphs draw after the voice ends).
-const HOLD = { climb: 4.5 };
+const HOLD = { loop: 1, evals: 3.5, close: 2 };
 
 const flag = (name) => args.some((a) => a === `--${name}`);
 const only = args.find((a) => a.startsWith("--only="))?.slice(7);
@@ -324,7 +324,7 @@ async function main() {
     const old =
       previous?.source === "elevenlabs" ? previous.beats.find((x) => x.id === b.id) : null;
     const forced = flag("all") || only === b.id;
-    if (!forced && old?.clipWords && old.text === b.text && existsSync(raw)) {
+    if (!forced && old?.clipWords && old.text === b.text && old.audio?.voice === VOICES[0].name && existsSync(raw)) {
       speedUp(raw, mp3);
       clips[b.id] = { duration: duration(mp3), words: old.clipWords, voice: old.audio.voice };
       console.log(`vo-${b.id}.mp3  ${clips[b.id].duration.toFixed(2)} s  unchanged, kept`);

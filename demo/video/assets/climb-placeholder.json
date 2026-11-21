@@ -1,131 +1,42 @@
 {
   "placeholder": true,
-  "criteria": {
-    "leak_rate": { "label": "Leak rate", "unit": "%", "better": "down" },
-    "macro_f1": { "label": "Macro-F1", "unit": "", "better": "up" },
-    "robustness": { "label": "Adversarial variants passed", "unit": "%", "better": "up" },
-    "gate_pass": { "label": "Gate tests passed", "unit": "%", "better": "up" },
-    "over_block": { "label": "Permitted requests kept off cloud", "unit": "%", "better": "down" },
-    "stability": { "label": "Same route on rerun", "unit": "%", "better": "up" },
-    "agent_pass": { "label": "Agent runs completed", "unit": "%", "better": "up" },
-    "audit_completeness": { "label": "Handoffs with a human row", "unit": "%", "better": "up" },
-    "latency_ms": { "label": "Median latency", "unit": "ms", "better": "down" },
-    "calls_per_request": { "label": "BRANE calls per request", "unit": "", "better": "down" }
-  },
-  "rows": [
+  "source": "placeholder, same shape as evals/climb-summary.json",
+  "metrics": [
     {
-      "iter": 0,
-      "change": "BRANE default, no harness",
-      "layer": "policy",
-      "kept": true,
-      "reason": "baseline",
-      "scores": {
-        "leak_rate": 21.6,
-        "macro_f1": 0.61,
-        "robustness": 70,
-        "gate_pass": 60,
-        "over_block": 30,
-        "stability": 88,
-        "agent_pass": null,
-        "audit_completeness": null,
-        "latency_ms": 2400,
-        "calls_per_request": 1
-      }
+      "key": "leak_rate",
+      "label": "Leak rate",
+      "unit": "%",
+      "better": "down",
+      "start": 21.6,
+      "end": 1.0,
+      "steps": ["policy v1", "pre-mask", "intake split", "second classifier"]
     },
     {
-      "iter": 1,
-      "change": "policy v1",
-      "layer": "policy",
-      "kept": true,
-      "reason": "",
-      "scores": {
-        "leak_rate": 9.5,
-        "macro_f1": 0.72,
-        "robustness": 80,
-        "gate_pass": 75,
-        "over_block": 22,
-        "stability": 90,
-        "agent_pass": 60,
-        "audit_completeness": 50,
-        "latency_ms": 2500,
-        "calls_per_request": 1
-      }
+      "key": "route_f1",
+      "label": "Route F1",
+      "unit": "",
+      "better": "up",
+      "start": 0.68,
+      "end": 0.81,
+      "steps": ["policy v1", "second classifier"]
     },
     {
-      "iter": 2,
-      "change": "gate masks ids",
-      "layer": "gate",
-      "kept": true,
-      "reason": "",
-      "scores": {
-        "leak_rate": 3.2,
-        "macro_f1": 0.8,
-        "robustness": 88,
-        "gate_pass": 85,
-        "over_block": 20,
-        "stability": 93,
-        "agent_pass": null,
-        "audit_completeness": null,
-        "latency_ms": 2550,
-        "calls_per_request": 1
-      }
+      "key": "over_block",
+      "label": "Over-block",
+      "unit": "%",
+      "better": "down",
+      "start": 30,
+      "end": 8,
+      "steps": ["keywords removed", "intake split"]
     },
     {
-      "iter": 3,
-      "change": "looser health rule",
-      "layer": "policy",
-      "kept": false,
-      "reason": "leaked",
-      "scores": {
-        "leak_rate": 6.0,
-        "macro_f1": 0.78,
-        "robustness": 84,
-        "gate_pass": 80,
-        "over_block": 12,
-        "stability": 92,
-        "agent_pass": null,
-        "audit_completeness": null,
-        "latency_ms": 2500,
-        "calls_per_request": 1
-      }
-    },
-    {
-      "iter": 4,
-      "change": "intake split",
-      "layer": "routing",
-      "kept": true,
-      "reason": "",
-      "scores": {
-        "leak_rate": 1.1,
-        "macro_f1": 0.86,
-        "robustness": 93,
-        "gate_pass": 95,
-        "over_block": 9,
-        "stability": 96,
-        "agent_pass": 85,
-        "audit_completeness": 90,
-        "latency_ms": 3100,
-        "calls_per_request": 2
-      }
-    },
-    {
-      "iter": 5,
-      "change": "second classifier",
-      "layer": "model",
-      "kept": true,
-      "reason": "",
-      "scores": {
-        "leak_rate": 0,
-        "macro_f1": 0.9,
-        "robustness": 97,
-        "gate_pass": 100,
-        "over_block": 8,
-        "stability": 97,
-        "agent_pass": 95,
-        "audit_completeness": 100,
-        "latency_ms": 3300,
-        "calls_per_request": 2
-      }
+      "key": "mandatory_tests",
+      "label": "Mandatory tests passed",
+      "unit": "of 5",
+      "better": "up",
+      "start": 3,
+      "end": 5,
+      "steps": ["pre-mask", "fail closed"]
     }
   ]
 }
