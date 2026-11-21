@@ -17,7 +17,7 @@ const rows = [
       "GDPR Art. 5(1)(c) data minimisation; Art. 25(1) data protection by design (names pseudonymisation); Art. 4(5) pseudonymisation; Recital 26; CJEU C-413/23 P EDPS v SRB paras. 77, 86 (placeholders may make data non-personal for the recipient only), paras. 111-112 (still personal for the insurer)",
     brane: ["PERSON"],
     code: "BRANE replaces names with PERSON_REF tokens and restores them in the answer; the agent is told never to guess a real value behind a token",
-    gap: "BRANE cannot tell a claimant from a third party; both are PERSON. A third-party role would allow a stricter rule for people who never agreed to anything",
+    gap: "BRANE cannot tell a claimant from a third party; both are PERSON. A third-party role would allow a stricter rule for people who never agreed to anything. PERSON and ADDRESS detection varies between runs: on 21 November 2026, 02:00-03:22 CET, with the policy unchanged, 'Jan de Vries filed a claim' had no PII detected in 4 of 4 runs at 02:07 and 1 of 4 at 02:10; the E5 prompt (Pieter Jansen, Kerkstraat 14) had none in 15 of 16 runs from 02:00 to 02:03; in the worst-of-5 security run at 03:15 the name reached the cloud payload in T2 2/5, T3 5/5 and E5 5/5. During the same window BRANE labelled a Dutch IBAN IBAN instead of ACCOUNT_NUMBER. A placeholder rule protects only what the detector finds",
     evidence:
       "X-Brane-Action: placeholder | X-Brane-Redacted: true | X-Brane-Placeholder-Types: PERSON",
     tests: "T2 / T3 / E5",
@@ -76,7 +76,7 @@ const rows = [
     brane: ["HEALTH_DATA"],
     semantic: "CLAIM_HEALTH_CONTEXT",
     code: "BRANE local for HEALTH_DATA, plus semantic category CLAIM_HEALTH_CONTEXT (local) for indirect health detail; the step runs on vllm:deepseek-v4.1-flash inside the perimeter",
-    gap: "Built-in HEALTH_DATA missed 'burnout', 'sertraline', 'fractured her wrist' and a hospital name; a semantic category was needed. One request goes local as a whole, so the harness must split a claim into steps to keep the non-health part on the cloud. BRANE has no request-level local-only flag: intake pins its extraction to the local model by asking for an explicit vllm: model id (X-Brane-Local-Cause: explicit_local_model) and checks routed-to=local and a vllm: resolved model before reading the answer",
+    gap: "Built-in HEALTH_DATA missed 'burnout', 'sertraline', 'fractured her wrist' and a hospital name; a semantic category was needed. One request goes local as a whole, so the harness must split a claim into steps to keep the non-health part on the cloud. BRANE has no request-level local-only flag: intake pins its extraction to the local model by asking for an explicit vllm: model id (X-Brane-Local-Cause: explicit_local_model) and checks routed-to=local and a vllm: resolved model before reading the answer. The optional second classifier (src/primitives/classify.ts, switch classifier, off by default) has the same trust: it calls /policy/test with a draft policy in local-only mode with every category allowed, and if BRANE ignored the draft's routing mode the pre-masked text, names included, would reach the cloud and be caught only in the response check",
     evidence:
       "X-Brane-Routed-To: local | X-Brane-Local-Cause: semantic_category_local | X-Brane-Model-Resolved: vllm:deepseek-v4.1-flash",
     tests: "E1 / E2",

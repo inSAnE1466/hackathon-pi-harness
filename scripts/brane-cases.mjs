@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // Run the track's tests T1-T5 and our edge cases E1-E5 against the live BRANE policy.
-// Usage: node scripts/brane-cases.mjs [--live]   (--live also runs the model; default is a dry run)
-// Pass rules follow the organizers' starter kit, plus a payload check over every protected value in the prompt. T5 (check unavailable) cannot be provoked on the live BRANE, so it
+// Usage: node scripts/brane-cases.mjs [--live] [--runs N]   (--live also runs the model; default is a dry run)
+// Pass rules follow the organizers' starter kit, plus a payload check over every protected value in the prompt.
+// Each case runs 5 times in sequence (--runs N) and passes only if every run passes. T5 (check unavailable) cannot be
+// provoked on the live BRANE, so it
 // runs test/brane.test.ts, which drives the harness's BRANE fetch with BRANE unreachable, a 502 and a 200 without a
 // routing decision, and a foreign origin. Writes submission/test_evidence_run.csv. Never prints the key.
 import { execFileSync } from "node:child_process";
@@ -18,6 +20,9 @@ if (existsSync(".dev.vars")) {
 const base = vars.BRANE_BASE_URL.replace(/\/+$/, "");
 const key = vars.BRANE_API_KEY;
 const live = process.argv.includes("--live");
+// BRANE's detectors vary run to run, so each case runs N times and passes only if every run passes (worst of N).
+// The row records the first failing run if there is one, else the last run.
+const runs = Number(process.argv[process.argv.indexOf("--runs") + 1]) || 5;
 const version = JSON.parse(readFileSync("policy/brane.json", "utf8")).version;
 
 const cloudSafe = (d) => d.route === "local" || d.route === "refused" || d.redacted === "true";
@@ -225,7 +230,15 @@ function checkFailure() {
 }
 
 const rows = [];
-for (const c of cases) rows.push(await run(c));
+for (const c of cases) {
+  const results = [];
+  for (let i = 0; i < runs; i++) results.push(await run(c));
+  const passed = results.filter((r) => r[8] === "Pass").length;
+  const row = results.find((r) => r[8] !== "Pass") ?? results.at(-1);
+  row[7] = `${row[7]} | ${passed}/${runs} runs passed`;
+  row[8] = passed === runs ? "Pass" : "Fail";
+  rows.push(row);
+}
 rows.splice(4, 0, checkFailure());
 const header = [
   "Test ID",
