@@ -113,6 +113,16 @@ export function threadOf(rows: readonly AuditRow[]): ThreadRow[] {
       }
       case "handoff": {
         const handoff = handoffOf(row);
+        if (handoff.tool === "refusal") {
+          thread.push({
+            key,
+            label: "Refusal handed to the claims handler",
+            result: answered.has(row.id) ? "Decided below" : "Waiting on their decision",
+            tone: answered.has(row.id) ? "passed" : "waiting",
+            chips: [ruleName(handoff.value)],
+          });
+          break;
+        }
         thread.push({
           key,
           label:

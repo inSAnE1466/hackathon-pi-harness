@@ -40,6 +40,7 @@ export function DecisionCard({ sessionId, handoff, rows, reasons, onRecorded }: 
   const [draft, setDraft] = useState<Draft>({ step: "idle" });
   const { tool, role, sentence } = handoffOf(handoff);
   const consult = tool === "consult";
+  const refusal = tool === "refusal";
 
   const decide = async (decision: HumanDecision, note = ""): Promise<void> => {
     setDraft({ step: "sending", decision, note });
@@ -61,7 +62,11 @@ export function DecisionCard({ sessionId, handoff, rows, reasons, onRecorded }: 
     }
   };
 
-  const heading = consult ? `Question for the ${role.toLowerCase()}` : "Claims handler's decision";
+  const heading = consult
+    ? `Question for the ${role.toLowerCase()}`
+    : refusal
+      ? "Refused by BRANE: claims handler's decision"
+      : "Claims handler's decision";
   const id = `decision-${handoff.id}`;
   const sending = draft.step === "sending";
   const note = draft.step === "writing" || draft.step === "failed" ? draft.note : "";
@@ -74,6 +79,11 @@ export function DecisionCard({ sessionId, handoff, rows, reasons, onRecorded }: 
       </header>
       {consult ? (
         <p className="decision-card-question">{sentence}. The assistant waits for the answer.</p>
+      ) : refusal ? (
+        <p className="decision-card-question">
+          {sentence}. Nothing was sent to a model, and your decision is recorded only, not sent back
+          to one.
+        </p>
       ) : (
         <Recommendation
           handoff={handoff}
@@ -83,7 +93,7 @@ export function DecisionCard({ sessionId, handoff, rows, reasons, onRecorded }: 
       )}
 
       {draft.step === "recorded" ? (
-        <Recorded row={draft.row} />
+        <Recorded row={draft.row} sent={!refusal} />
       ) : consult ||
         draft.step === "writing" ||
         draft.step === "failed" ||
@@ -168,7 +178,7 @@ export function DecisionCard({ sessionId, handoff, rows, reasons, onRecorded }: 
 }
 
 /** The decision as the audit trail holds it. */
-function Recorded({ row }: { readonly row: AuditRow }) {
+function Recorded({ row, sent }: { readonly row: AuditRow; readonly sent: boolean }) {
   const decision = decisionOf(row);
   const label = decision === undefined ? row.action : DECISIONS[decision].label;
   return (
@@ -182,7 +192,11 @@ function Recorded({ row }: { readonly row: AuditRow }) {
         by {row.actor},{" "}
         {new Date(row.at).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
       </span>
-      <span className="decision-card-note">Audit row #{row.id}. Sending it to the assistant…</span>
+      <span className="decision-card-note">
+        {" "}
+        Audit row #{row.id}.
+        {sent ? " Sending it to the assistant…" : " Recorded, not sent to a model."}
+      </span>
     </p>
   );
 }

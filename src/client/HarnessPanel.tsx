@@ -5,6 +5,7 @@ import {
   type AuditRow,
   type ChainCheck,
   actionLabel,
+  classifyOf,
   actorLabel,
   DECISIONS,
   decisionOf,
@@ -309,6 +310,8 @@ const KIND_LABEL: Record<AuditRow["kind"], string> = {
   intake: "Intake (local model)",
   request: "Request",
   human: "Person",
+  cited: "Cited",
+  classify: "Classifier (local model)",
   config: "Config",
 };
 
@@ -365,6 +368,12 @@ function auditDetail(row: AuditRow): string {
       return "Pattern rules masked identifiers before BRANE. No model";
     case "lookup":
       return `Cited ${list(row.detail).join(", ")}`;
+    case "cited":
+      return `Recommendation #${row.refId} cites ${list(row.detail).join(", ")}`;
+    case "classify": {
+      const { labels, route } = classifyOf(row);
+      return `Labelled ${labels.length === 0 ? "nothing" : labels.join(", ")}, route ${route}`;
+    }
     case "handoff":
       return handoffOf(row).sentence;
     case "intake":

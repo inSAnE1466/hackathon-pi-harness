@@ -7,6 +7,7 @@ import {
   openHandoffs,
   routeOf,
   ruleName,
+  classifyOf,
 } from "./decision-log.ts";
 
 /**
@@ -62,8 +63,8 @@ export function traceOf(rows: readonly AuditRow[], running: boolean): Step[] {
   const of = (kind: AuditRow["kind"]) => oldest.filter((row) => row.kind === kind);
   const intake = of("intake");
   const masked = of("masked");
-  // The server writes no classifier rows yet; the step stays hidden until it does.
-  const classified = oldest.filter((row) => (row.kind as string) === "classifier");
+  // The second classifier's step stays hidden until the server writes `classify` rows.
+  const classified = of("classify");
   const brane = of("brane");
   const lookups = of("lookup");
   const handoffRows = of("handoff");
@@ -88,7 +89,7 @@ export function traceOf(rows: readonly AuditRow[], running: boolean): Step[] {
   push("intake", lastIntake !== undefined, intakeSummary(lastIntake?.detail ?? ""));
 
   if (classified.length > 0) {
-    const labels = unique(classified.flatMap((row) => list(row.detail)));
+    const labels = unique(classified.flatMap((row) => classifyOf(row).labels));
     push("classifier", true, `${classified.length} labelled`, labels);
   }
 
@@ -129,7 +130,7 @@ export function traceOf(rows: readonly AuditRow[], running: boolean): Step[] {
   const cited = unique(lookups.flatMap((row) => list(row.detail)));
   const toolParts = [
     lookups.length > 0 ? `lookup ${lookups.length}x` : "",
-    ...unique(handoffs.map((handoff) => handoff.tool)),
+    ...unique(handoffs.filter((h) => h.tool !== "refusal").map((handoff) => handoff.tool)),
   ].filter(Boolean);
   push("tools", toolParts.length > 0, toolParts.join(", "), cited);
 

@@ -15,6 +15,8 @@ export interface AuditRow {
     | "intake"
     | "request"
     | "human"
+    | "cited"
+    | "classify"
     | "config";
   readonly status: number;
   readonly routedTo: string;
@@ -26,7 +28,7 @@ export interface AuditRow {
   readonly refusedBy: string;
   readonly modelResolved: string;
   readonly detail: string;
-  /** Who acted: `brane`, `gate` (our pre-mask and intake, see `actorLabel`), `agent`, or a person's display name. */
+  /** Who acted: `brane`, `pre-mask` or the older `gate` (see `actorLabel`), `agent`, or a person's display name. */
   readonly actor: string;
   readonly policyVersion: string;
   /** For a `human` row, the handoff it answers. */
@@ -113,15 +115,21 @@ export function decisionsByHandoff(rows: readonly AuditRow[]): ReadonlyMap<numbe
 }
 
 /**
- * Who acted, in words. The server's actor `gate` is our own code: the pre-mask (regex, no model) for a `masked` row,
- * and the intake step, which runs BRANE's local model, for an `intake` row. BRANE is the only gate.
+ * Who acted, in words. BRANE is the only gate. The server's actor `pre-mask` (older rows: `gate`) is our own code:
+ * the pre-mask (regex, no model) for a `masked` row, the intake step, which runs BRANE's local model, for an `intake`
+ * row, and the handoff our code writes when BRANE refuses a request.
  */
 export function actorLabel(row: AuditRow): string {
   switch (row.actor) {
     case "brane":
       return "BRANE";
+    case "pre-mask":
     case "gate":
-      return row.kind === "intake" ? "Intake (local model)" : "Pre-mask (regex)";
+      return row.kind === "intake"
+        ? "Intake (local model)"
+        : row.kind === "handoff"
+          ? "BRANE refusal"
+          : "Pre-mask (regex)";
     case "agent":
       return "The assistant";
     case "":
@@ -159,6 +167,14 @@ export const list = (value: string): string[] => [
       .filter(Boolean),
   ),
 ];
+
+/** A `classify` row's detail is `<labels>:<route>`, the labels comma-separated. */
+export function classifyOf(row: AuditRow): { readonly labels: string[]; readonly route: string } {
+  const split = row.detail.lastIndexOf(":");
+  return split < 0
+    ? { labels: list(row.detail), route: "" }
+    : { labels: list(row.detail.slice(0, split)), route: row.detail.slice(split + 1) };
+}
 
 /** What BRANE did to the payload, in words. */
 export function actionLabel(row: AuditRow): string {
@@ -200,7 +216,10 @@ const RECOMMENDATIONS: Record<string, string> = {
   request_documents: "request documents",
 };
 
-/** A handoff row's detail is `tool:value`, e.g. `consult:medical` or `request_approval:reduce`. */
+/**
+ * A handoff row's detail is `tool:value`, e.g. `consult:medical`, `request_approval:reduce` or, for a request BRANE
+ * refused, `refusal:semantic:CLAIM_OUTCOME_DECISION->refuse`.
+ */
 export function handoffOf(row: AuditRow): Handoff {
   const split = row.detail.indexOf(":");
   const tool = split < 0 ? row.detail : row.detail.slice(0, split);
@@ -208,8 +227,19 @@ export function handoffOf(row: AuditRow): Handoff {
   return handoffFor(tool, value);
 }
 
-/** The wording for a `consult` (value: the expert) or `request_approval` (value: the recommendation) handoff. */
+/**
+ * The wording for a `consult` (value: the expert), `request_approval` (value: the recommendation) or `refusal`
+ * (value: the BRANE rule) handoff.
+ */
 export function handoffFor(tool: string, value: string): Handoff {
+  if (tool === "refusal") {
+    return {
+      tool,
+      value,
+      role: "Claims handler",
+      sentence: `BRANE refused a request under ${ruleName(value)}, the claims handler decides`,
+    };
+  }
   if (tool === "consult") {
     const role =
       value === "medical" ? "Medical adviser" : value === "legal" ? "Legal reviewer" : "Expert";
@@ -254,6 +284,7 @@ export function claimStatus(rows: readonly AuditRow[]): ClaimStatus {
   if (rows.length === 0) return "new";
   const open = openHandoffs(rows);
   if (open.some((row) => handoffOf(row).tool === "consult")) return "waiting";
+  if (open.some((row) => handoffOf(row).tool === "refusal")) return "refused";
   if (open.length > 0) return "prepared";
   const settled = latestApprovalDecision(rows);
   const decision = settled === undefined ? undefined : decisionOf(settled);
@@ -277,7 +308,7 @@ function latestApprovalDecision(rows: readonly AuditRow[]): AuditRow | undefined
 }
 
 /**
- * The handoffs that wait on a person, oldest first: every consult without an answer, and the newest recommendation
+ * The handoffs that wait on a person, oldest first: every consult and refusal without an answer, and the newest recommendation
  * unless a person has decided on a recommendation since it was made. The agent may restate its recommendation; one
  * decision settles every earlier one.
  */
