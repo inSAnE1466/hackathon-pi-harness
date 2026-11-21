@@ -21,6 +21,7 @@ export const HEADLINE_END = "<!-- headline:end -->";
 /** Central European Time, which is UTC+1 in November. */
 export const cet = (iso) => {
   if (!iso) return "not run";
+  if (!iso.includes("T")) return "20 Nov";
   const d = new Date(new Date(iso).getTime() + 3_600_000);
   const two = (n) => String(n).padStart(2, "0");
   return `${d.getUTCDate()} Nov ${two(d.getUTCHours())}:${two(d.getUTCMinutes())} CET`;
@@ -256,18 +257,28 @@ export function buildHeadline(history) {
   // Our routing against asking a model whether a claim is sensitive.
   const COMPARE_RUN = "evals/compare-latest.json";
   const compare = read(COMPARE_RUN);
-  if (compare?.at)
+  // A file without a run time is the run of 20 November, made before compare.mjs ran the classifier step.
+  const rerun = Boolean(compare?.at);
+  const OLD =
+    "not re-run on the complete system (run of 20 November, policy as it was then, no classifier): ";
+  if (compare?.summary)
     for (const [build, name, system] of [
-      ["harness", "the complete system", COMPLETE_SYSTEM],
+      [
+        "harness",
+        rerun ? "the complete system" : "pre-mask and BRANE with our policy",
+        rerun ? COMPLETE_SYSTEM : `${OLD}pre-mask for identifiers, then BRANE with our policy`,
+      ],
       [
         "brane",
         "BRANE with our policy alone",
-        "BRANE claims-v6.1 alone, no pre-mask, no classifier",
+        rerun
+          ? "BRANE claims-v6.1 alone, no pre-mask, no classifier"
+          : `${OLD}BRANE with our policy alone`,
       ],
       [
         "ask-llm",
         "a model asked whether each claim is sensitive",
-        "BRANE's local model asked for a label per claim",
+        `${rerun ? "" : OLD}BRANE's local model asked for a label per claim`,
       ],
     ]) {
       const s = compare.summary[build];
@@ -276,7 +287,7 @@ export function buildHeadline(history) {
         split: `${s.claims} of our 30 claims that every build judged, ${compare.runs} runs each, one request at a time`,
         system,
         run: COMPARE_RUN,
-        at: compare.at,
+        at: compare.at ?? "2026-11-20",
       };
       put(`compare_${id}_unsafe`, {
         label: `Unsafe decisions, ${name}`,
@@ -305,6 +316,26 @@ export function buildHeadline(history) {
     about:
       "The single source for every number the README, submission/README.md, docs/evals.md, docs/track.md and the video quote. Read values.<key>.value (with .of for counts and .start for the baseline before any change). scripts/numbers-check.mjs fails when a document states something else.",
     system: COMPLETE_SYSTEM,
+    // Asked for and not measured on the complete system before the deadline. No document quotes a number for the
+    // first and third; the others are labelled with the system that produced them.
+    not_rerun: [
+      ...(history.locked?.config === "s07-full-stack"
+        ? []
+        : [
+            "the locked omar-test run (stopped unfinished at 06:00 CET on 21 Nov; no result recorded)",
+          ]),
+      ...(rerun
+        ? []
+        : [
+            "evals/compare.mjs with the classifier step (stopped unfinished; the compare figures are the run of 20 Nov)",
+          ]),
+      ...(live
+        ? []
+        : [
+            "evals/security.mjs on the deployed app with the classifier on by default (not started)",
+          ]),
+      "the agent runs with and without the lookup tool (classifier off when they ran)",
+    ],
     values,
   };
 }

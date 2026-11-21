@@ -1,9 +1,15 @@
 {
   "source": "evals/climb-history.json: real runs of evals/hill.mjs against BRANE (draft policies, POST /policy/test) on Omar Shalaby's selection split omar-val, and of evals/legal.mjs on the hard legal questions. start is the baseline before the first change, end is after the last kept change.",
-  "generated": "2026-11-21T05:00:35.143Z",
+  "generated": "2026-11-21T05:01:23.721Z",
   "headline": {
     "about": "The single source for every number the README, submission/README.md, docs/evals.md, docs/track.md and the video quote. Read values.<key>.value (with .of for counts and .start for the baseline before any change). scripts/numbers-check.mjs fails when a document states something else.",
     "system": "pre-mask, BRANE claims-v6.1, second classifier (classifier-v2), stricter route wins",
+    "not_rerun": [
+      "the locked omar-test run (stopped unfinished at 06:00 CET on 21 Nov; no result recorded)",
+      "evals/compare.mjs with the classifier step (stopped unfinished; the compare figures are the run of 20 Nov)",
+      "evals/security.mjs on the deployed app with the classifier on by default (not started)",
+      "the agent runs with and without the lookup tool (classifier off when they ran)"
+    ],
     "values": {
       "leak_rate": {
         "label": "Leak rate (should stay local or be refused, reached the cloud)",
@@ -143,7 +149,7 @@
         "split": "evals/legal/dev.jsonl (54 questions)",
         "system": "the lookup tool as shipped (src/primitives/lookup-ranking.ts)",
         "run": "evals/climb-history.json (node evals/legal.mjs, no network)",
-        "at": "2026-11-21T05:00:35.143Z"
+        "at": "2026-11-21T05:01:23.721Z"
       },
       "legal_recall_unseen": {
         "label": "Legal lookup recall@3, unseen questions",
@@ -153,7 +159,7 @@
         "split": "evals/legal/heldout.jsonl (18 questions, never tuned on)",
         "system": "the lookup tool as shipped (src/primitives/lookup-ranking.ts)",
         "run": "evals/climb-history.json (node evals/legal.mjs, no network)",
-        "at": "2026-11-21T05:00:35.143Z"
+        "at": "2026-11-21T05:01:23.721Z"
       },
       "lookup_with": {
         "label": "End-to-end claims passed, agent with the lookup tool",
@@ -172,6 +178,96 @@
         "system": "the agent on http://localhost:5199, classifier off (the default when this ran; not re-measured with the classifier on)",
         "run": "evals/runs/agent-a9-tools-no-lookup.json",
         "at": "2026-11-21T03:59:34.380Z"
+      },
+      "compare_harness_unsafe": {
+        "label": "Unsafe decisions, pre-mask and BRANE with our policy",
+        "value": 0,
+        "of": 63,
+        "unit": "of",
+        "split": "21 of our 30 claims that every build judged, 3 runs each, one request at a time",
+        "system": "not re-run on the complete system (run of 20 November, policy as it was then, no classifier): pre-mask for identifiers, then BRANE with our policy",
+        "run": "evals/compare-latest.json",
+        "at": "2026-11-20"
+      },
+      "compare_harness_correct": {
+        "label": "Correct decisions, pre-mask and BRANE with our policy",
+        "value": 60,
+        "of": 63,
+        "unit": "of",
+        "split": "21 of our 30 claims that every build judged, 3 runs each, one request at a time",
+        "system": "not re-run on the complete system (run of 20 November, policy as it was then, no classifier): pre-mask for identifiers, then BRANE with our policy",
+        "run": "evals/compare-latest.json",
+        "at": "2026-11-20"
+      },
+      "compare_harness_stable": {
+        "label": "Claims decided the same on every run, pre-mask and BRANE with our policy",
+        "value": 21,
+        "of": 21,
+        "unit": "of",
+        "split": "21 of our 30 claims that every build judged, 3 runs each, one request at a time",
+        "system": "not re-run on the complete system (run of 20 November, policy as it was then, no classifier): pre-mask for identifiers, then BRANE with our policy",
+        "run": "evals/compare-latest.json",
+        "at": "2026-11-20"
+      },
+      "compare_brane_unsafe": {
+        "label": "Unsafe decisions, BRANE with our policy alone",
+        "value": 3,
+        "of": 63,
+        "unit": "of",
+        "split": "21 of our 30 claims that every build judged, 3 runs each, one request at a time",
+        "system": "not re-run on the complete system (run of 20 November, policy as it was then, no classifier): BRANE with our policy alone",
+        "run": "evals/compare-latest.json",
+        "at": "2026-11-20"
+      },
+      "compare_brane_correct": {
+        "label": "Correct decisions, BRANE with our policy alone",
+        "value": 57,
+        "of": 63,
+        "unit": "of",
+        "split": "21 of our 30 claims that every build judged, 3 runs each, one request at a time",
+        "system": "not re-run on the complete system (run of 20 November, policy as it was then, no classifier): BRANE with our policy alone",
+        "run": "evals/compare-latest.json",
+        "at": "2026-11-20"
+      },
+      "compare_brane_stable": {
+        "label": "Claims decided the same on every run, BRANE with our policy alone",
+        "value": 21,
+        "of": 21,
+        "unit": "of",
+        "split": "21 of our 30 claims that every build judged, 3 runs each, one request at a time",
+        "system": "not re-run on the complete system (run of 20 November, policy as it was then, no classifier): BRANE with our policy alone",
+        "run": "evals/compare-latest.json",
+        "at": "2026-11-20"
+      },
+      "compare_ask_llm_unsafe": {
+        "label": "Unsafe decisions, a model asked whether each claim is sensitive",
+        "value": 6,
+        "of": 63,
+        "unit": "of",
+        "split": "21 of our 30 claims that every build judged, 3 runs each, one request at a time",
+        "system": "not re-run on the complete system (run of 20 November, policy as it was then, no classifier): BRANE's local model asked for a label per claim",
+        "run": "evals/compare-latest.json",
+        "at": "2026-11-20"
+      },
+      "compare_ask_llm_correct": {
+        "label": "Correct decisions, a model asked whether each claim is sensitive",
+        "value": 49,
+        "of": 63,
+        "unit": "of",
+        "split": "21 of our 30 claims that every build judged, 3 runs each, one request at a time",
+        "system": "not re-run on the complete system (run of 20 November, policy as it was then, no classifier): BRANE's local model asked for a label per claim",
+        "run": "evals/compare-latest.json",
+        "at": "2026-11-20"
+      },
+      "compare_ask_llm_stable": {
+        "label": "Claims decided the same on every run, a model asked whether each claim is sensitive",
+        "value": 18,
+        "of": 21,
+        "unit": "of",
+        "split": "21 of our 30 claims that every build judged, 3 runs each, one request at a time",
+        "system": "not re-run on the complete system (run of 20 November, policy as it was then, no classifier): BRANE's local model asked for a label per claim",
+        "run": "evals/compare-latest.json",
+        "at": "2026-11-20"
       }
     }
   },

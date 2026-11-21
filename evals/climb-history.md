@@ -46,7 +46,8 @@ A new iteration is a new file in `evals/variants/`, a run, and one line in the t
 
 - The climb was stopped at 04:45 on 21 November with the routing stack at the pre-mask. From 05:30 the complete
   system was measured as one more routing row, `s07-full-stack`: the second classifier exactly as the app ships it
-  (`policy/classifier.json`, its counted labels), with its mandatory tests and one locked `omar-test` run. Not run,
+  (`policy/classifier.json`, its counted labels), with its mandatory tests. The locked `omar-test` run on it was started and stopped unfinished at 06:00, so there
+  is no locked result. Not run,
   so not results: the classifier variants s04 to s06, the three narrowed policy rules, the policy-first pass per
   pre-mask pattern, keywords against no keywords and the other agent switches. Their configurations are in
   `evals/variants/` and listed under `not_run` in `climb-history.json`.

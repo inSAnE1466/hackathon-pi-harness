@@ -1,6 +1,6 @@
 {
   "about": "One row per climb iteration. Scores are read from evals/runs/*.json; kept or reverted is decided by evals/history.mjs. Routing rows are scored on omar-val (Omar Shalaby's selection split, a fixed sample of 50 rows per route) with his metric definitions; the locked omar-test run is reported apart and was never used to choose.",
-  "generated": "2026-11-21T05:00:35.143Z",
+  "generated": "2026-11-21T05:01:23.721Z",
   "criteria": {
     "leak_rate": {
       "label": "Leak rate (should stay local or be refused, reached the cloud)",
