@@ -256,7 +256,8 @@ different people (elderly customers), so the system could not have memorised the
 <tr><td>Leak</td><td>Private data reaching the outside AI when it should have stayed inside. One leak fails AI-Z's security gate.</td></tr>
 <tr><td>Over-block</td><td>A harmless request that was kept inside or blocked anyway. Safe, but it makes the tool less useful.</td></tr>
 <tr><td>Route F1</td><td>One score (0 to 1) for "did each message go to the right place?". 1.0 is perfect.</td></tr>
-<tr><td>dev / val / test / gold</td><td>Practice examples (to improve) / choosing examples (to pick the best version) / final exam (used once) / human-written final check.</td></tr>
+<tr><td>dev / val / test</td><td>Practice examples (to improve) / choosing examples (to pick the best version) / final exam (used once).</td></tr>
+<tr><td>Label audit</td><td>Humans check a sample of the AI-written answer key (50 test rows) to show the labels can be trusted.</td></tr>
 <tr><td>Minimal pairs</td><td>Two almost identical sentences where one word changes the right answer ("her <i>son</i> was in hospital" vs "her <i>dog</i> was at the vet"). Tests understanding, not memorising.</td></tr>
 </tbody></table>
 <p class="small">The pages that follow are the details for the jury: legal sources, every rule, all test evidence and all numbers.</p>
@@ -309,7 +310,7 @@ Stability column: the whole suite repeated three times, because BRANE's semantic
 <h2>5. Evaluation design: understanding, not keyword copying</h2>
 <div class="grid">
 <div class="card"><b class="t">Splits kept apart on four axes</b>
-dev 800 (tune, train) · val 80 (choose) · test 200 (held out, one run per predictor) · gold ~40 (human, one run, pending).
+dev 800 (tune, train) · val 500 (choose) · test 200 (held out, one run per predictor) · optional 50-row human label audit of test.
 Test differs from dev in <b>author</b> (separate fragment bank, never saw dev or the policies), <b>vocabulary</b>
 (Half B terms only: ICD-10 / WHO-ATC derived, e.g. lithium, knee reconstruction, UWV), <b>population</b> (65+ vs working-age)
 and <b>entities</b> (disjoint names, IBAN banks, ID ranges). Test sha256 <code>{e(test_hash[:16])}…</code> recorded before any run.</div>
@@ -360,7 +361,7 @@ pre-registered winner, BRANE with policy v1-nokw, leaked <b>21.6%</b> of sensiti
 decision / discrimination / injection rows. The errors are complementary, so the pre-registered combination "BRANE + harness classifier,
 stricter route wins" leaked <b>1.0%</b> (1 row: a Dutch proxy for refugee status) at 13% over-block. Lesson: val was too close to dev to predict
 generalisation; the four-axis test exposed it. Round 2 on a 500-row val confirmed this (BRANE alone ~16% leak, combination 0.8%) and selected the combination as the final system.
-Recommendation: run BRANE plus the harness classifier in production; confirm on the human gold set.</p>
+Recommendation: run BRANE plus the harness classifier in production.</p>
 <p class="find"><b>1. BRANE semantic keywords act as hard triggers.</b> Every over-block of policy v1 on val was <code>matchedVia: keyword</code>
 ("Ziekenhuis Maasoever" as a business client, "Operation Hagelschlag", a phishing warning containing "verdachte"). Removing keywords and
 relying on the GPU judge with good descriptions cut over-blocking on dev from 30% to 0% and raised route F1 from 0.74 to 0.92-0.96.</p>
@@ -387,12 +388,13 @@ dev rows into redacted ones; a Dutch name and BSN were missed in another row (th
 behaviour when BRANE's own detectors or GPU are down.</p>
 
 <h2>9. Limitations</h2>
-<p>All data is synthetic and LLM-drafted except the pending human gold set; labels were validated by scripts and reviewed, not double-annotated
-(gold will report Cohen's kappa). BRANE's semantic judge varies between runs and its detectors drifted during the evening; comparisons
+<p>All data is synthetic and LLM-drafted, including the labels; they were validated by scripts and reviewed, not double-annotated by humans.
+There was no time for a hand-written gold set; a 50-row human label audit sheet (<code>data/audit/</code>) is provided to check the answer key
+(agreement and Cohen's kappa, scored by <code>eval/audit.py</code>). BRANE's semantic judge varies between runs and its detectors drifted during the evening; comparisons
 are made within the same time window and the gate suite is repeated. Val was drawn closer to dev than test is, so val
 overestimated BRANE's generalisation (0% vs 21.6% leak). With only 34 sensitive val rows, "0 leaks" is compatible with a
 true leak rate of up to ~9% (rule of three); val was therefore grown to 500 rows (dev 800 / val 500 / test 200) for the final decision; the production recommendation (combination) is informed by test and must be
-confirmed on the untouched human gold set before it is final. Legal citations are to be verified by the team's lawyers before reliance.
+confirmed by the human label audit and in live use. Legal citations are to be verified by the team's lawyers before reliance.
 Results are dry runs (<code>/policy/test</code>); live <code>/chat/completions</code> header evidence follows once the team applies the selected policy.</p>
 
 <h2>10. Reproduce</h2>

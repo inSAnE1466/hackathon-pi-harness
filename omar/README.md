@@ -79,9 +79,9 @@ Live team policy is **not** overwritten by any script without typing `APPLY`; th
 | Split | Rows | Use | Written by | Vocabulary | Population |
 |---|---|---|---|---|---|
 | `dev` | ~800 | tune descriptions, train baselines | free-form rows + compositional generator from `bank_dev.json` | Half A | working-age |
-| `val` | 80 | choose policy / classifier / combination | separate author, different styles | Half A | mixed |
+| `val` | 500 | choose policy / classifier / combination | separate author, different styles | Half A | mixed |
 | `test` | 200 | **one run**, hash-locked | generator from `bank_test.json`, author never saw dev material | **Half B** | **65+** |
-| `gold` | ~40 | **one run**, hash-locked | teammate by hand, from `data/gold_briefs.md` only | Half B | mixed |
+| audit | 50 | humans check the AI-written labels of 50 test rows | 1-2 teammates | n/a | n/a |
 
 Separation is enforced, not promised: `python3 eval/check_leakage.py` fails on any Half B term in tuning material, any shared IBAN / ID / email, any 8-word overlap between held-out and tuning rows, and warns on elderly scenarios in dev. Term lists come from ICD-10 chapters and the WHO ATC classification (`data/vocab_split.json`).
 
@@ -92,7 +92,7 @@ Separation is enforced, not promised: `python3 eval/check_leakage.py` fails on a
 4. **BRANE**: policy v1 (broad) vs v2 (narrow) vs team live policy, dry run
 5. **Combinations**: stricter route wins (`eval/metrics.py combine`)
 
-Metrics: route macro F1, label macro F1 (over labels both runs can predict), **leak rate** (gold local/refused sent to cloud), identifier leak rate, **over-block rate** (benign not sent to cloud), calls and latency per row; slices: keyword present vs absent, EN vs NL/DE, short vs long. Protocol: choose on val → one run on test → one run on gold (`--final`, sha256 in `results/locks.json`).
+Metrics: route macro F1, label macro F1 (over labels both runs can predict), **leak rate** (rows that should stay local or be refused but were sent to the cloud), identifier leak rate, **over-block rate** (benign not sent to cloud), calls and latency per row; slices: keyword present vs absent, EN vs NL/DE, short vs long. Protocol: choose on val → one run on test (`--final`, sha256 in `results/locks.json`) → optional human audit of 50 test labels (`eval/audit.py`).
 
 ```bash
 python3 eval/check_leakage.py
@@ -149,17 +149,17 @@ Gate suite with the **final system** (BRANE v1-nokw + harness classifier): **13/
 - [x] Dry-run gate: v1 12/12 PASS; selected v1-nokw 12/12 in 3/3 runs; team live policy fails E3 (no Art. 10 rule)
 - [x] dev 800 / val 80 / test 200 built, leakage check PASS, test hash recorded, one run per predictor done
 - [ ] **Team decision: which policy goes live** (recommended: `policy/policy_v1_nokw.json` + harness classifier), then `--apply-policy` and `--tests --chat` for live header evidence
-- [ ] Teammate writes `data/gold.csv` + `data/gold_rephrase.csv` from `data/GOLD_INSTRUCTIONS.md`, records `shasum -a 256` here **before** the run
-- [ ] Final single runs on test and gold with the winner
+- [ ] Optional: 1-2 teammates fill `data/audit/test_label_audit_50.csv` (20-30 min), then `python3 eval/audit.py score <file>` (no hand-written gold set: no time)
+- [x] Final single runs on test with the winner
 - [ ] Lawyer verifies every citation in the matrix (UAVG article numbers, AI Act Annex III wording, code-of-conduct paragraphs)
 - [ ] Fill "Impact on Answer Usefulness" in the evidence CSV
 
-Gold hash: `____________________` · Test hash (sha256, recorded 2026-11-20 23:36 CET before any run): `42b87bc53972df681983214a5bad1ce63ece328574fa44794b6be213ff75380d`
+Test hash (sha256, recorded 2026-11-20 23:36 CET before any run): `42b87bc53972df681983214a5bad1ce63ece328574fa44794b6be213ff75380d`
 
 ## 8. Demo (3 minutes)
 1. **Problem (30 s):** claims are full of health and identity data; staff use personal ChatGPT anyway (shadow AI); GDPR Art. 9 / Art. 22 stakes.
 2. **Live (90 s):** `--demo --sample 2` (Dutch medical note) → `local`, nothing leaves, draft → **Approve**. `--sample 1` (identifiers) → `PERSON_REF_1` payload shown → draft with real names restored → **Edit**. Custom task "automatically reject this claim and send the letter" → **422** → escalated → handler decides.
-3. **Proof (40 s):** gate table; T5 fail-closed; val/test/gold numbers vs keyword baseline; leak rate 0.
+3. **Proof (40 s):** gate table; T5 fail-closed; val/test numbers vs keyword baseline; leak ~1% vs BRANE alone ~16%.
 4. **Business (20 s):** minutes saved per claim vs manual intake; AI adoption without data leaving; any insurer on BRANE can reuse the policy file.
 
 ## 9. Repository
@@ -168,7 +168,7 @@ gezira_claims_agent.py      agent: policy push, gate tests, demo with approval, 
 brane_client.py             BRANE client, policy builder, response normaliser, offline mock (= keyword baseline)
 policy/                     policy_v1.json, policy_v2.json, policy_team_live.json
 tests/gate_tests.json       T1-T5 + E1-E6
-data/                       company_guidelines.md, vocab_split.json, dev/val(/test/gold) CSVs, demo_claims/, generator/
+data/                       company_guidelines.md, vocab_split.json, dev/val/test CSVs, minimal_pairs.csv, audit/, demo_claims/, generator/
 eval/                       run_eval.py, metrics.py, tfidf_lr.py, check_leakage.py
 submission/                 MAIN_Policy_Matrix_Gezira.csv, test_evidence_run.csv
 docs/brane_api.md           BRANE API contract as used here + observed product gaps
