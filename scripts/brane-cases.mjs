@@ -139,12 +139,15 @@ async function run([id, scenario, expected, prompt, pass, listed]) {
     redacted: h["X-Brane-Redacted"],
     payloadClean: leaked.length === 0,
   };
-  const ok = pass(d) && d.payloadClean;
+  // A cloud answer with no detection on a prompt that holds protected values is a blank BRANE answer: a failure.
+  const blank = d.route === "cloud" && checked.length > 0 && !h["X-Brane-Pii-Types"];
+  const ok = pass(d) && d.payloadClean && !blank;
   const detail = [
     h["X-Brane-Pii-Types"],
     h["X-Brane-Semantic-Matches"],
     h["X-Brane-Local-Cause"],
     h["X-Brane-Refused-By"],
+    h["X-Brane-Policy-Triggers"] && `Triggers: ${h["X-Brane-Policy-Triggers"]}`,
   ]
     .filter(Boolean)
     .join(" | ");
@@ -170,9 +173,9 @@ async function run([id, scenario, expected, prompt, pass, listed]) {
     impact,
     answerText && `Answer${model ? ` (${model})` : ""}: ${answerText}`,
     d.route === "cloud" && checked.length
-      ? leaked.length
-        ? `LEAKED ${leaked.join(", ")}`
-        : `Payload check: none of the ${checked.length} protected values in the prompt is in the cloud payload`
+      ? leaked.length || blank
+        ? `${blank ? "BRANE detected nothing. " : ""}${leaked.length ? `LEAKED ${leaked.join(", ")}` : ""}`
+        : `Payload check: none of the ${checked.length} protected values in the prompt is in the cloud payload. The harness's pre-mask (src/primitives/detect.ts) replaces names, street addresses, email, phone, IBAN and identifiers before BRANE sees the text, so they stay out even when BRANE detects nothing (test/detect.test.ts)`
       : "",
   ]
     .filter(Boolean)
