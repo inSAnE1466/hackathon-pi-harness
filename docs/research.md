@@ -167,7 +167,7 @@ Yes. Triage method: [claude-for-legal privacy use-case triage](https://github.co
   (art. 5.1.2).
 - What the DPIA must cover for this system: the health-data split between local and cloud models, the human
   decision point and automation bias, BRANE detection gaps found in testing
-  ([decisions](decisions.md)), and retention of the audit log.
+  ([decision log](../evals/decision-log.md)), and retention of the audit log.
 
 ## 8. What must never happen
 

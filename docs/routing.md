@@ -70,7 +70,7 @@ is not named there; the legal team decides whether our system falls under it and
 
 Each claim runs in its own Pi conversation with no shared memory. Comparing one claimant's records with another's
 is `block`. A claimant's own earlier claims are reachable only through a fraud check that a human approves. This
-closes the linkage failures L1, L2 and L5 ([failure modes](failure-modes.md#linkage-records-combined-that-must-stay-apart)).
+closes the linkage failures: records of different claimants combined in one request.
 
 ## Labels and tiers
 

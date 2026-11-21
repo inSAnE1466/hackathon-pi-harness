@@ -72,11 +72,11 @@ node --experimental-strip-types evals/security.mjs http://localhost:5197 --mode 
 | Bypass attempt         | injected instructions in documents, rephrased user requests, role-play, encoding, multilingual (German, Dutch) | 40            |
 | Check failure          | BRANE down, timeout, 5xx, malformed verdict, verdict missing a field                                           | 10            |
 
-Bypass gets the most cases because it is the test teams fail. [Failure modes](failure-modes.md) lists every
-case family, including cross-record linkage (L1 to L6), which the brief's five tests do not name but the
-"protected data" and "bypass" tests cover.
+Bypass gets the most cases because it is the test teams fail. The case families include cross-record linkage, which
+the brief's five tests do not name but the "protected data" and "bypass" tests cover.
 
-The same suite runs against a prompt-and-curl baseline ([baseline](baseline.md)) so every number has a comparison.
+`node evals/compare.mjs` runs the golden set against a baseline that asks an LLM "is this sensitive?", so every
+number has a comparison. Its latest result is `evals/compare-latest.json`.
 
 ## The headline
 
@@ -91,7 +91,7 @@ One number for the jury: **impermissible transfers per 100 synthetic claims**, f
 Beside it, **route stability**: the share of claims that route identically on three reruns. Ours should be 100%;
 the ask-the-LLM build is where reruns disagree.
 
-The organizers' T1 to T5 and our E1 to E5 run with `node scripts/brane-cases.mjs` ([run](run.md#the-organizers-tests)).
+The organizers' T1 to T5 and our E1 to E5 run with `node scripts/brane-cases.mjs` ([README](../README.md#evals)).
 
 ## Data sources
 
